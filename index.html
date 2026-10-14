@@ -618,8 +618,9 @@ function fitCalc(){
 // 不只依賴 iframe 內的 resize 事件，某些情況下它不會觸發
 {
   let t = null;
-  new ResizeObserver(()=>{ clearTimeout(t); t = setTimeout(()=>{ calcZ = null; fitCalc(); }, 120); })
-    .observe(document.getElementById('pane-calc'));
+  const refit = ()=>{ clearTimeout(t); t = setTimeout(()=>{ calcZ = null; fitCalc(); }, 120); };
+  new ResizeObserver(refit).observe(document.getElementById('pane-calc'));
+  window.addEventListener('resize', refit);
 }
 
 function guardCalc(){
