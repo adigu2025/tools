@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>木子澄安診所</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* 配色：暖白底、墨色文字、陶土色點綴。狀態色（綠／橘／紅）留給各工具的判讀結果使用，介面本身不搶色。 */
+:root{
+  --bg:#F5F4EE; --surface:#FFFFFF; --surface-alt:#FAF9F5; --sunken:#EFEDE6;
+  --line:#E6E3DA; --line-strong:#D6D2C6;
+  --ink:#1F1E1D; --ink-2:#3A3935; --muted:#6F6B63; --faint:#9C978C;
+  --clay:#C96442; --clay-dark:#A9502F; --clay-soft:#F6EBE4;
+  --serif:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06);
+  --bar-h:80px; --foot-h:30px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:var(--sans);
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;}
+button{font:inherit; cursor:pointer; color:inherit;}
+:focus-visible{outline:2px solid var(--clay); outline-offset:2px; border-radius:8px;}
+
+/* ── 頂端列 ── */
+.hub-bar{height:var(--bar-h); display:flex; align-items:center; gap:18px; padding:0 22px;
+  background:var(--surface-alt); border-bottom:1px solid var(--line);}
+.qr-btn{width:52px; height:52px; padding:4px; border:1px solid var(--line); border-radius:12px; background:#fff; flex:none;}
+.qr-btn:hover{border-color:var(--line-strong);}
+.qr-btn img{width:100%; height:100%; display:block;}
+.hub-brand{white-space:nowrap; font-family:var(--serif); font-size:28px; font-weight:700; letter-spacing:.1em;
+  line-height:1; margin:0 6px 0 2px;}
+.hub-tabs{display:flex; gap:2px; background:var(--sunken); padding:4px; border-radius:14px;}
+.hub-tab{border:0; background:transparent; color:var(--muted); padding:9px 20px; border-radius:10px;
+  font-size:16.5px; font-weight:500; white-space:nowrap;}
+.hub-tab:hover{color:var(--ink);}
+.hub-tab[aria-selected="true"]{background:var(--surface); color:var(--ink); font-weight:700;
+  box-shadow:0 1px 2px rgba(31,30,29,.08), 0 2px 8px rgba(31,30,29,.06);}
+.hub-tab kbd{font:inherit; font-size:11px; color:var(--faint); margin-left:7px; font-weight:400;}
+.hub-chips{display:flex; gap:8px; flex:1; min-width:0; overflow:hidden; justify-content:flex-end;}
+.chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 14px;
+  font-size:15px; white-space:nowrap; color:var(--ink-2);}
+.chip:hover{border-color:var(--line-strong);}
+.chip .k{color:var(--muted); font-size:13px; margin-right:6px;}
+.chip b{font-size:17px; font-weight:700; color:var(--ink);}
+.chip[hidden]{display:none;}
+.chip .save{margin-left:10px; font-size:12.5px; padding:2px 8px; border-radius:999px; background:var(--clay-soft); color:var(--clay-dark);}
+.chip .save.ok{background:#E9F2EA; color:#2F6B3F;}
+.hub-actions{display:flex; gap:10px;}
+.btn{border:1px solid var(--line-strong); background:var(--surface); border-radius:10px; padding:9px 16px;
+  font-size:15px; white-space:nowrap; color:var(--ink);}
+.btn:hover{background:var(--sunken);}
+.btn[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff;}
+.btn.clear{border-color:var(--clay); color:var(--clay-dark); font-weight:700;}
+.btn.clear:hover{background:var(--clay); color:#fff;}
+.btn[hidden]{display:none;}
+
+/* ── 主區：四個面板疊在同一格，只切換可見度。
+   用 visibility 而非 display:none，隱藏中的工具仍保有版面，背景列印與匯出 PDF 才不會出錯。 ── */
+.hub-main{position:relative; height:calc(100dvh - var(--bar-h) - var(--foot-h)); display:grid;
+  grid-template-columns:1fr; grid-template-areas:"main";}
+.pane{grid-area:main; min-height:0; min-width:0; visibility:hidden; pointer-events:none;}
+.pane iframe{width:100%; height:100%; border:0; display:block; background:var(--bg);}
+.hub-main[data-view="calc"]   #pane-calc,
+.hub-main[data-view="weight"] #pane-weight,
+.hub-main[data-view="edu"]    #pane-edu,
+.hub-main[data-view="print"]  #pane-print{visibility:visible; pointer-events:auto;}
+@media (min-width:1100px){
+  .hub-main[data-view="edu"][data-split="1"]{grid-template-columns:1fr 460px; grid-template-areas:"main side";}
+  .hub-main[data-view="edu"][data-split="1"] #pane-calc{visibility:visible; pointer-events:auto; grid-area:side;
+    border-left:1px solid var(--line);}
+}
+@media (max-width:1099px){ #btn-split{display:none;} }
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);}
+.sec-title{font-size:13px; letter-spacing:.14em; color:var(--faint); font-weight:600; margin:8px 12px 10px;}
+
+/* ── 衛教圖卡：圖片盡量放大，病人坐在對面也看得清楚 ── */
+#pane-edu{display:grid; grid-template-columns:260px 1fr; gap:18px; padding:18px; height:100%;}
+.edu-rail{overflow:auto; padding:12px 10px;}
+.edu-item{position:relative; display:flex; gap:10px; align-items:center; width:100%; text-align:left; border:0;
+  background:transparent; padding:11px 12px; border-radius:10px; color:var(--ink-2); font-size:16.5px; line-height:1.4;}
+.edu-item:hover{background:var(--sunken);}
+.edu-item[aria-current="true"]{background:var(--sunken); color:var(--ink); font-weight:700;}
+.edu-item[aria-current="true"]::before{content:""; position:absolute; left:0; top:10px; bottom:10px; width:3px;
+  border-radius:3px; background:var(--clay);}
+.edu-item .ico{width:20px; flex:none; display:inline-flex; justify-content:center; color:var(--muted);}
+.edu-item[aria-current="true"] .ico{color:var(--clay);}
+.edu-stage{display:grid; grid-template-rows:auto 1fr; min-height:0; min-width:0; overflow:hidden;}
+.edu-tools{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
+.edu-tools h1{font-family:var(--serif); font-size:24px; font-weight:700; margin:0 0 0 4px; letter-spacing:.03em;}
+.edu-count{font-size:14px; color:var(--faint); margin-right:auto; font-variant-numeric:tabular-nums;}
+.tbtn{border:1px solid var(--line-strong); background:var(--surface); border-radius:10px; padding:8px 15px; font-size:15px; color:var(--ink);}
+.tbtn:hover{background:var(--sunken);}
+.tbtn.pri{background:var(--ink); border-color:var(--ink); color:#fff;}
+.tbtn.pri:hover{background:var(--ink-2);}
+/* 按鈕群組：上下張、縮放、檢視模式各成一組 */
+.grp{display:inline-flex; align-items:stretch; border:1px solid var(--line-strong); border-radius:10px; overflow:hidden; background:var(--surface);}
+.grp > *{border:0; border-left:1px solid var(--line); background:transparent; padding:8px 13px; font-size:15px; min-width:42px;
+  display:inline-flex; align-items:center; justify-content:center;}
+.grp > *:first-child{border-left:0;}
+.grp button:hover{background:var(--sunken);}
+.grp button[aria-pressed="true"]{background:var(--ink); color:#fff;}
+.grp .nav{font-size:20px; line-height:1; padding:6px 14px;}
+.zoom-val{min-width:96px; font-size:14.5px; color:var(--ink-2); font-variant-numeric:tabular-nums; cursor:default;}
+.edu-view{position:relative; overflow:auto; min-height:0; background:var(--sunken); display:flex; padding:16px;}
+.edu-view img{margin:auto; flex:none; display:block; height:auto; background:#fff; border-radius:3px;
+  box-shadow:0 2px 6px rgba(31,30,29,.08), 0 12px 32px rgba(31,30,29,.10);
+  user-select:none; -webkit-user-drag:none;}
+.edu-view.pannable{cursor:grab;}
+.edu-view.panning{cursor:grabbing;}
+.edu-view .msg{margin:auto; color:var(--muted);}
+
+/* 最大化：與減重系統相同，用頁面內最大化，不呼叫瀏覽器全螢幕（那會跳出無法關閉的系統提示）。
+   要連瀏覽器網址列都隱藏，再按 F11。 */
+body.edu-max .hub-bar, body.edu-max .hub-foot, body.edu-max .edu-rail{display:none;}
+body.edu-max .hub-main{height:100dvh; grid-template-columns:1fr !important; grid-template-areas:"main" !important;}
+body.edu-max #pane-calc{visibility:hidden !important;}
+body.edu-max #pane-edu{grid-template-columns:1fr; padding:0; gap:0;}
+body.edu-max .edu-stage{border:0; border-radius:0; box-shadow:none;}
+body.edu-max .edu-view{background:#fff;}
+body.edu-max .edu-view img{box-shadow:none;}
+
+/* ── 列印表單 ── */
+#pane-print{overflow:auto; padding:18px;}
+.print-wrap{max-width:1200px; margin:0 auto;}
+.print-head{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; padding:10px 4px 18px;}
+.print-head h1{font-family:var(--serif); font-size:26px; margin:0; letter-spacing:.03em;}
+.print-head p{margin:0; color:var(--muted); font-size:15px;}
+.print-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px;}
+.ptile{display:flex; flex-direction:column; overflow:hidden;}
+.ptile .thumb{aspect-ratio:210/297; background:var(--sunken); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; overflow:hidden;}
+.ptile .thumb img{width:100%; height:100%; object-fit:cover; object-position:top;}
+.ptile .thumb .ico{font-size:64px; color:var(--faint);}
+.ptile .body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:10px; flex:1;}
+.ptile h3{margin:0; font-size:18px; line-height:1.4;}
+.ptile .note{font-size:14px; color:var(--muted); margin-top:-6px;}
+.ptile .acts{margin-top:auto;}
+.ptile .acts .tbtn{width:100%; padding:10px 15px; font-size:16px;}
+
+.hub-foot{height:var(--foot-h); display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 22px;
+  font-size:13px; color:var(--faint); background:var(--surface-alt); border-top:1px solid var(--line); white-space:nowrap; overflow:hidden;}
+.app-revision{font-size:12.5px; color:var(--muted); opacity:.75;}
+.toast{position:fixed; left:50%; bottom:50px; transform:translateX(-50%); background:var(--ink); color:#fff;
+  padding:12px 20px; border-radius:12px; font-size:15px; z-index:50; box-shadow:0 8px 28px rgba(0,0,0,.2);}
+
+/* QR 放大：hidden 屬性要能蓋過 display:flex，所以只在沒有 hidden 時才設 flex */
+.qr-overlay{position:fixed; inset:0; background:rgba(31,30,29,.55); z-index:60; align-items:center; justify-content:center;}
+.qr-overlay:not([hidden]){display:flex;}
+.qr-modal{background:#fff; border-radius:20px; padding:26px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.qr-modal img{width:min(70vw,380px); display:block;}
+.qr-modal p{margin:14px 0 0; font-family:var(--serif); font-size:19px; font-weight:700;}
+
+/* 清除確認視窗 */
+.modal{position:fixed; inset:0; background:rgba(31,30,29,.45); z-index:70; align-items:center; justify-content:center; padding:16px;}
+.modal:not([hidden]){display:flex;}
+.modal-card{background:var(--surface); border-radius:18px; padding:26px 28px 22px; width:min(440px,100%);
+  box-shadow:0 20px 60px rgba(0,0,0,.22);}
+.modal-card h2{font-family:var(--serif); font-size:22px; margin:0 0 10px;}
+.modal-card p{margin:0 0 8px; font-size:16px; color:var(--ink-2);}
+.modal-card p.sub{font-size:14.5px; color:var(--muted);}
+.modal-acts{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}
+.modal-acts .tbtn{padding:10px 20px; font-size:16px;}
+.tbtn.danger{background:var(--clay); border-color:var(--clay); color:#fff; font-weight:700;}
+.tbtn.danger:hover{background:var(--clay-dark);}
+
+@media (max-width:1320px){
+  #pane-edu{grid-template-columns:210px 1fr; gap:14px; padding:14px;}
+  .edu-tools h1{font-size:21px;}
+  .grp > *{padding:7px 10px;}
+  .zoom-val{min-width:84px;}
+  .hub-tab kbd{display:none;}
+  .hub-tab{padding:9px 15px;}
+}
+@media (max-width:1100px){
+  .hub-brand{font-size:24px; letter-spacing:.06em;}
+  .chip .k{display:none;}
+}
+/* ── 窄螢幕 ── */
+@media (max-width:860px){
+  :root{--bar-h:auto;}
+  .hub-bar{flex-wrap:wrap; padding:10px 16px; gap:10px;}
+  .hub-tabs{order:4; flex-basis:100%; overflow-x:auto;}
+  .hub-tab{flex:1;}
+  .hub-chips{order:5; flex-basis:100%; justify-content:flex-start;}
+  .hub-main{height:calc(100dvh - 190px);}
+  #pane-edu{grid-template-columns:1fr; grid-template-rows:auto 1fr; padding:10px; gap:10px;}
+  .edu-rail{display:flex; overflow-x:auto; padding:6px;}
+  .edu-rail .sec-title{display:none;}
+  .edu-item{white-space:nowrap; width:auto;}
+  .edu-item[aria-current="true"]::before{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="hub-bar">
+  <button class="qr-btn" id="qr-btn" title="LINE 官方帳號 QR Code（點按放大）"><img id="qr-img" alt="LINE QR Code"></button>
+  <div class="hub-brand">木子澄安診所</div>
+  <nav class="hub-tabs" role="tablist" aria-label="切換工具">
+    <button class="hub-tab" role="tab" data-view="calc"   aria-selected="true">臨床計算<kbd>Alt+1</kbd></button>
+    <button class="hub-tab" role="tab" data-view="weight" aria-selected="false">減重報告<kbd>Alt+2</kbd></button>
+    <button class="hub-tab" role="tab" data-view="edu"    aria-selected="false">衛教圖卡<kbd>Alt+3</kbd></button>
+    <button class="hub-tab" role="tab" data-view="print"  aria-selected="false">列印表單<kbd>Alt+4</kbd></button>
+  </nav>
+  <div class="hub-chips" aria-live="polite">
+    <button class="chip" id="chip-calc" data-go="calc" hidden></button>
+    <button class="chip" id="chip-weight" data-go="weight" hidden></button>
+  </div>
+  <div class="hub-actions">
+    <button class="btn" id="btn-report-home" hidden>報告目錄</button>
+    <button class="btn" id="btn-split" aria-pressed="false" hidden title="衛教旁邊同時顯示臨床計算">並排計算</button>
+    <button class="btn clear" id="btn-clear" title="換下一位病人時使用">全部清除</button>
+  </div>
+</header>
+
+<main class="hub-main" id="hub-main" data-view="calc" data-split="0">
+  <section class="pane" id="pane-calc"></section>
+  <section class="pane" id="pane-weight"></section>
+
+  <section class="pane" id="pane-edu">
+    <nav class="edu-rail card" id="edu-rail" aria-label="衛教主題"></nav>
+    <div class="edu-stage card">
+      <div class="edu-tools">
+        <h1 id="edu-title">衛教圖卡</h1>
+        <span class="edu-count" id="edu-count"></span>
+        <div class="grp">
+          <button class="nav" id="edu-prev" title="上一張（←）" aria-label="上一張">‹</button>
+          <button class="nav" id="edu-next" title="下一張（→）" aria-label="下一張">›</button>
+        </div>
+        <div class="grp">
+          <button id="zoom-out" title="縮小（－ 鍵）" aria-label="縮小">－</button>
+          <span class="zoom-val" id="zoom-val" aria-live="polite">整頁</span>
+          <button id="zoom-in" title="放大（＋ 鍵）" aria-label="放大">＋</button>
+        </div>
+        <div class="grp">
+          <button id="zoom-fit" title="整張圖放進畫面（0 鍵）" aria-pressed="true">整頁</button>
+          <button id="zoom-width" title="圖片寬度填滿畫面（W 鍵）" aria-pressed="false">寬度</button>
+        </div>
+        <button class="tbtn" id="edu-max" title="最大化（F 鍵，ESC 結束）">最大化</button>
+        <button class="tbtn pri" id="edu-print">列印</button>
+      </div>
+      <div class="edu-view" id="edu-view" tabindex="-1"><div class="msg">載入中……</div></div>
+    </div>
+  </section>
+
+  <section class="pane" id="pane-print">
+    <div class="print-wrap">
+      <div class="print-head">
+        <h1>列印表單</h1>
+        <p>全部以 A4 列印。</p>
+      </div>
+      <div class="print-grid" id="print-grid"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="hub-foot">
+  <div class="app-revision" id="app-revision"></div>
+  <div id="foot-hint"></div>
+</footer>
+
+<div class="modal" id="clear-modal" role="dialog" aria-modal="true" aria-labelledby="cm-title" hidden>
+  <div class="modal-card">
+    <h2 id="cm-title">清除這位病人的資料？</h2>
+    <p>「臨床計算」與「減重報告」畫面上的輸入與結果會全部清空。</p>
+    <p class="sub">減重報告裡已按「儲存」的病人紀錄不受影響。</p>
+    <div class="modal-acts">
+      <button class="tbtn" id="cm-cancel">取消</button>
+      <button class="tbtn danger" id="cm-ok">全部清除</button>
+    </div>
+  </div>
+</div>
+
+<div class="qr-overlay" id="qr-overlay" role="dialog" aria-modal="true" aria-label="LINE 官方帳號 QR Code" hidden>
+  <div class="qr-modal"><img id="qr-big" alt="木子澄安診所 LINE 官方帳號 QR Code"><p>掃描加入木子澄安診所 LINE</p></div>
+</div>
+
+<script>
+const APP_REVISION = '2026-10-14';
+
+/* 兩個既有工具以原網址嵌入，原始碼不做任何修改；外觀統一靠載入後注入的樣式。
+   部署在 adigu2025.github.io 底下時三者同網域，外殼才能注入樣式、讀取結果、執行清除。
+   以 file:// 開啟時改嵌入線上版，只剩分頁切換與保留結果。 */
+const IS_FILE = location.protocol === 'file:';
+const BASE = IS_FILE ? 'https://adigu2025.github.io/' : '../';
+const TOOLS = {
+  calc:   { url: BASE + 'muzi-calc/', title:'臨床計算' },
+  weight: { url: BASE + 'weight/',    title:'減重報告' }
+};
+// 清除時只刪「目前填寫中」的暫存，減重系統已儲存的紀錄（obesity_records_v1）不動。
+const CLEAR_KEYS = {
+  calc:   [['session','muzi-calc-state']],
+  weight: [['local','obesity_draft_v1']]
+};
+
+/* 注入各工具的樣式：拿掉各自的頁首（改由工作台頂端列統一），色票換成工作台這一套。
+   只改畫面；減重系統列印報告時只複製它自己原本的樣式，紙本輸出維持原樣。
+   選擇器對應兩個工具目前的 class，日後工具改版若改名，最差只是外觀回到原樣，功能不受影響。 */
+const SANS = `-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif`;
+const SKIN = {
+  calc: `
+    :root{
+      --teal:#1F1E1D !important; --teal-dark:#1F1E1D !important; --teal-soft:#EFEDE6 !important;
+      --gold:#C96442 !important; --gold-soft:#F6EBE4 !important; --navy:#1F1E1D !important;
+      --bg:#F5F4EE !important; --surface-alt:#FAF9F5 !important; --line:#E6E3DA !important;
+      --text:#1F1E1D !important; --muted:#6F6B63 !important; --faint:#9C978C !important;
+      --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06) !important;
+      --ring:0 0 0 3px rgba(201,100,66,.22) !important;
+    }
+    body{font-family:${SANS} !important; padding-top:18px !important; background-image:none !important;}
+    .card{border:1px solid #E6E3DA !important; border-radius:16px !important;}
+    .header,.app-revision{display:none !important;}
+    /* 滿版：卡片撐滿工作台寬度。放大倍率由工作台依畫面高度自動計算（fitCalc），
+       讓每個工具一屏放得下；頁尾的免責聲明改顯示在工作台底列。 */
+    body{padding:12px 16px !important; min-height:0 !important;}
+    @media (max-width:700px){ body{padding:10px !important;} }
+    .card{max-width:none !important;}
+    .footer{display:none !important;}
+    .body{min-height:0 !important; padding:16px 24px 18px !important;}
+    .tabs-wrap{background:rgba(250,249,245,.95) !important;}
+    /* 分類與工具分頁排成同一列，省下一整列高度 */
+    @media (min-width:1100px){
+      .tabs-wrap{display:flex !important; flex-wrap:wrap; align-items:center;}
+      .group-bar{flex:none; padding:8px 8px 0 20px !important; align-self:stretch; align-items:center;}
+      .group-btn{padding:6px 2px 7px !important;}
+      .tabs{flex:1 1 auto; padding:9px 20px 9px 8px !important; border-left:1px solid #E6E3DA;}
+      .staff-toggle{order:9;}
+      .staff-notice{flex-basis:100%; margin:0 !important;}
+    }
+    /* 收緊垂直間距 */
+    .panel-head{margin-bottom:14px !important; padding-bottom:8px !important;}
+    .formula{margin-bottom:14px !important; line-height:1.65 !important; padding:10px 14px !important;}
+    .grid-2,.grid-4{margin-bottom:14px !important; gap:14px !important;}
+    .empty-hint{padding-top:22px !important; padding-bottom:22px !important;}
+    .stat-grid,.section-box{margin-bottom:14px !important;}
+    .section-box{padding:12px 14px !important;}
+    .notes{line-height:1.7 !important;}
+    .ref-table td{padding:7px 12px !important;}
+    /* BMR／TDEE：結果區自己再分兩欄，衛教卡片排成一列 */
+    @media (min-width:1100px){
+      /* BMI：輸入在左上，BMI 數值與色條在右上，標準體重與目標體重並排在下方 */
+      #panel-bmi.hub-split.active{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+        grid-template-areas:"head head" "in disp" "in bar" "ideal target"; row-gap:12px; align-items:start;}
+      #panel-bmi > .panel-head{grid-area:head;}
+      #panel-bmi > .hub-in{grid-area:in;}
+      #panel-bmi > .hub-out{display:contents;}
+      #panel-bmi #bmi-hint{grid-column:2; grid-row:2 / 4; margin:0 !important;}
+      #bmi-result:not([style*="none"]){display:contents !important;}
+      #bmi-result > *{margin:0 !important;}
+      #bmi-result > .bmi-display{grid-area:disp;}
+      #bmi-result > .bar-wrap{grid-area:bar;}
+      #bmi-result > .ideal-box{grid-area:ideal; align-self:stretch;}
+      #bmi-result > .target-box{grid-area:target; align-self:stretch;}
+      /* 輸入｜（三個數值／減重時程與營養素並排）｜衛教重點 */
+      #panel-tdee.hub-split.active{grid-template-columns:minmax(0,.7fr) minmax(0,2.6fr) !important; column-gap:24px !important;}
+      #tdee-result:not([style*="none"]){display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);
+        column-gap:14px; align-items:start;}
+      #tdee-result > .stat-grid{grid-column:1 / 3; grid-row:1;}
+      #tdee-result > .section-box:nth-of-type(2){grid-column:1; grid-row:2;}
+      #tdee-result > .section-box:nth-of-type(3){grid-column:2; grid-row:2;}
+      #tdee-result > .edu-wrap{grid-column:3; grid-row:1 / span 3;}
+      #tdee-result .mini-grid-4{grid-template-columns:repeat(2,1fr) !important;}
+      /* 尚未計算時先保留時程與營養素的高度，預估倍率才準 */
+      #tdee-timeline:empty{min-height:var(--hub-tl, 200px);}
+      #tdee-macros:empty{min-height:var(--hub-mac, 95px);}
+      #tdee-result .edu-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important; padding:10px 12px !important; gap:10px !important;}
+      #tdee-result .edu-card{display:grid !important; grid-template-columns:auto 1fr; column-gap:8px; align-items:center;
+        padding:9px 11px !important;}
+      #tdee-result .edu-icon{margin:0 !important; font-size:18px !important;}
+      #tdee-result .edu-text{grid-column:1 / -1; line-height:1.55 !important;}
+      #tdee-result .stat{padding:10px 8px !important;}
+      #tdee-result .notes{margin-top:6px !important;}
+      /* 量表與勾選題：選項排成兩欄，高度減半，字才能放大 */
+      .check-list,.opt-list,.swatch-list{display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px !important;}
+      .check-list > *,.opt-list > *,.swatch-list > *{margin:0 !important;}
+      /* 自我評估類：「已完成的評估」移到右側窄欄，不再佔用下方高度 */
+      main.body:has(> #summary-zone:not([hidden])){display:grid; grid-template-columns:minmax(0,1fr) 290px;
+        column-gap:28px; align-items:start;}
+      main.body:has(> #summary-zone:not([hidden])) > .tool-panel{grid-column:1; grid-row:1;}
+      main.body > #summary-zone:not([hidden]){grid-column:2; grid-row:1; margin-top:0 !important;
+        position:sticky; top:var(--hub-sticky, 140px);}
+    }
+    /* 原本偏小的字（欄位名稱、單位、英文副標）放大一級 */
+    .field-head label{font-size:14.5px !important;}
+    .field-unit{font-size:12.5px !important;}
+    .field-err{font-size:13px !important;}
+    .panel-title small{font-size:12.5px !important;}
+    .tab .tab-en{font-size:11px !important;}
+    .group-btn{font-size:15px !important;}
+    @media (min-width:1100px){
+      .tool-panel.hub-split.active{display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+        column-gap:36px; align-items:start;}
+      .tool-panel.hub-split > .panel-head{grid-column:1 / -1;}
+      .hub-out{position:sticky; top:var(--hub-sticky, 140px);}
+      .hub-out > :first-child{margin-top:0 !important;}
+      .hub-in .grid-4{grid-template-columns:repeat(2,1fr) !important;}
+    }
+  `,
+  weight: `
+    :root{
+      --primary:#1F1E1D !important; --primary-dark:#1F1E1D !important; --primary-pale:#EFEDE6 !important;
+      --navy:#1F1E1D !important; --teal:#3A3935 !important; --teal-pale:#EFEDE6 !important;
+      --bg:#F5F4EE !important; --border:#E6E3DA !important; --text:#1F1E1D !important; --muted:#6F6B63 !important;
+      --shadow-sm:0 1px 2px rgba(31,30,29,.04) !important;
+      --shadow-md:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06) !important;
+      --shadow-lg:0 2px 4px rgba(31,30,29,.05), 0 12px 32px rgba(31,30,29,.09) !important;
+      --radius:16px !important;
+    }
+    body{font-family:${SANS} !important;}
+    .banner,#screen-home,.app-revision{display:none !important;}
+    main{padding-top:22px !important;}
+    #screen-workflow-hub .hero{padding-top:6px !important;}
+    #screen-workflow-hub .hero-eyebrow{color:#C96442 !important;}
+    .cat-card{border-width:1px !important;}
+    .cat-card:hover,.cat-card.key-sel{border-color:#C96442 !important;}
+    .cat-card.key-sel{box-shadow:0 0 0 3px rgba(201,100,66,.18) !important;}
+    .cat-icon{background:#F5F4EE !important; border:1px solid #E6E3DA !important; color:#1F1E1D;}
+    .cat-card:hover .cat-icon{background:#F6EBE4 !important; border-color:#E9C9BA !important; color:#A9502F;}
+    .cat-label{font-size:17px !important;}
+    .cat-desc{font-size:14px !important;}
+  `
+};
+
+/* 衛教圖卡順序：工作台裡把「瘦瘦針注射與保存」接在「藥物選擇」後面 */
+const EDU_AFTER = [['瘦瘦針注射與保存', '藥物選擇']];
+
+const main = document.getElementById('hub-main');
+const frames = {};
+const revs = {};
+
+function makeFrame(key){
+  const f = document.createElement('iframe');
+  f.title = TOOLS[key].title;
+  f.src = TOOLS[key].url;
+  f.addEventListener('load', ()=> hookFrame(key, f));
+  document.getElementById('pane-' + key).appendChild(f);
+  frames[key] = f;
+}
+
+/* ── 分頁切換 ── */
+function setView(v){
+  main.dataset.view = v;
+  document.querySelectorAll('.hub-tab').forEach(b=> b.setAttribute('aria-selected', String(b.dataset.view === v)));
+  document.getElementById('btn-split').hidden = (v !== 'edu');
+  document.getElementById('btn-report-home').hidden = (v !== 'weight');
+  document.getElementById('foot-hint').textContent = FOOT_HINT[v] || FOOT_HINT.calc;
+  if(v === 'edu'){
+    document.getElementById('edu-view').focus({preventScroll:true});
+    setTimeout(applyZoom, 0);
+  }
+  // 頁面重新整理後回到同一個分頁
+  store('hub-view', v);
+  // 切換分頁時把焦點留在工作台，方向鍵與快捷鍵才不會被隱藏中的工具吃掉
+  if(document.activeElement && document.activeElement.tagName === 'IFRAME') document.activeElement.blur();
+}
+const FOOT_HINT = {
+  calc:   '以上結果僅供臨床參考，實際診斷與治療須由醫師綜合判斷。數值只在本機計算，不會上傳。',
+  weight: '減重報告會自動暫存草稿；按「報告目錄」回到十個分項。',
+  edu:    '← → 換張　＋ － 縮放　0 整頁　W 寬度　F 最大化　放大後可按住圖片拖曳',
+  print:  '按「列印」會直接跳出列印對話框，紙張為 A4。'
+};
+// 個人瀏覽器的小設定（上次的分頁、衛教圖卡與縮放），讀不到就用預設值
+function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(err){} }
+function recall(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v === null ? d : v; }catch(err){ return d; } }
+document.querySelectorAll('.hub-tab').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.view)));
+document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
+document.getElementById('btn-split').addEventListener('click', e=>{
+  const on = main.dataset.split !== '1';
+  main.dataset.split = on ? '1' : '0';
+  e.currentTarget.setAttribute('aria-pressed', String(on));
+});
+document.getElementById('btn-report-home').addEventListener('click', ()=>{
+  try{ frames.weight.contentWindow.showWorkflowHub(); }catch(err){}
+});
+
+function onHubKey(e){
+  if(e.altKey && !e.ctrlKey && !e.metaKey){
+    const v = {'1':'calc','2':'weight','3':'edu','4':'print'}[e.key];
+    if(v){ e.preventDefault(); setView(v); return true; }
+  }
+  return false;
+}
+document.addEventListener('keydown', e=>{
+  if(onHubKey(e)) return;
+  if(!clearModal.hidden){
+    if(e.key === 'Escape'){ e.preventDefault(); closeClear(); }
+    return;
+  }
+  if(e.key === 'Escape' && !qrOverlay.hidden){ qrOverlay.hidden = true; return; }
+  if(main.dataset.view !== 'edu' || e.ctrlKey || e.metaKey || e.altKey) return;
+  if(e.target.closest && e.target.closest('input,textarea,select')) return;
+  // 圖片放大後可捲動時，上下鍵留給捲動，換張只用左右鍵
+  const canScroll = eduView.classList.contains('pannable');
+  const k = e.key;
+  if(k === 'ArrowLeft' || (k === 'ArrowUp' && !canScroll)){ e.preventDefault(); stepEdu(-1); }
+  else if(k === 'ArrowRight' || (k === 'ArrowDown' && !canScroll)){ e.preventDefault(); stepEdu(1); }
+  else if(k === '+' || k === '='){ e.preventDefault(); zoomStep(1); }
+  else if(k === '-' || k === '_'){ e.preventDefault(); zoomStep(-1); }
+  else if(k === '0'){ e.preventDefault(); setZoom('fit'); }
+  else if(k === 'w' || k === 'W'){ e.preventDefault(); setZoom('width'); }
+  else if(k === 'f' || k === 'F'){ e.preventDefault(); toggleMax(); }
+  else if(k === 'Escape' && document.body.classList.contains('edu-max')){ e.preventDefault(); toggleMax(); }
+});
+
+/* ── 嵌入工具載入後：注入樣式、掛事件、讀資料 ── */
+function hookFrame(key, f){
+  let doc, win;
+  try{ doc = f.contentDocument; win = f.contentWindow; if(!doc) return; }catch(err){ return; }
+  const st = doc.createElement('style');
+  st.textContent = SKIN[key];
+  doc.head.appendChild(st);
+  const upd = ()=> setTimeout(updateChips, 30);
+  ['input','change','click'].forEach(t=> doc.addEventListener(t, upd, true));
+  doc.addEventListener('keydown', onHubKey, true);
+  const r = doc.getElementById('app-revision');
+  revs[key] = r ? r.textContent.replace(/^最後改版：/, '').trim() : '';
+  renderRevision();
+  if(key === 'weight'){
+    // 減重系統在工作台裡只負責製作報告：首頁不顯示，按返回或 ESC 都回到報告目錄
+    try{
+      win.goHome = ()=> win.showWorkflowHub();
+      win.showWorkflowHub();
+    }catch(err){}
+    pullWeightData(win);
+  }
+  if(key === 'calc'){
+    splitCalcPanels(doc);
+    // 倍率只在載入與視窗大小改變時計算一次，所有工具共用，切換時字級不跳動
+    calcZ = null;
+    fitCalc();
+    setTimeout(()=>{ calcZ = null; fitCalc(); }, 400);
+    let rt = null;
+    win.addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(()=>{ calcZ = null; fitCalc(); }, 120); });
+    // 保險：萬一某個結果比預估的長而出現捲軸，全體一起降一點，之後維持這個倍率
+    let t = null;
+    ['input','change','click'].forEach(ev=> doc.addEventListener(ev, ()=>{ clearTimeout(t); t = setTimeout(guardCalc, 150); }, true));
+  }
+  updateChips();
+}
+
+/* 臨床計算自動縮放：所有工具共用同一個倍率，切換工具或分類時字級不會跳動。
+   倍率取「每個工具都放得進畫面」的最大值：逐一量過每個工具（結果區全部展開的最壞情況），取最小者。
+   量測在同一段同步程式內完成，畫面不會閃。
+   降血脂與 B 肝用藥兩個判定表單題目很多，不列入計算、允許捲動，但字級與其他工具相同。 */
+const CALC_SCROLL_OK = new Set(['panel-lipidrx', 'panel-hbvrx']);
+const CALC_MIN_Z = 0.8, CALC_MAX_Z = 1.45;
+let calcZ = null;
+
+function calcCtx(){
+  const f = frames.calc;
+  let d;
+  try{ d = f.contentDocument; }catch(err){ return null; }
+  const card = d && d.querySelector('.card');
+  if(!card || !f.clientHeight || !f.clientWidth) return null;
+  return {f, d, card, root: d.documentElement, H: f.clientHeight, W: f.clientWidth};
+}
+
+// 在目前顯示狀態下，找出不出現捲軸的最大倍率（上限 hi）
+function maxFit(c, hi){
+  const fits = z=>{ c.card.style.zoom = z; return c.root.scrollHeight <= c.H; };
+  if(fits(hi)) return hi;
+  if(!fits(CALC_MIN_Z)) return CALC_MIN_Z;
+  // 放大時版面變窄、換行變多，高度不是線性變化，用二分搜尋
+  let lo = CALC_MIN_Z;
+  for(let i = 0; i < 7; i++){
+    const mid = (lo + hi) / 2;
+    if(fits(mid)) lo = mid; else hi = mid;
+  }
+  return lo;
+}
+
+function computeCalcZ(c){
+  const {d} = c;
+  const panels = [...d.querySelectorAll('.tool-panel')];
+  const saved = panels.map(p=> [p, p.hidden, p.classList.contains('active')]);
+  const notice = d.getElementById('staff-notice'), summary = d.getElementById('summary-zone');
+  const noticeHidden = notice ? notice.hidden : true, summaryHidden = summary ? summary.hidden : true;
+  let z = Math.min(CALC_MAX_Z, Math.max(1, c.W / 1250));
+
+  panels.filter(p=> !CALC_SCROLL_OK.has(p.id)).forEach(p=>{
+    panels.forEach(x=>{ x.hidden = true; x.classList.remove('active'); });
+    p.hidden = false; p.classList.add('active');
+    // 依工具所屬分類，還原該分類會出現的提示列與「已完成的評估」欄
+    const tab = d.getElementById('tab-' + p.id.replace('panel-', ''));
+    const group = tab && tab.closest('.tabs') ? tab.closest('.tabs').dataset.group : '';
+    if(notice) notice.hidden = group !== 'calc';
+    if(summary) summary.hidden = !(group === 'gi' || group === 'meta');
+    const forced = [...p.querySelectorAll('.hub-out [id$="-result"]')].filter(e=> e.style.display === 'none');
+    const hints  = [...p.querySelectorAll('.hub-out [id$="-hint"]')].filter(e=> e.style.display !== 'none');
+    forced.forEach(e=> e.style.display = 'block');
+    hints.forEach(e=> e.style.display = 'none');
+    z = Math.min(z, maxFit(c, z));
+    forced.forEach(e=> e.style.display = 'none');
+    hints.forEach(e=> e.style.display = '');
+  });
+
+  saved.forEach(([p, h, a])=>{ p.hidden = h; p.classList.toggle('active', a); });
+  if(notice) notice.hidden = noticeHidden;
+  if(summary) summary.hidden = summaryHidden;
+  return z;
+}
+
+function fitCalc(){
+  const c = calcCtx();
+  if(!c) return;
+  // 窄畫面（含並排模式）維持單欄原尺寸，允許捲動
+  if(c.W < 1100){ c.card.style.zoom = 1; return; }
+  if(calcZ === null) calcZ = computeCalcZ(c);
+  c.card.style.zoom = calcZ;
+}
+
+function guardCalc(){
+  const c = calcCtx();
+  if(!c || c.W < 1100 || calcZ === null) return;
+  const p = c.d.querySelector('.tool-panel.active');
+  if(!p || CALC_SCROLL_OK.has(p.id) || c.root.scrollHeight <= c.H) return;
+  calcZ = maxFit(c, calcZ);
+  c.card.style.zoom = calcZ;
+}
+
+/* 臨床計算的寬螢幕版面：每個工具分成左「輸入」、右「結果」兩欄，算完不必往下捲。
+   只搬動既有元素的位置（id 與事件都不變），量表類工具題目多、結果在最後才出現，維持單欄。
+   窄螢幕或並排模式時，CSS 會讓兩欄自動疊回單欄。 */
+function splitCalcPanels(doc){
+  const isOut = c=> /-(result|hint)$/.test(c.id) || c.matches('.ref-table, .notes, .rx-cards');
+  doc.querySelectorAll('.tool-panel').forEach(p=>{
+    if(p.classList.contains('hub-split') || p.querySelector(':scope > .quiz-intro')) return;
+    const kids = [...p.children].filter(c=> !c.classList.contains('panel-head'));
+    if(!kids.some(isOut)) return;
+    const L = doc.createElement('div'); L.className = 'hub-in';
+    const R = doc.createElement('div'); R.className = 'hub-out';
+    kids.forEach(c=> (isOut(c) ? R : L).appendChild(c));
+    p.append(L, R);
+    p.classList.add('hub-split');
+  });
+  // 結果欄捲動時停在分頁列下方
+  const tw = doc.querySelector('.tabs-wrap');
+  const setTop = ()=> doc.documentElement.style.setProperty('--hub-sticky', ((tw ? tw.offsetHeight : 0) + 14) + 'px');
+  setTop();
+  doc.defaultView.addEventListener('resize', setTop);
+}
+function renderRevision(){
+  const parts = ['最後改版：' + APP_REVISION];
+  if(revs.calc) parts.push('計算 ' + revs.calc);
+  if(revs.weight) parts.push('減重 ' + revs.weight);
+  document.getElementById('app-revision').textContent = parts.join('　');
+}
+
+function txt(doc, id){ const el = doc && doc.getElementById(id); return el ? el.textContent.trim() : ''; }
+function updateChips(){
+  const cc = document.getElementById('chip-calc');
+  const cw = document.getElementById('chip-weight');
+  try{
+    const d = frames.calc.contentDocument;
+    const box = d && d.getElementById('bmi-result');
+    const v = txt(d,'bmi-val');
+    if(box && box.style.display !== 'none' && v && v !== '—'){
+      cc.innerHTML = '<span class="k">臨床計算</span>BMI <b>' + esc(v) + '</b>　' + esc(txt(d,'bmi-badge'));
+      cc.hidden = false;
+    }else cc.hidden = true;
+  }catch(err){ cc.hidden = true; }
+  try{
+    const d = frames.weight.contentDocument;
+    const name = d && d.getElementById('p-name') ? d.getElementById('p-name').value.trim() : '';
+    const bmi = txt(d,'bmi-value');
+    const parts = [];
+    if(name) parts.push(maskName(name));
+    if(bmi && bmi !== '--' && bmi !== '—') parts.push('BMI <b>' + esc(bmi) + '</b>');
+    if(parts.length){
+      // 減重系統原本的「尚未儲存／已儲存」狀態在被隱藏的頁首裡，改顯示在這裡
+      const st = txt(d,'status-pill');
+      const saved = /^已儲存|^已載入/.test(st);
+      cw.innerHTML = '<span class="k">減重報告</span>' + parts.join('　') +
+        (st ? `<span class="save ${saved ? 'ok' : ''}">${saved ? '已儲存' : '未儲存'}</span>` : '');
+      cw.hidden = false;
+    }else cw.hidden = true;
+  }catch(err){ cw.hidden = true; }
+}
+// 頂端列病人看得到，姓名只露第一個字
+function maskName(n){ return esc(n.charAt(0)) + '○'.repeat(Math.max(1, Math.min(2, n.length - 1))); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── 全部清除 ── */
+const clearModal = document.getElementById('clear-modal');
+function openClear(){
+  clearModal.hidden = false;
+  // 預設焦點放在「取消」，避免誤按 Enter 就清掉
+  document.getElementById('cm-cancel').focus();
+}
+function closeClear(){ clearModal.hidden = true; document.getElementById('btn-clear').focus(); }
+document.getElementById('btn-clear').addEventListener('click', openClear);
+document.getElementById('cm-cancel').addEventListener('click', closeClear);
+clearModal.addEventListener('click', e=>{ if(e.target === clearModal) closeClear(); });
+document.getElementById('cm-ok').addEventListener('click', ()=>{
+  clearModal.hidden = true;
+  ['calc','weight'].forEach(resetTool);
+  updateChips();
+  toast(IS_FILE ? '已重新載入。本機開啟時無法清除工具內的暫存，部署到線上後才會完整清除。' : '已全部清除，可以開始下一位。');
+});
+function resetTool(key){
+  const old = frames[key];
+  // 先移除舊 iframe，連同尚未寫入的自動暫存計時器一起結束，再刪暫存
+  if(old && old.parentNode) old.parentNode.removeChild(old);
+  CLEAR_KEYS[key].forEach(([kind, k])=>{
+    try{ (kind === 'session' ? sessionStorage : localStorage).removeItem(k); }catch(err){}
+  });
+  makeFrame(key);
+}
+
+/* ── 衛教與表單清單 ──
+   預設清單與減重系統相同；減重系統載入後改讀它裡面最新的清單，以後在減重系統新增圖片，這裡自動出現。 */
+const W = p=> TOOLS.weight.url + p;
+let EDU = reorderEdu([
+  ['臨床評估','img/edu-clinical-assessment.jpg'],
+  ['肥胖與代謝症候群','img/edu-obesity-metabolic-syndrome.jpg'],
+  ['肥胖是日漸嚴重的問題','img/edu-obesity-trend.jpg'],
+  ['肥胖的成因','img/edu-obesity-causes.jpg'],
+  ['何時介入與改善方式','img/edu-when-to-intervene.jpg'],
+  ['治療流程','img/edu-treatment-pathway.jpg'],
+  ['藥物選擇','img/edu-medication-options.jpg'],
+  ['用藥衛教','img/edu-medication-guide.jpg'],
+  ['內視鏡減重','img/edu-endoscopic-treatment.jpg'],
+  ['瘦瘦針注射與保存','img/edu-glp1-injection-storage.jpg', 2],
+  ['追蹤與監測時程','img/edu-follow-up-schedule.jpg']
+].map(([label, src, split])=>({label, src: W(src), printSplit: split || 1, icon:''})));
+
+// 問卷由減重系統即時產生（含院所表頭），列印時呼叫它自己的函式
+let FORMS = [
+  {label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'scales', icon:''},
+  {label:'地中海飲食衛教', note:'共 2 頁', pages:[W('img/diet-mediterranean-1.jpg'), W('img/diet-mediterranean-2.jpg')], kind:'img'},
+  {label:'健康紀錄表', note:'共 1 頁', pages:[W('img/health-record.jpg')], kind:'img'},
+  {label:'腸泌素針劑自費使用同意書', note:'共 1 頁', pages:[W('img/consent-glp1.png')], kind:'img'}
+];
+let eduIdx = 0;
+
+function reorderEdu(list){
+  const out = list.slice();
+  EDU_AFTER.forEach(([move, after])=>{
+    const i = out.findIndex(p=> p.label === move);
+    if(i < 0 || !out.some(p=> p.label === after)) return;
+    const [item] = out.splice(i, 1);
+    out.splice(out.findIndex(p=> p.label === after) + 1, 0, item);
+  });
+  return out;
+}
+
+function pullWeightData(win){
+  try{
+    const list = win.eval('typeof EDU_PDF_PAGES !== "undefined" ? EDU_PDF_PAGES : null');
+    if(Array.isArray(list) && list.length){
+      const cur = EDU[eduIdx] && EDU[eduIdx].src;
+      EDU = reorderEdu(list.map(p=>({label:p.label, src: W(p.src), printSplit: p.printSplit || 1, icon: p.icon || ''})));
+      const keep = EDU.findIndex(p=> p.src === cur);
+      eduIdx = keep >= 0 ? keep : 0;
+      renderRail();
+    }
+  }catch(err){}
+  try{
+    const tiles = win.eval('typeof PRINT_TILES !== "undefined" ? PRINT_TILES : null');
+    if(Array.isArray(tiles) && tiles.length){
+      FORMS = tiles.map(t=>{
+        const pages = (t.assets ? t.assets() : []).map(W);
+        return {label:t.label, note:t.note, pages, kind: pages.length ? 'img' : 'scales', icon:t.icon || ''};
+      });
+      renderForms();
+    }
+  }catch(err){}
+}
+
+let railFirst = true;
+function renderRail(){
+  if(railFirst){
+    // 第一次顯示時回到上次看的那張
+    const last = recall('hub-edu-src', '');
+    const i = EDU.findIndex(p=> p.src === last);
+    if(i >= 0) eduIdx = i;
+  }
+  railFirst = false;
+  const rail = document.getElementById('edu-rail');
+  rail.innerHTML = '<div class="sec-title">減重治療</div>' + EDU.map((p,i)=>
+    `<button class="edu-item" data-i="${i}" aria-current="${i===eduIdx}"><span class="ico">${p.icon}</span><span>${esc(p.label)}</span></button>`
+  ).join('');
+  rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> showEdu(+b.dataset.i)));
+  showEdu(eduIdx);
+}
+function showEdu(i){
+  eduIdx = (i + EDU.length) % EDU.length;
+  const p = EDU[eduIdx];
+  document.getElementById('edu-title').textContent = p.label;
+  document.getElementById('edu-count').textContent = (eduIdx + 1) + '／' + EDU.length;
+  document.querySelectorAll('.edu-item').forEach(b=> b.setAttribute('aria-current', String(+b.dataset.i === eduIdx)));
+  store('hub-edu-src', p.src);
+  eduView.innerHTML = `<img alt="${esc(p.label)}" src="${p.src}" draggable="false">`;
+  const img = eduView.querySelector('img');
+  img.style.visibility = 'hidden';
+  const ready = ()=>{ img.style.visibility = ''; applyZoom(); eduView.scrollTo(0, 0); };
+  if(img.complete && img.naturalWidth) ready();
+  else img.addEventListener('load', ready, {once:true});
+  img.addEventListener('error', ()=>{ eduView.innerHTML = '<div class="msg">圖片載入失敗，請確認網路連線。</div>'; });
+
+  const n = EDU[(eduIdx + 1) % EDU.length];
+  if(n){ const pre = new Image(); pre.src = n.src; }
+}
+function stepEdu(d){ showEdu(eduIdx + d); }
+
+/* ── 縮放：與減重系統相同的倍率，另外多一個「寬度」模式。
+   'fit' 整張圖放進畫面、'width' 寬度填滿、數字為實際倍率。切換圖卡時沿用目前設定。 ── */
+const eduView = document.getElementById('edu-view');
+const ZOOM_STEPS = [0.25, 0.3, 0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.25, 1.5, 2, 2.5, 3];
+let eduZoom = recall('hub-edu-zoom', 'fit');
+if(!(eduZoom === 'fit' || eduZoom === 'width' || typeof eduZoom === 'number')) eduZoom = 'fit';
+
+function fitScale(img, mode){
+  const aw = eduView.clientWidth - 32, ah = eduView.clientHeight - 32;
+  return mode === 'width' ? aw / img.naturalWidth : Math.min(aw / img.naturalWidth, ah / img.naturalHeight);
+}
+function currentScale(){
+  const img = eduView.querySelector('img');
+  return (img && img.naturalWidth) ? img.getBoundingClientRect().width / img.naturalWidth : 1;
+}
+function applyZoom(){
+  const img = eduView.querySelector('img');
+  if(!img || !img.naturalWidth || !eduView.clientWidth) return;
+  const s = typeof eduZoom === 'number' ? eduZoom : fitScale(img, eduZoom);
+  img.style.width = Math.max(80, Math.round(img.naturalWidth * s)) + 'px';
+  const pct = Math.round(s * 100) + '%';
+  document.getElementById('zoom-val').textContent =
+    eduZoom === 'fit' ? '整頁 ' + pct : eduZoom === 'width' ? '寬度 ' + pct : pct;
+  document.getElementById('zoom-fit').setAttribute('aria-pressed', String(eduZoom === 'fit'));
+  document.getElementById('zoom-width').setAttribute('aria-pressed', String(eduZoom === 'width'));
+  eduView.classList.toggle('pannable',
+    eduView.scrollWidth > eduView.clientWidth + 1 || eduView.scrollHeight > eduView.clientHeight + 1);
+}
+// 以畫面中心為基準縮放，放大後不會跳到左上角
+function setZoom(z){
+  const cx = (eduView.scrollLeft + eduView.clientWidth / 2) / Math.max(1, eduView.scrollWidth);
+  const cy = (eduView.scrollTop + eduView.clientHeight / 2) / Math.max(1, eduView.scrollHeight);
+  eduZoom = z;
+  store('hub-edu-zoom', z);
+  applyZoom();
+  eduView.scrollLeft = cx * eduView.scrollWidth - eduView.clientWidth / 2;
+  eduView.scrollTop = cy * eduView.scrollHeight - eduView.clientHeight / 2;
+}
+function zoomStep(dir){
+  const cur = typeof eduZoom === 'number' ? eduZoom : currentScale();
+  const next = dir > 0 ? ZOOM_STEPS.find(z=> z > cur + 0.01) : [...ZOOM_STEPS].reverse().find(z=> z < cur - 0.01);
+  if(next !== undefined) setZoom(next);
+}
+function toggleMax(){
+  const on = document.body.classList.toggle('edu-max');
+  const b = document.getElementById('edu-max');
+  b.textContent = on ? '結束最大化' : '最大化';
+  b.setAttribute('aria-pressed', String(on));
+  setTimeout(applyZoom, 0);
+}
+window.addEventListener('resize', ()=>{ if(main.dataset.view === 'edu') applyZoom(); });
+
+// Ctrl＋滾輪縮放；放大後按住圖片拖曳移動
+eduView.addEventListener('wheel', e=>{
+  if(!e.ctrlKey) return;
+  e.preventDefault();
+  zoomStep(e.deltaY < 0 ? 1 : -1);
+}, {passive:false});
+let pan = null;
+eduView.addEventListener('pointerdown', e=>{
+  if(e.button !== 0 || !eduView.classList.contains('pannable')) return;
+  pan = {x:e.clientX, y:e.clientY, l:eduView.scrollLeft, t:eduView.scrollTop, id:e.pointerId};
+  eduView.setPointerCapture(e.pointerId);
+  eduView.classList.add('panning');
+});
+eduView.addEventListener('pointermove', e=>{
+  if(!pan || e.pointerId !== pan.id) return;
+  eduView.scrollLeft = pan.l - (e.clientX - pan.x);
+  eduView.scrollTop = pan.t - (e.clientY - pan.y);
+});
+// 雙擊圖片在「整頁」與「寬度」之間切換
+eduView.addEventListener('dblclick', ()=> setZoom(eduZoom === 'fit' ? 'width' : 'fit'));
+['pointerup','pointercancel'].forEach(t=> eduView.addEventListener(t, ()=>{ pan = null; eduView.classList.remove('panning'); }));
+
+document.getElementById('edu-prev').addEventListener('click', ()=> stepEdu(-1));
+document.getElementById('edu-next').addEventListener('click', ()=> stepEdu(1));
+document.getElementById('zoom-in').addEventListener('click', ()=> zoomStep(1));
+document.getElementById('zoom-out').addEventListener('click', ()=> zoomStep(-1));
+document.getElementById('zoom-fit').addEventListener('click', ()=> setZoom('fit'));
+document.getElementById('zoom-width').addEventListener('click', ()=> setZoom('width'));
+document.getElementById('edu-max').addEventListener('click', toggleMax);
+document.getElementById('edu-print').addEventListener('click', ()=>{ const p = EDU[eduIdx]; printImages([p.src], p.label, p.printSplit); });
+
+const FORM_ICON = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3.5" width="14" height="18" rx="2"/><path d="M9 3.5h6v3H9zM8.5 11h7M8.5 14.5h7M8.5 18h4"/></svg>';
+function renderForms(){
+  const box = document.getElementById('print-grid');
+  box.innerHTML = '';
+  FORMS.forEach(t=>{
+    const el = document.createElement('div');
+    el.className = 'ptile card';
+    const thumb = t.pages.length ? `<img src="${t.pages[0]}" alt="" loading="lazy">` : `<span class="ico">${FORM_ICON}</span>`;
+    el.innerHTML = `<div class="thumb">${thumb}</div><div class="body"><h3>${esc(t.label)}</h3><div class="note">${esc(t.note)}</div>` +
+      `<div class="acts"><button class="tbtn pri">列印</button></div></div>`;
+    el.querySelector('.tbtn').addEventListener('click', ()=> printForm(t));
+    box.appendChild(el);
+  });
+}
+function printForm(t){
+  if(t.kind === 'scales' || !t.pages.length){
+    try{ frames.weight.contentWindow.printBlankScales(); }
+    catch(err){ toast('問卷要等減重系統載入完成才能列印，請稍候再試。'); }
+    return;
+  }
+  printImages(t.pages, t.label, 1);
+}
+
+/* ── 列印：A4、邊界 0，與減重系統原本的列印結果相同 ── */
+const PAPER = {w:210, h:297};
+
+function loadImg(src){
+  return new Promise((ok, bad)=>{ const im = new Image(); im.onload = ()=> ok(im); im.onerror = bad; im.src = src; });
+}
+// 依圖片比例置中縮放；兩頁並列的圖（parts = 2）拆成兩張紙，與減重系統的列印方式相同
+async function printImages(srcs, title, parts){
+  let pages = '';
+  try{
+    for(const src of srcs){
+      const img = await loadImg(src);
+      const n = parts || 1;
+      const ar = (img.naturalWidth / n) / img.naturalHeight;
+      let w = PAPER.w, h = PAPER.w / ar;
+      if(h > PAPER.h){ h = PAPER.h; w = PAPER.h * ar; }
+      for(let k = 0; k < n; k++){
+        pages += `<div class="pg"><div style="width:${w}mm;height:${h}mm;overflow:hidden">` +
+          `<img src="${src}" style="display:block;width:${w*n}mm;height:${h}mm;margin-left:-${w*k}mm"></div></div>`;
+      }
+    }
+  }catch(err){ toast('圖片載入失敗，無法列印。'); return; }
+  printHtml(pages, title);
+}
+
+// 用隱藏 iframe 列印，只跳出列印對話框。@page margin 為 0，瀏覽器不會加上網址與日期的頁首頁尾。
+function printHtml(body, title){
+  const old = document.getElementById('print-frame');
+  if(old) old.remove();
+  const f = document.createElement('iframe');
+  f.id = 'print-frame';
+  f.style.cssText = 'position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0;';
+  document.body.appendChild(f);
+  const d = f.contentWindow.document;
+  d.open();
+  d.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(title)}</title><style>
+    @page{size:A4 portrait;margin:0;}
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .pg{width:${PAPER.w}mm;height:${PAPER.h}mm;display:flex;align-items:center;justify-content:center;
+      overflow:hidden;break-after:page;page-break-after:always;}
+    .pg:last-child{break-after:auto;page-break-after:auto;}
+  </style></head><body>${body}</body></html>`);
+  d.close();
+  const imgs = [...d.images].filter(i=> !i.complete).map(i=> new Promise(r=>{ i.onload = i.onerror = r; }));
+  const prevTitle = document.title;
+  Promise.race([Promise.all(imgs), new Promise(r=> setTimeout(r, 15000))]).then(()=> setTimeout(()=>{
+    document.title = title;
+    f.contentWindow.focus();
+    f.contentWindow.print();
+    document.title = prevTitle;
+    setTimeout(()=>{ if(f.parentNode) f.remove(); }, 60000);
+  }, 80));
+}
+
+/* ── LINE QR ── */
+const qrOverlay = document.getElementById('qr-overlay');
+document.getElementById('qr-img').src = TOOLS.calc.url + 'qr.png';
+document.getElementById('qr-big').src = TOOLS.calc.url + 'qr.png';
+document.getElementById('qr-btn').addEventListener('click', ()=>{ qrOverlay.hidden = false; });
+qrOverlay.addEventListener('click', ()=>{ qrOverlay.hidden = true; });
+
+function toast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=> t.remove(), 3200);
+}
+
+renderRevision();
+makeFrame('calc');
+makeFrame('weight');
+renderRail();
+renderForms();
+const lastView = recall('hub-view', 'calc');
+setView(FOOT_HINT[lastView] ? lastView : 'calc');
+setInterval(updateChips, 1500);
+</script>
+</body>
+</html>
