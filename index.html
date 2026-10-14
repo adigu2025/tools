@@ -614,6 +614,14 @@ function fitCalc(){
   c.card.style.zoom = calcZ;
 }
 
+// 面板尺寸一變（視窗縮放、切換並排、手機轉向）就重算共用倍率；
+// 不只依賴 iframe 內的 resize 事件，某些情況下它不會觸發
+{
+  let t = null;
+  new ResizeObserver(()=>{ clearTimeout(t); t = setTimeout(()=>{ calcZ = null; fitCalc(); }, 120); })
+    .observe(document.getElementById('pane-calc'));
+}
+
 function guardCalc(){
   const c = calcCtx();
   if(!c || c.W < 1100 || calcZ === null) return;
