@@ -187,6 +187,27 @@ body.edu-max .edu-shell{height:calc(100vh - 20px);}
 .field textarea{resize:vertical; min-height:70px;}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(188,127,48,.13);}
 .hint{font-size:13.5px; color:var(--muted); margin-top:5px;}
+/* 輸入舒適度：欄位加大、字放大、滑過有回饋；已填寫的欄位底色略深，一眼看出還缺哪些 */
+.field label{font-size:15px; margin-bottom:5px;}
+.field input,.field select{min-height:46px; padding:10px 13px; font-size:17px; border-radius:10px;}
+.field textarea{padding:10px 13px; font-size:16px; line-height:1.6; border-radius:10px; min-height:84px;}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:#CFC6B6;}
+.field input:focus,.field select:focus,.field textarea:focus{box-shadow:0 0 0 4px rgba(188,127,48,.16);}
+.field input.has-val,.field select.has-val{background:#FCFAF6;}
+.field input[type=number]{font-variant-numeric:tabular-nums;}
+.chk-row{padding:3px 0;}
+.chk-row input[type=checkbox]{width:18px; height:18px; margin-top:2px; accent-color:var(--primary); flex:none; cursor:pointer;}
+.chk-row label{cursor:pointer;}
+/* 每個分項最下方的上一項／下一項 */
+.step-nav{display:flex; justify-content:space-between; gap:12px; margin:6px 0 10px;}
+.step-nav button{display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:0 22px; border-radius:24px;
+  font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; transition:.15s;}
+.step-nav .prev{background:#fff; color:var(--primary); border:1.5px solid var(--border);}
+.step-nav .prev:hover{border-color:var(--primary);}
+.step-nav .next{margin-left:auto; background:var(--primary); color:#fff; border:0;}
+.step-nav .next:hover{background:var(--primary-dark);}
+.step-nav .next small{font-weight:400; opacity:.85; font-size:13.5px;}
+.step-nav .saved{align-self:center; font-size:13px; color:var(--muted);}
 
 .btn{border:none; background:var(--primary); color:#fff; padding:10px 20px; border-radius:22px; font-size:16px; cursor:pointer; font-weight:700; transition:.15s; font-family:inherit;}
 .btn:hover{background:var(--primary-dark);}
@@ -1234,6 +1255,7 @@ function showScreen(id){
   currentParent = 'workflow-hub';
   renderBottomNav();
   window.scrollTo(0,0);
+  setTimeout(()=>{ if(typeof refreshInputComfort === 'function') refreshInputComfort(); }, 0);
 }
 function goHome(){
   gridReset();
@@ -3799,6 +3821,7 @@ function applyState(state){
   syncOtherInputs();
   updateScreeningSummary();
   updateLabFlags();
+  refreshInputComfort();
 }
 // ============================================================
 // 病人紀錄：多筆儲存、草稿自動暫存、離開提醒
@@ -3928,6 +3951,70 @@ function recalcAll(){
   try{ updateTargetLossPct(); updateStandardWeightRange(); updateHba1cReadout(); }catch(e){}
   try{ validateAllFields(); }catch(e){}
 }
+
+// ============================================================
+// 輸入舒適度
+// ============================================================
+// 1. 數字欄位按 Enter 跳到同一頁的下一個欄位（數字鍵盤連續輸入不必換手拿滑鼠）；
+//    文字欄位保留原本行為，多行文字框照常換行。
+document.addEventListener('keydown', e=>{
+  const t = e.target;
+  if(e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.isComposing) return;
+  if(!t || t.tagName !== 'INPUT' || !['number','date','text'].includes(t.type)) return;
+  if(t.closest('.other-text') || t.classList.contains('other-text')) return;
+  const scope = t.closest('.screen') || document;
+  const list = [...scope.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([hidden]), select, textarea')]
+    .filter(el=> !el.disabled && el.offsetParent !== null);
+  const i = list.indexOf(t);
+  if(i >= 0 && i < list.length - 1){ e.preventDefault(); list[i + 1].focus(); }
+}, true);
+// 2. 游標停在數字欄位上滾動滑鼠滾輪時，不改動數值（避免捲頁時不小心把 72 變成 71）
+document.addEventListener('wheel', e=>{
+  const t = e.target;
+  if(t && t.tagName === 'INPUT' && t.type === 'number' && document.activeElement === t) t.blur();
+}, {capture:true, passive:true});
+// 3. 點進數字欄位時整格選取，直接打字就能覆蓋舊值
+document.addEventListener('focusin', e=>{
+  const t = e.target;
+  if(t && t.tagName === 'INPUT' && t.type === 'number' && t.value) setTimeout(()=>{ try{ t.select(); }catch(err){} }, 0);
+});
+// 4. 多行文字框隨內容長高，不必在小框裡捲動
+function autoGrow(ta){
+  if(!ta || ta.tagName !== 'TEXTAREA') return;
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight + 4, 480) + 'px';
+}
+document.addEventListener('input', e=>{ if(e.target && e.target.tagName === 'TEXTAREA') autoGrow(e.target); }, true);
+// 5. 已填寫的欄位底色略深
+function markFilled(el){
+  if(el && (el.tagName === 'INPUT' || el.tagName === 'SELECT') && el.closest('.field')) el.classList.toggle('has-val', !!String(el.value).trim());
+}
+['input','change'].forEach(ev=> document.addEventListener(ev, e=> markFilled(e.target), true));
+function refreshInputComfort(){
+  document.querySelectorAll('.field input, .field select').forEach(markFilled);
+  document.querySelectorAll('.screen.active textarea').forEach(autoGrow);
+}
+// 6. 每個分項最下方加「上一項／下一項」，填完直接往下走，不必找底部的分頁列
+function renderStepNavs(){
+  CATEGORIES.forEach((c, i)=>{
+    const sec = document.getElementById('screen-' + c.id);
+    if(!sec || sec.querySelector(':scope > .step-nav')) return;
+    const prev = CATEGORIES[i - 1], next = CATEGORIES[i + 1];
+    const nav = document.createElement('div');
+    nav.className = 'step-nav no-print';
+    nav.innerHTML =
+      (prev ? `<button type="button" class="prev">‹ ${esc(prev.label)}</button>` : '') +
+      (next ? `<button type="button" class="next">下一項 <small>${esc(next.label)}</small> ›</button>` : '');
+    if(prev) nav.querySelector('.prev').onclick = ()=> showScreen(prev.id);
+    if(next) nav.querySelector('.next').onclick = ()=> showScreen(next.id);
+    sec.appendChild(nav);
+  });
+}
+renderStepNavs();
+// 切換分項時，新出現的多行文字框依內容調整高度
+document.addEventListener('click', e=>{
+  if(e.target && e.target.closest && e.target.closest('.cat-card, .bn-pill, .bn-arrow, .step-nav button')) setTimeout(refreshInputComfort, 30);
+}, true);
 
 // 啟動時：舊版單筆資料轉為紀錄；有草稿則詢問是否接續
 (function initStorage(){
