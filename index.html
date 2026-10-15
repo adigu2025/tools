@@ -224,18 +224,28 @@ body.edu-max .edu-shell{height:calc(100vh - 20px);}
 .tag-other-text:focus{outline:none; box-shadow:0 0 0 3px rgba(188,127,48,.16);}
 .tag-other-text[hidden]{display:none;}
 /* 影像檢查：腹部與甲狀腺超音波左右並排，一個畫面放得下 */
-.image-cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:18px; align-items:start; margin-bottom:18px;}
+.image-cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:18px; align-items:stretch; margin-bottom:18px;}
 .image-cols .card{margin-bottom:0;}
-.image-cols .choice-row{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));}
+.image-cols .choice-row{grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); grid-auto-rows:62px;}
 #screen-image textarea{min-height:120px;}
+/* 選取狀態一律用深灰底白字，對比明顯；動作按鈕（計算、產生、下一項）也用深灰底 */
+:root{--sel:#3A3A3C; --sel-hover:#242426;}
+.choice-btn.on, .choice-grid .ms-item:has(input:checked), .ms-item:has(input:checked){
+  background:var(--sel) !important; border-color:var(--sel) !important; box-shadow:none !important;}
+.choice-btn.on .t, .choice-grid .ms-item:has(input:checked) .ms-title, .ms-item:has(input:checked) .ms-title{color:#fff !important;}
+.choice-btn.on .s, .choice-grid .ms-item:has(input:checked) .ms-desc, .ms-item:has(input:checked) .ms-desc{color:rgba(255,255,255,.78) !important;}
+.ms-item:has(input:checked) input[type=checkbox]{accent-color:#fff;}
+.tag.selected{background:var(--sel) !important; border-color:var(--sel) !important; color:#fff !important;}
+.btn:not(.outline):not(.teal){background:var(--sel);}
+.btn:not(.outline):not(.teal):hover{background:var(--sel-hover);}
 /* 每個分項最下方的上一項／下一項 */
 .step-nav{display:flex; justify-content:space-between; gap:12px; margin:6px 0 10px;}
 .step-nav button{display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:0 22px; border-radius:24px;
   font-size:16px; font-weight:700; font-family:inherit; cursor:pointer; transition:.15s;}
 .step-nav .prev{background:#fff; color:var(--primary); border:1.5px solid var(--border);}
 .step-nav .prev:hover{border-color:var(--primary);}
-.step-nav .next{margin-left:auto; background:var(--primary); color:#fff; border:0;}
-.step-nav .next:hover{background:var(--primary-dark);}
+.step-nav .next{margin-left:auto; background:var(--sel); color:#fff; border:0;}
+.step-nav .next:hover{background:var(--sel-hover);}
 .step-nav .next small{font-weight:400; opacity:.85; font-size:13.5px;}
 .step-nav .saved{align-self:center; font-size:13px; color:var(--muted);}
 
@@ -295,6 +305,8 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .scale-opts label{font-size:13px; text-align:center; color:var(--muted); cursor:pointer; padding:4px 8px; border-radius:6px; border:1px solid var(--border);}
 .scale-opts input{display:none;}
 .scale-opts input:checked + span{background:var(--primary); color:#fff; border-radius:6px; padding:4px 8px; display:inline-block;}
+.scale-opts label:has(input:checked){background:var(--sel); border-color:var(--sel); color:#fff;}
+.scale-opts label:has(input:checked) span{background:transparent !important; padding:0 !important;}
 
 .summary-box{background:var(--teal-pale); border-left:4px solid var(--teal); border-radius:8px; padding:14px 16px; font-size:15.5px;}
 .big-number{font-size:38px; font-weight:700; color:var(--navy);}
@@ -810,8 +822,7 @@ main{padding-bottom:80px;}
   </div>
   <div class="card">
     <h2>甲狀腺超音波檢查</h2>
-    <div class="hint">使用 GLP-1／GIP 類藥物前建議評估：禁忌症包含甲狀腺髓質癌（MTC）及 MEN2 病史／家族史</div>
-    <div class="field" style="margin-top:10px"><label>甲狀腺超音波結果</label>
+    <div class="field"><label>甲狀腺超音波結果</label>
       <select id="us-thyroid" class="as-buttons">
         <option value="">未檢查</option>
         <option value="無異常">無異常</option>
@@ -823,6 +834,7 @@ main{padding-bottom:80px;}
     <div class="field" style="margin-top:12px"><label>甲狀腺超音波所見（文字描述）</label>
       <textarea id="us-thyroid-text"></textarea>
     </div>
+    <div class="hint" style="margin-top:10px">使用 GLP-1／GIP 類藥物前建議評估：禁忌症包含甲狀腺髓質癌（MTC）及 MEN2 病史／家族史</div>
   </div>
   </div>
 </section>
@@ -3304,7 +3316,15 @@ renderEduGallery();
 document.addEventListener('keydown', (e)=>{
   const t = e.target;
   const tag = t && t.tagName ? t.tagName.toLowerCase() : '';
-  if(tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
+  // 點過的選項（單選鈕、勾選框）會留住焦點，瀏覽器預設方向鍵會在同組選項間跳動。
+  // 這裡改成：焦點在選項上時方向鍵不改選項，左右照樣換頁、上下捲動頁面。
+  const isChoice = tag === 'input' && (t.type === 'radio' || t.type === 'checkbox');
+  if(isChoice && /^Arrow/.test(e.key)){
+    e.preventDefault();
+    if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){ window.scrollBy({top: e.key === 'ArrowDown' ? 80 : -80}); return; }
+    t.blur();
+  }
+  else if(tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
   // 首頁與列印單張：方向鍵移動、Enter 執行、ESC 取消選取或返回
   if(GRID_SCREENS[currentScreen]){
     if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ e.preventDefault(); gridMove(1); }
