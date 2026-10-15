@@ -198,6 +198,36 @@ body.edu-max .edu-shell{height:calc(100vh - 20px);}
 .chk-row{padding:3px 0;}
 .chk-row input[type=checkbox]{width:18px; height:18px; margin-top:2px; accent-color:var(--primary); flex:none; cursor:pointer;}
 .chk-row label{cursor:pointer;}
+/* 選項按鈕：單選（下拉選單改成的一排按鈕）與複選共用。按鈕等寬排成一列，放不下才換第二列 */
+.choice-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-top:2px;}
+.choice-btn{display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:2px; min-height:52px;
+  padding:9px 13px; border:1.5px solid var(--border); border-radius:12px; background:#FAF9F6; color:var(--navy);
+  font-family:inherit; text-align:left; cursor:pointer; transition:border-color .15s, background .15s, box-shadow .15s;}
+.choice-btn .t{font-size:15.5px; font-weight:700; line-height:1.3;}
+.choice-btn .s{font-size:12.5px; color:var(--muted); line-height:1.35;}
+.choice-btn:hover{border-color:#CFC6B6; background:#fff;}
+.choice-btn.on{border-color:var(--primary); background:var(--primary-pale); box-shadow:inset 0 0 0 1px var(--primary);}
+.choice-btn.on .t{color:var(--primary-dark);}
+.choice-btn:focus-visible{outline:none; box-shadow:0 0 0 4px rgba(188,127,48,.2);}
+/* 飲食／活動習慣：每一類 5 個選項排成一列（窄螢幕自動換成兩列），標題與說明都留著 */
+.choice-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px;}
+.choice-grid .ms-item{position:relative; flex-direction:column; gap:2px; margin:0; padding:10px 12px; cursor:pointer;}
+.choice-grid .ms-item input[type=radio]{position:absolute; opacity:0; pointer-events:none;}
+.choice-grid .ms-item .ms-title{font-size:15px; line-height:1.3;}
+.choice-grid .ms-item .ms-desc{font-size:12.5px; margin-top:2px; line-height:1.45;}
+.choice-grid .ms-item:hover{border-color:#CFC6B6; background:#fff;}
+.choice-grid .ms-item:has(input:checked){box-shadow:inset 0 0 0 1px var(--primary);}
+.choice-grid .ms-item:has(input:focus-visible){box-shadow:0 0 0 4px rgba(188,127,48,.2);}
+/* 標籤「其他」的輸入框 */
+.tag-other-text{display:inline-block; vertical-align:middle; width:min(420px,100%); margin:4px 0; padding:7px 12px; font-size:15px;
+  border:1.5px solid var(--primary); border-radius:18px; font-family:inherit; color:var(--text); background:#fff;}
+.tag-other-text:focus{outline:none; box-shadow:0 0 0 3px rgba(188,127,48,.16);}
+.tag-other-text[hidden]{display:none;}
+/* 影像檢查：腹部與甲狀腺超音波左右並排，一個畫面放得下 */
+.image-cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:18px; align-items:start; margin-bottom:18px;}
+.image-cols .card{margin-bottom:0;}
+.image-cols .choice-row{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));}
+#screen-image textarea{min-height:120px;}
 /* 每個分項最下方的上一項／下一項 */
 .step-nav{display:flex; justify-content:space-between; gap:12px; margin:6px 0 10px;}
 .step-nav button{display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:0 22px; border-radius:24px;
@@ -628,19 +658,20 @@ main{padding-bottom:80px;}
     <h2>家族史 / 生育計畫 / 動機評估</h2>
     <h3>家族史</h3>
     <div id="family-history-tags" class="tag-box"></div>
-    <div class="field" style="margin-top:10px"><textarea id="fam-note"></textarea></div>
-    <h3>生育計畫 ／ 減重動機評估 ／ 社會支持</h3>
-    <div class="grid">
-      <div class="field"><label>生育計畫</label>
-        <select id="preg-plan">
-          <option value="">未評估</option><option value="無相關計畫" selected>無相關計畫</option>
+    <div class="field" style="margin-top:10px"><label>家族史內容（點選上方項目自動帶入，可直接編輯）</label><textarea id="fam-note"></textarea></div>
+    <h3>生育計畫</h3>
+    <div class="field">
+        <select id="preg-plan" class="as-buttons">
+          <option value="">未評估</option><option value="無相關計畫">無相關計畫</option>
           <option value="計畫懷孕中">計畫懷孕中</option><option value="懷孕中">懷孕中</option><option value="哺乳中">哺乳中</option>
         </select>
       </div>
+    <h3>減重動機評估 ／ 社會支持</h3>
+    <div class="grid">
       <div class="field"><label>減重意願與準備度（1–10分）</label><input id="motiv-score" type="number" min="1" max="10" value="8"></div>
       <div class="field"><label>社會支持系統</label><input id="motiv-support" value="家人及朋友"></div>
     </div>
-    <div class="field" style="margin-top:10px"><textarea id="fam-motiv-note"></textarea></div>
+    <div class="field" style="margin-top:10px"><label>家族史／生育／動機備註</label><textarea id="fam-motiv-note"></textarea></div>
   </div>
 </section>
 
@@ -761,10 +792,11 @@ main{padding-bottom:80px;}
 
 <!-- ══════════ 4 影像檢查 ══════════ -->
 <section class="screen" id="screen-image">
+  <div class="image-cols">
   <div class="card">
     <h2>腹部超音波檢查</h2>
     <div class="field"><label>脂肪肝分級</label>
-      <select id="us-fatty">
+      <select id="us-fatty" class="as-buttons">
         <option value="">未檢查 / 無</option>
         <option value="無脂肪肝">無脂肪肝</option>
         <option value="輕度脂肪肝">輕度脂肪肝</option>
@@ -780,7 +812,7 @@ main{padding-bottom:80px;}
     <h2>甲狀腺超音波檢查</h2>
     <div class="hint">使用 GLP-1／GIP 類藥物前建議評估：禁忌症包含甲狀腺髓質癌（MTC）及 MEN2 病史／家族史</div>
     <div class="field" style="margin-top:10px"><label>甲狀腺超音波結果</label>
-      <select id="us-thyroid">
+      <select id="us-thyroid" class="as-buttons">
         <option value="">未檢查</option>
         <option value="無異常">無異常</option>
         <option value="甲狀腺結節">甲狀腺結節</option>
@@ -791,6 +823,7 @@ main{padding-bottom:80px;}
     <div class="field" style="margin-top:12px"><label>甲狀腺超音波所見（文字描述）</label>
       <textarea id="us-thyroid-text"></textarea>
     </div>
+  </div>
   </div>
 </section>
 
@@ -860,7 +893,7 @@ main{padding-bottom:80px;}
   <div class="card">
     <h2>共病症整合評估</h2>
     <div id="comorbid-list" class="tag-box"></div>
-    <div class="field" style="margin-top:12px"><label>其他</label><textarea id="cm-note"></textarea></div>
+    <div class="field" style="margin-top:12px"><label>共病症內容（點選上方項目自動帶入，可直接編輯）</label><textarea id="cm-note"></textarea></div>
   </div>
 
   <div class="card">
@@ -896,15 +929,17 @@ main{padding-bottom:80px;}
 
   <div class="card">
     <h2>本次治療建議</h2>
-    <div class="field"><label>本次治療用藥建議</label>
-      <select id="tx-choice" onchange="genMedEdu()">
+    <div class="field"><label>本次治療用藥建議（可複選）</label>
+      <div class="choice-row" id="tx-buttons"></div>
+      <input type="hidden" id="tx-choices">
+      <select id="tx-choice" hidden>
         <option value="">生活型態介入為主（暫不用藥）</option>
         <option value="rybelsus">Rybelsus 瑞倍適（口服）</option>
         <option value="wegovy">Wegovy 週纖達（注射）</option>
         <option value="mounjaro">Mounjaro 猛健樂（注射）</option>
       </select>
     </div>
-    <div class="field" style="margin-top:12px"><label>用藥衛教內容（可編輯，將依上方選擇自動帶入）</label>
+    <div class="field" style="margin-top:12px"><label>用藥衛教內容（依上方選擇自動帶入，可直接編輯）</label>
       <textarea id="tx-edu" style="min-height:160px"></textarea>
     </div>
   </div>
@@ -916,8 +951,9 @@ main{padding-bottom:80px;}
     <h2>基礎代謝率 (BMR) 與每日總消耗熱量 (TDEE)</h2>
     <div class="hint">BMR 預設以 Mifflin-St Jeor 公式由身高體重年齡計算；若已於「身體測量」頁輸入 TANITA 實測 BMR，將優先採用實測值。</div>
     <div class="field" style="margin-top:14px"><label>活動量等級</label>
-      <select id="cal-activity">
-        <option value="1.2" selected>久坐（幾乎無運動，辦公室工作）</option>
+      <select id="cal-activity" class="as-buttons">
+        <option value=""></option>
+        <option value="1.2">久坐（幾乎無運動，辦公室工作）</option>
         <option value="1.375">輕度活動（每週輕度運動 1–3 天）</option>
         <option value="1.55">中度活動（每週中等強度運動 3–5 天）</option>
         <option value="1.725">高度活動（每週高強度運動 6–7 天）</option>
@@ -925,10 +961,11 @@ main{padding-bottom:80px;}
       </select>
     </div>
     <div class="field" style="margin-top:10px"><label>減重目標速度</label>
-      <select id="cal-goal">
+      <select id="cal-goal" class="as-buttons">
+        <option value=""></option>
         <option value="0">維持體重（不設熱量赤字）</option>
         <option value="300">溫和減重（每日 -300 kcal，約每週 -0.3kg）</option>
-        <option value="500" selected>建議減重（每日 -500 kcal，約每週 -0.5kg）</option>
+        <option value="500">建議減重（每日 -500 kcal，約每週 -0.5kg）</option>
         <option value="750">積極減重（每日 -750 kcal，約每週 -0.75kg，建議醫療監督）</option>
       </select>
     </div>
@@ -2150,7 +2187,7 @@ const COMORBID_TAGS = [
   '第2型糖尿病前期或糖尿病','高血壓','血脂異常','脂肪肝／代謝性脂肪肝炎',
   '阻塞性睡眠呼吸中止症','退化性關節炎','多囊卵巢症候群（PCOS）',
 ];
-makeTagPicker('comorbid-list', 'cm-note', COMORBID_TAGS);
+makeTagPicker('comorbid-list', 'cm-note', COMORBID_TAGS, null, 'cm-other-text');
 
 // ============================================================
 // 熱量計算
@@ -2170,6 +2207,10 @@ function calcCalorie(){
     bmr = gender === 'M'
       ? 10*w + 6.25*(hM*100) - 5*age + 5
       : 10*w + 6.25*(hM*100) - 5*age - 161;
+  }
+  if(document.getElementById('cal-activity').value === '' || document.getElementById('cal-goal').value === ''){
+    alert('請先點選「活動量等級」與「減重目標速度」，再計算熱量建議。');
+    return;
   }
   const pal = parseFloat(document.getElementById('cal-activity').value);
   const tdee = bmr * pal;
@@ -2351,9 +2392,12 @@ const MED_EDU = {
   'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，起始劑量0.25mg，依醫囑逐月調整劑量至2.4mg。\n\n漏打處理：4天（96小時）內盡快補打；超過4天則跳過本次，於下次預定時間再打。不可施打雙倍劑量，調整施打時間需間隔至少36小時。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
   'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，起始劑量2.5mg，依醫囑逐月調整劑量至最高15mg。\n\n漏打處理：4天（96小時）內盡快補打；超過4天則跳過本次，於下次預定時間再打。不可施打雙倍劑量，調整施打時間需間隔至少36小時。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
 };
+// 依複選結果合併衛教內容；沒有選任何項目時清空
 function genMedEdu(){
-  const choice = document.getElementById('tx-choice').value;
-  document.getElementById('tx-edu').value = MED_EDU[choice] || '';
+  const parts = getTxChoices().map(k=> MED_EDU[TX_OPTIONS.find(o=> o.key === k).edu] || '').filter(Boolean);
+  const ta = document.getElementById('tx-edu');
+  ta.value = parts.join('\n\n');
+  if(typeof autoGrow === 'function') autoGrow(ta);
 }
 
 // ============================================================
@@ -2381,11 +2425,45 @@ const EDU = {
 // ============================================================
 // 通用標籤插入元件（點擊插入短句到指定textarea，可重複切換）
 // ============================================================
-function makeTagPicker(containerId, textareaId, phrases, preselected){
+// otherInputId：在標籤最後加一個「其他」，點選後出現輸入框，打的字以「• 其他：內容」寫進 textarea
+function makeTagPicker(containerId, textareaId, phrases, preselected, otherInputId){
   const box = document.getElementById(containerId);
   if(!box) return;
   box.innerHTML = '';
   const pre = preselected || [];
+  if(otherInputId){
+    const ta = ()=> document.getElementById(textareaId);
+    const isOtherLine = l=> /^• 其他(：|$)/.test(l.trim());
+    const writeOther = (text)=>{
+      const lines = ta().value.split('\n').filter(l=> !isOtherLine(l));
+      if(text !== null){
+        while(lines.length && !lines[lines.length - 1].trim()) lines.pop();
+        lines.push('• 其他' + (text.trim() ? '：' + text.trim() : ''));
+      }
+      ta().value = lines.join('\n');
+    };
+    setTimeout(()=>{
+      const tag = document.createElement('span');
+      tag.className = 'tag tag-other';
+      tag.textContent = '其他';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = otherInputId;
+      input.className = 'tag-other-text';
+      input.setAttribute('aria-label', '其他（自行輸入）');
+      input.hidden = true;
+      tag.onclick = ()=>{
+        tag.classList.toggle('selected');
+        const on = tag.classList.contains('selected');
+        input.hidden = !on;
+        writeOther(on ? input.value : null);
+        if(on) input.focus();
+      };
+      input.addEventListener('input', ()=> writeOther(input.value));
+      box.appendChild(tag);
+      box.appendChild(input);
+    }, 0);
+  }
   phrases.forEach(p=>{
     const tag = document.createElement('span');
     tag.className = 'tag';
@@ -2394,8 +2472,11 @@ function makeTagPicker(containerId, textareaId, phrases, preselected){
       tag.classList.toggle('selected');
       const ta = document.getElementById(textareaId);
       if(tag.classList.contains('selected')){
-        const trimmed = ta.value.replace(/\n+$/,'');
-        ta.value = (trimmed ? trimmed + '\n' : '') + '• ' + p;
+        // 新選的項目插在「• 其他」那一行之前，讓「其他」永遠排在最後
+        const lines = ta.value.replace(/\n+$/,'').split('\n').filter((l, i, a)=> !(a.length === 1 && !l.trim()));
+        const oi = lines.findIndex(l=> /^• 其他(：|$)/.test(l.trim()));
+        if(oi >= 0) lines.splice(oi, 0, '• ' + p); else lines.push('• ' + p);
+        ta.value = lines.join('\n');
       } else {
         ta.value = ta.value.split('\n').filter(line=>line.trim() !== '• '+p).join('\n');
       }
@@ -2414,7 +2495,7 @@ const FAMILY_HISTORY_TAGS = [
   '心血管疾病家族史（心肌梗塞／中風）','脂肪肝家族史','痛風／高尿酸家族史',
   '甲狀腺疾病家族史','多囊性卵巢症候群家族史（PCOS）','家族性遺傳肥胖症候群',
 ];
-makeTagPicker('family-history-tags', 'fam-note', FAMILY_HISTORY_TAGS);
+makeTagPicker('family-history-tags', 'fam-note', FAMILY_HISTORY_TAGS, null, 'fam-other-text');
 
 // ── 活動習慣：三大類，每類擇一 ──
 const ACTIVITY_CATEGORIES = [
@@ -2521,6 +2602,7 @@ function renderCategoryGroup(containerId, categories, textareaId){
       box.appendChild(hint);
     }
     const wrap = document.createElement('div');
+    wrap.className = 'choice-grid';
     wrap.style.marginBottom = '14px';
     cat.options.forEach(opt=>{
       const sep = opt.indexOf('：');
@@ -2879,7 +2961,7 @@ function buildReport(){
     ${P('sleep-note') ? `<div class="rp-note" style="margin-top:4px">備註：${nl2br(P('sleep-note'))}</div>` : ''}
 
     <div class="rp-section-title" style="margin-top:18px">本次治療建議</div>
-    <div class="rp-note">用藥選擇：${esc(document.getElementById('tx-choice').selectedOptions[0].text)}</div>
+    <div class="rp-note">用藥選擇：${esc(txChoiceText())}</div>
     <div class="rp-note" style="margin-top:8px">${nl2br(P('tx-edu'))}</div>
   </div>`);
 
@@ -3746,7 +3828,7 @@ function collectState(){
     't-fat','t-fatmass','t-muscle','t-visceral','t-water','t-bmr','t-bodyage','t-smi','t-phaseangle',
     'us-fatty','us-text','us-thyroid','us-thyroid-text',
     'lab-ac','lab-hba1c','lab-homa','lab-tcho','lab-ldl','lab-hdl','lab-tg','lab-ast','lab-alt','lab-cr','lab-egfr','lab-ua','lab-tsh',
-    'tx-choice','tx-edu','cm-note','ms-hba1c',
+    'tx-choice','tx-choices','tx-edu','fam-other-text','cm-other-text','cm-note','ms-hba1c',
     'cal-activity','cal-goal','ex-text','edu-text','psy-note','doc-comment','stopbang-manual','phq9-manual',
     'body-note','metabolic-note','lab-note','sleep-note','track-note'];
   const state = {};
@@ -3773,6 +3855,12 @@ function collectState(){
   return state;
 }
 function applyState(state){
+  // 舊紀錄只有單選的 tx-choice：空值代表當時預設的「生活型態介入為主」
+  if(state && state['tx-choices'] === undefined && 'tx-choice' in state){
+    state = Object.assign({}, state, {'tx-choices': state['tx-choice'] || 'lifestyle'});
+  }
+  // 單選按鈕列的「已點選」標記先清掉，載入後再依值判斷
+  document.querySelectorAll('select.as-buttons').forEach(s=> s.dataset.picked = '');
   Object.keys(state).forEach(id=>{
     if(id === '_track'){ Object.assign(trackData, state._track || {body:[],lab:[]}); renderTrackTable('body'); renderTrackTable('lab'); return; }
     if(id === '_phq9'){
@@ -3822,6 +3910,9 @@ function applyState(state){
   updateScreeningSummary();
   updateLabFlags();
   refreshInputComfort();
+  refreshChoiceButtons();
+  syncTagOtherInputs();
+  renderTxButtons();
 }
 // ============================================================
 // 病人紀錄：多筆儲存、草稿自動暫存、離開提醒
@@ -4015,6 +4106,126 @@ renderStepNavs();
 document.addEventListener('click', e=>{
   if(e.target && e.target.closest && e.target.closest('.cat-card, .bn-pill, .bn-arrow, .step-nav button')) setTimeout(refreshInputComfort, 30);
 }, true);
+
+// ============================================================
+// 單選按鈕列：把 class="as-buttons" 的下拉選單換成一排按鈕。
+// 原本的 <select> 保留（隱藏）當資料來源，存檔、報告、計算都不用改。
+// 一開始不預選；再點一次已選的按鈕可以取消。
+// ============================================================
+function choiceParts(text){
+  const i = text.indexOf('（');
+  return i > 0 ? [text.slice(0, i), text.slice(i + 1).replace(/）$/, '')] : [text, ''];
+}
+function makeChoiceButtons(sel){
+  if(!sel || sel.dataset.btnReady) return;
+  sel.dataset.btnReady = '1';
+  sel.hidden = true;
+  const row = document.createElement('div');
+  row.className = 'choice-row';
+  row.setAttribute('role', 'radiogroup');
+  [...sel.options].forEach(o=>{
+    if(!o.text.trim()) return;           // 空白選項只是「未選」的狀態，不做成按鈕
+    const [title, sub] = choiceParts(o.text);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'choice-btn';
+    b.dataset.value = o.value;
+    b.setAttribute('role', 'radio');
+    b.innerHTML = `<span class="t">${esc(title)}</span>${sub ? `<span class="s">${esc(sub)}</span>` : ''}`;
+    b.onclick = ()=>{
+      const already = sel.dataset.picked === '1' && sel.value === o.value;
+      if(already){
+        sel.value = [...sel.options].some(x=> x.value === '') ? '' : sel.value;
+        sel.dataset.picked = '';
+      } else {
+        sel.value = o.value;
+        sel.dataset.picked = '1';
+      }
+      sel.dispatchEvent(new Event('change', {bubbles:true}));
+      refreshChoiceButtons();
+    };
+    row.appendChild(b);
+  });
+  sel.insertAdjacentElement('afterend', row);
+}
+function refreshChoiceButtons(){
+  document.querySelectorAll('select.as-buttons').forEach(sel=>{
+    // 存檔載入後有值就視為已選；值為空時只有使用者親手點過「未評估／未檢查」才亮
+    if(sel.value !== '' && sel.dataset.picked !== '1') sel.dataset.picked = '1';
+    const row = sel.nextElementSibling;
+    if(!row || !row.classList.contains('choice-row')) return;
+    row.querySelectorAll('.choice-btn').forEach(b=>{
+      const on = sel.dataset.picked === '1' && b.dataset.value === sel.value;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', String(on));
+    });
+  });
+}
+document.querySelectorAll('select.as-buttons').forEach(makeChoiceButtons);
+refreshChoiceButtons();
+
+// ============================================================
+// 本次治療用藥建議：可複選。「生活型態介入為主（暫不用藥）」與藥物互斥。
+// 選擇存在 tx-choices（逗號分隔），用藥衛教依選擇順序合併帶入。
+// ============================================================
+const TX_OPTIONS = [
+  {key:'lifestyle', title:'生活型態介入為主', sub:'暫不用藥', edu:''},
+  {key:'rybelsus',  title:'Rybelsus 瑞倍適',  sub:'口服',     edu:'rybelsus'},
+  {key:'wegovy',    title:'Wegovy 週纖達',    sub:'注射',     edu:'wegovy'},
+  {key:'mounjaro',  title:'Mounjaro 猛健樂',  sub:'注射',     edu:'mounjaro'},
+];
+function getTxChoices(){
+  const v = document.getElementById('tx-choices').value;
+  return v ? v.split(',').filter(k=> TX_OPTIONS.some(o=> o.key === k)) : [];
+}
+function setTxChoices(list){
+  document.getElementById('tx-choices').value = list.join(',');
+  renderTxButtons();
+}
+function renderTxButtons(){
+  const box = document.getElementById('tx-buttons');
+  if(!box) return;
+  const cur = getTxChoices();
+  if(!box.children.length){
+    TX_OPTIONS.forEach(o=>{
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'choice-btn';
+      b.dataset.value = o.key;
+      b.setAttribute('role', 'checkbox');
+      b.innerHTML = `<span class="t">${esc(o.title)}</span><span class="s">${esc(o.sub)}</span>`;
+      b.onclick = ()=>{
+        let list = getTxChoices();
+        if(list.includes(o.key)) list = list.filter(k=> k !== o.key);
+        else if(o.key === 'lifestyle') list = ['lifestyle'];
+        else list = list.filter(k=> k !== 'lifestyle').concat(o.key);
+        setTxChoices(list);
+        genMedEdu();
+        scheduleDraftSave();
+      };
+      box.appendChild(b);
+    });
+  }
+  box.querySelectorAll('.choice-btn').forEach(b=>{
+    const on = cur.includes(b.dataset.value);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-checked', String(on));
+  });
+}
+function txChoiceText(){
+  const list = getTxChoices();
+  if(!list.length) return '未選擇';
+  return list.map(k=>{ const o = TX_OPTIONS.find(x=> x.key === k); return o.title + '（' + o.sub + '）'; }).join('、');
+}
+renderTxButtons();
+
+// 「其他」標籤：載入紀錄後依標籤是否選取，顯示或收起輸入框
+function syncTagOtherInputs(){
+  document.querySelectorAll('.tag-box .tag-other').forEach(tag=>{
+    const input = tag.nextElementSibling;
+    if(input && input.classList.contains('tag-other-text')) input.hidden = !tag.classList.contains('selected');
+  });
+}
 
 // 啟動時：舊版單筆資料轉為紀錄；有草稿則詢問是否接續
 (function initStorage(){
