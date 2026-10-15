@@ -296,13 +296,14 @@ body.edu-max .edu-view img{box-shadow:none;}
 <script>
 const APP_REVISION = '2026-10-15';
 
-/* 兩個既有工具以原網址嵌入，原始碼不做任何修改；外觀統一靠載入後注入的樣式。
-   部署在 adigu2025.github.io 底下時三者同網域，外殼才能注入樣式、讀取結果、執行清除。
+/* 臨床計算（calc/）與減重報告（weight/）是同一個 repo 裡的兩個子頁，以 iframe 嵌入；
+   外觀統一靠載入後注入的樣式。三者同網域，外殼才能注入樣式、讀取結果、執行清除。
+   兩個子頁也可以單獨開啟（tools/calc/、tools/weight/）。
    以 file:// 開啟時改嵌入線上版，只剩分頁切換與保留結果。 */
 const IS_FILE = location.protocol === 'file:';
-const BASE = IS_FILE ? 'https://adigu2025.github.io/' : '../';
+const BASE = IS_FILE ? 'https://adigu2025.github.io/tools/' : './';
 const TOOLS = {
-  calc:   { url: BASE + 'muzi-calc/', title:'臨床計算' },
+  calc:   { url: BASE + 'calc/',   title:'臨床計算' },
   weight: { url: BASE + 'weight/',    title:'減重報告' }
 };
 // 清除時只刪「目前填寫中」的暫存，減重系統已儲存的紀錄（obesity_records_v1）不動。

@@ -1,2 +1,0 @@
-# muzi-calc
-calculation tool
