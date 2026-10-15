@@ -224,6 +224,12 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .chk-row{display:flex; align-items:flex-start; gap:9px; margin-bottom:9px; font-size:15.5px;}
 .chk-row input{width:auto; margin-top:3px;}
 .chk-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:4px 18px;}
+/* 「其他」：勾選後同一列展開輸入框，橫跨整列方便打字 */
+.chk-row.chk-other{grid-column:1 / -1; align-items:center;}
+.chk-row.chk-other label{flex:none;}
+.chk-row.chk-other .other-text{flex:1; min-width:0; max-width:560px; width:auto; margin:0; padding:7px 11px; font-size:15px;
+  border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; color:var(--text); background:var(--surface);}
+.chk-row.chk-other .other-text:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(188,127,48,.13);}
 .ms-item{display:flex; align-items:flex-start; gap:13px; padding:13px 16px; border:1.5px solid var(--border); border-radius:12px; margin-bottom:9px; background:#FAF9F6; transition:.15s;}
 .ms-item:has(input:checked){border-color:var(--primary); background:var(--primary-pale);}
 .ms-item input[type=checkbox]{margin-top:3px; width:18px; height:18px; accent-color:var(--primary); flex-shrink:0;}
@@ -333,6 +339,37 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .rp-note{font-size:14px; color:#3a3833; white-space:pre-wrap; line-height:1.56; overflow-wrap:anywhere; word-break:break-word;}
 /* 圖表與附件圖片不從中間切斷 */
 .rp-chart{break-inside:avoid; page-break-inside:avoid; margin-top:10px;}
+/* 報告第 2 頁：病人資訊一行帶過，重點數值用卡片呈現 */
+.rp-patient-strip{display:flex; flex-wrap:wrap; gap:6px 18px; align-items:baseline; font-size:14px; color:#3a3833;
+  padding:8px 12px; margin-bottom:16px; background:#FCFBF8; border:1px solid #E3DED4; border-radius:8px;}
+.rp-patient-strip b{font-size:16px; color:var(--navy);}
+.rp-kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; break-inside:avoid; page-break-inside:avoid;}
+.rp-kpi{border:1px solid #E3DED4; border-radius:8px; padding:8px 10px 9px; background:#fff;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+.rp-kpi .k{font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.04em;}
+.rp-kpi .v{font-size:19px; font-weight:700; color:var(--navy); line-height:1.3; margin-top:2px; font-variant-numeric:tabular-nums;}
+.rp-kpi .v small{font-size:12px; font-weight:400; color:var(--muted);}
+.rp-kpi .v .na, .rp-kpi .na{font-size:14px; font-weight:400; color:#9E9B94;}
+.rp-kpi .s{font-size:12px; color:#5c5952; margin-top:2px;}
+.rp-kpi.abn{background:#FBEFED; border-color:#E8C3BE;}
+.rp-kpi.abn .v{color:#A3362F;}
+/* 檢驗表：分組標題列與異常箭頭 */
+.rp-lab .rp-group td{background:#F3EEE4 !important; font-weight:700; font-size:12.5px; color:var(--navy); padding:4px 9px; letter-spacing:.05em;}
+.rp-flag{font-weight:700; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+.rp-flag.hi{color:#B3413B;}
+.rp-flag.lo{color:#2F5D8A;}
+.rp-track th, .rp-track td{text-align:center; padding:5px 6px; font-size:13px;}
+.rp-track td.na{color:#C4C0B8;}
+.rp-footnote{font-size:12px; color:var(--muted); margin:-6px 0 8px;}
+/* 檢驗數值輸入：分組小標、單位、偏高偏低標籤 */
+.lab-group + .lab-group{margin-top:6px;}
+.lab-group h3{margin:16px 0 8px;}
+.field label .unit{font-size:12.5px; color:var(--muted); opacity:.8; margin-left:2px;}
+.lab-flag{margin-left:6px; font-size:12px; font-weight:700; padding:1px 8px; border-radius:999px; vertical-align:1px;}
+.lab-flag:empty{display:none;}
+.lab-flag.hi{background:#F7E6E4; color:#B3413B;}
+.lab-flag.lo{background:#E6EEF7; color:#2F5D8A;}
+.field input.lab-abn{border-color:#E3B4AF; background:#FFFBFA;}
 .rp-img-page img{break-inside:avoid; page-break-inside:avoid;}
 .patient-box td{overflow-wrap:anywhere;}
 .rp-hx-label{display:inline-block; background:#FFF3C4; color:var(--navy); font-weight:700; font-size:13px; padding:2px 10px; border-radius:5px; margin:8px 0 3px; break-after:avoid; page-break-after:avoid;}
@@ -502,11 +539,12 @@ main{padding-bottom:80px;}
     <div class="chk-grid">
       <div class="chk-row"><input type="checkbox" id="sc-thyroid"><label for="sc-thyroid">甲狀腺功能低下</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-cushing"><label for="sc-cushing">庫欣氏症候群</label></div>
-      <div class="chk-row"><input type="checkbox" id="sc-pcos"><label for="sc-pcos">多囊性卵巢症候群 (PMOS)</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-pcos"><label for="sc-pcos">多囊性卵巢症候群（PCOS）</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-hypothal"><label for="sc-hypothal">下視丘病灶</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-gh"><label for="sc-gh">生長激素缺乏症</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-hypogonad"><label for="sc-hypogonad">性腺功能低下症</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-genetic"><label for="sc-genetic">遺傳性肥胖症候群（如Prader-Willi）</label></div>
+      <div class="chk-row chk-other"><input type="checkbox" id="sc-other"><label for="sc-other">其他</label><input type="text" id="sc-other-text" class="other-text" aria-label="其他次發性肥胖病因" hidden></div>
     </div>
     <div class="field" style="margin-top:12px"><label>次發性肥胖病因備註</label><textarea id="sc-note"></textarea></div>
     <h3>藥物性因素</h3>
@@ -519,6 +557,7 @@ main{padding-bottom:80px;}
       <div class="chk-row"><input type="checkbox" id="med-hormone"><label for="med-hormone">荷爾蒙避孕藥</label></div>
       <div class="chk-row"><input type="checkbox" id="med-antihistamine"><label for="med-antihistamine">抗組織胺藥物</label></div>
       <div class="chk-row"><input type="checkbox" id="med-chemo"><label for="med-chemo">化療藥物</label></div>
+      <div class="chk-row chk-other"><input type="checkbox" id="med-other"><label for="med-other">其他</label><input type="text" id="med-other-text" class="other-text" aria-label="其他藥物性因素" hidden></div>
     </div>
     <div class="field" style="margin-top:10px"><label>藥物是否可調整／備註</label><textarea id="med-note" style="min-height:50px"></textarea></div>
     </div>
@@ -738,25 +777,46 @@ main{padding-bottom:80px;}
 <section class="screen" id="screen-lab">
   <div class="card">
     <h2>檢驗數值</h2>
-    <div class="grid">
-      <div class="field"><label>空腹血糖 AC Sugar (mg/dL)</label><input id="lab-ac" type="number" min="20" max="800"></div>
-      <div class="field"><label>糖化血色素 HbA1c (%)</label><input id="lab-hba1c" type="number" min="3" max="20" step="0.1"></div>
-      <div class="field"><label>HOMA-IR</label><input id="lab-homa" type="number" min="0.1" max="50" step="0.1"></div>
-      <div class="field"><label>總膽固醇 T-CHO (mg/dL)</label><input id="lab-tcho" type="number" min="50" max="600"></div>
-      <div class="field"><label>三酸甘油酯 TG (mg/dL)</label><input id="lab-tg" type="number" min="20" max="2000"></div>
-      <div class="field"><label>HDL-C (mg/dL)</label><input id="lab-hdl" type="number" min="10" max="150"></div>
-      <div class="field"><label>LDL-C (mg/dL)</label><input id="lab-ldl" type="number" min="10" max="400"></div>
-      <div class="field"><label>S-GPT = ALT (U/L)</label><input id="lab-alt" type="number" min="1" max="2000"></div>
-      <div class="field"><label>S-GOT = AST (U/L)</label><input id="lab-ast" type="number" min="1" max="2000"></div>
-      <div class="field"><label>肌酸酐 Cr (mg/dL)</label><input id="lab-cr" type="number" min="0.1" max="20" step="0.01"></div>
-      <div class="field"><label>腎絲球過濾率 eGFR</label><input id="lab-egfr" type="number" min="1" max="200"></div>
-      <div class="field"><label>甲狀腺促素 TSH (uIU/mL)</label><input id="lab-tsh" type="number" min="0.01" max="100" step="0.01"></div>
-      <div class="field"><label>尿酸 Uric Acid (mg/dL)</label><input id="lab-ua" type="number" min="1" max="20" step="0.1"></div>
+    <div class="hint" style="margin-top:-4px">數值超出一般成人參考值時，欄位名稱旁會標示「偏高／偏低」，實際判讀以檢驗單位的參考範圍為準。</div>
+    <div class="lab-group">
+      <h3>血糖與胰島素阻抗</h3>
+      <div class="grid">
+        <div class="field"><label for="lab-ac">空腹血糖 AC Sugar <span class="unit">mg/dL</span></label><input id="lab-ac" type="number" min="20" max="800"></div>
+        <div class="field"><label for="lab-hba1c">糖化血色素 HbA1c <span class="unit">%</span></label><input id="lab-hba1c" type="number" min="3" max="20" step="0.1"></div>
+        <div class="field"><label for="lab-homa">胰島素阻抗 HOMA-IR</label><input id="lab-homa" type="number" min="0.1" max="50" step="0.1"></div>
+      </div>
     </div>
+    <div class="lab-group">
+      <h3>血脂</h3>
+      <div class="grid">
+        <div class="field"><label for="lab-tcho">總膽固醇 T-CHO <span class="unit">mg/dL</span></label><input id="lab-tcho" type="number" min="50" max="600"></div>
+        <div class="field"><label for="lab-tg">三酸甘油酯 TG <span class="unit">mg/dL</span></label><input id="lab-tg" type="number" min="20" max="2000"></div>
+        <div class="field"><label for="lab-hdl">高密度膽固醇 HDL-C <span class="unit">mg/dL</span></label><input id="lab-hdl" type="number" min="10" max="150"></div>
+        <div class="field"><label for="lab-ldl">低密度膽固醇 LDL-C <span class="unit">mg/dL</span></label><input id="lab-ldl" type="number" min="10" max="400"></div>
+      </div>
+    </div>
+    <div class="lab-group">
+      <h3>肝腎功能</h3>
+      <div class="grid">
+        <div class="field"><label for="lab-alt">ALT（GPT） <span class="unit">U/L</span></label><input id="lab-alt" type="number" min="1" max="2000"></div>
+        <div class="field"><label for="lab-ast">AST（GOT） <span class="unit">U/L</span></label><input id="lab-ast" type="number" min="1" max="2000"></div>
+        <div class="field"><label for="lab-cr">肌酸酐 Cr <span class="unit">mg/dL</span></label><input id="lab-cr" type="number" min="0.1" max="20" step="0.01"></div>
+        <div class="field"><label for="lab-egfr">腎絲球過濾率 eGFR <span class="unit">mL/min/1.73m²</span></label><input id="lab-egfr" type="number" min="1" max="200"></div>
+      </div>
+    </div>
+    <div class="lab-group">
+      <h3>其他</h3>
+      <div class="grid">
+        <div class="field"><label for="lab-tsh">甲狀腺促素 TSH <span class="unit">μIU/mL</span></label><input id="lab-tsh" type="number" min="0.01" max="100" step="0.01"></div>
+        <div class="field"><label for="lab-ua">尿酸 Uric Acid <span class="unit">mg/dL</span></label><input id="lab-ua" type="number" min="1" max="20" step="0.1"></div>
+      </div>
+    </div>
+
     <div class="field" style="margin-top:12px"><label>檢驗數值備註</label><textarea id="lab-note"></textarea></div>
   </div>
   <div class="card">
-    <h2>上傳抽血報告 PDF（直接嵌入報告，不進行文字解析）</h2>
+    <h2>上傳抽血報告 PDF</h2>
+    <div class="hint" style="margin-top:-4px">上傳的報告會附在評估報告最後；有文字層的 PDF 可以自動擷取數值。</div>
     <div class="upload-zone" id="lab-drop" onclick="document.getElementById('lab-file').click()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳抽血報告 PDF
       <input type="file" id="lab-file" accept="application/pdf" multiple style="display:none">
@@ -994,7 +1054,7 @@ const TOP_AREAS = [
 ];
 
 // 最後改版日期：每次改版請一併更新，會顯示於首頁左下角
-const APP_REVISION = '2026-10-05';
+const APP_REVISION = '2026-10-15';
 function renderAppRevision(){
   const el = document.getElementById('app-revision');
   if(el) el.textContent = '最後改版：' + APP_REVISION;
@@ -1418,6 +1478,55 @@ function rv(val, unit){
 function rvLab(val){
   const v = (val == null ? '' : String(val)).trim();
   return v ? esc(v) : RV_NA_LAB;
+}
+// 檢驗值標示：依一般成人參考值，只用來提醒「偏高／偏低」，實際判讀以各檢驗單位的參考範圍為準。
+// 有性別差異的（HDL、Cr、尿酸）依基本資料的性別判斷。
+const LAB_REF = {
+  ac:    {hi:v=> v >= 100},
+  hba1c: {hi:v=> v >= 5.7},
+  tcho:  {hi:v=> v >= 200},
+  tg:    {hi:v=> v >= 150},
+  ldl:   {hi:v=> v >= 130},
+  hdl:   {lo:(v,m)=> v < (m ? 40 : 50)},
+  alt:   {hi:v=> v > 40},
+  ast:   {hi:v=> v > 40},
+  cr:    {hi:(v,m)=> v > (m ? 1.3 : 1.1)},
+  egfr:  {lo:v=> v < 60},
+  tsh:   {hi:v=> v > 4.0, lo:v=> v < 0.4},
+  ua:    {hi:(v,m)=> v > (m ? 7.0 : 6.0)},
+};
+function labFlag(key, val){
+  const v = parseFloat(val);
+  const r = LAB_REF[key];
+  if(!r || isNaN(v)) return '';
+  const g = document.getElementById('p-gender');
+  const male = !!g && g.value === 'M';
+  if(r.hi && r.hi(v, male)) return 'hi';
+  if(r.lo && r.lo(v, male)) return 'lo';
+  return '';
+}
+function updateLabFlags(){
+  Object.keys(LAB_REF).forEach(k=>{
+    const input = document.getElementById('lab-' + k);
+    if(!input) return;
+    const label = input.parentNode.querySelector('label');
+    let tag = label && label.querySelector('.lab-flag');
+    if(label && !tag){ tag = document.createElement('span'); label.appendChild(tag); }
+    const f = labFlag(k, input.value);
+    if(tag){ tag.className = 'lab-flag' + (f ? ' ' + f : ''); tag.textContent = f === 'hi' ? '偏高' : f === 'lo' ? '偏低' : ''; }
+    input.classList.toggle('lab-abn', !!f);
+  });
+}
+document.addEventListener('input', e=>{ if(e.target && /^lab-/.test(e.target.id || '')) updateLabFlags(); }, true);
+document.addEventListener('change', e=>{ if(e.target && e.target.id === 'p-gender') updateLabFlags(); }, true);
+updateLabFlags();
+// 報告用：數值後面加 ↑／↓
+function rvLabF(key){
+  const val = document.getElementById('lab-' + key).value;
+  const v = (val == null ? '' : String(val)).trim();
+  if(!v) return RV_NA_LAB;
+  const f = labFlag(key, v);
+  return esc(v) + (f ? ` <span class="rp-flag ${f}">${f === 'hi' ? '↑' : '↓'}</span>` : '');
 }
 function rvText(val){
   const v = (val == null ? '' : String(val)).trim();
@@ -1843,22 +1952,11 @@ function renderFileList(kind, listId){
 // ============================================================
 // PDF 自動擷取數值到追蹤表（文字關鍵字比對，非AI，需人工核對）
 // ============================================================
+// 抽血報告：「帶入上方欄位」與「加入追蹤表」共用同一套關鍵字（LAB_CURRENT_EXTRACT_DICT）。
+// 舊版追蹤表用另一套較短的關鍵字與 12 字元搜尋距離，ALT／AST 的欄名後面常接中文全名與單位
+// （例如「GPT(ALT) 麩胺酸丙酮酸轉胺酶 U/L 25」），距離超過 12 字元就抓不到。
 const EXTRACT_DICT = {
-  lab: {
-    ac:['AC\\s*Sugar','空腹血糖','Glucose\\s*AC','FPG'],
-    hba1c:['HbA1c','醣化血色素','糖化血色素'],
-    homa:['HOMA-IR','HOMA'],
-    tcho:['Cholesterol','總膽固醇','T-?CHO'],
-    tg:['Triglyceride','三酸甘油酯','\\bTG\\b'],
-    hdl:['HDL'],
-    ldl:['LDL'],
-    alt:['\\bALT\\b','GPT'],
-    ast:['\\bAST\\b','GOT'],
-    cr:['Creatinine','肌酸酐','\\bCr\\b'],
-    egfr:['eGFR'],
-    tsh:['\\bTSH\\b'],
-    ua:['Uric\\s*Acid','尿酸','\\bUA\\b'],
-  },
+  lab: null,   // 於 LAB_CURRENT_EXTRACT_DICT 定義後指定
   body: {
     weight:['體重','体重','Weight'],
     bmi:['BMI'],
@@ -1877,14 +1975,24 @@ function extractDateFromText(text){
   if(m) return `${parseInt(m[1])+1911}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
   return '';
 }
-function extractFieldsFromText(text, dict, gap){
+// 關鍵字後面在 gap 個字元內的第一個數值。「0-40」這類參考範圍不當作數值：
+// 數值後面緊接「-」「~」再接數字的不取；範圍寫在數值前面的（「ALT 0-40 U/L 56」）整段跳過。
+// wideGap：一般距離找不到時，再以較寬距離找一次（給欄名後面接中文或英文全名、單位的報表格式）。
+function extractFieldsFromText(text, dict, gap, wideGap){
   const g = gap || 12;
   const result = {};
+  const RANGE = '[0-9]+(?:\\.[0-9]+)?\\s*[-~～]\\s*[0-9]+(?:\\.[0-9]+)?';
+  const find = (kw, len)=>{
+    const re = new RegExp(kw + '(?:[^0-9\\n]|' + RANGE + '){0,'+len+'}?([0-9]+\\.?[0-9]*)(?!\\s*[-~～]\\s*[0-9])', 'i');
+    const m = text.match(re);
+    return m ? m[1] : null;
+  };
   Object.keys(dict).forEach(field=>{
-    for(const kw of dict[field]){
-      const re = new RegExp(kw + '[^0-9\\n]{0,'+g+'}([0-9]+\\.?[0-9]*)', 'i');
-      const m = text.match(re);
-      if(m){ result[field] = m[1]; break; }
+    for(const len of wideGap ? [g, wideGap] : [g]){
+      for(const kw of dict[field]){
+        const v = find(kw, len);
+        if(v !== null){ result[field] = v; return; }
+      }
     }
   });
   return result;
@@ -1897,17 +2005,19 @@ const LAB_CURRENT_EXTRACT_DICT = {
   tg:['Triglyceride','三酸甘油酯','\\bTG\\b'],
   hdl:['HDL'],
   ldl:['LDL'],
-  alt:['S-?GPT','\\bALT\\b','GPT'],
-  ast:['S-?GOT','\\bAST\\b','GOT'],
+  alt:['S-?GPT','\\bALT\\b','GPT','丙(?:胺|氨)酸(?:胺基)?轉(?:胺|氨)(?:基)?酶','丙酮酸轉(?:胺|氨)(?:基)?酶','Alanine\\s*amino-?transferase'],
+  ast:['S-?GOT','\\bAST\\b','GOT','天門冬(?:胺|氨)酸(?:胺基)?轉(?:胺|氨)(?:基)?酶','草醋酸轉(?:胺|氨)(?:基)?酶','Aspartate\\s*amino-?transferase'],
   cr:['Creatinine','肌酸酐','\\bCr\\b'],
   egfr:['eGFR'],
   tsh:['\\bTSH\\b'],
   ua:['Uric\\s*Acid','尿酸','\\bUA\\b'],
 };
+EXTRACT_DICT.lab = LAB_CURRENT_EXTRACT_DICT;
+const LAB_EXTRACT_GAP = 18, LAB_EXTRACT_WIDE_GAP = 45;
 function fillCurrentLabFieldsFromUpload(){
   const allText = getUploadedPdfText('lab');
   if(allText === null) return;
-  const fields = extractFieldsFromText(allText, LAB_CURRENT_EXTRACT_DICT, 18);
+  const fields = extractFieldsFromText(allText, LAB_CURRENT_EXTRACT_DICT, LAB_EXTRACT_GAP, LAB_EXTRACT_WIDE_GAP);
   const keys = Object.keys(fields);
   if(keys.length === 0){ alert('未能自動辨識出可用數值，請於上方欄位手動輸入。'); return; }
   keys.forEach(k=>{
@@ -1915,6 +2025,7 @@ function fillCurrentLabFieldsFromUpload(){
     if(el){ el.value = fields[k]; flashField(el); }
   });
   if('hba1c' in fields){ syncHba1c('lab-hba1c'); flashField(document.getElementById('ms-hba1c')); }
+  updateLabFlags();
   alert(`已自動帶入 ${keys.length} 項數值到上方欄位（${keys.join('、')}），擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`);
 }
 
@@ -1991,7 +2102,9 @@ function extractFromUploads(kind){
   files.forEach(f=>{
     if(!f.text) return;
     const date = extractDateFromText(f.text) || (document.getElementById('p-date').value || '');
-    const fields = extractFieldsFromText(f.text, EXTRACT_DICT[kind]);
+    const fields = kind === 'lab'
+      ? extractFieldsFromText(f.text, EXTRACT_DICT.lab, LAB_EXTRACT_GAP, LAB_EXTRACT_WIDE_GAP)
+      : extractFieldsFromText(f.text, EXTRACT_DICT[kind]);
     if(Object.keys(fields).length === 0) return;
     const row = {};
     TRACK_COLS[kind].forEach(([key])=> row[key] = '');
@@ -2013,7 +2126,7 @@ function extractFromUploads(kind){
 // ============================================================
 const COMORBID_TAGS = [
   '第2型糖尿病前期或糖尿病','高血壓','血脂異常','脂肪肝／代謝性脂肪肝炎',
-  '阻塞性睡眠呼吸中止症','退化性關節炎','多囊卵巢症候群(PMOS)',
+  '阻塞性睡眠呼吸中止症','退化性關節炎','多囊卵巢症候群（PCOS）',
 ];
 makeTagPicker('comorbid-list', 'cm-note', COMORBID_TAGS);
 
@@ -2167,7 +2280,7 @@ function genExercise(){
   const dm = cmText.includes('糖尿病');
   const osa = cmText.includes('阻塞性睡眠呼吸中止症');
   const nafld = cmText.includes('脂肪肝');
-  const pmos = cmText.includes('PMOS');
+  const pmos = /PMOS|PCOS|多囊/.test(cmText);
 
   if(bmi === null){ alert('請先於「身體測量」頁填寫身高體重'); return; }
 
@@ -2201,7 +2314,7 @@ function genExercise(){
   if(dm){ lines.push(''); lines.push('※ 糖尿病前期／糖尿病者，運動前後建議監測血糖，避免空腹劇烈運動造成低血糖'); }
   if(osa){ lines.push(''); lines.push('※ 阻塞性睡眠呼吸中止症者，建議規律有氧運動有助改善病情，但避免睡前劇烈運動影響睡眠品質'); }
   if(nafld){ lines.push(''); lines.push('※ 脂肪肝患者，規律有氧運動搭配飲食調整為主要治療方式，建議持續規律執行'); }
-  if(pmos){ lines.push(''); lines.push('※ PMOS患者，規律運動有助改善胰島素阻抗，建議阻力訓練與有氧並重'); }
+  if(pmos){ lines.push(''); lines.push('※ 多囊性卵巢症候群（PCOS）患者，規律運動有助改善胰島素阻抗，建議阻力訓練與有氧並重'); }
   if(isNaN(smi) || isNaN(phaseAngle)){ lines.push(''); lines.push('※ 提醒：本分型未納入SMI與／或相位角數值（未填寫），如TANITA機型有提供，建議補充填寫以提高分型準確度'); }
 
   document.getElementById('ex-text').value = lines.join('\n');
@@ -2277,7 +2390,7 @@ function makeTagPicker(containerId, textareaId, phrases, preselected){
 const FAMILY_HISTORY_TAGS = [
   '肥胖家族史','糖尿病家族史','高血壓家族史','血脂異常家族史',
   '心血管疾病家族史（心肌梗塞／中風）','脂肪肝家族史','痛風／高尿酸家族史',
-  '甲狀腺疾病家族史','多囊性卵巢症候群家族史（PMOS）','家族性遺傳肥胖症候群',
+  '甲狀腺疾病家族史','多囊性卵巢症候群家族史（PCOS）','家族性遺傳肥胖症候群',
 ];
 makeTagPicker('family-history-tags', 'fam-note', FAMILY_HISTORY_TAGS);
 
@@ -2519,6 +2632,24 @@ function stripHeaderLine(text, header){
 function hxBlock(label, content){
   return `<div class="rp-hx-label">${esc(label)}</div><div class="rp-note">${nl2br(content)}</div>`;
 }
+// 「其他」選項：有填文字就寫「其他：文字」，沒填就只寫「其他」
+function otherLabel(textId){
+  const t = (document.getElementById(textId).value || '').trim();
+  return t ? '其他：' + t : '其他';
+}
+// 勾選「其他」才顯示旁邊的輸入框；取消勾選時保留已輸入的文字，只是收起來
+function syncOtherInputs(focus){
+  document.querySelectorAll('.chk-other').forEach(row=>{
+    const box = row.querySelector('input[type=checkbox]');
+    const txt = row.querySelector('.other-text');
+    if(!box || !txt) return;
+    txt.hidden = !box.checked;
+    if(focus === box && box.checked) txt.focus();
+  });
+}
+document.addEventListener('change', e=>{
+  if(e.target && e.target.closest && e.target.closest('.chk-other') && e.target.type === 'checkbox') syncOtherInputs(e.target);
+}, true);
 function hxHistoryBlocksHtml(){
   const sc = [];
   if(chk('sc-thyroid')) sc.push('甲狀腺功能低下');
@@ -2528,6 +2659,7 @@ function hxHistoryBlocksHtml(){
   if(chk('sc-gh')) sc.push('生長激素缺乏症');
   if(chk('sc-hypogonad')) sc.push('性腺功能低下症');
   if(chk('sc-genetic')) sc.push('遺傳性肥胖症候群');
+  if(chk('sc-other')) sc.push(otherLabel('sc-other-text'));
   const meds = [];
   if(chk('med-steroid')) meds.push('類固醇');
   if(chk('med-psych')) meds.push('抗精神病藥/抗憂鬱藥');
@@ -2537,6 +2669,7 @@ function hxHistoryBlocksHtml(){
   if(chk('med-hormone')) meds.push('荷爾蒙避孕藥');
   if(chk('med-antihistamine')) meds.push('抗組織胺藥物');
   if(chk('med-chemo')) meds.push('化療藥物');
+  if(chk('med-other')) meds.push(otherLabel('med-other-text'));
 
   const dietText = stripHeaderLine(document.getElementById('diet-habit-text').value, CATEGORY_TEXT_HEADERS['diet-habit-text']);
   const activityText = stripHeaderLine(document.getElementById('activity-habit-text').value, CATEGORY_TEXT_HEADERS['activity-habit-text']);
@@ -2557,6 +2690,56 @@ function hxHistoryBlocksHtml(){
 }
 function comorbidSummary(){
   return document.getElementById('cm-note').value || '無';
+}
+
+// 報告第 2 頁：一眼看完的重點數值。異常值以淡紅底標示，判斷規則與檢驗頁的「偏高／偏低」相同。
+function kpiSummaryHtml(){
+  const P = id => (document.getElementById(id) ? document.getElementById(id).value : '').trim();
+  const T = id => (document.getElementById(id) ? document.getElementById(id).textContent : '').trim();
+  const NA = '<span class="na">未測</span>';
+  const labVal = (k, unit)=> P('lab-'+k) ? `${esc(P('lab-'+k))}${unit ? '<small> '+unit+'</small>' : ''}${labFlag(k, P('lab-'+k)) === 'hi' ? ' ↑' : labFlag(k, P('lab-'+k)) === 'lo' ? ' ↓' : ''}` : NA;
+  const anyFlag = keys=> keys.some(k=> labFlag(k, P('lab-'+k)));
+  const bmi = T('bmi-value');
+  const bmiNum = parseFloat(bmi);
+  const msCount = ['ms-waist','ms-glucose','ms-bp','ms-tg','ms-hdl'].filter(id=> document.getElementById(id) && document.getElementById(id).checked).length;
+  const waistFlag = T('waist-flag');
+  const msH = parseFloat(P('ms-hba1c'));
+  const msHba1c = !isNaN(msH) && msH >= 5.7 && msH <= 6.4;
+  const msPositive = msCount >= 3 || msHba1c;
+  const cards = [
+    {k:'BMI', v: (bmi && bmi !== '--') ? `${esc(bmi)}<small> kg/m²</small>` : NA,
+     s: esc((T('bmi-category').split('（')[0]) || ''), abn: !isNaN(bmiNum) && bmiNum >= 24},
+    {k:'腰圍', v: P('b-waist') ? `${esc(P('b-waist'))}<small> cm</small>` : NA, s: waistFlag === '高' ? '超過標準' : waistFlag === '正常' ? '正常' : '',
+     abn: waistFlag === '高'},
+    {k:'體脂肪率', v: P('t-fat') ? `${esc(P('t-fat'))}<small> %</small>` : NA, s: '', abn:false},
+    {k:'目標體重', v: P('b-target-weight') ? `${esc(P('b-target-weight'))}<small> kg</small>` : NA, s: P('target-loss-pct') ? '需減重 ' + esc(P('target-loss-pct')) : '', abn:false},
+    {k:'血糖', v: `${labVal('hba1c','%')}`, s: `AC ${P('lab-ac') ? esc(P('lab-ac')) + ' mg/dL' : '未測'}`, abn: anyFlag(['hba1c','ac'])},
+    {k:'血脂', v: `LDL ${labVal('ldl')}`, s: `TG ${P('lab-tg') ? esc(P('lab-tg')) : '未測'}　HDL ${P('lab-hdl') ? esc(P('lab-hdl')) : '未測'}`, abn: anyFlag(['ldl','tg','hdl','tcho'])},
+    {k:'肝功能', v: `ALT ${labVal('alt')}`, s: `AST ${P('lab-ast') ? esc(P('lab-ast')) : '未測'}`, abn: anyFlag(['alt','ast'])},
+    {k:'代謝症候群', v: msPositive ? '符合' : '未達標準', s: `符合 ${msCount}／5 項指標` + (msHba1c ? '，HbA1c 5.7–6.4%' : ''), abn: msPositive},
+  ];
+  return '<div class="rp-kpis">' + cards.map(c=>
+    `<div class="rp-kpi${c.abn ? ' abn' : ''}"><div class="k">${c.k}</div><div class="v">${c.v}</div>${c.s ? `<div class="s">${c.s}</div>` : ''}</div>`
+  ).join('') + '</div>';
+}
+
+// 報告第 3 頁：檢驗追蹤紀錄。只列有資料的欄位，依日期排序取最近 6 次，異常值加 ↑↓。
+function labTrackReportHtml(){
+  const rows = (trackData.lab || []).filter(r=> TRACK_COLS.lab.some(([k])=> k !== 'date' && String(r[k] || '').trim()));
+  if(!rows.length) return '';
+  const recent = rows.slice().sort((a,b)=> String(a.date || '').localeCompare(String(b.date || ''))).slice(-6);
+  const cols = TRACK_COLS.lab.filter(([k])=> k === 'date' || recent.some(r=> String(r[k] || '').trim()));
+  const cell = (k, v)=>{
+    v = String(v || '').trim();
+    if(!v) return '<td class="na">—</td>';
+    if(k === 'date') return `<td>${esc(v)}</td>`;
+    const f = labFlag(k, v);
+    return `<td>${esc(v)}${f ? ` <span class="rp-flag ${f}">${f === 'hi' ? '↑' : '↓'}</span>` : ''}</td>`;
+  };
+  return `<div class="rp-section-title" style="margin-top:18px">檢驗追蹤紀錄</div>
+    <table class="rp-table rp-track"><thead><tr>${cols.map(([k,l])=> `<th>${esc(l)}</th>`).join('')}</tr></thead>
+    <tbody>${recent.map(r=> `<tr>${cols.map(([k])=> cell(k, r[k])).join('')}</tr>`).join('')}</tbody></table>
+    ${rows.length > recent.length ? `<div class="rp-footnote">共 ${rows.length} 筆紀錄，此處列出最近 ${recent.length} 筆。</div>` : ''}`;
 }
 
 function buildReport(){
@@ -2601,13 +2784,9 @@ function buildReport(){
   pages.push(`
   <div class="report-page">
     ${rpHeader(2)}
-    <div class="rp-section-title">個人資訊</div>
-    <table class="rp-table" style="table-layout:fixed">
-      <tr><th style="width:25%">姓名</th><td style="width:25%">${esc(name)}</td><th style="width:25%">性別</th><td style="width:25%">${gender}</td></tr>
-      <tr><th>年齡</th><td>${esc(age)} 歲</td><th>評估日期</th><td>${esc(date)}</td></tr>
-      <tr><th>身高</th><td>${esc(height)} cm</td><th>體重</th><td>${esc(weight)} kg</td></tr>
-      <tr><th>BMI</th><td>${esc(bmiVal)}</td><th>出生日期</th><td>${esc(birth)}</td></tr>
-    </table>
+    <div class="rp-patient-strip"><b>${esc(name)}</b><span>${gender}・${esc(age)} 歲</span><span>身高 ${esc(height)} cm・體重 ${esc(weight)} kg</span><span>評估日期 ${esc(date)}</span></div>
+    <div class="rp-section-title">評估重點摘要</div>
+    ${kpiSummaryHtml()}
     <div class="rp-section-title" style="margin-top:18px">病史評估</div>
     ${hxHistoryBlocksHtml()}
   </div>`);
@@ -2637,23 +2816,29 @@ function buildReport(){
       <tr><th style="width:25%">甲狀腺超音波</th><td style="width:75%">${esc(P('us-thyroid') || '未檢查')}${P('us-thyroid-text') ? '，'+esc(P('us-thyroid-text')) : ''}</td></tr>
     </table>
 
-    <div class="rp-section-title" style="margin-top:18px">代謝相關檢驗數值</div>
-    <table class="rp-table" style="table-layout:fixed">
-      <tr><th style="width:25%">空腹血糖 AC Sugar</th><td style="width:25%">${rvLab(P('lab-ac'))}</td><th style="width:25%">醣化血色素 HbA1c</th><td style="width:25%">${rvLab(P('lab-hba1c'))}</td></tr>
-      <tr><th>胰島素阻抗 HOMA-IR</th><td>${rvLab(P('lab-homa'))}</td><th>總膽固醇 T-CHO</th><td>${rvLab(P('lab-tcho'))}</td></tr>
-      <tr><th>三酸甘油酯 TG</th><td>${rvLab(P('lab-tg'))}</td><th>高密度膽固醇 HDL-C</th><td>${rvLab(P('lab-hdl'))}</td></tr>
-      <tr><th>低密度膽固醇 LDL-C</th><td>${rvLab(P('lab-ldl'))}</td><th>麩丙胺酸轉胺酶 ALT</th><td>${rvLab(P('lab-alt'))}</td></tr>
-      <tr><th>麩草醋酸轉胺酶 AST</th><td>${rvLab(P('lab-ast'))}</td><th>肌酸酐 Cr</th><td>${rvLab(P('lab-cr'))}</td></tr>
-      <tr><th>腎絲球過濾率 eGFR</th><td>${rvLab(P('lab-egfr'))}</td><th>甲狀腺促素 TSH</th><td>${rvLab(P('lab-tsh'))}</td></tr>
-      <tr><th>尿酸 UA</th><td>${rvLab(P('lab-ua'))}</td><td></td><td></td></tr>
-    </table>
-    ${P('lab-note') ? `<div class="rp-note">備註：${nl2br(P('lab-note'))}</div>` : ''}
   </div>`);
 
   pages.push(`
   <div class="report-page">
     ${rpHeader(4)}
-    <div class="rp-section-title">代謝症候群評估</div>
+    <div class="rp-section-title">代謝相關檢驗數值</div>
+    <table class="rp-table rp-lab" style="table-layout:fixed">
+      <tr class="rp-group"><td colspan="4">血糖與胰島素阻抗</td></tr>
+      <tr><th style="width:25%">空腹血糖 AC Sugar</th><td style="width:25%">${rvLabF('ac')}</td><th style="width:25%">醣化血色素 HbA1c</th><td style="width:25%">${rvLabF('hba1c')}</td></tr>
+      <tr><th>胰島素阻抗 HOMA-IR</th><td>${rvLabF('homa')}</td><td></td><td></td></tr>
+      <tr class="rp-group"><td colspan="4">血脂</td></tr>
+      <tr><th>總膽固醇 T-CHO</th><td>${rvLabF('tcho')}</td><th>三酸甘油酯 TG</th><td>${rvLabF('tg')}</td></tr>
+      <tr><th>高密度膽固醇 HDL-C</th><td>${rvLabF('hdl')}</td><th>低密度膽固醇 LDL-C</th><td>${rvLabF('ldl')}</td></tr>
+      <tr class="rp-group"><td colspan="4">肝腎功能</td></tr>
+      <tr><th>ALT（GPT）</th><td>${rvLabF('alt')}</td><th>AST（GOT）</th><td>${rvLabF('ast')}</td></tr>
+      <tr><th>肌酸酐 Cr</th><td>${rvLabF('cr')}</td><th>腎絲球過濾率 eGFR</th><td>${rvLabF('egfr')}</td></tr>
+      <tr class="rp-group"><td colspan="4">其他</td></tr>
+      <tr><th>甲狀腺促素 TSH</th><td>${rvLabF('tsh')}</td><th>尿酸 UA</th><td>${rvLabF('ua')}</td></tr>
+    </table>
+    <div class="rp-footnote">↑ 偏高　↓ 偏低：依一般成人參考值標示，實際判讀以檢驗單位的參考範圍為準。</div>
+    ${P('lab-note') ? `<div class="rp-note">備註：${nl2br(P('lab-note'))}</div>` : ''}
+    ${labTrackReportHtml()}
+    <div class="rp-section-title" style="margin-top:18px">代謝症候群評估</div>
     <div class="rp-note">${(function(){
       const c = ['ms-waist','ms-glucose','ms-bp','ms-tg','ms-hdl'].filter(id=>document.getElementById(id).checked).length;
       const h = parseFloat(document.getElementById('ms-hba1c').value);
@@ -3343,8 +3528,8 @@ function renderCompleteness(){
 function updateScreeningSummary(){
   const el = document.getElementById('screening-summary');
   if(!el) return;
-  const ids = ['sc-thyroid','sc-cushing','sc-pcos','sc-hypothal','sc-gh','sc-hypogonad','sc-genetic',
-    'med-steroid','med-psych','med-insulin','med-bb','med-antiepileptic','med-hormone','med-antihistamine','med-chemo'];
+  const ids = ['sc-thyroid','sc-cushing','sc-pcos','sc-hypothal','sc-gh','sc-hypogonad','sc-genetic','sc-other',
+    'med-steroid','med-psych','med-insulin','med-bb','med-antiepileptic','med-hormone','med-antihistamine','med-chemo','med-other'];
   const c = ids.filter(id=>{ const e = document.getElementById(id); return e && e.checked; }).length;
   el.textContent = c ? `已勾選 ${c} 項` : '尚未勾選，可視需要展開';
   el.style.color = c ? 'var(--primary)' : '';
@@ -3533,7 +3718,7 @@ function printIsolated(bodyHtml, title){
 // ============================================================
 function collectState(){
   const ids = ['p-name','p-gender','p-birth-y','p-birth-m','p-birth-d','p-date','b-height',
-    'sc-note','med-note','diet-habit-text','activity-habit-text',
+    'sc-note','med-note','sc-other-text','med-other-text','diet-habit-text','activity-habit-text',
     'fam-note','preg-plan','motiv-score','motiv-support','fam-motiv-note',
     'b-weight','b-waist','b-sbp','b-dbp','b-target-weight',
     't-fat','t-fatmass','t-muscle','t-visceral','t-water','t-bmr','t-bodyage','t-smi','t-phaseangle',
@@ -3544,8 +3729,8 @@ function collectState(){
     'body-note','metabolic-note','lab-note','sleep-note','track-note'];
   const state = {};
   ids.forEach(id=> state[id] = document.getElementById(id).value);
-  ['sc-thyroid','sc-cushing','sc-pcos','sc-hypothal','sc-gh','sc-hypogonad','sc-genetic',
-   'med-steroid','med-psych','med-insulin','med-bb','med-antiepileptic','med-hormone','med-antihistamine','med-chemo',
+  ['sc-thyroid','sc-cushing','sc-pcos','sc-hypothal','sc-gh','sc-hypogonad','sc-genetic','sc-other',
+   'med-steroid','med-psych','med-insulin','med-bb','med-antiepileptic','med-hormone','med-antihistamine','med-chemo','med-other',
    'ms-waist','ms-glucose','ms-bp','ms-tg','ms-hdl',
    'psy-refer','psy-support',
    ...STOPBANG_ITEMS.map(it=>it.id)]
@@ -3611,6 +3796,9 @@ function applyState(state){
   updateStandardWeightRange();
   updateHba1cReadout();
   calcPhq9();
+  syncOtherInputs();
+  updateScreeningSummary();
+  updateLabFlags();
 }
 // ============================================================
 // 病人紀錄：多筆儲存、草稿自動暫存、離開提醒
