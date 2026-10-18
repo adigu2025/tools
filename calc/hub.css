@@ -1,0 +1,107 @@
+/* 被工作台嵌入時才載入（見 index.html 開頭的判斷）：拿掉頁首頁尾、換成工作台色票與寬螢幕排版。
+   單獨開啟 calc/ 時不套用。 */
+:root{
+  --teal:#1F1E1D !important; --teal-dark:#1F1E1D !important; --teal-soft:#EFEDE6 !important;
+  --gold:#C96442 !important; --gold-soft:#F6EBE4 !important; --navy:#1F1E1D !important;
+  --bg:#F5F4EE !important; --surface-alt:#FAF9F5 !important; --line:#E6E3DA !important;
+  --text:#1F1E1D !important; --muted:#6F6B63 !important; --faint:#9C978C !important;
+  --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06) !important;
+  --ring:0 0 0 3px rgba(201,100,66,.22) !important;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif !important; padding-top:18px !important; background-image:none !important;}
+.card{border:1px solid #E6E3DA !important; border-radius:16px !important;}
+.header,.app-revision{display:none !important;}
+/* 滿版：卡片撐滿工作台寬度。放大倍率由工作台依畫面高度自動計算（fitCalc），
+   讓每個工具一屏放得下；頁尾的免責聲明改顯示在工作台底列。 */
+body{padding:12px 16px !important; min-height:0 !important;}
+@media (max-width:700px){ body{padding:10px !important;} }
+.card{max-width:none !important;}
+.footer{display:none !important;}
+.body{min-height:0 !important; padding:16px 24px 18px !important;}
+.tabs-wrap{background:rgba(250,249,245,.95) !important;}
+/* 分類與工具分頁排成同一列，省下一整列高度 */
+@media (min-width:1100px){
+  .tabs-wrap{display:flex !important; flex-wrap:wrap; align-items:center;}
+  .group-bar{flex:none; padding:8px 8px 0 20px !important; align-self:stretch; align-items:center;}
+  .group-btn{padding:6px 2px 7px !important;}
+  .tabs{flex:1 1 0; min-width:0; padding:9px 20px 9px 8px !important; border-left:1px solid #E6E3DA;}
+  .staff-toggle{order:9;}
+  .staff-notice{flex-basis:100%; margin:0 !important;}
+}
+/* 收緊垂直間距 */
+.panel-head{margin-bottom:14px !important; padding-bottom:8px !important;}
+.formula{margin-bottom:14px !important; line-height:1.65 !important; padding:10px 14px !important;}
+.grid-2,.grid-4{margin-bottom:14px !important; gap:14px !important;}
+.empty-hint{padding-top:22px !important; padding-bottom:22px !important;}
+.stat-grid,.section-box{margin-bottom:14px !important;}
+.section-box{padding:12px 14px !important;}
+.notes{line-height:1.7 !important;}
+.ref-table td{padding:7px 12px !important;}
+/* BMR／TDEE：結果區自己再分兩欄，衛教卡片排成一列 */
+@media (min-width:1100px){
+  /* BMI：輸入在左上，BMI 數值與色條在右上，標準體重與目標體重並排在下方 */
+  #panel-bmi.hub-split.active{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    grid-template-areas:"head head" "in disp" "in bar" "ideal target"; row-gap:12px; align-items:start;}
+  #panel-bmi > .panel-head{grid-area:head;}
+  #panel-bmi > .hub-in{grid-area:in;}
+  #panel-bmi > .hub-out{display:contents;}
+  #panel-bmi #bmi-hint{grid-column:2; grid-row:2 / 4; margin:0 !important;}
+  #bmi-result:not([style*="none"]){display:contents !important;}
+  #bmi-result > *{margin:0 !important;}
+  #bmi-result > .bmi-display{grid-area:disp;}
+  #bmi-result > .bar-wrap{grid-area:bar;}
+  #bmi-result > .ideal-box{grid-area:ideal; align-self:stretch;}
+  #bmi-result > .target-box{grid-area:target; align-self:stretch;}
+  /* 輸入｜（三個數值／減重時程與營養素並排）｜衛教重點 */
+  #panel-tdee.hub-split.active{grid-template-columns:minmax(0,.7fr) minmax(0,2.6fr) !important; column-gap:24px !important;}
+  #tdee-result:not([style*="none"]){display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);
+    column-gap:14px; align-items:start;}
+  #tdee-result > .stat-grid{grid-column:1 / 3; grid-row:1;}
+  #tdee-result > .section-box:nth-of-type(2){grid-column:1; grid-row:2;}
+  #tdee-result > .section-box:nth-of-type(3){grid-column:2; grid-row:2;}
+  #tdee-result > .edu-wrap{grid-column:3; grid-row:1 / span 3;}
+  #tdee-result .mini-grid-4{grid-template-columns:repeat(2,1fr) !important;}
+  /* 尚未計算時先保留時程與營養素的高度，預估倍率才準 */
+  #tdee-timeline:empty{min-height:var(--hub-tl, 200px);}
+  #tdee-macros:empty{min-height:var(--hub-mac, 95px);}
+  #tdee-result .edu-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important; padding:10px 12px !important; gap:10px !important;}
+  #tdee-result .edu-card{display:grid !important; grid-template-columns:auto 1fr; column-gap:8px; align-items:center;
+    padding:9px 11px !important;}
+  #tdee-result .edu-icon{margin:0 !important; font-size:18px !important;}
+  #tdee-result .edu-text{grid-column:1 / -1; line-height:1.55 !important;}
+  #tdee-result .stat{padding:10px 8px !important;}
+  #tdee-result .notes{margin-top:6px !important;}
+  /* 量表與勾選題：選項排成兩欄，高度減半，字才能放大 */
+  .check-list,.opt-list,.swatch-list{display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px !important;}
+  .check-list > *,.opt-list > *,.swatch-list > *{margin:0 !important;}
+  /* 糞便顏色：結果出現在色卡下方，色卡改四欄壓低高度 */
+  .swatch-list{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}
+  /* 量表結果：分數與建議、說明框分成兩欄自動平衡，結果出現時高度不超過作答畫面 */
+  .assess-result .result-card{columns:2; column-gap:28px; column-fill:balance;}
+  .assess-result .result-card > *{break-inside:avoid;}
+  /* 自我評估類：「已完成的評估」移到右側窄欄，不再佔用下方高度 */
+  main.body:has(> #summary-zone:not([hidden])){display:grid; grid-template-columns:minmax(0,1fr) 290px;
+    column-gap:28px; align-items:start;}
+  main.body:has(> #summary-zone:not([hidden])) > .tool-panel{grid-column:1; grid-row:1;}
+  /* 高度跟著左側工具走（height:0＋min-height:100%），完成的項目變多時在欄內捲動，不會把整頁撐高 */
+  main.body > #summary-zone:not([hidden]){grid-column:2; grid-row:1; margin-top:0 !important;
+    align-self:stretch; height:0; min-height:100%; overflow:auto;}
+}
+/* 原本偏小的字（欄位名稱、單位、英文副標）放大一級 */
+.field-head label{font-size:14.5px !important;}
+.field-unit{font-size:12.5px !important;}
+.field-err{font-size:13px !important;}
+.panel-title small{font-size:12.5px !important;}
+.tab .tab-en{font-size:11px !important;}
+.group-btn{font-size:15px !important;}
+@media (min-width:1100px){
+  .tool-panel.hub-split.active{display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+    column-gap:36px; align-items:start;}
+  .tool-panel.hub-split > .panel-head{grid-column:1 / -1;}
+  .hub-out{position:sticky; top:var(--hub-sticky, 140px);}
+  .hub-out > :first-child{margin-top:0 !important;}
+  .hub-in .grid-4{grid-template-columns:repeat(2,1fr) !important;}
+  /* 判讀結果先保留填值後的高度，預估倍率才準，填完不會再縮 */
+  #fib4-result{min-height:200px;} #rfactor-result{min-height:180px;} #childpugh-result{min-height:195px;}
+  #bristol-result{min-height:150px;}
+}

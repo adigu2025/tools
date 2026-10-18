@@ -526,6 +526,15 @@ main{padding-bottom:80px;}
 .qs-staff-row .l{flex-shrink:0; width:62px;}
 .qs-staff-row .ln{flex:1; border-bottom:1px solid var(--border); height:14px;}
 </style>
+<script>
+/* 被工作台（../）嵌入時，在第一次繪製前就載入工作台外觀，不會先閃出單獨開啟時的畫面；
+   頁面準備好後通知工作台，工作台在這之前會先遮住這一頁。 */
+window.IN_HUB = window.self !== window.top;
+if(window.IN_HUB){
+  document.write('<link rel="stylesheet" href="hub.css">');
+  document.addEventListener('DOMContentLoaded', function(){ try{ parent.hubFrameReady(window); }catch(e){} });
+}
+</script>
 </head>
 <body>
 
@@ -1124,7 +1133,7 @@ const TOP_AREAS = [
 ];
 
 // 最後改版日期：每次改版請一併更新，會顯示於首頁左下角
-const APP_REVISION = '2026-10-15';
+const APP_REVISION = '2026-10-18';
 function renderAppRevision(){
   const el = document.getElementById('app-revision');
   if(el) el.textContent = '最後改版：' + APP_REVISION;
@@ -1307,6 +1316,8 @@ function showScreen(id){
   setTimeout(()=>{ if(typeof refreshInputComfort === 'function') refreshInputComfort(); }, 0);
 }
 function goHome(){
+  // 在工作台裡只負責製作報告：不顯示首頁，按返回或 ESC 都回到報告目錄
+  if(window.IN_HUB){ showWorkflowHub(); return; }
   gridReset();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-home').classList.add('active');
@@ -4284,6 +4295,9 @@ function syncTagOtherInputs(){
     }
   }catch(e){}
 })();
+
+// 在工作台裡直接從報告目錄開始
+if(window.IN_HUB) showWorkflowHub();
 </script>
 </body>
 </html>

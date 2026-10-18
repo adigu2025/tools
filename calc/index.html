@@ -16,6 +16,15 @@
 <meta property="og:url" content="https://adigu2025.github.io/tools/calc/">
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="styles.css">
+<script>
+/* 被工作台（../）嵌入時，在第一次繪製前就載入工作台外觀，不會先閃出單獨開啟時的畫面；
+   頁面準備好後通知工作台，工作台在這之前會先遮住這一頁。 */
+window.IN_HUB = window.self !== window.top;
+if(window.IN_HUB){
+  document.write('<link rel="stylesheet" href="hub.css">');
+  document.addEventListener('DOMContentLoaded', function(){ try{ parent.hubFrameReady(window); }catch(e){} });
+}
+</script>
 </head>
 <body>
 <div class="card">
