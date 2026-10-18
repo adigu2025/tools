@@ -4296,8 +4296,15 @@ function syncTagOtherInputs(){
   }catch(e){}
 })();
 
-// 在工作台裡直接從報告目錄開始
-if(window.IN_HUB) showWorkflowHub();
+// 在工作台裡直接從報告目錄開始；工作台的分頁已叫「製作報告」，這裡的標題改成「減重報告」
+if(window.IN_HUB){
+  const hero = document.querySelector('#screen-workflow-hub .hero');
+  if(hero){
+    hero.querySelector('.hero-eyebrow').textContent = 'Weight Report';
+    hero.querySelector('.hero-title').innerHTML = '減重<strong>報告</strong>';
+  }
+  showWorkflowHub();
+}
 </script>
 </body>
 </html>

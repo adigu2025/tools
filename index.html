@@ -19,15 +19,23 @@
   --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06);
   --bar-h:80px; --foot-h:30px;
 }
+/* 四個分頁各用一個霍格華茲學院的代表色（主色＋輔色），只用在分頁、選取狀態、主要按鈕與細線；
+   大面積底色維持暖白，內文維持墨色，閱讀舒適度不受影響。
+   --acc 主色（填色）、--acc-fg 主色上的文字、--acc-2 輔色（細線、指示條）、--acc-soft 淡底、--acc-text 白底上可讀的強調字色。
+   赫夫帕夫的黃色當底時字用黑色；史萊哲林的銀色太淺，指示條改用較深的銀灰。 */
+body{--acc:#222F5B; --acc-fg:#fff; --acc-2:#946B2D; --acc-soft:#EEF0F6; --acc-text:#222F5B;}         /* 臨床計算：雷文克勞 藍＋銅 */
+body[data-view="weight"]{--acc:#ECB939; --acc-fg:#372E29; --acc-2:#372E29; --acc-soft:#FBF4DF; --acc-text:#7A5A00;} /* 製作報告：赫夫帕夫 黃＋黑 */
+body[data-view="edu"]{--acc:#740001; --acc-fg:#fff; --acc-2:#D3A625; --acc-soft:#F8ECEC; --acc-text:#740001;}       /* 衛教圖卡：葛來分多 紅＋金 */
+body[data-view="print"]{--acc:#1A472A; --acc-fg:#fff; --acc-2:#8D9396; --acc-soft:#EAF1EC; --acc-text:#1A472A;}     /* 列印表單：史萊哲林 綠＋銀 */
 *{box-sizing:border-box;}
 html,body{margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:var(--sans);
   font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;}
 button{font:inherit; cursor:pointer; color:inherit;}
-:focus-visible{outline:2px solid var(--clay); outline-offset:2px; border-radius:8px;}
+:focus-visible{outline:2px solid var(--acc-text); outline-offset:2px; border-radius:8px;}
 
 /* ── 頂端列 ── */
 .hub-bar{height:var(--bar-h); display:flex; align-items:center; gap:18px; padding:0 22px;
-  background:var(--surface-alt); border-bottom:1px solid var(--line);}
+  background:var(--surface-alt); border-bottom:1px solid var(--line); box-shadow:inset 0 -3px 0 var(--acc);}
 .qr-btn{width:52px; height:52px; padding:4px; border:1px solid var(--line); border-radius:12px; background:#fff; flex:none;}
 .qr-btn:hover{border-color:var(--line-strong);}
 .qr-btn img{width:100%; height:100%; display:block;}
@@ -37,8 +45,14 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .hub-tab{border:0; background:transparent; color:var(--muted); padding:9px 20px; border-radius:10px;
   font-size:16.5px; font-weight:500; white-space:nowrap;}
 .hub-tab:hover{color:var(--ink);}
-.hub-tab[aria-selected="true"]{background:var(--surface); color:var(--ink); font-weight:700;
+.hub-tab[aria-selected="true"]{background:var(--acc); color:var(--acc-fg); font-weight:700;
   box-shadow:0 1px 2px rgba(31,30,29,.08), 0 2px 8px rgba(31,30,29,.06);}
+/* 每個分頁前一個學院色圓點，沒選到時也看得出顏色對應；選到時圓點換成輔色 */
+.hub-tab::before{content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; vertical-align:2px; background:var(--dot);}
+.hub-tab[data-view="calc"]{--dot:#222F5B;} .hub-tab[data-view="weight"]{--dot:#ECB939;}
+.hub-tab[data-view="edu"]{--dot:#740001;} .hub-tab[data-view="print"]{--dot:#1A472A;}
+.hub-tab[aria-selected="true"]::before{background:var(--acc-2); box-shadow:0 0 0 1.5px rgba(255,255,255,.35);}
+.hub-tab[aria-selected="true"] kbd{color:inherit; opacity:.7;}
 .hub-tab kbd{font:inherit; font-size:11px; color:var(--faint); margin-left:7px; font-weight:400;}
 .hub-chips{display:flex; gap:8px; flex:1; min-width:0; overflow:hidden; justify-content:flex-end;}
 .chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 14px;
@@ -53,7 +67,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .btn{border:1px solid var(--line-strong); background:var(--surface); border-radius:10px; padding:9px 16px;
   font-size:15px; white-space:nowrap; color:var(--ink);}
 .btn:hover{background:var(--sunken);}
-.btn[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff;}
+.btn[aria-pressed="true"]{background:var(--acc); border-color:var(--acc); color:var(--acc-fg);}
 .btn.clear{border-color:var(--clay); color:var(--clay-dark); font-weight:700;}
 .btn.clear:hover{background:var(--clay); color:#fff;}
 .btn[hidden]{display:none;}
@@ -66,6 +80,28 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .pane iframe{width:100%; height:100%; border:0; display:block; background:var(--bg);}
 /* 子頁準備好之前先遮住（保留版面，量測字級才準），避免看到排版調整的過程 */
 .pane iframe.loading{opacity:0;}
+/* 製作報告：先選報告種類。減重報告的 iframe 一直留在底下保有版面（背景列印不出錯），只是不顯示 */
+#pane-weight{position:relative;}
+.hub-main:not([data-rep="weight"]) #pane-weight iframe{visibility:hidden;}
+.rep-layer{position:absolute; inset:0; overflow:auto; padding:18px; background:var(--bg); display:none;}
+.hub-main[data-rep="home"] #rep-home, .hub-main[data-rep="checkup"] #rep-checkup{display:block;}
+.rep-wrap{max-width:1100px; margin:0 auto;}
+.rep-head{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; padding:10px 4px 18px;}
+.rep-head h1{font-family:var(--serif); font-size:26px; margin:0; letter-spacing:.03em;}
+.rep-head p{margin:0; color:var(--muted); font-size:15px;}
+.rep-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:18px;}
+.rep-card{display:flex; flex-direction:column; align-items:flex-start; gap:10px; text-align:left; padding:26px 28px 24px;
+  transition:transform .15s, box-shadow .15s;}
+.rep-card:hover{transform:translateY(-2px); box-shadow:0 2px 4px rgba(31,30,29,.05), 0 12px 32px rgba(31,30,29,.10);}
+.rep-card .ico{width:48px; height:48px; border-radius:12px; display:grid; place-items:center; background:var(--acc-soft); color:var(--acc-fg);}
+.rep-card b{font-family:var(--serif); font-size:24px; letter-spacing:.04em;}
+.rep-card small{font-size:15px; color:var(--muted); line-height:1.6;}
+.rep-card .tag{font-size:12.5px; padding:2px 10px; border-radius:999px; background:var(--sunken); color:var(--muted);}
+.rep-card.card{border-top:4px solid var(--acc);}
+.rep-card.card.soon{border-top-color:var(--line-strong);}
+.rep-card.soon .ico{background:var(--sunken); color:var(--faint);}
+.rep-empty{padding:48px 32px; text-align:center; color:var(--muted);}
+.rep-empty b{display:block; font-family:var(--serif); font-size:24px; color:var(--ink); margin-bottom:8px;}
 .hub-main[data-view="calc"]   #pane-calc,
 .hub-main[data-view="weight"] #pane-weight,
 .hub-main[data-view="edu"]    #pane-edu,
@@ -86,9 +122,9 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .edu-item{position:relative; display:flex; gap:10px; align-items:center; width:100%; text-align:left; border:0;
   background:transparent; padding:11px 12px; border-radius:10px; color:var(--ink-2); font-size:16.5px; line-height:1.4;}
 .edu-item:hover{background:var(--sunken);}
-.edu-item[aria-current="true"]{background:var(--sunken); color:var(--ink); font-weight:700;}
+.edu-item[aria-current="true"]{background:var(--acc-soft); color:var(--ink); font-weight:700;}
 .edu-item[aria-current="true"]::before{content:""; position:absolute; left:0; top:10px; bottom:10px; width:3px;
-  border-radius:3px; background:var(--clay);}
+  border-radius:3px; background:var(--acc-2);}
 .edu-item .ico{width:20px; flex:none; display:inline-flex; justify-content:center; color:var(--muted);}
 .edu-item .lb{flex:1; min-width:0;}
 .edu-item .pg{flex:none; font-size:12px; color:var(--faint); font-weight:400;}
@@ -98,24 +134,24 @@ button{font:inherit; cursor:pointer; color:inherit;}
   border-radius:10px; padding:9px 12px; font-size:15.5px; font-weight:600; color:var(--ink-2); text-align:left;}
 .edu-group:hover{background:var(--sunken);}
 .edu-group .n{font-size:12.5px; font-weight:400; color:var(--faint); background:var(--sunken); border-radius:999px; padding:1px 8px;}
-.edu-group[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff;}
+.edu-group[aria-pressed="true"]{background:var(--acc); border-color:var(--acc); color:var(--acc-fg);}
 .edu-group[aria-pressed="true"] .n{background:rgba(255,255,255,.18); color:#fff;}
-.edu-item[aria-current="true"] .ico{color:var(--clay);}
+.edu-item[aria-current="true"] .ico{color:var(--acc-text);}
 .edu-stage{display:grid; grid-template-rows:auto 1fr; min-height:0; min-width:0; overflow:hidden;}
 .edu-tools{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
 .edu-tools h1{font-family:var(--serif); font-size:24px; font-weight:700; margin:0 0 0 4px; letter-spacing:.03em;}
 .edu-count{font-size:14px; color:var(--faint); margin-right:auto; font-variant-numeric:tabular-nums;}
 .tbtn{border:1px solid var(--line-strong); background:var(--surface); border-radius:10px; padding:8px 15px; font-size:15px; color:var(--ink);}
 .tbtn:hover{background:var(--sunken);}
-.tbtn.pri{background:var(--ink); border-color:var(--ink); color:#fff;}
-.tbtn.pri:hover{background:var(--ink-2);}
+.tbtn.pri{background:var(--acc); border-color:var(--acc); color:var(--acc-fg); font-weight:600;}
+.tbtn.pri:hover{filter:brightness(.88);}
 /* 按鈕群組：上下張、縮放、檢視模式各成一組 */
 .grp{display:inline-flex; align-items:stretch; border:1px solid var(--line-strong); border-radius:10px; overflow:hidden; background:var(--surface);}
 .grp > *{border:0; border-left:1px solid var(--line); background:transparent; padding:8px 13px; font-size:15px; min-width:42px;
   display:inline-flex; align-items:center; justify-content:center;}
 .grp > *:first-child{border-left:0;}
 .grp button:hover{background:var(--sunken);}
-.grp button[aria-pressed="true"]{background:var(--ink); color:#fff;}
+.grp button[aria-pressed="true"]{background:var(--acc); color:var(--acc-fg);}
 .grp .nav{font-size:20px; line-height:1; padding:6px 14px;}
 .zoom-val{min-width:96px; font-size:14.5px; color:var(--ink-2); font-variant-numeric:tabular-nums; cursor:default;}
 .edu-view{position:relative; overflow:auto; min-height:0; background:var(--sunken); display:flex; padding:16px;}
@@ -145,7 +181,9 @@ body.edu-max .edu-view img{box-shadow:none;}
 /* 列印表單：依用途分組的清單，每列只有名稱、頁數與列印按鈕 */
 .print-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(460px,1fr)); gap:18px; align-items:start;}
 .pgroup{padding:6px 0 8px;}
-.pgroup h2{display:flex; align-items:baseline; gap:10px; margin:10px 20px 6px; font-size:18px;}
+.pgroup h2{display:flex; align-items:baseline; gap:10px; margin:10px 20px 6px; font-size:18px; color:var(--acc-text);}
+.pgroup h2::before{content:""; align-self:center; width:4px; height:18px; border-radius:2px; background:var(--acc-2);}
+.prow .tbtn:hover{background:var(--acc); border-color:var(--acc); color:var(--acc-fg);}
 .pgroup h2 .n{font-size:13px; font-weight:400; color:var(--faint);}
 .prow{display:flex; align-items:center; gap:14px; padding:10px 20px; border-top:1px solid var(--line);}
 .prow:first-child{border-top:0;}
@@ -218,7 +256,7 @@ body.edu-max .edu-view img{box-shadow:none;}
   <div class="hub-brand">木子澄安診所</div>
   <nav class="hub-tabs" role="tablist" aria-label="切換工具">
     <button class="hub-tab" role="tab" data-view="calc"   aria-selected="true">臨床計算<kbd>Alt+1</kbd></button>
-    <button class="hub-tab" role="tab" data-view="weight" aria-selected="false">減重報告<kbd>Alt+2</kbd></button>
+    <button class="hub-tab" role="tab" data-view="weight" aria-selected="false">製作報告<kbd>Alt+2</kbd></button>
     <button class="hub-tab" role="tab" data-view="edu"    aria-selected="false">衛教圖卡<kbd>Alt+3</kbd></button>
     <button class="hub-tab" role="tab" data-view="print"  aria-selected="false">列印表單<kbd>Alt+4</kbd></button>
   </nav>
@@ -227,15 +265,41 @@ body.edu-max .edu-view img{box-shadow:none;}
     <button class="chip" id="chip-weight" data-go="weight" hidden></button>
   </div>
   <div class="hub-actions">
-    <button class="btn" id="btn-report-home" hidden>報告目錄</button>
+    <button class="btn" id="btn-rep-back" hidden>‹ 製作報告</button>
+    <button class="btn" id="btn-report-home" hidden>減重報告目錄</button>
     <button class="btn" id="btn-split" aria-pressed="false" hidden title="衛教旁邊同時顯示臨床計算">並排計算</button>
     <button class="btn clear" id="btn-clear" title="換下一位病人時使用">全部清除</button>
   </div>
 </header>
 
-<main class="hub-main" id="hub-main" data-view="calc" data-split="0">
+<main class="hub-main" id="hub-main" data-view="calc" data-split="0" data-rep="home">
   <section class="pane" id="pane-calc"></section>
-  <section class="pane" id="pane-weight"></section>
+  <section class="pane" id="pane-weight">
+    <div class="rep-layer" id="rep-home">
+      <div class="rep-wrap">
+        <div class="rep-head"><h1>製作報告</h1><p>選擇要製作的報告。</p></div>
+        <div class="rep-grid">
+          <button class="rep-card card" data-rep="weight">
+            <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V10m6 10V4m6 16v-7"/></svg></span>
+            <b>減重報告</b>
+            <small>基本資料、病史、身體組成、檢驗、生活型態到治療計畫，填完產生 PDF 報告。</small>
+          </button>
+          <button class="rep-card card soon" data-rep="checkup">
+            <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 11h6M9 15h4"/></svg></span>
+            <b>體檢報告</b>
+            <small>成人健檢結果整理與說明。</small>
+            <span class="tag">準備中</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="rep-layer" id="rep-checkup">
+      <div class="rep-wrap">
+        <div class="rep-head"><h1>體檢報告</h1></div>
+        <div class="card rep-empty"><b>內容準備中</b>欄位與報告格式確定後加入這裡。</div>
+      </div>
+    </div>
+  </section>
 
   <section class="pane" id="pane-edu">
     <nav class="edu-rail card" id="edu-rail" aria-label="衛教主題"></nav>
@@ -340,8 +404,8 @@ function setView(v){
   main.dataset.view = v;
   document.querySelectorAll('.hub-tab').forEach(b=> b.setAttribute('aria-selected', String(b.dataset.view === v)));
   document.getElementById('btn-split').hidden = (v !== 'edu');
-  document.getElementById('btn-report-home').hidden = (v !== 'weight');
-  document.getElementById('foot-hint').textContent = FOOT_HINT[v] || FOOT_HINT.calc;
+  document.body.dataset.view = v;
+  syncRep();
   if(v === 'edu'){
     document.getElementById('edu-view').focus({preventScroll:true});
     setTimeout(applyZoom, 0);
@@ -353,7 +417,9 @@ function setView(v){
 }
 const FOOT_HINT = {
   calc:   '以上結果僅供臨床參考，實際診斷與治療須由醫師綜合判斷。數值只在本機計算，不會上傳。',
-  weight: '減重報告會自動暫存草稿；按「報告目錄」回到十個分項。',
+  report: '選擇要製作的報告。',
+  weight: '減重報告會自動暫存草稿；按「減重報告目錄」回到十個分項，按「製作報告」回到報告種類。',
+  checkup: '體檢報告內容準備中。',
   edu:    '← → 換張　＋ － 縮放　0 整頁　W 寬度　F 最大化　放大後可按住圖片拖曳',
   print:  '按「列印」會直接跳出列印對話框，紙張為 A4。'
 };
@@ -362,6 +428,24 @@ function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(er
 function recall(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v === null ? d : v; }catch(err){ return d; } }
 document.querySelectorAll('.hub-tab').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.view)));
 document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
+
+/* ── 製作報告：home＝選報告種類，weight＝減重報告，checkup＝體檢報告 ── */
+function setRep(r){
+  main.dataset.rep = r;
+  store('hub-rep', r);
+  syncRep();
+}
+function syncRep(){
+  const v = main.dataset.view, r = main.dataset.rep;
+  document.getElementById('btn-rep-back').hidden = !(v === 'weight' && r !== 'home');
+  document.getElementById('btn-report-home').hidden = !(v === 'weight' && r === 'weight');
+  const hint = v === 'weight' ? (r === 'home' ? 'report' : r) : v;
+  document.getElementById('foot-hint').textContent = FOOT_HINT[hint] || FOOT_HINT.calc;
+}
+document.querySelectorAll('[data-rep]').forEach(b=> b.addEventListener('click', ()=> setRep(b.dataset.rep)));
+document.getElementById('btn-rep-back').addEventListener('click', ()=> setRep('home'));
+// 頂端的減重摘要直接帶到減重報告
+document.getElementById('chip-weight').addEventListener('click', ()=> setRep('weight'));
 document.getElementById('btn-split').addEventListener('click', e=>{
   const on = main.dataset.split !== '1';
   main.dataset.split = on ? '1' : '0';
@@ -980,8 +1064,10 @@ makeFrame('calc');
 makeFrame('weight');
 renderRail();
 renderForms();
+const lastRep = recall('hub-rep', 'home');
+main.dataset.rep = ['home','weight','checkup'].includes(lastRep) ? lastRep : 'home';
 const lastView = recall('hub-view', 'calc');
-setView(FOOT_HINT[lastView] ? lastView : 'calc');
+setView(['calc','weight','edu','print'].includes(lastView) ? lastView : 'calc');
 setInterval(updateChips, 1500);
 </script>
 </body>

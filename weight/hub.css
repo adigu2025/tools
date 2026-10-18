@@ -1,8 +1,9 @@
 /* 被工作台嵌入時才載入（見 index.html 開頭的判斷）：拿掉頁首與首頁、換成工作台色票。
    列印報告只複製本頁第一個 <style>，不受這個檔案影響。 */
+/* 配色：赫夫帕夫 黃（主色）＋黑（輔色），與工作台「製作報告」分頁一致；黃色只當框線與淡底，文字與按鈕用黑色才好讀 */
 :root{
-  --primary:#1F1E1D !important; --primary-dark:#1F1E1D !important; --primary-pale:#EFEDE6 !important;
-  --navy:#1F1E1D !important; --teal:#3A3935 !important; --teal-pale:#EFEDE6 !important;
+  --primary:#372E29 !important; --primary-dark:#372E29 !important; --primary-pale:#FBF4DF !important;
+  --navy:#372E29 !important; --teal:#5A4B3F !important; --teal-pale:#FBF4DF !important;
   --bg:#F5F4EE !important; --border:#E6E3DA !important; --text:#1F1E1D !important; --muted:#6F6B63 !important;
   --shadow-sm:0 1px 2px rgba(31,30,29,.04) !important;
   --shadow-md:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06) !important;
@@ -13,11 +14,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto
 .banner,#screen-home,.app-revision{display:none !important;}
 main{padding-top:22px !important;}
 #screen-workflow-hub .hero{padding-top:6px !important;}
-#screen-workflow-hub .hero-eyebrow{color:#C96442 !important;}
+#screen-workflow-hub .hero-eyebrow{color:#7A5A00 !important;}
 .cat-card{border-width:1px !important;}
-.cat-card:hover,.cat-card.key-sel{border-color:#C96442 !important;}
-.cat-card.key-sel{box-shadow:0 0 0 3px rgba(201,100,66,.18) !important;}
+.cat-card:hover,.cat-card.key-sel{border-color:#ECB939 !important;}
+.cat-card.key-sel{box-shadow:0 0 0 3px rgba(236,185,57,.35) !important;}
 .cat-icon{background:#F5F4EE !important; border:1px solid #E6E3DA !important; color:#1F1E1D;}
-.cat-card:hover .cat-icon{background:#F6EBE4 !important; border-color:#E9C9BA !important; color:#A9502F;}
+.cat-card:hover .cat-icon{background:#FBF4DF !important; border-color:#ECB939 !important; color:#372E29;}
 .cat-label{font-size:17px !important;}
 .cat-desc{font-size:14px !important;}
