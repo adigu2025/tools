@@ -142,6 +142,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .edu-stage{display:grid; grid-template-rows:auto 1fr; min-height:0; min-width:0; overflow:hidden;}
 .edu-tools{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
 .edu-tools h1{font-family:var(--serif); font-size:24px; font-weight:700; margin:0 0 0 4px; letter-spacing:.03em;}
+#pane-edu{padding:12px; gap:12px;}
 .edu-count{font-size:14px; color:var(--faint); margin-right:auto; font-variant-numeric:tabular-nums;}
 .tbtn{border:1px solid var(--line-strong); background:var(--surface); border-radius:10px; padding:8px 15px; font-size:15px; color:var(--ink);}
 .tbtn:hover{background:var(--sunken);}
@@ -163,6 +164,22 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .edu-view.pannable{cursor:grab;}
 .edu-view.panning{cursor:grabbing;}
 .edu-view .msg{margin:auto; color:var(--muted);}
+/* 全版面顯示：圖片使用整個高度，標題縮成左上角小標籤，工具列浮在右上角，蓋到圖片也沒關係 */
+.edu-stage{grid-template-rows:1fr; position:relative;}
+.edu-view{grid-row:1; padding:6px;}
+.edu-tools{position:absolute; z-index:3; top:10px; left:10px; right:10px; padding:0; border:0; gap:10px;
+  align-items:flex-start; justify-content:space-between; flex-wrap:nowrap; pointer-events:none;}
+.edu-tools > *{pointer-events:auto;}
+.edu-head, .edu-ctrl{background:rgba(255,255,255,.95); border:1px solid var(--line); border-radius:12px;
+  box-shadow:0 2px 10px rgba(31,30,29,.10);}
+.edu-head{display:flex; align-items:baseline; gap:10px; padding:7px 14px; min-width:0;}
+.edu-head h1{font-size:17px; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.edu-head .edu-count{margin-right:0; font-size:13px; white-space:nowrap;}
+.edu-ctrl{display:flex; align-items:center; gap:6px; padding:5px; flex-wrap:wrap; justify-content:flex-end;}
+.edu-ctrl .grp > *{padding:6px 11px; font-size:14px; min-width:36px;}
+.edu-ctrl .grp .nav{padding:4px 12px; font-size:18px;}
+.edu-ctrl .zoom-val{min-width:84px; font-size:13.5px;}
+.edu-ctrl .tbtn{padding:6px 12px; font-size:14px;}
 
 /* 最大化：與減重系統相同，用頁面內最大化，不呼叫瀏覽器全螢幕（那會跳出無法關閉的系統提示）。
    要連瀏覽器網址列都隱藏，再按 F11。 */
@@ -307,8 +324,11 @@ body.edu-max .edu-view img{box-shadow:none;}
     <nav class="edu-rail card" id="edu-rail" aria-label="衛教主題"></nav>
     <div class="edu-stage card">
       <div class="edu-tools">
-        <h1 id="edu-title">衛教圖卡</h1>
-        <span class="edu-count" id="edu-count"></span>
+        <div class="edu-head">
+          <h1 id="edu-title">衛教圖卡</h1>
+          <span class="edu-count" id="edu-count"></span>
+        </div>
+        <div class="edu-ctrl">
         <div class="grp">
           <button class="nav" id="edu-prev" title="上一張（←）" aria-label="上一張">‹</button>
           <button class="nav" id="edu-next" title="下一張（→）" aria-label="下一張">›</button>
@@ -324,6 +344,7 @@ body.edu-max .edu-view img{box-shadow:none;}
         </div>
         <button class="tbtn" id="edu-max" title="最大化（F 鍵，ESC 結束）"><span>最大化</span></button>
         <button class="tbtn pri" id="edu-print">列印</button>
+        </div>
       </div>
       <div class="edu-view" id="edu-view" tabindex="-1"><div class="msg">載入中……</div></div>
     </div>
@@ -881,7 +902,7 @@ let eduZoom = recall('hub-edu-zoom', 'fit');
 if(!(eduZoom === 'fit' || eduZoom === 'width' || typeof eduZoom === 'number')) eduZoom = 'fit';
 
 function fitScale(img, mode){
-  const aw = eduView.clientWidth - 32, ah = eduView.clientHeight - 32;
+  const aw = eduView.clientWidth - 12, ah = eduView.clientHeight - 12;
   return mode === 'width' ? aw / img.naturalWidth : Math.min(aw / img.naturalWidth, ah / img.naturalHeight);
 }
 function currentScale(){
