@@ -362,7 +362,7 @@ body.edu-max .edu-view img{box-shadow:none;}
 </div>
 
 <script>
-const APP_REVISION = '2026-10-18';
+const APP_REVISION = '2026-10-20';
 
 /* 臨床計算（calc/）與減重報告（weight/）是同一個 repo 裡的兩個子頁，以 iframe 嵌入；
    外觀由子頁自己的 hub.css 負責（只在被嵌入時載入）。三者同網域，外殼才能注入樣式、讀取結果、執行清除。
@@ -567,12 +567,12 @@ function computeCalcZ(c){
   panels.filter(p=> !CALC_SCROLL_OK.has(p.id)).forEach(p=>{
     panels.forEach(x=>{ x.hidden = true; x.classList.remove('active'); });
     p.hidden = false; p.classList.add('active');
-    // 依工具所屬分類，還原該分類會出現的提示列與「已完成的評估」欄
+    // 依工具所屬分類還原提示列；「已完成的評估」欄依面板的 data-summary（自我評估才有）
     const tab = d.getElementById('tab-' + p.id.replace('panel-', ''));
     const group = tab && tab.closest('.tabs') ? tab.closest('.tabs').dataset.group : '';
     tabRows.forEach(r=> r.hidden = r.dataset.group !== group);
     if(notice) notice.hidden = group !== 'calc';
-    if(summary) summary.hidden = !(group === 'gi' || group === 'meta');
+    if(summary) summary.hidden = !p.dataset.summary;
     // 結果區有的用行內 display:none、有的用 hidden 或 class 隱藏，一律以實際顯示狀態判斷，量完原樣還原
     const forced = [...p.querySelectorAll('.hub-out [id$="-result"]')]
       .filter(e=> getComputedStyle(e).display === 'none')
@@ -724,25 +724,25 @@ const ICON_BANDAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 const ICON_HEAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M7 20v-3.5A7 7 0 1 1 18.5 11l1.5 3.5h-2v2.5a2 2 0 0 1-2 2h-2V20"/></svg>';
 const ICON_US = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M8 3h8l-1.5 6h-5z"/><path d="M5 14a7 7 0 0 0 14 0"/><path d="M8 14a4 4 0 0 0 8 0"/></svg>';
 const LOCAL_EDU = [
-  {group:'wound', label:'傷口處理衛教', icon:ICON_BANDAGE, pages:[{src:'img/edu-wound-care-1.jpg'}, {src:'img/edu-wound-care-2.jpg'}]},
-  {group:'wound', label:'頭部傷口衛教', icon:ICON_HEAD,    pages:[{src:'img/edu-head-injury-1.jpg'}, {src:'img/edu-head-injury-2.jpg'}]},
-  {group:'exam',  label:'腹部超音波衛教', icon:ICON_US,    pages:[{src:'img/edu-abdominal-us-1.jpg'}, {src:'img/edu-abdominal-us-2.jpg'}]},
+  {group:'wound', label:'傷口處理衛教', icon:ICON_BANDAGE, pages:[{src:'img/edu-wound-care-1.webp'}, {src:'img/edu-wound-care-2.webp'}]},
+  {group:'wound', label:'頭部傷口衛教', icon:ICON_HEAD,    pages:[{src:'img/edu-head-injury-1.webp'}, {src:'img/edu-head-injury-2.webp'}]},
+  {group:'exam',  label:'腹部超音波衛教', icon:ICON_US,    pages:[{src:'img/edu-abdominal-us-1.webp'}, {src:'img/edu-abdominal-us-2.webp'}]},
 ];
 function weightEdu(list){
   return reorderEdu(list.map(([label, src, split, icon])=>({group:'weight', label, icon: icon || '', pages:[{src: W(src), split: split || 1}]})));
 }
 let EDU = weightEdu([
-  ['臨床評估','img/edu-clinical-assessment.jpg'],
-  ['肥胖與代謝症候群','img/edu-obesity-metabolic-syndrome.jpg'],
-  ['肥胖是日漸嚴重的問題','img/edu-obesity-trend.jpg'],
-  ['肥胖的成因','img/edu-obesity-causes.jpg'],
-  ['何時介入與改善方式','img/edu-when-to-intervene.jpg'],
-  ['治療流程','img/edu-treatment-pathway.jpg'],
-  ['藥物選擇','img/edu-medication-options.jpg'],
-  ['用藥衛教','img/edu-medication-guide.jpg'],
-  ['內視鏡減重','img/edu-endoscopic-treatment.jpg'],
-  ['瘦瘦針注射與保存','img/edu-glp1-injection-storage.jpg', 2],
-  ['追蹤與監測時程','img/edu-follow-up-schedule.jpg']
+  ['臨床評估','img/edu-clinical-assessment.webp'],
+  ['肥胖與代謝症候群','img/edu-obesity-metabolic-syndrome.webp'],
+  ['肥胖是日漸嚴重的問題','img/edu-obesity-trend.webp'],
+  ['肥胖的成因','img/edu-obesity-causes.webp'],
+  ['何時介入與改善方式','img/edu-when-to-intervene.webp'],
+  ['治療流程','img/edu-treatment-pathway.webp'],
+  ['藥物選擇','img/edu-medication-options.webp'],
+  ['用藥衛教','img/edu-medication-guide.webp'],
+  ['內視鏡減重','img/edu-endoscopic-treatment.webp'],
+  ['瘦瘦針注射與保存','img/edu-glp1-injection-storage.webp', 2],
+  ['追蹤與監測時程','img/edu-follow-up-schedule.webp']
 ]).concat(LOCAL_EDU);
 
 // 列印表單：依用途分組。減重門診的四份讀減重系統；同意書複製自報價系統，圖片放在工作台的 img/。
@@ -750,12 +750,12 @@ const FORM_GROUPS = [
   {key:'weight',  label:'減重門診'},
   {key:'consent', label:'檢查與治療同意書'},
 ];
-const C = n=> Array.from({length:n.pages}, (_, i)=> `img/consent-${n.file}-${i + 1}.jpg`);
+const C = n=> Array.from({length:n.pages}, (_, i)=> `img/consent-${n.file}-${i + 1}.webp`);
 let FORMS = [
   {group:'weight', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'scales'},
-  {group:'weight', label:'地中海飲食衛教', note:'共 2 頁', pages:[W('img/diet-mediterranean-1.jpg'), W('img/diet-mediterranean-2.jpg')], kind:'img'},
-  {group:'weight', label:'健康紀錄表', note:'共 1 頁', pages:[W('img/health-record.jpg')], kind:'img'},
-  {group:'weight', label:'腸泌素針劑自費使用同意書', note:'共 1 頁', pages:[W('img/consent-glp1.png')], kind:'img'},
+  {group:'weight', label:'地中海飲食衛教', note:'共 2 頁', pages:[W('img/diet-mediterranean-1.webp'), W('img/diet-mediterranean-2.webp')], kind:'img'},
+  {group:'weight', label:'健康紀錄表', note:'共 1 頁', pages:[W('img/health-record.webp')], kind:'img'},
+  {group:'weight', label:'腸泌素針劑自費使用同意書', note:'共 1 頁', pages:[W('img/consent-glp1.webp')], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
   {label:'大腸鏡同意書',     file:'colonoscopy', pages:2},
@@ -1071,6 +1071,20 @@ main.dataset.rep = ['home','weight','checkup'].includes(lastRep) ? lastRep : 'ho
 const lastView = recall('hub-view', 'calc');
 setView(['calc','weight','edu','print'].includes(lastView) ? lastView : 'calc');
 setInterval(updateChips, 1500);
+
+/* ── 離線快取（sw.js）：診所斷網時工作台仍可開啟。本機 file:// 開啟時不使用 ── */
+if('serviceWorker' in navigator && !IS_FILE){
+  navigator.serviceWorker.register('sw.js').then(()=> navigator.serviceWorker.ready).then(reg=>{
+    // 等減重系統的衛教清單讀進來後，在背景預存所有衛教與表單圖片，斷網時也能顯示與列印
+    setTimeout(()=>{
+      const urls = [...new Set([...EDU.flatMap(p=> p.pages.map(g=> g.src)), ...FORMS.flatMap(f=> f.pages)])]
+        .map(u=> new URL(u, location.href).href);
+      if(reg.active) reg.active.postMessage({type:'warm', urls});
+    }, 8000);
+  }).catch(()=>{});
+}
+window.addEventListener('offline', ()=> toast('網路已中斷，目前使用離線版本，計算、衛教與列印仍可使用。'));
+window.addEventListener('online', ()=> toast('網路已恢復。'));
 </script>
 </body>
 </html>

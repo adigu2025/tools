@@ -27,7 +27,7 @@
     TOOL_GROUP[t.dataset.tool] = t.closest('.tabs').dataset.group;
   });
 
-  // 預設停在基本測量的第一項（BMI）。FIB-4、R Factor、Child-Pugh 這類
+  // 預設停在基本評估的第一項（BMI）。FIB-4、R Factor、Child-Pugh 這類
   // 需要醫師解釋的判讀工具另外收在「臨床判讀」，避免病人誤讀存活率等數字
   var DEFAULT_GROUP = 'basic';
   var staffUnlocked = false;
@@ -51,10 +51,13 @@
       row.hidden = row.dataset.group !== group;
     });
     $('staff-notice').hidden = group !== 'calc';
-    // 「已完成的評估」彙整與列印只給自我評估用（病人要帶去門診的那種），
-    // 臨床計算與臨床判讀工具是當場看、當場用，不需要這個功能
-    var isAssessGroup = group === 'gi' || group === 'meta';
-    $('summary-zone').hidden = !isAssessGroup;
+  }
+
+  // 「已完成的評估」彙整與列印只給自我評估用（病人要帶去門診的那種），以面板的 data-summary 標記。
+  // BMI 這類當場看的計算與臨床判讀工具不需要。脂肪肝放在基本評估，但仍是自我評估，所以照樣收錄。
+  function isSummaryTool(tool){
+    var p = $('panel-' + tool);
+    return !!(p && p.dataset.summary);
   }
 
   function firstToolOf(group){
@@ -124,6 +127,7 @@
       p.hidden = !on;
     });
     switchGroup(TOOL_GROUP[tool] || DEFAULT_GROUP);
+    $('summary-zone').hidden = !isSummaryTool(tool);
     // 切換工具時「不」把工具名稱寫進網址。若寫進去，瀏覽器會記住帶錨點的網址，
     // 下次開啟就會停在上次那一項，而不是預設的 BMI。
   }
@@ -1091,7 +1095,7 @@
         }
       },
       {
-        id:'fatty', group:'gi', kind:'quiz', tab:'脂肪肝', tabEn:'肝病風險快篩',
+        id:'fatty', group:'basic', kind:'quiz', tab:'脂肪肝', tabEn:'肝病風險快篩',
         title:'脂肪肝與肝病風險快篩', sub:'代謝指標、三高病史、飲食習慣與慢性肝炎背景',
         scoreLabel:'風險評分',
         intro:'共 8 題，涵蓋代謝指標、三高病史、生活飲食與慢性肝炎背景。',
@@ -1307,6 +1311,7 @@
       panel.setAttribute('aria-labelledby', 'tab-' + spec.id);
       panel.tabIndex = 0;
       panel.hidden = true;
+      panel.dataset.summary = '1';
       panel.innerHTML =
         '<div class="panel-head">' +
           '<div class="panel-title">' + esc(spec.title) + '<small>' + esc(spec.sub) + '</small></div>' +
@@ -1324,6 +1329,11 @@
 
       RESETTERS[spec.id] = function(){ startModule(spec); };
       startModule(spec);
+    });
+    // 寫在 HTML 的靜態分頁（Bristol）依 data-after 移到指定評估的後面
+    document.querySelectorAll('.tab[data-after]').forEach(function(t){
+      var ref = document.getElementById('tab-' + t.dataset.after);
+      if (ref) ref.parentNode.insertBefore(t, ref.nextSibling);
     });
   }
 
@@ -1609,9 +1619,9 @@
   }
 
   function completedTools(){
-    // 彙整摘要只收自我評估（腸胃與消化、代謝與體態），臨床計算與臨床判讀工具不列入
+    // 彙整摘要只收自我評估（有 data-summary 的面板），臨床計算與臨床判讀工具不列入
     return (TOOLS || []).filter(function(t){
-      return COPY[t] && (TOOL_GROUP[t] === 'gi' || TOOL_GROUP[t] === 'meta');
+      return COPY[t] && isSummaryTool(t);
     });
   }
 
@@ -1735,7 +1745,7 @@
      最後改版日期（顯示於主畫面左下角）
      每次改版請一併更新這個常數
      ====================================================== */
-  var APP_REVISION = '2026-10-18';
+  var APP_REVISION = '2026-10-20';
   (function renderAppRevision(){
     var el = $('app-revision');
     if (el) el.textContent = '最後改版：' + APP_REVISION;
@@ -1746,6 +1756,11 @@
      ====================================================== */
   // 一律停在 BMI，除非網址明確指定 ?tool=xxx（醫師自己加的書籤才會有）
   switchTool(toolFromQuery() || firstToolOf(DEFAULT_GROUP), { scrollTab:false });
+
+  // 單獨開啟時也註冊離線快取（在工作台裡由外殼負責）
+  if (!window.IN_HUB && 'serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('../sw.js', { scope:'../' }).catch(function(){});
+  }
   stripHash();
   restoreState();
   ready = true;

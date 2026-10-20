@@ -57,7 +57,7 @@ if(window.IN_HUB){
   <div class="tabs-wrap">
     <div class="group-bar" role="tablist" aria-label="選擇工具分類" id="grouplist">
       <button class="group-btn" role="tab" id="group-basic" aria-selected="true" data-group="basic">
-        基本測量<span class="group-count">3</span>
+        基本評估<span class="group-count">3</span>
       </button>
       <button class="group-btn" role="tab" id="group-gi" aria-selected="false" tabindex="-1" data-group="gi">
         腸胃與消化<span class="group-count">6</span>
@@ -73,15 +73,12 @@ if(window.IN_HUB){
       </button>
     </div>
 
-    <div class="tabs" role="tablist" aria-label="基本測量工具" id="tabs-basic" data-group="basic">
+    <div class="tabs" role="tablist" aria-label="基本評估工具" id="tabs-basic" data-group="basic">
       <button class="tab" role="tab" id="tab-bmi" aria-controls="panel-bmi" aria-selected="true" data-tool="bmi">
         BMI<span class="tab-en">身體質量指數</span>
       </button>
       <button class="tab" role="tab" id="tab-tdee" aria-controls="panel-tdee" aria-selected="false" tabindex="-1" data-tool="tdee">
         BMR / TDEE<span class="tab-en">熱量需求</span>
-      </button>
-      <button class="tab" role="tab" id="tab-bristol" aria-controls="panel-bristol" aria-selected="false" tabindex="-1" data-tool="bristol">
-        Bristol<span class="tab-en">糞便型態</span>
       </button>
     </div>
 
@@ -103,7 +100,12 @@ if(window.IN_HUB){
       </button>
     </div>
 
-    <div class="tabs" role="tablist" aria-label="腸胃與消化自我評估" id="tabs-gi" data-group="gi"></div>
+    <!-- Bristol 寫在 HTML 裡，其餘自我評估分頁由 app.js 產生；data-after 指定它排在哪一項之後 -->
+    <div class="tabs" role="tablist" aria-label="腸胃與消化自我評估" id="tabs-gi" data-group="gi">
+      <button class="tab" role="tab" id="tab-bristol" aria-controls="panel-bristol" aria-selected="false" tabindex="-1" data-tool="bristol" data-after="reflux">
+        Bristol<span class="tab-en">糞便型態</span>
+      </button>
+    </div>
     <div class="tabs" role="tablist" aria-label="代謝與體態自我評估" id="tabs-meta" data-group="meta" hidden></div>
 
     <p class="staff-notice" id="staff-notice" hidden>
@@ -833,7 +835,7 @@ if(window.IN_HUB){
     </section>
 
     <!-- ===================== BRISTOL ===================== -->
-    <section class="tool-panel" id="panel-bristol" role="tabpanel" aria-labelledby="tab-bristol" tabindex="0" hidden>
+    <section class="tool-panel" id="panel-bristol" data-summary="1" role="tabpanel" aria-labelledby="tab-bristol" tabindex="0" hidden>
       <div class="panel-head">
         <div class="panel-title">Bristol Stool Scale 糞便型態量表<small>布里斯托糞便分類法</small></div>
         <div class="panel-actions">
