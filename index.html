@@ -383,8 +383,8 @@ const CLEAR_KEYS = {
 /* 兩個子頁的工作台外觀放在各自的 hub.css（calc/hub.css、weight/hub.css），
    子頁偵測到自己被嵌入時，在第一次繪製前就載入，不會先閃出單獨開啟時的畫面。 */
 
-/* 衛教圖卡順序：工作台裡把「瘦瘦針注射與保存」接在「藥物選擇」後面 */
-const EDU_AFTER = [['瘦瘦針注射與保存', '藥物選擇']];
+/* 衛教圖卡順序：工作台裡把「針劑注射與保存」接在「藥物選擇」後面 */
+const EDU_AFTER = [['針劑注射與保存', '藥物選擇']];
 
 const main = document.getElementById('hub-main');
 const frames = {};
@@ -741,7 +741,7 @@ let EDU = weightEdu([
   ['藥物選擇','img/edu-medication-options.webp'],
   ['用藥衛教','img/edu-medication-guide.webp'],
   ['內視鏡減重','img/edu-endoscopic-treatment.webp'],
-  ['瘦瘦針注射與保存','img/edu-glp1-injection-storage.webp', 2],
+  ['針劑注射與保存','img/edu-glp1-injection-storage.webp', 2],
   ['追蹤與監測時程','img/edu-follow-up-schedule.webp']
 ]).concat(LOCAL_EDU);
 
