@@ -771,7 +771,7 @@ function rChPlan(d){
   const eduText = rS('tx-edu');
   blocks.push(rBlock('本次用藥建議', 'MEDICATION',
     `<p style="margin-bottom:${eduText ? 12 : 0}px"><span class="pill g1" style="margin-right:12px">本次選擇</span><b style="color:#1F262A">${esc(txChoiceText())}</b></p>` +
-    (eduText ? `<div class="rich ru-host">${rRich(eduText, 36)}</div>` : ''), {split:true}));
+    (eduText ? `<div class="rich ru-host">${rRich(eduText, 39.5)}</div>` : ''), {split:true}));
 
   const c = typeof computeCalorie === 'function' ? computeCalorie() : null;
   if(c && !c.error){
@@ -987,6 +987,14 @@ async function layoutReport(doc, m){
     if(!a || !c) return;
     const dy = Math.round((a.top + a.bottom - c.top - c.bottom) / 2);
     if(dy > 0) r.style.paddingTop = dy + 'px';
+  });
+  stage.querySelectorAll('.tier').forEach(t=>{
+    const hh = t.querySelector('h5'), p = t.querySelector(':scope > p');
+    if(!hh || !p) return;
+    const a = firstLine(hh), c = firstLine(p);
+    if(!a || !c) return;
+    const dy = Math.round((a.top + a.bottom - c.top - c.bottom) / 2);
+    if(dy > 0) p.style.paddingTop = dy + 'px';
   });
 
   let body = null, chLabel = '';
