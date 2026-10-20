@@ -873,7 +873,7 @@ function buildReportModel(){
 }
 
 function rCoverHtml(m, logo){
-  const gender = rS('p-gender') === 'M' ? '男' : '女';
+  const sex = rS('p-gender'), gender = sex === 'M' ? '男' : sex === 'F' ? '女' : '--';
   const birth = rS('p-birth'), age = rS('p-age');
   const f = (k, v, na)=> `<div class="cv-f"><span class="k">${k}</span><span class="v${na ? ' na' : ''}">${v}</span></div>`;
   return `<section class="rpt-page cover">
@@ -891,7 +891,7 @@ function rCoverHtml(m, logo){
     <div class="cv-info-h"><b>個人資料</b><span>PERSONAL INFORMATION</span></div>
     <div class="cv-grid">
       ${f('姓名', esc(m.name))}${f('出生日期', esc(birth || '--'), !birth)}
-      ${f('性別', gender)}${f('年齡', age ? esc(age) + ' 歲' : '-- 歲', !age)}
+      ${f('性別', gender, !sex)}${f('年齡', age ? esc(age) + ' 歲' : '-- 歲', !age)}
       ${f('檢查日期', esc(m.date))}
     </div>
   </div>
@@ -1141,7 +1141,17 @@ function reportDocHtml(title, preview){
 }
 
 // 列印：在隱藏的 iframe 裡排好版再叫出列印對話框（沿用 printIsolated 的清理流程）
+// 判讀標準（腰圍、HDL-C、體脂肪率、eGFR、BMR）依性別不同，沒選性別就不產生報告
+function rNeedGender(){
+  if(rS('p-gender')) return false;
+  alert('請先在「基本資料」選擇性別，報告的判讀標準依性別不同。');
+  const g = document.getElementById('p-gender');
+  if(g) g.focus();
+  return true;
+}
+
 function printReport(){
+  if(rNeedGender()) return;
   const m = buildReportModel();
   printIsolated('', getReportFilename(), {
     html: reportDocHtml(getReportFilename(), false),
@@ -1153,6 +1163,7 @@ function printReport(){
 
 // 預覽：全螢幕顯示排好的每一頁，可直接列印
 async function previewReport(){
+  if(rNeedGender()) return;
   closeReportPreview();
   const m = buildReportModel();
   const ov = document.createElement('div');

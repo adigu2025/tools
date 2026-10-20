@@ -637,7 +637,9 @@ function calcBMI(silent){
 
   const waist = parseFloat(document.getElementById('b-waist').value);
   const gender = document.getElementById('p-gender').value;
-  if(waist){
+  if(waist && !gender){
+    document.getElementById('waist-flag').textContent = '請先選擇性別';
+  } else if(waist){
     const cutoff = gender === 'M' ? 90 : 80;
     const risky = waist >= cutoff;
     document.getElementById('waist-flag').innerHTML = risky
@@ -697,11 +699,11 @@ function msSuggestions(){
   let waistHit = null, waistText = '未輸入腰圍與 BMI';
   if(waist !== null || bmi !== null){
     const cutoff = gender === 'M' ? 90 : 80;
-    const byWaist = waist !== null ? waist >= cutoff : false;
+    const byWaist = waist !== null && gender ? waist >= cutoff : false;
     const byBmi = bmi !== null ? bmi >= 27 : false;
     waistHit = byWaist || byBmi;
     const parts = [];
-    if(waist !== null) parts.push(`腰圍 ${waist} cm（標準 ≥${cutoff}）`);
+    if(waist !== null) parts.push(gender ? `腰圍 ${waist} cm（標準 ≥${cutoff}）` : `腰圍 ${waist} cm（選擇性別後判定）`);
     if(bmi !== null) parts.push(`BMI ${bmi.toFixed(1)}（標準 ≥27）`);
     waistText = parts.join('，');
   }
@@ -717,6 +719,7 @@ function msSuggestions(){
     'ms-tg':      tg === null  ? {hit:null, text:'未輸入三酸甘油酯'}
                                : {hit: tg >= 150,  text:`三酸甘油酯 ${tg} mg/dL（標準 ≥150）`},
     'ms-hdl':     hdl === null ? {hit:null, text:'未輸入 HDL-C'}
+                : !gender      ? {hit:null, text:`HDL-C ${hdl} mg/dL（選擇性別後判定）`}
                                : {hit: hdl < (gender === 'M' ? 40 : 50),
                                   text:`HDL-C ${hdl} mg/dL（標準 ${gender === 'M' ? '<40' : '<50'}）`}
   };
@@ -797,7 +800,9 @@ function calcBody(){
   const visceral = parseFloat(document.getElementById('t-visceral').value);
   const gender = document.getElementById('p-gender').value;
   let notes = [];
-  if(!isNaN(fat)){
+  if(!isNaN(fat) && !gender){
+    notes.push(`體脂肪率 ${fat}%（選擇性別後判定）`);
+  } else if(!isNaN(fat)){
     const fatHigh = gender === 'M' ? 25 : 30;
     notes.push(fat >= fatHigh ? `體脂肪率 ${fat}% 偏高（男性標準 &lt;25%／女性 &lt;30%）` : `體脂肪率 ${fat}% 在合理範圍內`);
   }
@@ -906,8 +911,9 @@ document.addEventListener('input', e=>{
 function egfrEstimate(){
   const cr = parseFloat(document.getElementById('lab-cr').value);
   const age = parseFloat(document.getElementById('p-age').value);
-  if(isNaN(cr) || cr <= 0 || isNaN(age)) return null;
-  const female = document.getElementById('p-gender').value !== 'M';
+  const sex = document.getElementById('p-gender').value;
+  if(isNaN(cr) || cr <= 0 || isNaN(age) || !sex) return null;
+  const female = sex !== 'M';
   const k = female ? 0.7 : 0.9, a = female ? -0.241 : -0.302;
   const r = cr / k;
   return 142 * Math.pow(Math.min(r, 1), a) * Math.pow(Math.max(r, 1), -1.2) * Math.pow(0.9938, age) * (female ? 1.012 : 1);
@@ -1214,6 +1220,7 @@ function computeCalorie(){
   const hasMeasured = !isNaN(measuredBmr) && measuredBmr > 0;
   if(!hasMeasured && (!hM || !w || isNaN(age))) return {error:'請先完成基本資料（出生日期、身高、體重）'};
   if(!hM || !w) return {error:'請先於「基本資料」頁填寫身高體重', bmr: hasMeasured ? measuredBmr : null, bmrSrc:'measured'};
+  if(!gender) return {error:'請先於「基本資料」頁選擇性別', bmr: hasMeasured ? measuredBmr : null, bmrSrc:'measured'};
   let bmr, bmrSrc;
   if(hasMeasured){
     bmr = measuredBmr; bmrSrc = 'measured';
@@ -1418,8 +1425,8 @@ function genExercise(){
 const MED_EDU = {
   '': '【生活型態介入為主】\n目前階段以飲食調整、運動、行為改變與睡眠管理為核心，暫不使用藥物治療。若3–6個月效果不足，或BMI／共病已達介入標準，可與醫師討論藥物治療選項。',
   'rybelsus': '【Rybelsus 瑞倍適 用藥衛教】\n每日早上空腹服用，配不超過120mL的白開水整顆吞服，服藥後至少等30分鐘再進食、喝水或服用其他口服藥物。切勿壓碎、剝半、咀嚼。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
-  'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，起始劑量0.25mg，依醫囑逐月調整劑量至2.4mg。\n\n漏打處理：錯過的劑量在5天內盡快補打；超過5天則跳過本次，於原訂日期打下一劑。連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
-  'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，起始劑量2.5mg，依醫囑逐月調整劑量至最高15mg。\n\n漏打處理：錯過的劑量在4天（96小時）內盡快補打；超過4天則跳過本次，於原訂日期打下一劑。不可施打雙倍劑量。\n更改每週施打日：兩劑之間需間隔至少3天（72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
+  'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：錯過的劑量在4天（96小時）內盡快補打；超過4天則跳過本次，於原訂日期打下一劑。連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
+  'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：錯過的劑量在4天（96小時）內盡快補打；超過4天則跳過本次，於原訂日期打下一劑。不可施打雙倍劑量。\n更改每週施打日：兩劑之間需間隔至少3天（72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
 };
 // 依複選結果合併衛教內容；沒有選任何項目時清空
 function genMedEdu(){
