@@ -857,7 +857,7 @@ function buildReportModel(){
   const chapters = [
     {id:'summary', no:'01', zh:'評估總結',         en:'EXECUTIVE SUMMARY',    lead:'醫師結論、優先處理項目與各系統判讀。', blocks: rChSummary(d)},
     {id:'body',    no:'02', zh:'體位與身體組成',   en:'BODY COMPOSITION',     lead:'BMI、腰圍、血壓與 TANITA 身體組成分析。',             blocks: rChBody(d)},
-    {id:'lab',     no:'03', zh:'代謝、檢驗與影像', en:'METABOLIC PROFILE',    lead:'血糖、血脂、肝腎功能、代謝症候群與超音波檢查。',      blocks: rChLab(d)},
+    {id:'lab',     no:'03', zh:'檢驗與影像', en:'LABORATORY & IMAGING',    lead:'血糖、血脂、肝腎功能、代謝症候群與超音波檢查。',      blocks: rChLab(d)},
     {id:'history', no:'04', zh:'病史與身心評估',   en:'HISTORY & SCREENING',  lead:'次發性肥胖、生活型態、睡眠與情緒量表。',              blocks: rChHistory(d)},
     {id:'plan',    no:'05', zh:'治療與生活處方',   en:'TREATMENT PLAN',       lead:'治療方式、用藥說明、熱量營養、運動與飲食建議。',      blocks: rChPlan(d)},
     {id:'follow',  no:'06', zh:'追蹤計畫',         en:'FOLLOW-UP',            lead:'回診時程與需要提早回診的狀況。',                      blocks: rChFollow(d)},
@@ -967,6 +967,27 @@ async function layoutReport(doc, m){
   const waitFonts = (doc.fonts && doc.fonts.ready) ? doc.fonts.ready : Promise.resolve();
   const imgs = [...doc.images].filter(im=> !im.complete).map(im=> new Promise(r=>{ im.onload = im.onerror = r; }));
   await Promise.race([Promise.all([waitFonts, Promise.all(imgs)]), sleep(5000)]);
+
+  // 右欄內文的第一行和左欄小標（序號下面那一行）水平對齊：量出兩者的行中線差多少，就把右欄往下推多少
+  const firstLine = el=>{
+    const tw = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT, {acceptNode: n=> n.textContent.trim() ? 1 : 3});
+    let n, best = null;
+    while((n = tw.nextNode())){
+      const r = doc.createRange();
+      r.selectNodeContents(n);
+      const box = [...r.getClientRects()].find(x=> x.height > 0);
+      if(box && (!best || box.top < best.top - 1)) best = box;
+    }
+    return best;
+  };
+  stage.querySelectorAll('.rb:not(.callout):not(.full)').forEach(b=>{
+    const t = b.querySelector(':scope > .rb-l > .rb-h'), r = b.querySelector(':scope > .rb-r');
+    if(!t || !r) return;
+    const a = firstLine(t), c = firstLine(r);
+    if(!a || !c) return;
+    const dy = Math.round((a.top + a.bottom - c.top - c.bottom) / 2);
+    if(dy > 0) r.style.paddingTop = dy + 'px';
+  });
 
   let body = null, chLabel = '';
   const pages = [];
