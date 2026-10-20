@@ -17,9 +17,9 @@ const REPORT_CSS = `
 @page{size:A4; margin:0;}
 *{box-sizing:border-box; margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
 html,body{background:#fff;}
-body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:#2B2A27; font-size:13px; line-height:1.72; text-wrap:pretty; line-break:strict;
-  font-feature-settings:"palt" 0; -webkit-font-smoothing:antialiased;}
-.serif,.rc-head .no,.rc-head h2,.toc .no,.toc .t,.toc .p,.kcal .v,.goal .w,.find .i,.big{
+body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:#24292B; font-size:13px; line-height:1.8;
+  text-wrap:pretty; line-break:strict; -webkit-font-smoothing:antialiased;}
+.serif,.rc-head h2,.rb-h,.rb-no,.toc .no,.toc .t,.toc .p,.kcal .v,.goal .w,.find .i,.big,.co-l,.tier h5,.tl-when,.rpt-hd b,.toc-head h2{
   font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif;}
 #stage{position:absolute; left:-10000px; top:0; width:666px;}
 body.preview{background:#E7E3DC; padding:28px 0 8px;}
@@ -29,160 +29,156 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
   body.preview .rpt-page{margin:0; box-shadow:none;}
 }
 
-/* 頁面骨架：794 × 1123（A4，96 dpi） */
+/* 頁面骨架：794 × 1123（A4，96 dpi），版型比照工作台的減重衛教單 */
 .rpt-page{width:794px; height:1123px; overflow:hidden; position:relative; background:#fff; display:flex; flex-direction:column;
   padding:0 64px; break-after:page; page-break-after:always;}
 .rpt-page:last-child{break-after:auto; page-break-after:auto;}
-.rpt-hd{flex:none; height:80px; display:flex; align-items:flex-end; justify-content:space-between; padding-bottom:12px;
-  border-bottom:1px solid #DAD3C6; font-size:11px; color:#7D776D; letter-spacing:.06em;}
-.rpt-hd .l{display:flex; align-items:center; gap:10px;}
-.rpt-hd img{height:24px; width:auto; display:block;}
-.rpt-hd b{color:#152831; font-weight:700; letter-spacing:.16em;}
-.rpt-hd .sep{color:#C9C1B3;}
-.rpt-body{flex:1; min-height:0; overflow:hidden; padding-top:28px;}
-.rpt-ft{flex:none; height:62px; display:flex; justify-content:space-between; align-items:flex-start; padding-top:12px;
-  border-top:1px solid #E6E0D5; font-size:10.5px; color:#8F897F; letter-spacing:.04em;}
-.rpt-ft .ch{color:#BC7F30; font-weight:700; letter-spacing:.14em; margin-right:12px;}
-.rpt-ft .pg{font-variant-numeric:tabular-nums; color:#152831; font-weight:700; letter-spacing:.08em;}
+.rpt-hd{flex:none; height:76px; display:flex; align-items:flex-end; justify-content:space-between; padding-bottom:4px;
+  font-size:11.5px; color:#6F6A62; letter-spacing:.2em;}
+.rpt-hd .r{letter-spacing:.12em; color:#3B3A36;}
+.rpt-hd b{color:#9A6E2A; font-size:16px; font-weight:700; letter-spacing:.04em; margin-left:8px;}
+.rpt-body{flex:1; min-height:0; overflow:hidden; padding-top:26px;}
+.rpt-ft{flex:none; height:70px; display:flex; justify-content:space-between; align-items:flex-start; padding-top:12px;
+  border-top:1px solid #E6E1D8; font-size:10.5px; color:#8A847A; line-height:1.7; letter-spacing:.04em;}
+.rpt-ft .pg{font-variant-numeric:tabular-nums; color:#3B3A36; letter-spacing:.08em; padding-top:2px;}
 
-/* 章首 */
-.rc-head{display:flex; align-items:flex-end; gap:18px; padding-bottom:16px; margin-bottom:28px; border-bottom:2px solid #152831;}
-.rc-head .no{font-size:56px; line-height:.86; color:#BC7F30; font-weight:700;}
-.rc-head .en{font-size:10.5px; letter-spacing:.34em; color:#3E6A7C; font-weight:700;}
-.rc-head h2{font-size:27px; color:#152831; letter-spacing:.1em; line-height:1.3; font-weight:700;}
-.rc-head .lead{margin-left:auto; max-width:300px; text-wrap:balance; font-size:11.5px; color:#7D776D; text-align:right; line-height:1.65;}
+/* 章首：襯線大標＋一句說明＋深色細線 */
+.rc-head{padding-bottom:20px; margin-bottom:26px; border-bottom:1px solid #24292B;}
+.rc-head h2{font-size:42px; color:#1F262A; letter-spacing:.04em; line-height:1.2; font-weight:700;}
+.rc-head .lead{font-size:14.5px; color:#55524B; margin-top:12px; line-height:1.7;}
 
-/* 段落 */
-.rb{margin-top:30px;}
-.rpt-body > .rb:first-child, .rc-head + .rb{margin-top:0;}
-.rb-h{display:flex; align-items:center; gap:10px; font-size:15px; font-weight:700; color:#152831; letter-spacing:.08em; margin-bottom:12px; line-height:1.4;}
-.rb-h::before{content:''; width:7px; height:7px; background:#BC7F30; transform:rotate(45deg); flex:none;}
-.rb-h::after{content:''; flex:1; height:1px; background:#E4DED3;}
-.rb-h em{font-style:normal; font-size:9.5px; letter-spacing:.28em; color:#A39C90; font-weight:500;}
-.rb-h .cont{font-style:normal; font-weight:500; color:#9A9387; letter-spacing:.02em;}
+/* 段落：左欄金色序號＋襯線小標，右欄內容，段落之間淡色細線 */
+.rb{display:grid; grid-template-columns:150px 1fr; border-top:1px solid #E6E1D8; padding-top:22px; margin-top:22px;}
+.rpt-body > .rb:first-child, .rc-head + .rb{border-top:0; padding-top:0; margin-top:0;}
+.rb-l{padding-right:16px;}
+.rb-no{font-size:13px; color:#9A6E2A; letter-spacing:.14em; line-height:1.4; font-weight:700;}
+.rb-no:empty{display:none;}
+.rb-h{font-size:17.5px; font-weight:700; color:#1F262A; line-height:1.45; letter-spacing:.04em; margin-top:2px;}
+.rb-h .cont{display:block; font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-style:normal; font-size:11.5px; font-weight:400; color:#9A9387; letter-spacing:.06em;}
+.rb-r{min-width:0;}
 .muted{color:#7D776D;} .small{font-size:11.5px;}
 .na{color:#A8A296; font-weight:400;}
-.empty{font-size:12.5px; color:#9A9387; padding:6px 0;}
-.note-line{font-size:11.5px; color:#7D776D; margin-top:8px; line-height:1.65;}
+.empty{font-size:12.5px; color:#9A9387;}
+.note-line{font-size:11.5px; color:#7D776D; margin-top:10px; line-height:1.75;}
+.mark{font-weight:700; color:#1F262A; background:linear-gradient(transparent 60%, #EFE1C2 60%);}
 
-/* 判讀標籤與資料來源 */
-.pill{display:inline-block; font-size:10.5px; font-weight:700; padding:1px 9px 2px; border-radius:999px; letter-spacing:.08em;
-  white-space:nowrap; border:1px solid; line-height:1.5;}
-.g0{color:#3F6E52; background:#EDF4EF; border-color:#CFE2D5;}
-.g1{color:#94600F; background:#FBF2E2; border-color:#EBD2A4;}
-.g2{color:#A3362F; background:#F9E9E7; border-color:#E8C0BB;}
-.gna{color:#9A9387; background:#F4F2EE; border-color:#E4DFD6;}
-.src{display:inline-block; font-size:9.5px; color:#3E6A7C; border:1px solid #BFD0D7; border-radius:3px; padding:0 4px;
-  margin-left:6px; letter-spacing:.06em; vertical-align:1px; font-weight:500; line-height:1.5; white-space:nowrap;}
+/* 提示框：米色（一般）與淡紅（就醫），左側襯線標籤 */
+.rb.callout{grid-template-columns:118px 1fr; background:#F7F4EC; padding:18px 22px 18px 24px; border-top:0;}
+.rb.callout.red{background:#FAEDEA;}
+.co-l{font-size:16px; font-weight:700; color:#9A6E2A; letter-spacing:.1em; line-height:1.75;}
+.callout.red .co-l{color:#A3362F;}
+.co-r{font-size:13.5px; color:#2F3436;}
+
+/* 判讀與資料來源：彩色文字，不用圓角標籤 */
+.pill{font-size:11.5px; font-weight:700; letter-spacing:.12em; white-space:nowrap;}
+.g0{color:#4C7A5A;} .g1{color:#9A6E2A;} .g2{color:#B3413B;} .gna{color:#A8A296; font-weight:400;}
+.src{font-size:9.5px; color:#3E6A7C; margin-left:5px; letter-spacing:.08em; font-weight:500; white-space:nowrap; vertical-align:1px;}
+.src::before{content:'／';  color:#B9C9CF; margin-right:2px;}
 .arrow{font-weight:700; margin-left:3px;}
 .arrow.hi{color:#B3413B;} .arrow.lo{color:#2F5D8A;}
 
 /* 表格 */
 .rt{width:100%; border-collapse:collapse; table-layout:fixed; font-size:12.5px;}
-.rt th{font-size:10.5px; letter-spacing:.14em; color:#7D776D; font-weight:500; text-align:left; padding:0 8px 7px; border-bottom:1px solid #152831;}
-.rt td{padding:8px 8px; border-bottom:1px solid #ECE7DE; vertical-align:middle; overflow-wrap:anywhere;}
-.rt td.n{font-variant-numeric:tabular-nums; font-weight:700; color:#152831; font-size:13.5px; white-space:nowrap;}
+.rt th{font-size:11px; letter-spacing:.12em; color:#7D776D; font-weight:400; text-align:left; padding:0 6px 7px; border-bottom:1px solid #24292B;}
+.rt td{padding:8px 6px; border-bottom:1px solid #ECE7DE; vertical-align:middle; overflow-wrap:anywhere;}
+.rt td.n{font-variant-numeric:tabular-nums; font-weight:700; color:#1F262A; font-size:13.5px; white-space:nowrap;}
 .rt td.n .u{font-size:10.5px; color:#9A9387; font-weight:400; margin-left:3px;}
-.rt td.ref{font-size:11.5px; color:#6F6A62; font-variant-numeric:tabular-nums;}
-.rt td.c{text-align:center;} .rt th.c{text-align:center;}
-.rt .en{display:block; font-size:10.5px; color:#9A9387; letter-spacing:.02em; line-height:1.4;}
-.rt tr.grp td{padding:14px 8px 5px; font-size:11px; font-weight:700; color:#3E6A7C; letter-spacing:.18em; border-bottom:1px solid #D3DFE4;}
-.rt tr:first-child.grp td{padding-top:8px;}
-.rt.kv th{width:24%; font-size:12px; letter-spacing:.04em; color:#4A4740; font-weight:700; padding:9px 8px; border-bottom:1px solid #ECE7DE; vertical-align:top;}
-.rt.kv td{padding:9px 8px; line-height:1.7;}
-.rt.track th,.rt.track td{text-align:center; padding-left:4px; padding-right:4px; font-variant-numeric:tabular-nums;}
+.rt td.ref{font-size:11.5px; color:#6F6A62; font-variant-numeric:tabular-nums; white-space:nowrap;}
+.rt td.c{text-align:right;} .rt th.c{text-align:right;}
+.rt .en{display:block; font-size:10.5px; color:#9A9387; letter-spacing:.02em; line-height:1.45;}
+.rt tr.grp td{padding:14px 6px 4px; font-size:11.5px; font-weight:700; color:#9A6E2A; letter-spacing:.2em; border-bottom:1px solid #E6E1D8;}
+.rt tr:first-child.grp td{padding-top:6px;}
+.rt.kv th{width:26%; font-size:12px; letter-spacing:.1em; color:#9A6E2A; font-weight:700; padding:9px 6px; border-bottom:1px solid #ECE7DE; vertical-align:top;}
+.rt.kv td{padding:9px 6px; line-height:1.75;}
+.rt.kv tr:first-child th, .rt.kv tr:first-child td{padding-top:2px;}
+.rt.track th,.rt.track td{text-align:center; padding-left:2px; padding-right:2px; font-variant-numeric:tabular-nums;}
 .rt.track td{font-size:12px;}
 .bar{display:block;}
 
-/* 總結：醫師評語、優先處理事項、系統燈號 */
-.memo{border-left:3px solid #BC7F30; padding:2px 0 2px 18px;}
+/* 總結 */
 .memo .rich p{font-size:13.5px;}
-.find{display:grid; grid-template-columns:26px 1fr auto; gap:12px; align-items:baseline; padding:9px 0 9px; border-bottom:1px solid #ECE7DE;}
-.find:first-child{border-top:1px solid #152831;}
-.find .i{font-weight:700; color:#BC7F30; font-size:15px; font-variant-numeric:tabular-nums;}
-.find .t{font-size:13px; color:#2B2A27; line-height:1.6; white-space:nowrap;}
-.find .t b{color:#152831;}
-.tiles{display:grid; grid-template-columns:repeat(5,1fr); border-top:1px solid #152831;}
-.tile{border-bottom:1px solid #ECE7DE; border-right:1px solid #ECE7DE; padding:12px 12px 13px; min-height:104px; display:flex; flex-direction:column;}
-.tile:nth-child(5n){border-right:0;}
-.tile .k{font-size:11px; color:#7D776D; letter-spacing:.14em; font-weight:500; white-space:nowrap;}
-.tile .v{font-size:15.5px; font-weight:700; color:#152831; margin:6px 0 8px; line-height:1.3; font-variant-numeric:tabular-nums; flex:1; white-space:nowrap;}
+.find{display:grid; grid-template-columns:24px 1fr auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px solid #ECE7DE;}
+.find:first-child{padding-top:0;}
+.find .i{font-weight:700; color:#9A6E2A; font-size:14px; font-variant-numeric:tabular-nums;}
+.find .t{font-size:12.5px; color:#2F3436; line-height:1.7; white-space:nowrap;}
+.find .t b{color:#1F262A;}
+.tiles{display:grid; grid-template-columns:repeat(5,1fr); column-gap:12px; row-gap:16px;}
+.tile{border-top:2px solid #24292B; padding-top:8px;}
+.tile .k{font-size:12px; color:#1F262A; font-weight:700; letter-spacing:.08em; white-space:nowrap;}
+.tile .v{font-size:14px; font-weight:500; color:#1F262A; margin:4px 0 2px; line-height:1.4; font-variant-numeric:tabular-nums; white-space:nowrap;}
 .tile .v small{font-size:10.5px; color:#9A9387; font-weight:400;}
 .tile .v .na{font-size:12.5px;}
-.tile.t2{background:#FCF5F4;} .tile.t1{background:#FDFAF3;}
-.goal{display:grid; grid-template-columns:repeat(4,1fr); position:relative; margin-top:4px;}
-.goal::before{content:''; position:absolute; left:8px; width:50%; top:7px; height:2px; background:#152831;}
-.goal::after{content:''; position:absolute; left:calc(50% + 8px); width:25%; top:7px; height:0; border-top:2px dashed #BC7F30;}
-.goal .st{position:relative; padding-right:10px;}
-.goal .pt{width:16px; height:16px; border-radius:50%; background:#fff; border:3px solid #152831; position:relative; z-index:1;}
-.goal .st.end .pt{border-color:#BC7F30; background:#BC7F30;}
-.goal .lbl{font-size:11px; letter-spacing:.12em; color:#7D776D; margin-top:12px;}
-.goal .w{font-size:24px; font-weight:700; color:#152831; line-height:1.25; font-variant-numeric:tabular-nums;}
+.goal{display:grid; grid-template-columns:repeat(4,1fr); position:relative;}
+.goal::before{content:''; position:absolute; left:7px; width:50%; top:6px; height:2px; background:#24292B;}
+.goal::after{content:''; position:absolute; left:calc(50% + 7px); width:25%; top:6px; height:0; border-top:2px dashed #9A6E2A;}
+.goal .st{position:relative; padding-right:8px;}
+.goal .pt{width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid #24292B; position:relative; z-index:1;}
+.goal .st.end .pt{border-color:#9A6E2A; background:#9A6E2A;}
+.goal .lbl{font-size:11px; letter-spacing:.08em; color:#7D776D; margin-top:10px; white-space:nowrap;}
+.goal .w{font-size:24px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
 .goal .w small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A9387; font-weight:400; margin-left:3px;}
-.goal .st.end .w{color:#BC7F30;}
+.goal .st.end .w{color:#9A6E2A;}
 .goal .b{font-size:11.5px; color:#6F6A62;}
-.sign{display:grid; grid-template-columns:auto 1fr auto 150px; gap:14px; align-items:end; font-size:12px; color:#4A4740; letter-spacing:.1em; padding-top:6px;}
-.sign .ln{border-bottom:1px solid #152831; height:30px;}
+.rb.sign{display:grid; grid-template-columns:auto 1fr auto 150px; gap:14px; align-items:end; font-size:12px; color:#4A4740; letter-spacing:.12em;}
+.sign .ln{border-bottom:1px solid #24292B; height:30px;}
 
 /* 體位 */
-.bmi-top{display:flex; align-items:flex-end; gap:20px; margin-bottom:14px;}
-.big{font-size:52px; font-weight:700; color:#152831; line-height:.95; font-variant-numeric:tabular-nums;}
-.big small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:13px; font-weight:400; color:#9A9387; margin-left:6px;}
-.bmi-top .facts{margin-left:auto; display:grid; grid-template-columns:auto auto; column-gap:16px; row-gap:2px; font-size:12px; color:#6F6A62;}
-.bmi-top .facts b{color:#152831; font-variant-numeric:tabular-nums;}
-.pheno{display:flex; gap:14px; align-items:baseline; padding:12px 0 0; font-size:12.5px;}
-.pheno b{font-size:14px; color:#152831; letter-spacing:.06em;}
+.bmi-top{display:flex; align-items:flex-end; gap:16px; margin-bottom:12px;}
+.big{font-size:50px; font-weight:700; color:#1F262A; line-height:.95; font-variant-numeric:tabular-nums;}
+.big small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:12.5px; font-weight:400; color:#9A9387; margin-left:5px;}
+.bmi-top .facts{margin-left:auto; display:grid; grid-template-columns:auto auto; column-gap:14px; row-gap:0; font-size:12px; color:#6F6A62; white-space:nowrap;}
+.bmi-top .facts b{color:#1F262A; font-weight:500; font-variant-numeric:tabular-nums;}
+.pheno{display:flex; gap:12px; align-items:baseline; padding-top:12px; font-size:12px;}
+.pheno b{font-size:14px; color:#1F262A; letter-spacing:.04em;}
 
-/* 治療階梯 */
-.ladder{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
-.tier{border-top:3px solid #DDD6C9; padding:10px 2px 0;}
-.tier .n{font-size:10px; letter-spacing:.24em; color:#A39C90; font-weight:700;}
-.tier h5{font-size:14px; color:#152831; margin:4px 0 5px; letter-spacing:.04em;}
-.tier p{font-size:11.5px; color:#6F6A62; line-height:1.62;}
-.tier .when{font-size:10.5px; color:#9A9387; margin-top:6px; line-height:1.55;}
-.tier.on{border-color:#BC7F30;}
-.tier.on .n{color:#BC7F30;}
-.tier .now{display:inline-block; margin-left:6px; font-size:10px; color:#fff; background:#BC7F30; padding:0 7px; border-radius:3px; letter-spacing:.08em; vertical-align:2px;}
+/* 治療階梯：每一階一列，本次所在的階層以米色底標出 */
+.tier{display:grid; grid-template-columns:132px 1fr; gap:14px; padding:12px 12px 12px 0; border-bottom:1px solid #ECE7DE;}
+.tier:first-child{padding-top:0;}
+.tier .n{font-size:11px; letter-spacing:.16em; color:#9A6E2A; font-weight:700;}
+.tier h5{font-size:15px; color:#1F262A; letter-spacing:.04em; line-height:1.5;}
+.tier .when{font-size:10.5px; color:#9A9387; line-height:1.6; margin-top:2px;}
+.tier p{font-size:12px; color:#3B3A36; line-height:1.75;}
+.tier.on{background:#F7F4EC; margin:0 -12px; padding:12px;}
+.tier .now{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A6E2A; font-weight:700; margin-left:6px; letter-spacing:.1em;}
 
-/* 熱量 */
-.kcal{display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid #152831;}
-.kcal > div{padding:12px 14px 4px 0;}
-.kcal .k{font-size:11px; color:#7D776D; letter-spacing:.12em;}
-.kcal .v{font-size:30px; font-weight:700; color:#152831; line-height:1.25; font-variant-numeric:tabular-nums;}
-.kcal .v small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:12px; color:#9A9387; font-weight:400; margin-left:4px;}
-.kcal .main .v{color:#BC7F30;}
-.kcal .s{font-size:11px; color:#7D776D;}
-.macro{display:flex; height:12px; margin:18px 0 10px; overflow:hidden; border-radius:2px;}
+/* 熱量：三欄，每欄上方深色粗線 */
+.kcal{display:grid; grid-template-columns:repeat(3,1fr); column-gap:14px;}
+.kcal > div{border-top:2px solid #24292B; padding-top:8px;}
+.kcal .k{font-size:12px; color:#1F262A; font-weight:700; letter-spacing:.06em;}
+.kcal .v{font-size:28px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
+.kcal .v small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11.5px; color:#9A9387; font-weight:400; margin-left:4px;}
+.kcal .main .v{color:#9A6E2A;}
+.kcal .s{font-size:11px; color:#7D776D; line-height:1.6;}
+.macro{display:flex; height:8px; margin:18px 0 10px;}
 .macro i{display:block; height:100%;}
-.macro-lg{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; font-size:12px;}
-.macro-lg b{display:block; font-size:16px; color:#152831; font-variant-numeric:tabular-nums;}
-.macro-lg .sw{display:inline-block; width:9px; height:9px; margin-right:6px; vertical-align:0;}
-.warn{font-size:11.5px; color:#A3362F; margin-top:10px; line-height:1.65;}
+.macro-lg{display:grid; grid-template-columns:repeat(3,1fr); column-gap:14px; font-size:12px;}
+.macro-lg b{display:block; font-size:15px; color:#1F262A; font-variant-numeric:tabular-nums;}
+.macro-lg .sw{display:inline-block; width:8px; height:8px; margin-right:6px;}
+.warn{font-size:12.5px; color:#B3413B; font-weight:700; margin-top:10px; line-height:1.75;}
 
 /* 自由文字 */
-.rich h4{font-size:13px; font-weight:700; color:#3E6A7C; margin:14px 0 4px; letter-spacing:.06em;}
+.rich h4{font-size:13.5px; font-weight:700; color:#1F262A; margin:14px 0 2px; letter-spacing:.04em;}
 .rich > h4:first-child{margin-top:0;}
-.rich p{margin:0 0 4px;}
-.rich .li{padding-left:15px; position:relative; margin:0 0 3px;}
-.rich .li::before{content:''; position:absolute; left:3px; top:.74em; width:5px; height:5px; background:#BC7F30; border-radius:50%;}
+.rich p{margin:0 0 3px;}
+.rich .li{padding-left:16px; position:relative; margin:0 0 3px;}
+.rich .li::before{content:''; position:absolute; left:2px; top:.72em; width:6px; height:6px; background:#C9A15E;}
 .rich .note{font-size:12px; color:#7D776D;}
 
 /* 量表 */
-.scale-row{display:grid; grid-template-columns:190px 1fr; gap:22px; align-items:center;}
+.scale-row{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center;}
 .scale-row .score{font-size:12px; color:#7D776D;}
-.scale-row .score b{display:block; font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:30px; color:#152831; line-height:1.2;}
-.items{margin-top:10px; font-size:12px; color:#4A4740; line-height:1.7;}
+.scale-row .score b{display:block; font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:30px; color:#1F262A; line-height:1.25;}
+.items{margin-top:10px; font-size:12px; color:#4A4740; line-height:1.75;}
 
-/* 追蹤時程 */
-.tl{position:relative; padding-left:24px;}
-.tl::before{content:''; position:absolute; left:5px; top:8px; bottom:8px; width:1px; background:#CFC7B8;}
-.tl-row{position:relative; padding:0 0 14px;}
-.tl-row:last-child{padding-bottom:0;}
-.tl-row::before{content:''; position:absolute; left:-24px; top:6px; width:11px; height:11px; border-radius:50%; background:#fff; border:2px solid #BC7F30;}
-.tl-row .when{font-weight:700; color:#152831; font-size:13px; letter-spacing:.04em;}
-.tl-row .date{font-size:11.5px; color:#BC7F30; margin-left:10px; font-variant-numeric:tabular-nums; font-weight:500;}
-.tl-row .what{font-size:12.5px; color:#4A4740;}
-.chart svg{width:100%; height:auto; display:block; border:0 !important; border-top:1px solid #152831 !important; border-radius:0 !important; padding-top:6px;}
+/* 回診時程：左欄時間（襯線大字），右欄重點 */
+.tl-row{display:grid; grid-template-columns:120px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid #ECE7DE;}
+.tl-row:first-child{padding-top:0;}
+.tl-when{font-size:22px; font-weight:700; color:#1F262A; line-height:1.3; white-space:nowrap;}
+.tl-row:first-child .tl-when{color:#9A6E2A;}
+.tl-sub{font-size:11px; color:#7D776D; line-height:1.6; white-space:nowrap;}
+.tl-row h4{font-size:13.5px; color:#1F262A; font-weight:700; line-height:1.6;}
+.tl-row .what{font-size:12.5px; color:#3B3A36; line-height:1.75;}
+.chart svg{width:100%; height:auto; display:block; border:0 !important; border-top:1px solid #24292B !important; border-radius:0 !important; padding-top:6px; margin-top:16px;}
 
 /* 封面：沿用原本的設計（金色頂線、右上角同心圓、病人資料框） */
 .rpt-page.cover-old{padding:42px 55px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;
@@ -207,21 +203,21 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .cover-old .report-footer-strip{font-size:12px; color:#7A756D; border-top:1px solid #E4DFD6; padding-top:14px; position:relative; z-index:1; display:flex; justify-content:space-between;}
 
 /* 目錄頁 */
-.toc-title{display:flex; align-items:baseline; gap:16px; padding-bottom:16px; border-bottom:2px solid #152831; margin-bottom:6px;}
-.toc-title h2{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:27px; color:#152831; letter-spacing:.14em;}
-.toc-title em{font-style:normal; font-size:10.5px; letter-spacing:.34em; color:#3E6A7C; font-weight:700;}
-.toc{display:grid; grid-template-columns:50px 1fr auto; align-items:center; padding:12px 0; border-bottom:1px solid #ECE7DE;}
-.toc .no{font-size:22px; color:#BC7F30; font-weight:700;}
-.toc .t{font-size:17px; color:#152831; font-weight:700; letter-spacing:.08em; line-height:1.35;}
-.toc .t small{display:block; font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:9.5px; letter-spacing:.3em; color:#A39C90; font-weight:500;}
-.toc .p{font-size:16px; color:#152831; font-variant-numeric:tabular-nums;}
+.toc-head{padding-bottom:20px; margin-bottom:6px; border-bottom:1px solid #24292B;}
+.toc-head h2{font-size:42px; color:#1F262A; letter-spacing:.04em; line-height:1.2;}
+.toc-head .lead{font-size:14.5px; color:#55524B; margin-top:12px;}
+.toc{display:grid; grid-template-columns:54px 1fr auto; align-items:baseline; padding:13px 0; border-bottom:1px solid #ECE7DE;}
+.toc .no{font-size:16px; color:#9A6E2A; font-weight:700; letter-spacing:.1em;}
+.toc .t{font-size:19px; color:#1F262A; font-weight:700; letter-spacing:.06em;}
+.toc .p{font-size:16px; color:#3B3A36; font-variant-numeric:tabular-nums;}
 .howto{margin-top:34px;}
-.howto .lg{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:4px;}
-.howto .lg div{font-size:11.5px; color:#6F6A62; line-height:1.6;}
-.howto .lg .pill{margin-bottom:6px;}
-.howto p{font-size:12px; color:#4A4740; margin-top:10px; line-height:1.75;}
+.howto .lg{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:12px;}
+.howto .lg div{font-size:12px; color:#3B3A36; line-height:1.7;}
+.howto p{font-size:12.5px; color:#3B3A36; line-height:1.85; margin-top:6px;}
 
 /* 附件 */
+.rb.att{display:block; border:0; padding:0; margin:0;}
+.att .rb-h{margin-bottom:12px;}
 .att img{display:block; max-width:100%; margin:0 auto; border:1px solid #E4DED3; object-fit:contain;}
 `;
 
@@ -245,7 +241,7 @@ const R_EPS = 1e-9;
 // 數值在參考範圍上的位置：灰底長條＋分區色塊＋指標
 function rBar(v, scale, cuts, W){
   if(v == null || !scale || !cuts) return '';
-  W = W || 132;
+  W = W || 116;
   const [lo, hi] = scale, H = 20, y = 10, bh = 5;
   const x = t => Math.max(0, Math.min(W, (t - lo) / (hi - lo) * W));
   const col = ['#A9CBB4', '#E8C88E', '#DD9A92'];
@@ -302,7 +298,7 @@ function rLines(text, max){ return String(text || '').split('\n').filter(l=> l.t
 
 // 文字框內容轉成段落：【標題】成小標，• 開頭成項目，※ 開頭成附註。每一行是可換頁的最小單位，小標不會孤單留在頁尾
 function rRich(text, max){
-  max = max || 46;
+  max = max || 36;
   const out = [];
   String(text || '').replace(/\r/g, '').split('\n').forEach(raw=>{
     const l = raw.trim();
@@ -322,7 +318,11 @@ function rRich(text, max){
 function rBlock(title, en, inner, opt){
   opt = opt || {};
   return `<div class="rb${opt.cls ? ' ' + opt.cls : ''}"${opt.split ? ' data-split="1"' : ''}>` +
-    `<h3 class="rb-h"><span>${title}</span>${en ? `<em>${en}</em>` : ''}</h3>${inner}</div>`;
+    `<div class="rb-l"><div class="rb-no"></div><h3 class="rb-h">${title}</h3></div><div class="rb-r">${inner}</div></div>`;
+}
+// 米色或淡紅的提示框（比照衛教單的「效果不如預期」「提早就醫」）
+function rCallout(label, inner, red){
+  return `<div class="rb callout${red ? ' red' : ''}" data-split="1"><div class="co-l">${label}</div><div class="co-r rich ru-host">${inner}</div></div>`;
 }
 function rRichBlock(title, en, text, cls){
   if(!String(text || '').trim()) return '';
@@ -480,7 +480,7 @@ function rFindings(d){
     else add(d.gPhq, `<b>PHQ-9 ${d.phq.total} 分</b>，${d.phq.severity}憂鬱症狀`);
   }
   const {sc, meds} = rScreeningLists();
-  const listLine = (head, list)=> rBr(head + '：' + list.join('、'), 40).replace(esc(head) + '：', `<b>${esc(head)}</b>：`);
+  const listLine = (head, list)=> rBr(head + '：' + list.join('、'), 32).replace(esc(head) + '：', `<b>${esc(head)}</b>：`);
   if(sc.length) add(1, listLine('次發性肥胖待排除', sc));
   if(meds.length) add(1, listLine('可能影響體重的藥物', meds));
   return f.map((x, i)=> Object.assign(x, {i})).sort((a, b)=> b.g - a.g || a.i - b.i);
@@ -490,7 +490,7 @@ function rFindings(d){
 function rChSummary(d){
   const blocks = [];
   const comment = rS('doc-comment');
-  if(comment) blocks.push(rBlock('醫師綜合評語', 'PHYSICIAN SUMMARY', `<div class="memo"><div class="rich ru-host">${rRich(comment, 44)}</div></div>`, {split:true}));
+  if(comment) blocks.push(rBlock('醫師綜合評語', 'PHYSICIAN SUMMARY', `<div class="memo"><div class="rich ru-host">${rRich(comment, 36)}</div></div>`, {split:true}));
 
   const f = rFindings(d);
   const findHtml = f.length
@@ -517,11 +517,12 @@ function rChSummary(d){
     Object.assign({k:'肝臟'}, worst([labItem('alt', 'ALT', 'U/L'), labItem('ast', 'AST', 'U/L'), {has: !!d.fatty, g: d.gFatty, html: esc(d.fatty)}])),
     Object.assign({k:'腎臟'}, worst([labItem('egfr', 'eGFR'), labItem('cr', 'Cr', 'mg/dL')])),
     Object.assign({k:'甲狀腺'}, worst([labItem('tsh', 'TSH'), {has: !!d.thyUs, g: d.gThyUs, html: esc(d.thyUs)}])),
-    {k:'睡眠 STOP-BANG', v: d.sb != null ? `${d.sb}<small> / 8 分</small>` : '<span class="na">未評估</span>', g: d.gSb},
-    {k:'情緒 PHQ-9',     v: d.phq ? `${d.phq.total}<small> / 27 分</small>` : '<span class="na">未評估</span>', g: d.gPhq},
+    {k:'睡眠',     v: d.sb != null ? `${d.sb}<small> / 8 分</small>` : '<span class="na">未評估</span>', g: d.gSb},
+    {k:'情緒',     v: d.phq ? `${d.phq.total}<small> / 27 分</small>` : '<span class="na">未評估</span>', g: d.gPhq},
   ];
   blocks.push(rBlock('健康指標總覽', 'AT A GLANCE',
-    `<div class="tiles">${tiles.map(t=> `<div class="tile${t.g >= 1 ? ' t' + t.g : ''}"><div class="k">${t.k}</div><div class="v">${t.v}</div><div>${rPill(t.g)}</div></div>`).join('')}</div>`));
+    `<div class="tiles">${tiles.map(t=> `<div class="tile"><div class="k">${t.k}</div><div class="v">${t.v}</div><div>${rPill(t.g)}</div></div>`).join('')}</div>` +
+    `<p class="note-line">睡眠為 STOP-BANG 分數，情緒為 PHQ-9 分數。</p>`));
 
   if(d.w != null && d.h){
     const hM = d.h / 100;
@@ -539,7 +540,7 @@ function rChSummary(d){
       ];
       goal = `<div class="goal">${st.map(([l, w, c])=> `<div class="st ${c}"><div class="pt"></div><div class="lbl">${l}</div>` +
         `<div class="w">${w.toFixed(1)}<small>kg</small></div><div class="b">BMI ${bmiOf(w)}</div></div>`).join('')}</div>` +
-        `<p class="note-line">${tgt != null ? `目標體重需減少約 ${pct.toFixed(1)}%。<br>` : ''}先以 3 至 6 個月內減少初始體重 5% 至 10% 為階段目標；<br>減重 5% 以上，血糖、血壓、血脂與脂肪肝就會開始改善。</p>`;
+        `<p class="note-line">${tgt != null ? `目標體重需減少約 ${pct.toFixed(1)}%。<br>` : ''}<span class="mark">先以 3 至 6 個月內減少初始體重 5% 至 10% 為階段目標</span>；<br>減重 5% 以上，血糖、血壓、血脂與脂肪肝就會開始改善。</p>`;
     } else {
       goal = `<p>目前 BMI ${d.bmi.toFixed(1)}，已在正常範圍（18.5 至 24）。<br>建議以維持體重、增加肌肉量為主。</p>`;
     }
@@ -553,7 +554,7 @@ function rChBody(d){
   const blocks = [];
   if(d.bmi != null){
     const pos = Math.max(0, Math.min(1, (d.bmi - 15) / 25));
-    const W = 666, y = 30;
+    const W = 516, y = 30;
     const zones = [[15, 18.5, '#C9D7DC', '過輕'], [18.5, 24, '#A9CBB4', '正常'], [24, 27, '#E8C88E', '過重'], [27, 30, '#E2AE84', '輕度肥胖'], [30, 35, '#DD9A92', '中度肥胖'], [35, 40, '#C97C73', '重度肥胖']];
     const xs = v=> (v - 15) / 25 * W;
     const gauge = `<svg viewBox="0 0 ${W} 64" width="${W}" height="64">` +
@@ -574,7 +575,7 @@ function rChBody(d){
   const tgt = rN('b-target-weight');
   rows.push(['目標體重', 'Target Weight', tgt, 'kg', '', -2, tgt != null && d.w ? `<span class="small muted">需減少 ${((d.w - tgt) / d.w * 100).toFixed(1)}%</span>` : '']);
   blocks.push(rBlock('體位與血壓', 'ANTHROPOMETRICS',
-    `<table class="rt"><colgroup><col style="width:30%"><col style="width:17%"><col style="width:15%"><col style="width:24%"><col style="width:14%"></colgroup>` +
+    `<table class="rt"><colgroup><col style="width:28%"><col style="width:19%"><col style="width:15%"><col style="width:25%"><col style="width:13%"></colgroup>` +
     `<thead><tr><th>項目</th><th>結果</th><th>參考值</th><th>位置</th><th class="c">判讀</th></tr></thead><tbody>` +
     rows.map(([zh, en, v, u, ref, g, bar])=> `<tr><td>${zh}<span class="en">${en}</span></td>` +
       `<td class="n">${v == null ? '<span class="na">未測</span>' : `${v}<span class="u">${u}</span>`}</td><td class="ref">${ref}</td><td>${bar}</td>` +
@@ -598,25 +599,25 @@ function rChBody(d){
       if(d.bmi != null){
         const p = classifyExercisePhenotype(d.male ? 'M' : 'F', d.bmi, B['t-fat'].v == null ? NaN : B['t-fat'].v, B['t-smi'].v == null ? NaN : B['t-smi'].v, B['t-phaseangle'].v == null ? NaN : B['t-phaseangle'].v);
         const rx = EXERCISE_PRESCRIPTIONS[p];
-        pheno = `<div class="pheno"><span class="muted">身體組成分型</span><b>${esc(p)}</b></div>` + (rx ? `<p class="note-line" style="margin-top:2px">${rBr('訓練主軸：' + rx.focus, 54)}</p>` : '');
+        pheno = `<div class="pheno"><span class="muted">身體組成分型</span><b>${esc(p)}</b></div>` + (rx ? `<p class="note-line" style="margin-top:2px">${rBr('訓練主軸：' + rx.focus, 42)}</p>` : '');
       }
     }catch(e){}
     blocks.push(rBlock('身體組成分析', 'BODY COMPOSITION',
-      `<table class="rt"><colgroup><col style="width:30%"><col style="width:17%"><col style="width:15%"><col style="width:24%"><col style="width:14%"></colgroup>` +
+      `<table class="rt"><colgroup><col style="width:28%"><col style="width:19%"><col style="width:15%"><col style="width:25%"><col style="width:13%"></colgroup>` +
       `<thead><tr><th>項目</th><th>結果</th><th>參考值</th><th>位置</th><th class="c">判讀</th></tr></thead><tbody class="ru-host">${trs.join('')}</tbody></table>` +
-      pheno + (rS('body-note') ? `<p class="note-line">${rLines('備註：' + rS('body-note'), 54)}</p>` : ''), {split:true}));
+      pheno + (rS('body-note') ? `<p class="note-line">${rLines('備註：' + rS('body-note'), 42)}</p>` : ''), {split:true}));
   }
 
   const rowsB = (trackData.body || []).filter(r=> TRACK_COLS.body.some(([k])=> k !== 'date' && String(r[k] || '').trim()));
   if(rowsB.length){
     const recent = rowsB.slice().sort((a, b)=> String(a.date || '').localeCompare(String(b.date || ''))).slice(-8);
     const cols = TRACK_COLS.body.filter(([k])=> k === 'date' || recent.some(r=> String(r[k] || '').trim()));
-    const chart = trackChartSvg('body', 'weight', '體重變化（kg）', 666, 200);
+    const chart = trackChartSvg('body', 'weight', '體重變化（kg）', 516, 190);
     blocks.push(rBlock('歷次身體組成', 'TRENDS',
       `<table class="rt track"><thead><tr>${cols.map(([, l])=> `<th>${esc(l)}</th>`).join('')}</tr></thead><tbody class="ru-host">` +
-      recent.map(r=> `<tr class="ru">${cols.map(([k])=> `<td>${String(r[k] || '').trim() ? esc(r[k]) : '<span class="na">—</span>'}</td>`).join('')}</tr>`).join('') +
-      `</tbody></table>` + (rowsB.length > recent.length ? `<p class="note-line">共 ${rowsB.length} 筆紀錄，列出最近 ${recent.length} 筆。</p>` : ''), {split:true}));
-    if(chart) blocks.push(`<div class="rb chart">${chart}</div>`);
+      recent.map(r=> `<tr class="ru">${cols.map(([k])=> `<td>${String(r[k] || '').trim() ? esc(k === 'date' ? String(r[k]).trim().slice(2) : r[k]) : '<span class="na">—</span>'}</td>`).join('')}</tr>`).join('') +
+      `</tbody></table>` + (rowsB.length > recent.length ? `<p class="note-line tail">共 ${rowsB.length} 筆紀錄，列出最近 ${recent.length} 筆。</p>` : '') +
+      (chart ? `<div class="chart tail">${chart}</div>` : ''), {split:true}));
   }
   return blocks;
 }
@@ -637,10 +638,10 @@ function rChLab(d){
         `<td>${rBar(r.v, x.scale, x.cuts)}</td><td class="c">${x.cuts ? rPill(r.v == null ? -1 : r.g) : ''}</td></tr>`;
     });
     blocks.push(rBlock('血液檢驗', 'LABORATORY',
-      `<table class="rt"><colgroup><col style="width:30%"><col style="width:19%"><col style="width:14%"><col style="width:23%"><col style="width:14%"></colgroup>` +
+      `<table class="rt"><colgroup><col style="width:28%"><col style="width:19%"><col style="width:15%"><col style="width:25%"><col style="width:13%"></colgroup>` +
       `<thead><tr><th>項目</th><th>結果</th><th>參考值</th><th>位置</th><th class="c">判讀</th></tr></thead><tbody class="ru-host">${trs}</tbody></table>` +
       `<p class="note-line tail">參考值為一般成人標準，實際判讀以檢驗單位的參考範圍為準。${d.lab.egfr.src === '估算' ? '<br>eGFR 標示「估算」者，是依肌酸酐、年齡、性別以 CKD-EPI 2021 公式計算。' : ''}</p>` +
-      (rS('lab-note') ? `<p class="note-line tail">${rLines('備註：' + rS('lab-note'), 54)}</p>` : ''), {split:true}));
+      (rS('lab-note') ? `<p class="note-line tail">${rLines('備註：' + rS('lab-note'), 42)}</p>` : ''), {split:true}));
   } else {
     blocks.push(rBlock('血液檢驗', 'LABORATORY', '<div class="empty">本次未提供抽血檢驗數值。</div>'));
   }
@@ -649,18 +650,24 @@ function rChLab(d){
     const sug = (typeof msSuggestions === 'function') ? msSuggestions() : {};
     const items = [['ms-waist', '腹部肥胖', `腰圍 男 ≥ 90／女 ≥ 80 cm，或 BMI ≥ 27`], ['ms-bp', '血壓偏高', '≥ 130/85 mmHg，或已服藥'],
       ['ms-glucose', '空腹血糖偏高', '≥ 100 mg/dL，或已服藥'], ['ms-tg', '三酸甘油酯偏高', '≥ 150 mg/dL，或已服藥'], ['ms-hdl', 'HDL-C 偏低', '男 < 40／女 < 50 mg/dL，或已服藥']];
-    // 實測依據（例：「腰圍 103 cm（標準 ≥90），BMI 31.9（標準 ≥27）」）兩項以上時，每項一行
-    const trs = items.map(([id, zh, crit])=>{
-      const s = sug[id] || {};
-      const basis = s.text || (s.hit !== null && s.hit !== undefined ? '' : '');
-      return `<tr class="ru"><td>${zh}<span class="en">${rBr(crit, 21)}</span></td><td class="small">${(basis || '').split('，').map(esc).join('，<br>')}</td><td class="c">${chk(id) ? rPill(2, '符合') : rPill(0, '未符合')}</td></tr>`;
-    }).join('');
+    // 本次數值：標準已寫在左欄，這裡只列數值
+    const lab = k=> rN('lab-' + k);
+    const vals = {
+      'ms-waist': [d.waist != null ? `腰圍 ${d.waist} cm` : '', d.bmi != null ? `BMI ${d.bmi.toFixed(1)}` : ''].filter(Boolean).join('<br>'),
+      'ms-bp': (d.sbp != null && d.dbp != null) ? `${d.sbp}/${d.dbp} mmHg` : '',
+      'ms-glucose': lab('ac') != null ? `${lab('ac')} mg/dL` : '',
+      'ms-tg': lab('tg') != null ? `${lab('tg')} mg/dL` : '',
+      'ms-hdl': lab('hdl') != null ? `${lab('hdl')} mg/dL` : '',
+    };
+    const trs = items.map(([id, zh, crit])=>
+      `<tr class="ru"><td>${zh}<span class="en">${rBr(crit, 16)}</span></td><td class="n" style="font-size:12.5px; font-weight:500">${vals[id] || '<span class="na">未測</span>'}</td><td class="c">${chk(id) ? rPill(2, '符合') : rPill(0, '未符合')}</td></tr>`
+    ).join('');
     const hb = rN('ms-hba1c');
     blocks.push(rBlock('代謝症候群判定', 'METABOLIC SYNDROME',
-      `<table class="rt"><colgroup><col style="width:38%"><col style="width:46%"><col style="width:16%"></colgroup>` +
-      `<thead><tr><th>指標（符合三項以上即成立）</th><th>實測依據</th><th class="c">判定</th></tr></thead><tbody class="ru-host">${trs}</tbody></table>` +
-      `<p class="note-line tail">共符合 <b>${d.msCount}</b>／5 項${hb != null ? `；HbA1c ${hb}%${d.msHba1c ? '，屬糖尿病前期' : ''}` : ''}。　結果：${d.msPositive ? rPill(2, '符合代謝症候群') : rPill(0, '未達診斷標準')}</p>` +
-      (rS('metabolic-note') ? `<p class="note-line tail">${rLines('備註：' + rS('metabolic-note'), 54)}</p>` : ''), {split:true}));
+      `<table class="rt"><colgroup><col style="width:46%"><col style="width:36%"><col style="width:18%"></colgroup>` +
+      `<thead><tr><th>指標</th><th>本次數值</th><th class="c">判定</th></tr></thead><tbody class="ru-host">${trs}</tbody></table>` +
+      `<p class="note-line tail">五項中符合三項以上即成立。<br>共符合 <b>${d.msCount}</b>／5 項${hb != null ? `；HbA1c ${hb}%${d.msHba1c ? '，屬糖尿病前期' : ''}` : ''}。　結果：${d.msPositive ? rPill(2, '符合代謝症候群') : rPill(0, '未達診斷標準')}</p>` +
+      (rS('metabolic-note') ? `<p class="note-line tail">${rLines('備註：' + rS('metabolic-note'), 42)}</p>` : ''), {split:true}));
   }
 
   const rowsL = (trackData.lab || []).filter(r=> TRACK_COLS.lab.some(([k])=> k !== 'date' && String(r[k] || '').trim()));
@@ -684,9 +691,9 @@ function rChLab(d){
   us.push(['腹部超音波', 'Abdominal Sonography', rS('us-fatty'), rS('us-text'), d.gFatty]);
   us.push(['甲狀腺超音波', 'Thyroid Sonography', rS('us-thyroid'), rS('us-thyroid-text'), d.gThyUs]);
   blocks.push(rBlock('影像檢查', 'IMAGING',
-    `<table class="rt"><colgroup><col style="width:30%"><col style="width:56%"><col style="width:14%"></colgroup>` +
+    `<table class="rt"><colgroup><col style="width:26%"><col style="width:60%"><col style="width:14%"></colgroup>` +
     `<thead><tr><th>檢查</th><th>結果與所見</th><th class="c">判讀</th></tr></thead><tbody class="ru-host">` +
-    us.map(([zh, en, v, t, g])=> `<tr class="ru"><td>${zh}<span class="en">${en}</span></td><td>${v ? `<b>${esc(v)}</b>` : '<span class="na">未檢查</span>'}${t ? `<div class="small muted">${rLines(t, 29)}</div>` : ''}</td><td class="c">${rPill(v ? g : -1, v ? null : '未檢查')}</td></tr>`).join('') +
+    us.map(([zh, en, v, t, g])=> `<tr class="ru"><td>${zh}<span class="en">${en}</span></td><td>${v ? `<b>${esc(v)}</b>` : '<span class="na">未檢查</span>'}${t ? `<div class="small muted">${rLines(t, 24)}</div>` : ''}</td><td class="c">${rPill(v ? g : -1, v ? null : '未檢查')}</td></tr>`).join('') +
     `</tbody></table>`, {split:true}));
   return blocks;
 }
@@ -695,8 +702,8 @@ function rChHistory(d){
   const blocks = [];
   const {sc, meds} = rScreeningLists();
   const kv = (rows)=> `<table class="rt kv"><tbody class="ru-host">${rows.map(([k, v])=> `<tr class="ru"><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>`;
-  const withNote = (list, noteId, none)=> (list.length ? rBr(list.join('、'), 37) : `<span class="muted">${none}</span>`) + (rS(noteId) ? `<div class="small muted">${rLines(rS(noteId), 40)}</div>` : '');
-  blocks.push(rBlock('次發性肥胖與藥物因素', 'SECONDARY CAUSES', kv([
+  const withNote = (list, noteId, none)=> (list.length ? rBr(list.join('、'), 27) : `<span class="muted">${none}</span>`) + (rS(noteId) ? `<div class="small muted">${rLines(rS(noteId), 29)}</div>` : '');
+  blocks.push(rBlock('次發性肥胖<br>與藥物因素', 'SECONDARY CAUSES', kv([
     ['次發性肥胖篩檢', withNote(sc, 'sc-note', '未發現')],
     ['藥物性因素', withNote(meds, 'med-note', '無')],
   ]), {split:true}));
@@ -709,26 +716,26 @@ function rChHistory(d){
   blocks.push(rBlock('飲食與活動習慣', 'LIFESTYLE', life.length ? `<div class="rich ru-host">${life.join('')}</div>` : '<div class="empty">未記錄。</div>', {split:true}));
 
   const motiv = rS('motiv-score');
-  blocks.push(rBlock('家族史、生育計畫與動機', 'BACKGROUND', kv([
-    ['家族史', rS('fam-note') ? rLines(rS('fam-note'), 37) : '<span class="muted">未記錄</span>'],
+  blocks.push(rBlock('家族史、<br>生育計畫與動機', 'BACKGROUND', kv([
+    ['家族史', rS('fam-note') ? rLines(rS('fam-note'), 27) : '<span class="muted">未記錄</span>'],
     ['生育計畫', rS('preg-plan') ? esc(rS('preg-plan')) : '<span class="muted">未評估</span>'],
     ['減重意願與準備度', motiv ? `<b>${esc(motiv)}</b> / 10` : '<span class="muted">未評估</span>'],
-    ['社會支持', rS('motiv-support') ? rBr(rS('motiv-support'), 37) : '<span class="muted">未記錄</span>'],
-  ].concat(rS('fam-motiv-note') ? [['備註', rLines(rS('fam-motiv-note'), 37)]] : [])), {split:true}));
+    ['社會支持', rS('motiv-support') ? rBr(rS('motiv-support'), 27) : '<span class="muted">未記錄</span>'],
+  ].concat(rS('fam-motiv-note') ? [['備註', rLines(rS('fam-motiv-note'), 27)]] : [])), {split:true}));
 
   const sbHtml = d.sb == null
     ? '<div class="empty">未填寫 STOP-BANG 問卷。</div>'
     : `<div class="scale-row"><div class="score">STOP-BANG 分數<b>${d.sb}<small style="font-size:13px; color:#9A9387"> / 8</small></b>${rPill(d.gSb, ['低風險', '中風險', '高風險'][d.gSb])}</div>` +
-      rScale(d.sb, 9, [[3, 0, '0–2 低風險'], [5, 1, '3–4 中風險'], [9, 2, '5–8 高風險']]) + `</div>` +
+      rScale(d.sb, 9, [[3, 0, '0–2 低風險'], [5, 1, '3–4 中風險'], [9, 2, '5–8 高風險']], 340) + `</div>` +
       `<div class="items">${d.sbItems.length ? '問卷勾選：<br>' + d.sbItems.map(t=> '・' + esc(t)).join('<br>') : '問卷各題皆未勾選。'}<br>另依資料自動計分：BMI ＞ 35、年齡 ＞ 50 歲、男性；頸圍未納入。</div>`;
   blocks.push(rBlock('睡眠評估', 'SLEEP APNEA SCREENING', sbHtml));
 
   const phqHtml = !d.phq
     ? '<div class="empty">未完成 PHQ-9 量表。</div>'
     : `<div class="scale-row"><div class="score">PHQ-9 總分<b>${d.phq.total}<small style="font-size:13px; color:#9A9387"> / 27</small></b>${rPill(d.gPhq, d.phq.severity)}</div>` +
-      rScale(d.phq.total, 28, [[5, 0, '0–4 無明顯'], [10, 1, '5–9 輕度'], [28, 2, '10 以上 中度至重度']]) + `</div>` +
+      rScale(d.phq.total, 28, [[5, 0, '0–4 無明顯'], [10, 1, '5–9 輕度'], [28, 2, '10 以上 中度至重度']], 340) + `</div>` +
       (d.phq.item9 >= 1 ? `<p class="warn">第 9 題（傷害自己的念頭）有作答，<br>建議立即評估自殺風險並轉介身心科。</p>` : '');
-  blocks.push(rBlock('情緒評估', 'MOOD SCREENING', phqHtml + (rS('sleep-note') ? `<p class="note-line">${rLines('睡眠與心理評估備註：' + rS('sleep-note'), 54)}</p>` : '')));
+  blocks.push(rBlock('情緒評估', 'MOOD SCREENING', phqHtml + (rS('sleep-note') ? `<p class="note-line">${rLines('睡眠與心理評估備註：' + rS('sleep-note'), 42)}</p>` : '')));
 
   blocks.push(rRichBlock('共病症', 'COMORBIDITIES', rS('cm-note')) || rBlock('共病症', 'COMORBIDITIES', '<div class="empty">未記錄共病症。</div>'));
   return blocks;
@@ -739,33 +746,33 @@ function rChPlan(d){
   const tx = getTxChoices();
   const onMed = tx.some(k=> k !== 'lifestyle');
   const tiers = [
-    ['TIER 1', '生活型態介入', '飲食調整、運動、<br>行為改變、睡眠管理。<br>所有人都需要，<br>貫穿全程。', 'BMI ≥ 24，<br>或腰圍超標'],
-    ['TIER 2', '藥物治療', '以腸泌素類藥物為主，<br>搭配生活型態調整。', 'BMI ≥ 27，<br>或 BMI ≥ 24<br>合併代謝問題'],
-    ['TIER 3', '內視鏡輔助減重', '胃內肉毒桿菌注射、<br>內視鏡縮胃術。<br>自費項目，需完整說明<br>效果、風險與費用。', '藥物治療 3 個月，<br>減重未達 5%，<br>或無法用藥'],
-    ['TIER 4', '減重手術', '袖狀胃切除、胃繞道，<br>轉介外科評估。', 'BMI ≥ 37.5，<br>或 BMI ≥ 32.5<br>合併嚴重共病'],
+    ['第一階', '生活型態介入', '飲食調整、運動、行為改變、睡眠管理。<br>所有人都需要，貫穿全程。', 'BMI ≥ 24，或腰圍超標'],
+    ['第二階', '藥物治療', '以腸泌素類藥物為主，搭配生活型態調整。', 'BMI ≥ 27，<br>或 BMI ≥ 24 合併代謝問題'],
+    ['第三階', '內視鏡輔助減重', '胃內肉毒桿菌注射、胃內水球置放、<br>內視鏡縮胃術。<br>自費項目，需完整說明效果、風險與費用。', '藥物治療 3 個月，<br>減重未達 5%，或無法用藥'],
+    ['第四階', '減重手術', '袖狀胃切除、胃繞道，轉介外科評估。', 'BMI ≥ 37.5，<br>或 BMI ≥ 32.5<br>合併嚴重共病'],
   ];
   const cur = onMed ? 1 : (tx.length ? 0 : -1);
   blocks.push(rBlock('治療階梯', 'TREATMENT PATHWAY',
-    `<div class="ladder">${tiers.map(([n, h, p, w], i)=> `<div class="tier${i === cur ? ' on' : ''}"><div class="n">${n}</div><h5>${h}${i === cur ? '<span class="now">本次</span>' : ''}</h5><p>${p}</p><div class="when">${w}</div></div>`).join('')}</div>` +
+    `<div class="ladder">${tiers.map(([n, h, p, w], i)=> `<div class="tier${i === cur ? ' on' : ''}"><div><div class="n">${n}${i === cur ? '<span class="now">本次</span>' : ''}</div><h5>${h}</h5><div class="when">${w}</div></div><p>${p}</p></div>`).join('')}</div>` +
     `<p class="note-line">肥胖治療採階梯式進行，每一階都建立在生活型態調整上；<br>符合手術條件者可直接轉介評估。</p>`));
 
   const eduText = rS('tx-edu');
   blocks.push(rBlock('本次用藥建議', 'MEDICATION',
-    `<p style="margin-bottom:${eduText ? 12 : 0}px"><span class="muted small" style="letter-spacing:.1em; margin-right:12px">本次選擇</span><b style="color:#152831">${esc(txChoiceText())}</b></p>` +
-    (eduText ? `<div class="rich ru-host">${rRich(eduText, 46)}</div>` : ''), {split:true}));
+    `<p style="margin-bottom:${eduText ? 12 : 0}px"><span class="pill g1" style="margin-right:12px">本次選擇</span><b style="color:#1F262A">${esc(txChoiceText())}</b></p>` +
+    (eduText ? `<div class="rich ru-host">${rRich(eduText, 36)}</div>` : ''), {split:true}));
 
   const c = typeof computeCalorie === 'function' ? computeCalorie() : null;
   if(c && !c.error){
     const pk = c.proteinG * 4, fk = c.fatG * 9, ck = Math.max(0, c.carbG * 4), tot = pk + fk + ck || 1;
     blocks.push(rBlock('熱量與營養素', 'ENERGY & MACRONUTRIENTS',
       `<div class="kcal"><div><div class="k">基礎代謝率 BMR</div><div class="v">${Math.round(c.bmr)}<small>kcal</small></div><div class="s">${c.bmrSrc === 'measured' ? 'TANITA 實測' + (rUp('t-bmr') ? '（上傳）' : '') : 'Mifflin-St Jeor 公式估算'}</div></div>` +
-      `<div><div class="k">每日總消耗 TDEE</div><div class="v">${Math.round(c.tdee)}<small>kcal</small></div><div class="s">${esc(c.palLabel || '')}</div></div>` +
-      `<div class="main"><div class="k">建議每日攝取</div><div class="v">${Math.round(c.target)}<small>kcal</small></div><div class="s">${esc(c.goalLabel || '')}</div></div></div>` +
-      `<div class="macro"><i style="width:${(pk / tot * 100).toFixed(1)}%; background:#3E6A7C"></i><i style="width:${(fk / tot * 100).toFixed(1)}%; background:#BC7F30"></i><i style="width:${(ck / tot * 100).toFixed(1)}%; background:#CFC6B6"></i></div>` +
-      `<div class="macro-lg"><div><span class="sw" style="background:#3E6A7C"></span>蛋白質<b>${Math.round(c.proteinG)} g</b><span class="small muted">${c.perKg} g/kg<br>${rBr(c.refLabel, 17)}</span></div>` +
-      `<div><span class="sw" style="background:#BC7F30"></span>脂肪<b>${Math.round(c.fatG)} g</b><span class="small muted">總熱量 25%</span></div>` +
-      `<div><span class="sw" style="background:#CFC6B6"></span>碳水化合物<b>${Math.round(c.carbG)} g</b><span class="small muted">其餘熱量</span></div></div>` +
-      ((c.safetyNote || c.macroNote) ? `<p class="warn">${[c.safetyNote, c.macroNote].filter(Boolean).map(t=> rBr(t, 54)).join('<br>')}</p>` : '')));
+      `<div><div class="k">每日總消耗 TDEE</div><div class="v">${Math.round(c.tdee)}<small>kcal</small></div><div class="s">${rBr(c.palLabel || '', 14)}</div></div>` +
+      `<div class="main"><div class="k">建議每日攝取</div><div class="v">${Math.round(c.target)}<small>kcal</small></div><div class="s">${rBr(c.goalLabel || '', 14)}</div></div></div>` +
+      `<div class="macro"><i style="width:${(pk / tot * 100).toFixed(1)}%; background:#24292B"></i><i style="width:${(fk / tot * 100).toFixed(1)}%; background:#C9A15E"></i><i style="width:${(ck / tot * 100).toFixed(1)}%; background:#DDD6C9"></i></div>` +
+      `<div class="macro-lg"><div><span class="sw" style="background:#24292B"></span>蛋白質<b>${Math.round(c.proteinG)} g</b><span class="small muted">${c.perKg} g/kg<br>${rBr(c.refLabel, 14)}</span></div>` +
+      `<div><span class="sw" style="background:#C9A15E"></span>脂肪<b>${Math.round(c.fatG)} g</b><span class="small muted">總熱量 25%</span></div>` +
+      `<div><span class="sw" style="background:#DDD6C9"></span>碳水化合物<b>${Math.round(c.carbG)} g</b><span class="small muted">其餘熱量</span></div></div>` +
+      ((c.safetyNote || c.macroNote) ? `<p class="warn">${[c.safetyNote, c.macroNote].filter(Boolean).map(t=> rBr(t, 40)).join('<br>')}</p>` : '')));
   } else if(c && c.bmr){
     blocks.push(rBlock('熱量與營養素', 'ENERGY & MACRONUTRIENTS',
       `<div class="kcal"><div><div class="k">基礎代謝率 BMR</div><div class="v">${Math.round(c.bmr)}<small>kcal</small></div><div class="s">${c.bmrSrc === 'measured' ? 'TANITA 實測' : 'Mifflin-St Jeor 公式估算'}</div></div><div></div><div></div></div>` +
@@ -782,29 +789,29 @@ function rChPlan(d){
 function rChFollow(d){
   const blocks = [];
   const base = rS('p-date') || todayLocal();
+  const md = s=> s.slice(5);
   const plan = [
-    ['開始後 2 週', rAddDays(base, 14), '副作用評估（腸胃道症狀）、劑量調整'],
-    ['1 個月', rAddMonths(base, 1), '體重、腰圍、身體組成、飲食狀況'],
-    ['3 個月', rAddMonths(base, 3), '完整回診：抽血（血糖、血脂、肝腎功能）與療效評估；減重未達初始體重 5% 時，重新討論治療方式'],
-    ['6 個月', rAddMonths(base, 6), '腹部超音波複查脂肪肝，追蹤血壓、血糖、血脂'],
-    ['之後', '', '每 3 至 6 個月規律追蹤，長期目標是維持減重成果、不復胖'],
+    ['1 至 2 週', ['開始用藥後', `約 ${md(rAddDays(base, 7))} 至 ${md(rAddDays(base, 14))}`], '副作用與劑量', '噁心、便祕等腸胃狀況是否可以忍受，<br>決定能不能調升劑量。'],
+    ['1 個月', [`約 ${rAddMonths(base, 1)}`], '體重與身體組成', '體重、腰圍、體脂與肌肉量，<br>一起檢視這個月的飲食與運動。'],
+    ['3 個月', [`約 ${rAddMonths(base, 3)}`], '療效評估與抽血', '確認減重是否達到原本體重的 5%；<br>抽血看血糖、血脂、肝腎功能。'],
+    ['6 個月', [`約 ${rAddMonths(base, 6)}`], '腹部超音波', '看脂肪肝改善多少，<br>追蹤血壓、血糖、血脂等共病指標。'],
+    ['長期', ['每 3 至 6 個月'], '規律回診', '目標是「不復胖」。<br>停藥前後尤其要留意體重變化。'],
   ];
-  blocks.push(rBlock('回診與追蹤時程', 'FOLLOW-UP SCHEDULE',
-    `<div class="tl ru-host">${plan.map(([w, dt, t])=> `<div class="tl-row ru"><div><span class="when">${w}</span>${dt ? `<span class="date">約 ${dt}</span>` : ''}</div><div class="what">${rBr(t, 48)}</div></div>`).join('')}</div>` +
-    `<p class="note-line tail">日期由評估日期推算，實際回診以預約為準。${rS('track-note') ? '<br>' + rLines(rS('track-note'), 54) : ''}</p>`, {split:true}));
+  blocks.push(rBlock('回診與<br>追蹤時程', 'FOLLOW-UP SCHEDULE',
+    `<div class="ru-host">${plan.map(([w, sub, h, t])=> `<div class="tl-row ru"><div><div class="tl-when">${w}</div>${sub.map(x=> `<div class="tl-sub">${x}</div>`).join('')}</div><div><h4>${h}</h4><div class="what">${t}</div></div></div>`).join('')}</div>` +
+    `<p class="note-line tail">日期由評估日期推算，實際回診以預約為準。${rS('track-note') ? '<br>' + rLines(rS('track-note'), 42) : ''}</p>`, {split:true}));
 
   const psy = [];
   if(chk('psy-refer')) psy.push('建議轉介身心科或心理諮商');
-  if(chk('psy-support')) psy.push('已建立支持系統（家人、病友團體、定期回診）');
+  if(chk('psy-support')) psy.push('已建立支持系統（家人、朋友、定期回診）');
   if(psy.length || rS('psy-note')){
-    blocks.push(rBlock('心理支持與復胖預防', 'SUPPORT',
-      `<div class="rich ru-host">${psy.map(t=> `<div class="li ru">${rBr(t, 45)}</div>`).join('')}${rRich(rS('psy-note'))}</div>`, {split:true}));
+    blocks.push(rBlock('心理支持<br>與復胖預防', 'SUPPORT',
+      `<div class="rich ru-host">${psy.map(t=> `<div class="li ru">${rBr(t, 35)}</div>`).join('')}${rRich(rS('psy-note'))}</div>`, {split:true}));
   }
-  blocks.push(rBlock('就醫提醒', 'WHEN TO CALL US',
-    `<div class="rich ru-host">` + ['上腹痛延伸到背部、持續嘔吐無法進食，或出現黃疸，請立即就醫。',
+  blocks.push(rCallout('提早就醫', ['上腹痛延伸到背部、持續嘔吐無法進食，或出現黃疸，請立即就醫。',
       '嚴重腹瀉、頭暈、尿量明顯減少，可能是脫水，請盡快回診。',
       '計畫懷孕、已懷孕或開始哺乳，請先停藥並回診討論。',
-      '任何疑問，歡迎來電木子澄安診所 07-3739496，或於回診時與醫師討論。'].map(t=> `<div class="li ru">${rBr(t, 45)}</div>`).join('') + `</div>`, {split:true}));
+      '任何疑問，歡迎來電木子澄安診所 07-3739496，或於回診時與醫師討論。'].map(t=> `<div class="li ru">${rBr(t, 34)}</div>`).join(''), true));
   return blocks;
 }
 
@@ -825,7 +832,7 @@ function rChAppendix(){
     ['PHQ-9', '憂鬱症狀篩檢量表。5、10、15、20 分分別是輕度、中度、中重度、重度的切點。篩檢結果需由醫師進一步評估。'],
   ];
   return [rBlock('名詞與判讀說明', 'GLOSSARY',
-    `<table class="rt kv"><tbody class="ru-host">${g.map(([k, v])=> `<tr class="ru"><th>${k}</th><td>${rBr(v, 37)}</td></tr>`).join('')}</tbody></table>`, {split:true})];
+    `<table class="rt kv"><tbody class="ru-host">${g.map(([k, v])=> `<tr class="ru"><th>${k}</th><td>${rBr(v, 27)}</td></tr>`).join('')}</tbody></table>`, {split:true})];
 }
 
 // ---------- 整份報告的內容模型 ----------
@@ -842,7 +849,7 @@ function buildReportModel(){
     {id:'history', no:'04', zh:'病史與身心評估',   en:'HISTORY & SCREENING',  lead:'次發性肥胖、生活型態、睡眠與情緒量表。',              blocks: rChHistory(d)},
     {id:'plan',    no:'05', zh:'治療與生活處方',   en:'TREATMENT PLAN',       lead:'治療方式、用藥說明、熱量營養、運動與飲食建議。',      blocks: rChPlan(d)},
     {id:'follow',  no:'06', zh:'追蹤計畫',         en:'FOLLOW-UP',            lead:'回診時程與需要提早回診的狀況。',                      blocks: rChFollow(d)},
-    {id:'appx',    no:'A',  zh:'附錄',             en:'APPENDIX',             lead:'名詞解釋與判讀標準。',                  blocks: rChAppendix()},
+    {id:'appx',    no:'A',  zh:'附錄',             en:'APPENDIX',             lead:'報告中用到的名詞與判讀標準。',                  blocks: rChAppendix()},
   ];
   const attachments = [];
   [['lab', '抽血報告'], ['tanita', 'TANITA 報告']].forEach(([kind, label])=>{
@@ -877,32 +884,35 @@ function rCoverHtml(m){
 }
 
 function rTocHtml(m){
-  const rows = m.chapters.map(c=> `<div class="toc" data-toc="${c.id}"><span class="no">${c.no}</span><span class="t">${c.zh}<small>${c.en}</small></span><span class="p"></span></div>`).join('') +
-    (m.attachments.length ? `<div class="toc" data-toc="att"><span class="no">B</span><span class="t">原始報告<small>ORIGINAL REPORTS</small></span><span class="p"></span></div>` : '');
-  return `<div class="toc-title"><h2>目錄</h2><em>CONTENTS</em></div>${rows}
-  <div class="howto">
-    <h3 class="rb-h"><span>如何閱讀這份報告</span><em>HOW TO READ</em></h3>
+  const rows = m.chapters.map(c=> `<div class="toc" data-toc="${c.id}"><span class="no">${c.no}</span><span class="t">${c.zh}</span><span class="p"></span></div>`).join('') +
+    (m.attachments.length ? `<div class="toc" data-toc="att"><span class="no">B</span><span class="t">原始報告</span><span class="p"></span></div>` : '');
+  return `<div class="toc-head"><h2>目錄</h2><div class="lead">這份報告依下列順序整理，每一章開頭先說明這一章看什麼。</div></div>${rows}
+  <div class="rb callout howto"><div class="co-l">閱讀方式</div><div class="co-r">
     <div class="lg">
       <div>${rPill(0)}<br>在參考範圍內。</div>
-      <div>${rPill(1)}<br>略超出參考範圍<br>或屬前期，需要留意。</div>
-      <div>${rPill(2)}<br>明顯超出參考範圍，<br>建議優先處理。</div>
-      <div>${rPill(-1, '未測')}<br>本次沒有這項資料。</div>
+      <div>${rPill(1)}<br>略超出參考範圍，<br>或屬前期。</div>
+      <div>${rPill(2)}<br>明顯超出範圍，<br>建議優先處理。</div>
+      <div>${rPill(-1, '未測')}<br>本次沒有資料。</div>
     </div>
-    <p>每項數值旁的長條代表參考範圍，綠色為正常區間，黑色標記是您這次的位置。<br>數值旁的小標籤註明資料來源：${rSrc('上傳')}由上傳報告擷取，${rSrc('實測')}為儀器量測，<br><span class="src" style="margin-left:0">估算</span>依公式計算。同一項目有實測值時，一律以實測值為準。</p>
-    <p>報告的判讀以一般成人參考值為基準，是協助您了解身體狀況的工具，<br>不能取代醫師的臨床判斷。治療計畫請與醫師討論後再進行。</p>
-  </div>`;
+    <p>每項數值旁的長條代表參考範圍，<br>綠色為正常區間，黑色標記是您這次的位置。</p>
+    <p>數值後面的小字註明資料來源：「上傳」由上傳報告擷取，<br>「實測」為儀器量測，「估算」依公式計算。<br>同一項目有實測值時，一律以實測值為準。</p>
+    <p>判讀以一般成人參考值為基準，不能取代醫師的臨床判斷，<br>治療計畫請與醫師討論後再進行。</p>
+  </div></div>`;
 }
 
 // ---------- 排版：把內容放進固定高度的 A4 頁 ----------
 async function layoutReport(doc, m){
   const pagesBox = doc.getElementById('pages');
   const stage = doc.getElementById('stage');
-  const hd = `<div class="rpt-hd"><div class="l"><img src="${CLINIC_LOGO_DATA_URI}" alt=""><b>木子澄安診所</b><span class="sep">｜</span><span>減重治療全面評估報告</span></div>` +
-    `<div>${esc(m.name)}<span class="sep">　｜　</span>評估日期 ${esc(m.date)}</div></div>`;
+  const hd = r=> `<div class="rpt-hd"><span>木子澄安診所　減重評估報告</span><span class="r">${r}</span></div>`;
 
   pagesBox.innerHTML = rCoverHtml(m);
-  stage.innerHTML = m.chapters.map(c=> `<div class="rc" data-id="${c.id}"><div class="rc-head"><div class="no">${c.no}</div>` +
-    `<div><div class="en">${c.en}</div><h2>${c.zh}</h2></div><div class="lead">${rBr(c.lead, 24)}</div></div>${c.blocks.filter(Boolean).join('')}</div>`).join('');
+  stage.innerHTML = m.chapters.map(c=> `<div class="rc" data-id="${c.id}"><div class="rc-head"><h2>${c.zh}</h2>` +
+    `<div class="lead">${rBr(c.lead, 42)}</div></div>${c.blocks.filter(Boolean).join('')}</div>`).join('');
+  // 每章的段落依序編上 01、02…（左欄金色序號）
+  stage.querySelectorAll(':scope > .rc').forEach(rc=>{
+    rc.querySelectorAll(':scope > .rb > .rb-l > .rb-no').forEach((n, i)=>{ n.textContent = String(i + 1).padStart(2, '0'); });
+  });
 
   // 字型與圖片都到位後才量高度，量到的就是列印時的樣子。
   // 先等字型樣式表載入、讓整份內容排版一次（觸發各字集分段下載），再等字型全部到位；離線時最多等 5 秒，改用系統字型
@@ -920,8 +930,8 @@ async function layoutReport(doc, m){
   const newPage = ()=>{
     const pg = doc.createElement('section');
     pg.className = 'rpt-page';
-    pg.innerHTML = hd + '<div class="rpt-body"></div>' +
-      `<div class="rpt-ft"><span><span class="ch">${chLabel}</span>本報告僅供臨床評估參考，治療計畫請與醫師討論</span><span class="pg"></span></div>`;
+    pg.innerHTML = hd(chLabel) + '<div class="rpt-body"></div>' +
+      `<div class="rpt-ft"><span>木子澄安診所　${esc(m.name)}　評估日期 ${esc(m.date)}<br>本報告僅供臨床評估參考，治療計畫請與醫師討論</span><span class="pg"></span></div>`;
     pagesBox.appendChild(pg);
     pages.push(pg);
     body = pg.querySelector('.rpt-body');
@@ -947,7 +957,7 @@ async function layoutReport(doc, m){
     const host = c.querySelector('.ru-host');
     if(host) host.innerHTML = '';
     c.querySelectorAll('.tail').forEach(x=> x.remove());
-    const t = c.querySelector('.rb-h span');
+    const t = c.querySelector('.rb-h');
     if(t && !t.querySelector('.cont')) t.insertAdjacentHTML('beforeend', '<i class="cont">（續）</i>');
     c.style.marginTop = '0';
     return c;
@@ -988,15 +998,17 @@ async function layoutReport(doc, m){
       if(!fits()) squeeze(carry[carry.length - 1]);
       n = carry.length;
     }
+    const tailBox = sh=> sh.querySelector(':scope > .rb-r') || sh;
     tails.forEach(t=>{
-      shell.appendChild(t);
+      tailBox(shell).appendChild(t);
       if(fits()) return;
       t.remove();
       newPage();
       shell = doc.createElement('div');
       shell.className = 'rb';
+      shell.innerHTML = '<div class="rb-l"></div><div class="rb-r"></div>';
       body.appendChild(shell);
-      shell.appendChild(t);
+      tailBox(shell).appendChild(t);
     });
   };
   const place = (blk, lead)=>{
@@ -1019,14 +1031,14 @@ async function layoutReport(doc, m){
   };
 
   // 目錄頁
-  chLabel = '';
+  chLabel = '目錄';
   newPage();
   body.innerHTML = rTocHtml(m);
 
   const chapterStart = {};
   [...stage.querySelectorAll(':scope > .rc')].forEach(rc=>{
     const c = m.chapters.find(x=> x.id === rc.dataset.id);
-    chLabel = c.no + '　' + c.zh;
+    chLabel = `${c.zh}<b>${c.no}</b>`;
     newPage();
     chapterStart[c.id] = pages.length + 1;   // 封面是第 1 頁
     const head = rc.querySelector('.rc-head');
@@ -1037,13 +1049,13 @@ async function layoutReport(doc, m){
   });
 
   if(m.attachments.length){
-    chLabel = 'B　原始報告';
+    chLabel = '原始報告<b>B</b>';
     m.attachments.forEach((a, i)=>{
       newPage();
       if(i === 0) chapterStart.att = pages.length + 1;
-      body.innerHTML = `<div class="rb att"><h3 class="rb-h"><span>${esc(a.title)}</span><em>${esc(a.sub)}</em></h3><img src="${a.src}" alt=""></div>`;
+      body.innerHTML = `<div class="rb att"><h3 class="rb-h">${esc(a.title)}${a.sub ? `<i class="cont">${esc(a.sub)}</i>` : ''}</h3><img src="${a.src}" alt=""></div>`;
       const img = body.querySelector('img');
-      img.style.maxHeight = (avail() - 48) + 'px';
+      img.style.maxHeight = (avail() - (a.sub ? 74 : 56)) + 'px';
     });
   }
 
