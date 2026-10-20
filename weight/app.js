@@ -39,7 +39,7 @@ const TOP_AREAS = [
 ];
 
 // 最後改版日期：每次改版請一併更新，會顯示於首頁左下角
-const APP_REVISION = '2026-10-20';
+const APP_REVISION = '2026-10-21';
 function renderAppRevision(){
   const el = document.getElementById('app-revision');
   if(el) el.textContent = '最後改版：' + APP_REVISION;
