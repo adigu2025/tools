@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<title>減重衛教單 v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#3E6A7C; --teal-dark:#2E5262; --teal-pale:#EEF3F5; --teal-mid:#9DB6C0;
+  --gold:#BC7F30; --gold-pale:#FAF4EB; --gold-mid:#E2C59C;
+  --navy:#152831; --ink:#2A3A41; --muted:#6B787D; --hair:#D9E0E3;
+  --red:#A9443A; --red-pale:#FAF0EE;
+}
+*{box-sizing:border-box;}
+body{margin:0; background:#9AA5AA; font-family:'Noto Sans TC',sans-serif; color:var(--ink);}
+.wrap{display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px;}
+.spread{display:flex; background:#fff;}
+.page{width:794px; height:1123px; background:#fff; position:relative; overflow:hidden; padding:58px 66px 0; font-size:16.5px; line-height:1.72;}
+/* 左緣細金線：每頁共同的識別，取代滿版色塊 */
+.page::before{content:''; position:absolute; left:36px; top:58px; bottom:58px; width:1px; background:var(--gold-mid);}
+
+/* 刊頭 */
+.mast{display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--muted); letter-spacing:.18em;}
+.mast .kicker{color:var(--gold); font-weight:700; letter-spacing:.3em;}
+.mast .no{font-family:'Noto Serif TC',serif; letter-spacing:.12em;}
+.mast + .rule2{height:5px; border-top:1.5px solid var(--navy); border-bottom:.75px solid var(--navy); margin-top:9px;}
+h1{font-family:'Noto Serif TC',serif; font-weight:700; font-size:46px; line-height:1.18; color:var(--navy); margin:26px 0 0; letter-spacing:.05em;}
+.dek{font-size:17.5px; color:var(--muted); margin:12px 0 0; max-width:610px; line-height:1.65;}
+
+/* 段落標題：金色編號＋標題＋延伸細線 */
+.sec-h{display:flex; align-items:baseline; gap:14px; margin:30px 0 12px;}
+.sec-h .n{font-family:'Noto Serif TC',serif; font-size:28px; line-height:1; font-weight:700; color:var(--gold);}
+.sec-h h2{font-family:'Noto Serif TC',serif; font-weight:700; font-size:22px; color:var(--navy); margin:0; letter-spacing:.04em; white-space:nowrap;}
+.sec-h .aside{font-size:13.5px; color:var(--muted); white-space:nowrap;}
+.sec-h .line{flex:1; border-bottom:1px solid var(--hair); transform:translateY(-6px);}
+
+h3{font-size:17px; font-weight:700; color:var(--navy); margin:0;}
+p{margin:0;}
+b{color:var(--navy);}
+.muted{color:var(--muted);}
+.small{font-size:14.5px; line-height:1.62;}
+.src{font-size:11.5px; color:var(--muted); line-height:1.5;}
+.serif{font-family:'Noto Serif TC',serif;}
+.stat{font-family:'Noto Serif TC',serif; font-weight:700; color:var(--navy); line-height:1.08;}
+.gold{color:var(--gold);}
+.warn{color:var(--red); font-weight:700;}
+.nlist{display:grid; grid-template-columns:30px 1fr; column-gap:10px; row-gap:7px;}
+.nlist .k{font-family:'Noto Serif TC',serif; font-size:19px; line-height:1.5; color:var(--gold); font-weight:700;}
+.rows > div{display:grid; grid-template-columns:140px 1fr; column-gap:22px; padding:13px 0; border-top:1px solid var(--hair);}
+.cols{display:flex; gap:28px;}
+.cols > *{flex:1; min-width:0;}
+.col-h{font-size:14.5px; font-weight:700; color:var(--teal-dark); letter-spacing:.06em; border-bottom:1px solid var(--teal); padding-bottom:5px; margin-bottom:8px;}
+ul.dash{list-style:none; padding:0; margin:0;}
+ul.dash li{position:relative; padding-left:16px; margin:3px 0;}
+ul.dash li::before{content:''; position:absolute; left:0; top:.82em; width:7px; height:1.5px; background:var(--gold);}
+.note{border-top:1.5px solid var(--gold); border-bottom:1px solid var(--gold-mid); padding:12px 0 12px; display:flex; gap:16px;}
+.note .tag{font-family:'Noto Serif TC',serif; font-weight:700; color:var(--gold); white-space:nowrap; font-size:16px;}
+.note.red{border-top-color:var(--red); border-bottom-color:#E6C2BD;}
+.note.red .tag{color:var(--red);}
+table.hl{width:100%; border-collapse:collapse;}
+table.hl th{font-size:14px; font-weight:700; color:var(--teal-dark); text-align:left; padding:8px 10px 8px 0; border-bottom:1px solid var(--teal); vertical-align:bottom;}
+table.hl td{padding:9px 10px 9px 0; border-bottom:1px solid var(--hair); vertical-align:top;}
+table.hl td.k{font-weight:700; color:var(--navy); width:76px;}
+.quote{font-family:'Noto Serif TC',serif; font-size:24px; font-weight:600; color:var(--navy); line-height:1.5; letter-spacing:.03em;}
+.quote::before{content:'「'; color:var(--gold);} .quote::after{content:'」'; color:var(--gold);}
+
+.foot{position:absolute; left:66px; right:66px; bottom:26px; display:flex; justify-content:space-between; align-items:flex-end;
+  font-size:11.5px; color:var(--muted); border-top:1px solid var(--hair); padding-top:10px; line-height:1.55; letter-spacing:.04em;}
+.foot img{height:36px; display:block;}
+.ico{width:28px; height:28px; flex:none; color:var(--teal);}
+.ico *{fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;}
+/* 時間軸 */
+.tl{position:relative; padding-left:150px;}
+.tl::before{content:''; position:absolute; left:118px; top:14px; bottom:18px; width:1px; background:var(--teal-mid);}
+.tl .it{position:relative;}
+.tl .when{position:absolute; left:-150px; top:0; width:100px; text-align:right;}
+.tl .when .stat{font-size:28px;}
+.tl .dot{position:absolute; left:-38px; top:12px; width:13px; height:13px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 4px #fff;}
+.tl .body{display:flex; gap:14px;}
+.cond{font-size:14px; font-weight:700; color:var(--gold); margin:14px 0; letter-spacing:.02em;}
+/* 長條 */
+[data-file="edu-obesity-trend"] .rows > div{padding:24px 0;} [data-file="edu-obesity-trend"] .rows p.small{font-size:16px;}
+[data-file="edu-obesity-causes"] .sec-h{margin-top:40px;} [data-file="edu-clinical-assessment"] .sec-h{margin-top:40px;}
+[data-file="edu-when-to-intervene"] .sec-h{margin:24px 0 10px;} [data-file="edu-when-to-intervene"] .serif[style*="58px"]{font-size:52px !important;}
+[data-file="edu-medication-options"] table.hl td{padding-top:6px; padding-bottom:6px;}
+.bar{height:14px; background:var(--gold); border-radius:0 2px 2px 0;}
+.bar.teal{background:var(--teal);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 01 臨床評估 -->
+<section class="page" data-file="edu-clinical-assessment">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">療程 01</span></div><div class="rule2"></div>
+  <h1>第一次來減重門診</h1>
+  <p class="dek">我們會依序完成三件事，再和您一起訂出計畫。</p>
+
+  <div class="sec-h" style="margin-top:36px"><span class="n">01</span><h2>普遍篩檢</h2><span class="line"></span></div>
+  <p>成人定期健康檢查時，測量身高、體重與腰圍，計算 BMI。</p>
+
+  <div class="sec-h"><span class="n">02</span><h2>完整評估</h2><span class="line"></span></div>
+  <div class="cols">
+    <div><div class="col-h">體位</div><p class="small">BMI、腰圍、身體組成（體脂、肌肉量）</p></div>
+    <div><div class="col-h">病史</div><p class="small">個人病史、目前用藥、<br>家族病史、飲食與睡眠習慣</p></div>
+    <div><div class="col-h">檢查</div><p class="small">抽血（血糖、血脂、肝腎功能）與腹部超音波</p></div>
+  </div>
+
+  <div class="sec-h"><span class="n">03</span><h2>擬定計畫，規律追蹤</h2><span class="line"></span></div>
+  <p>所有人都從調整飲食、運動與作息開始。符合用藥條件的人，可以考慮藥物治療，<br>目前以腸泌素類藥物為主要選擇。</p>
+
+  <div class="note" style="margin-top:30px"><span class="tag">效果不如預期</span>
+    <p>使用維持劑量約 3 個月後，體重下降未達原本的 5%，<br>或因副作用、其他原因無法用藥，<br>醫師會和您討論換藥、內視鏡輔助減重或減重手術。</p></div>
+
+  <div style="margin-top:62px; padding-left:40px">
+    <p class="quote">體重數字會起伏，<br>飲食、運動與睡眠的習慣，才是能一直帶著走的。</p>
+  </div>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 02 肥胖與代謝症候群 -->
+<section class="page" data-file="edu-obesity-metabolic-syndrome">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">認識肥胖 01</span></div><div class="rule2"></div>
+  <h1>肥胖與代謝症候群</h1>
+  <p class="dek">肥胖是慢性、容易復發的疾病，常和代謝異常一起出現。</p>
+
+  <div class="sec-h" style="margin-top:28px"><span class="n">01</span><h2>怎樣算肥胖</h2><span class="aside">國民健康署成人標準</span><span class="line"></span></div>
+  <div class="cols" style="align-items:flex-start">
+    <div>
+      <div class="col-h">BMI＝體重（公斤）÷ 身高²（公尺）</div>
+      <!-- BMI 尺標 -->
+      <svg viewBox="0 0 320 64" width="100%" aria-hidden="true">
+        <rect x="0" y="22" width="110" height="10" fill="#DCE6EA"/>
+        <rect x="110" y="22" width="80" height="10" fill="#E9D3B3"/>
+        <rect x="190" y="22" width="130" height="10" fill="#BC7F30"/>
+        <g font-family="Noto Sans TC" font-size="12" fill="#6B787D">
+          <text x="2" y="50">18.5</text><text x="104" y="50">24</text><text x="184" y="50">27</text></g>
+        <g font-family="Noto Sans TC" font-size="13" font-weight="700">
+          <text x="38" y="15" fill="#2E5262">正常</text><text x="134" y="15" fill="#8A5A1E">過重</text><text x="236" y="15" fill="#BC7F30">肥胖</text></g>
+      </svg>
+      <p class="small" style="margin-top:2px">過重 24 ≤ BMI ＜ 27；<b>肥胖 BMI ≥ 27</b></p>
+    </div>
+    <div>
+      <div class="col-h">腰圍（腹部肥胖）</div>
+      <div style="display:flex; gap:28px; margin-top:4px">
+        <div><p class="small muted">男性</p><p class="stat" style="font-size:32px">≥ 90<span style="font-size:15px"> 公分</span></p></div>
+        <div><p class="small muted">女性</p><p class="stat" style="font-size:32px">≥ 80<span style="font-size:15px"> 公分</span></p></div>
+      </div>
+      <p class="small muted" style="margin-top:6px">BMI 正常但腰圍超標，內臟脂肪仍可能過多。</p>
+    </div>
+  </div>
+
+  <div class="sec-h"><span class="n">02</span><h2>代謝症候群</h2><span class="aside">五項中符合三項以上</span><span class="line"></span></div>
+  <table class="hl small">
+    <tr><th>腹部肥胖</th><th>血壓</th><th>空腹血糖</th><th>三酸甘油酯</th><th>HDL 膽固醇</th></tr>
+    <tr><td>男 ≥ 90 公分<br>女 ≥ 80 公分</td><td>≥ 130／85 mmHg<br>或已服藥</td><td>≥ 100 mg/dL<br>或已服藥</td><td>≥ 150 mg/dL<br>或已服藥</td><td>男 ＜ 40 mg/dL<br>女 ＜ 50 mg/dL<br>或已服藥</td></tr>
+  </table>
+  <p class="small muted" style="margin-top:8px">糖化血色素（HbA1c）5.7% 至 6.4% 屬於「糖尿病前期」，需要追蹤，但不是代謝症候群的判定項目。</p>
+
+  <div class="sec-h"><span class="n">03</span><h2>未來的風險</h2><span class="aside">與沒有代謝症候群的人相比</span><span class="line"></span></div>
+  <div style="display:grid; grid-template-columns:120px 1fr 54px; row-gap:9px; align-items:center; font-size:15px">
+    <span>糖尿病</span><div class="bar" style="width:100%"></div><b class="serif" style="text-align:right">6 倍</b>
+    <span>高血壓</span><div class="bar" style="width:66.7%"></div><b class="serif" style="text-align:right">4 倍</b>
+    <span>高血脂</span><div class="bar" style="width:50%"></div><b class="serif" style="text-align:right">3 倍</b>
+    <span>心臟病、中風</span><div class="bar" style="width:33.3%"></div><b class="serif" style="text-align:right">2 倍</b>
+  </div>
+  <p style="margin-top:12px">五項指標都能靠飲食、運動與定期檢查改善。</p>
+  <p class="src" style="margin-top:4px">資料來源：衛生福利部國民健康署。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 03 肥胖越來越常見 -->
+<section class="page" data-file="edu-obesity-trend">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">認識肥胖 02</span></div><div class="rule2"></div>
+  <h1>肥胖越來越常見</h1>
+  <p class="dek">世界衛生組織把肥胖定義為複雜、容易復發的慢性病，不只是體態問題。</p>
+
+  <div class="cols" style="margin-top:32px; align-items:flex-end">
+    <div>
+      <p class="small muted">全球，2022 年</p>
+      <p class="stat" style="font-size:52px">10<span style="font-size:24px"> 億人</span></p>
+      <p class="small">以上有肥胖。</p></div>
+    <div>
+      <p class="small muted">台灣成人，2017 至 2020 年</p>
+      <div style="display:flex; gap:5px; margin:8px 0 6px">
+        <!-- 10 個人形，5 個填色＝約一半 -->
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#3E6A7C"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#3E6A7C"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#3E6A7C"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#3E6A7C"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#3E6A7C"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#3E6A7C"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#3E6A7C"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#3E6A7C"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#3E6A7C"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#3E6A7C"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#D9E0E3"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#D9E0E3"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#D9E0E3"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#D9E0E3"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#D9E0E3"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#D9E0E3"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#D9E0E3"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#D9E0E3"/></svg>
+        <svg width="26" height="46" viewBox="0 0 20 40"><circle cx="10" cy="6" r="5" fill="#D9E0E3"/><path d="M2.5 39V21a7.5 7.5 0 0 1 15 0v18z" fill="#D9E0E3"/></svg>
+      </div>
+      <p class="small"><b class="serif" style="font-size:20px">50.3%</b>　過重或肥胖，約每兩人就有一人。</p></div>
+  </div>
+
+  <div class="sec-h" style="margin-top:36px"><span class="n">01</span><h2>肥胖帶來的共病</h2><span class="line"></span></div>
+  <div class="rows">
+    <div><h3>睡眠呼吸中止</h3>
+      <p class="small">約七成睡眠呼吸中止症患者有肥胖。<br>有肥胖又會打鼾、睡醒仍疲倦或白天嗜睡，建議接受評估。<br>減重可以減輕呼吸中止與夜間缺氧。</p></div>
+    <div><h3>代謝性脂肪肝</h3>
+      <div>
+        <div style="display:flex; align-items:flex-end; gap:16px; height:92px">
+          <div style="width:118px"><div style="height:30px; background:var(--teal-mid)"></div><p class="small" style="margin-top:4px"><b class="serif">減重 5%</b><br>肝臟脂肪減少</p></div>
+          <div style="width:118px"><div style="height:44px; background:var(--teal)"></div><p class="small" style="margin-top:4px"><b class="serif">減重 7%</b><br>肝臟發炎改善</p></div>
+          <div style="width:150px"><div style="height:60px; background:var(--teal-dark)"></div><p class="small" style="margin-top:4px"><b class="serif">減重 10%</b><br>肝纖維化有機會改善</p></div>
+        </div></div></div>
+    <div><h3>退化性關節炎</h3>
+      <p class="small">體重增加 → 膝關節負重增加 → 疼痛 → 活動減少 → 體重再增加。<br>減重可以減輕膝蓋疼痛。</p></div>
+    <div><h3>心理健康</h3>
+      <p class="small">肥胖與憂鬱會互相影響。<br>統合分析發現，肥胖的人日後出現憂鬱症的風險約為 1.5 倍。</p></div>
+  </div>
+  <p class="src" style="margin-top:12px">資料來源：NCD-RisC，Lancet 2024；國民健康署；<br>Vilar-Gomez，Gastroenterology 2015；Luppino，Arch Gen Psychiatry 2010。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 04 為什麼會胖 -->
+<section class="page" data-file="edu-obesity-causes">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">認識肥胖 03</span></div><div class="rule2"></div>
+  <h1>為什麼會胖？</h1>
+  <p class="dek">肥胖是基因與環境共同作用的結果，不是單純的意志力問題。</p>
+
+  <div class="sec-h" style="margin-top:32px"><span class="n">01</span><h2>遺傳</h2><span class="line"></span></div>
+  <div style="display:flex; gap:30px; align-items:flex-start">
+    <div style="flex:0 0 210px"><p class="stat" style="font-size:42px; white-space:nowrap">40 至 70<span style="font-size:20px">%</span></p>
+      <p class="small">的體重差異與遺傳有關</p></div>
+    <div><p>目前已找到上千個與 BMI 相關的基因位點，<br>FTO 基因是其中影響較明顯的一個。</p>
+      <p class="small muted" style="margin-top:6px">每個基因的影響都很小，單一基因檢測無法預測一個人會不會胖。</p></div>
+  </div>
+
+  <div class="sec-h"><span class="n">02</span><h2>基因不是命運</h2><span class="line"></span></div>
+  <div style="display:flex; gap:30px; align-items:flex-start">
+    <div style="flex:0 0 210px">
+      <!-- 環形圖：27% -->
+      <svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true">
+        <circle cx="52" cy="52" r="42" fill="none" stroke="#EEF3F5" stroke-width="12"/>
+        <circle cx="52" cy="52" r="42" fill="none" stroke="#BC7F30" stroke-width="12" stroke-dasharray="71.25 263.9" transform="rotate(-90 52 52)"/>
+        <text x="52" y="60" text-anchor="middle" font-family="Noto Serif TC" font-weight="700" font-size="24" fill="#152831">27%</text>
+      </svg></div>
+    <div><p>統合 21.8 萬名成人的研究發現，<br>規律運動的人，<br>FTO 風險基因對肥胖的影響減少約 27%。</p>
+      <p style="margin-top:6px">台灣人體生物資料庫的研究也發現，<br>規律慢跑的人，基因對 BMI 的影響較小。</p></div>
+  </div>
+
+  <div class="sec-h"><span class="n">03</span><h2>環境與生活型態</h2><span class="line"></span></div>
+  <div class="cols">
+    <div><div class="col-h">吃進去的多</div><ul class="dash small"><li>精緻澱粉與甜食</li><li>含糖飲料</li><li>加工肉品、油炸食物</li><li>外食份量大</li></ul></div>
+    <div><div class="col-h">消耗的少</div><ul class="dash small"><li>久坐工作與通勤</li><li>活動量不足</li><li>肌肉量減少</li></ul></div>
+    <div><div class="col-h">調節失常</div><ul class="dash small"><li>睡眠不足，飢餓荷爾蒙上升</li><li>壓力大，容易情緒性進食</li><li>部分藥物會讓體重增加</li></ul></div>
+  </div>
+  <p class="small muted" style="margin-top:12px">動物研究發現，高油飲食會造成腦部下視丘發炎、干擾飽足訊號；這在人體是否成立，研究仍在進行。</p>
+  <p class="src" style="margin-top:8px">資料來源：Kilpeläinen，PLoS Med 2011；Lin，PLoS Genet 2019；Yengo，Hum Mol Genet 2018。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 05 什麼時候該開始治療 -->
+<section class="page" data-file="edu-when-to-intervene">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">認識肥胖 04</span></div><div class="rule2"></div>
+  <h1>什麼時候<br>該開始治療？</h1>
+  <p class="dek">符合下面任何一種情況，建議開始積極治療。</p>
+
+  <div style="display:flex; gap:16px; margin-top:20px">
+    <div style="flex:1; background:var(--navy); color:#fff; padding:22px 24px 24px">
+      <p style="font-size:13px; letter-spacing:.3em; color:var(--gold-mid); font-weight:700">情況一</p>
+      <p class="serif" style="font-size:58px; font-weight:700; line-height:1.05; margin-top:8px; white-space:nowrap">BMI ≥ 27</p>
+      <p style="margin-top:10px; font-size:17px; color:#E7EDF0">已達到肥胖。<br>不論有沒有其他疾病，<br>都建議治療。</p>
+    </div>
+    <div style="flex:1; background:var(--gold-pale); border:1.5px solid var(--gold); padding:22px 24px 24px">
+      <p style="font-size:13px; letter-spacing:.3em; color:var(--gold); font-weight:700">情況二</p>
+      <p class="serif" style="font-size:58px; font-weight:700; line-height:1.05; margin-top:8px; color:var(--navy); white-space:nowrap">BMI ≥ 24</p>
+      <p style="margin-top:10px; font-size:17px"><b>再加上任何一項：</b></p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; row-gap:4px; column-gap:10px; margin-top:6px; font-size:16.5px">
+        <span>☐ 高血壓</span><span>☐ 血糖偏高</span><span>☐ 血脂異常</span><span>☐ 脂肪肝</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-h" style="margin-top:34px"><span class="n">01</span><h2>您的身高，體重到多少要注意</h2><span class="aside">體重單位：公斤</span><span class="line"></span></div>
+  <table class="hl" style="font-size:15.5px">
+    <tr><th>身高（公分）</th><th>150</th><th>155</th><th>160</th><th>165</th><th>170</th><th>175</th><th>180</th></tr>
+    <tr><td class="k" style="width:96px"><span class="gold">BMI 24</span></td><td>54.0</td><td>57.7</td><td>61.4</td><td>65.3</td><td>69.4</td><td>73.5</td><td>77.8</td></tr>
+    <tr><td class="k"><span style="color:var(--navy)">BMI 27</span></td><td><b>60.8</b></td><td><b>64.9</b></td><td><b>69.1</b></td><td><b>73.5</b></td><td><b>78.0</b></td><td><b>82.7</b></td><td><b>87.5</b></td></tr>
+  </table>
+
+  <div class="sec-h"><span class="n">02</span><h2>為什麼要及早治療</h2><span class="line"></span></div>
+  <div class="cols" style="gap:20px">
+    <div><div class="col-h">糖尿病</div><p class="small">減重 5% 至 10%，<br>血糖就能改善。</p></div>
+    <div><div class="col-h">心血管</div><p class="small">血壓、血脂上升，<br>心肌梗塞、中風增加。</p></div>
+    <div><div class="col-h">癌症</div><p class="small">至少 13 種癌症<br>與肥胖有關。</p></div>
+    <div><div class="col-h">死亡率</div><p class="small">BMI 越高，<br>整體死亡風險越高。</p></div>
+  </div>
+
+  <div class="note" style="margin-top:26px"><span class="tag">改善方式</span>
+    <p>飲食、運動、作息三管齊下：<br>控制總熱量、每週運動 150 分鐘、每晚睡滿 7 小時。</p></div>
+  <p class="src" style="margin-top:14px">資料來源：國民健康署《成人肥胖防治實證指引》；IARC，N Engl J Med 2016。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 06 治療流程 -->
+<section class="page" data-file="edu-treatment-pathway">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">療程 02</span></div><div class="rule2"></div>
+  <h1>治療一步一步來</h1>
+  <p class="dek">醫師會依體重與共病，決定從哪一步開始。</p>
+
+  <div class="tl" style="margin-top:46px">
+    <div class="it"><div class="when"><p class="stat">01</p></div><div class="dot" style="background:var(--gold)"></div>
+      <div><h3 style="font-size:19px">生活型態調整</h3><p>飲食調整、運動、行為改變、睡眠管理。<br>所有人都需要，而且貫穿全程。</p></div></div>
+    <p class="cond">3 至 6 個月效果不足，或 BMI 與共病已達用藥標準</p>
+    <div class="it"><div class="when"><p class="stat">02</p></div><div class="dot"></div>
+      <div><h3 style="font-size:19px">藥物治療</h3><p>腸泌素類藥物（GLP-1 受體促效劑、GIP／GLP-1 雙重促效劑）。</p></div></div>
+    <p class="cond">維持劑量約 3 個月，減重未達原本體重 5%，或無法用藥</p>
+    <div class="it"><div class="when"><p class="stat">03</p></div><div class="dot"></div>
+      <div><h3 style="font-size:19px">內視鏡輔助減重</h3><p>胃內水球、內視鏡縮胃術（ESG）、胃內肉毒桿菌注射。</p></div></div>
+    <p class="cond">BMI ≥ 37.5，或 BMI ≥ 32.5 且有肥胖相關共病</p>
+    <div class="it"><div class="when"><p class="stat">04</p></div><div class="dot"></div>
+      <div><h3 style="font-size:19px">減重手術</h3><p>袖狀胃切除、胃繞道。</p></div></div>
+  </div>
+
+  <div class="note" style="margin-top:48px"><span class="tag">不是關卡</span>
+    <p>每一步不是非走不可。<br>符合手術條件的人可以直接評估手術；<br>生活型態調整則一直都要持續。</p></div>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 07 藥物選擇 -->
+<section class="page" data-file="edu-medication-options">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">用藥 01</span></div><div class="rule2"></div>
+  <h1>減重藥物怎麼選</h1>
+  <table class="hl small" style="margin-top:20px; line-height:1.5; table-layout:fixed">
+    <tr><th style="width:62px"></th>
+      <th><span class="serif" style="font-size:18px; color:var(--navy)">瑞倍適</span><br><span style="font-weight:400; color:var(--muted)">Rybelsus／Novo Nordisk</span></th>
+      <th><span class="serif" style="font-size:18px; color:var(--navy)">週纖達</span><br><span style="font-weight:400; color:var(--muted)">Wegovy／Novo Nordisk</span></th>
+      <th><span class="serif" style="font-size:18px; color:var(--navy)">猛健樂</span><br><span style="font-weight:400; color:var(--muted)">Mounjaro／Eli Lilly</span></th></tr>
+    <tr><td></td>
+      <td style="padding:6px 10px 6px 0"><div style="background:#FBF2DC; text-align:center; padding:4px"><img src="crop/rybelsus.png" style="height:84px"></div></td>
+      <td style="padding:6px 10px 6px 0"><div style="background:#FBF2DC; text-align:center; padding:4px"><img src="crop/wegovy-official.png" style="height:80px; max-width:100%"></div></td>
+      <td style="padding:6px 10px 6px 0"><div style="background:#FBF2DC; text-align:center; padding:4px"><img src="crop/mounjaro.png" style="height:84px"></div></td></tr>
+    <tr><td class="k">成分</td><td>Semaglutide<br>GLP-1 受體促效劑</td><td>Semaglutide<br>GLP-1 受體促效劑</td><td>Tirzepatide<br>GIP／GLP-1 雙重促效劑</td></tr>
+    <tr><td class="k">用法</td><td>每天早上空腹口服<br>3&nbsp;mg 起，每月評估<br>調升至 7、14&nbsp;mg</td><td>每週注射一次<br>0.25&nbsp;mg 起，<br>每 4 週調升，<br>維持 2.4&nbsp;mg</td><td>每週注射一次<br>2.5&nbsp;mg 起，<br>每 4 週加 2.5&nbsp;mg，<br>最高 15&nbsp;mg</td></tr>
+    <tr><td class="k">特色</td><td>不必打針</td><td>大型研究證實<br>可降低心血管事件；<br>可用於 12 歲以上<br>青少年</td><td>可減少內臟脂肪；<br>72 週研究<br>平均減重 20.2%<br>（semaglutide 組 13.7%）</td></tr>
+    <tr><td class="k">核准</td><td><span class="warn">台灣核准用於<br>第 2 型糖尿病，<br>減重屬適應症外使用</span></td><td>體重管理</td><td>體重管理、第 2 型糖尿病</td></tr>
+  </table>
+
+  <div class="cols" style="margin-top:20px">
+    <div><div class="col-h">常見副作用</div><p class="small">噁心、嘔吐、腹瀉、便祕、食慾下降，<br>多在剛開始或調升劑量時出現。<br>少見但要留意：膽結石、胰臟炎<br>（上腹痛延伸到背部要立即就醫）。</p></div>
+    <div><div class="col-h" style="color:var(--red); border-color:var(--red)">不能使用</div><p class="small">本人或家族有甲狀腺髓質癌（MTC）、<br>第二型多發性內分泌腫瘤（MEN2）；<br>懷孕或哺乳中。</p></div>
+  </div>
+  <div style="margin-top:14px"><div class="col-h">用藥前請告訴醫師</div>
+    <p class="small">胰臟炎或膽囊疾病病史、第 1 型糖尿病、腎功能不佳（嘔吐腹瀉時容易脫水）、<br>正在使用胰島素或磺醯尿素類降血糖藥（低血糖風險）、計畫懷孕。</p></div>
+  <p class="small" style="margin-top:4px">用藥前須經醫師完整評估，並搭配飲食與運動、定期回診。</p>
+  <p class="src" style="margin-top:4px">資料來源：各藥品仿單；SELECT，N Engl J Med 2023；SURMOUNT-5，N Engl J Med 2025。週纖達筆型圖片：Novo Nordisk。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 08 針劑注射與保存（兩頁並列） -->
+<div class="spread" data-file="edu-glp1-injection-storage">
+<section class="page">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">用藥 03</span></div><div class="rule2"></div>
+  <h1>針劑注射與保存</h1>
+  <p class="dek">適用週纖達（Wegovy）與猛健樂（Mounjaro）筆型注射劑。</p>
+
+  <div class="sec-h" style="margin-top:28px"><span class="n">01</span><h2>保存</h2><span class="line"></span></div>
+  <ul class="dash">
+    <li><b>未開始使用</b>：冷藏 2 至 8°C，遠離冰箱出風口。<span class="warn">絕不可冷凍</span>，結凍過就不能再用。</li>
+    <li><b>開始使用後</b>：室溫 30°C 以下或冷藏皆可。週纖達 6 週（42 天）、猛健樂 30 天內用完。</li>
+    <li>避免高溫與陽光直射，不要放在車內。</li>
+  </ul>
+
+  <div class="sec-h"><span class="n">02</span><h2>注射前</h2><span class="line"></span></div>
+  <ul class="dash">
+    <li><b>排氣</b>：週纖達每支新筆第一次使用前做一次流量檢查；猛健樂每次注射前都要排氣。</li>
+    <li>每次換新針頭。<span class="warn">筆針不可與他人共用</span>，換了針頭也一樣。</li>
+  </ul>
+
+  <div class="sec-h"><span class="n">03</span><h2>注射步驟</h2><span class="line"></span></div>
+  <div class="nlist">
+    <span class="k">1</span><p>每週固定一天施打，一天中任何時間都可以，飯前飯後皆可。</p>
+    <span class="k">2</span><p>部位：腹部（肚臍周圍 5 公分以外）、大腿前側或上臂外側，每次換位置。</p>
+    <span class="k">3</span><p>針頭完全插入皮膚，按住注射鈕。</p>
+    <span class="k">4</span><p>劑量歸零後，針頭<b>留在皮膚內</b>：週纖達慢數到 6，猛健樂慢數到 5，再拔出。</p>
+    <span class="k">5</span><p>拔針後針尖有一滴藥液是正常的。</p>
+  </div>
+
+  <div class="sec-h"><span class="n">04</span><h2>注射後</h2><span class="line"></span></div>
+  <ul class="dash">
+    <li>打完立即卸下針頭，丟入硬質容器，帶回診所或藥局回收。</li>
+    <li>最後一劑打完，筆內殘留少量藥液是正常的。</li>
+  </ul>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+<section class="page">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">用藥 03（續）</span></div><div class="rule2"></div>
+
+  <div class="sec-h" style="margin-top:30px"><span class="n">05</span><h2>飲食注意</h2><span class="line"></span></div>
+  <ul class="dash">
+    <li>用藥期間<span class="warn">避免大量飲酒</span>，也不要長時間空腹或極端節食。</li>
+    <li>吃慢一點，每餐七分飽，避免油膩的食物。</li>
+    <li>藥物是幫手。持續好的飲食與運動習慣，停藥後才不容易復胖。</li>
+  </ul>
+
+  <div class="sec-h"><span class="n">06</span><h2>懷孕與避孕</h2><span class="line"></span></div>
+  <ul class="dash">
+    <li>懷孕或哺乳期間不可使用。</li>
+    <li>計畫懷孕：週纖達需<b>停藥至少 2 個月</b>後再懷孕，猛健樂也請提早與醫師討論停藥時間。</li>
+    <li>使用猛健樂又吃口服避孕藥：<br>開始用藥及每次調升劑量後 <b>4 週內</b>，<br>要加用保險套或改用非口服避孕方式。</li>
+  </ul>
+
+  <div class="sec-h"><span class="n">07</span><h2>劑量階梯</h2><span class="aside">每 4 週評估一次</span><span class="line"></span></div>
+  <p class="small muted" style="margin-bottom:10px">週纖達</p>
+  <div style="display:flex; align-items:flex-end; gap:6px; height:118px">
+    <div style="flex:1; text-align:center"><b class="serif">0.25</b><div style="height:16px; background:var(--teal-mid)"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">0.5</b><div style="height:32px; background:var(--teal-mid)"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">1</b><div style="height:50px; background:var(--teal)"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">1.7</b><div style="height:68px; background:var(--teal)"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">2.4</b><div style="height:88px; background:var(--teal-dark)"></div></div>
+    <div style="flex:1"></div>
+  </div>
+  <div style="display:flex; gap:6px; font-size:12px; color:var(--muted); text-align:center; margin-top:4px">
+    <div style="flex:1">第 1 至 4 週</div><div style="flex:1">5 至 8 週</div><div style="flex:1">9 至 12 週</div><div style="flex:1">13 至 16 週</div><div style="flex:1">17 週起維持</div><div style="flex:1"></div></div>
+
+  <p class="small muted" style="margin:18px 0 10px">猛健樂</p>
+  <div style="display:flex; align-items:flex-end; gap:6px; height:118px">
+    <div style="flex:1; text-align:center"><b class="serif">2.5</b><div style="height:14px; background:#E9D3B3"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">5</b><div style="height:28px; background:#E9D3B3"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">7.5</b><div style="height:43px; background:var(--gold-mid)"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">10</b><div style="height:58px; background:var(--gold-mid)"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">12.5</b><div style="height:73px; background:var(--gold)"></div></div>
+    <div style="flex:1; text-align:center"><b class="serif">15</b><div style="height:88px; background:var(--gold)"></div></div>
+  </div>
+  <div style="display:flex; gap:6px; font-size:12px; color:var(--muted); text-align:center; margin-top:4px">
+    <div style="flex:1">第 1 至 4 週</div><div style="flex:1">5 至 8 週</div><div style="flex:1">9 至 12 週</div><div style="flex:1">13 至 16 週</div><div style="flex:1">17 至 20 週</div><div style="flex:1">21 週起</div></div>
+  <p class="small" style="margin-top:12px">單位為 mg。第一次使用一律從最低劑量開始，不一定要升到最高；調整劑量請與醫師討論。</p>
+  <p class="small muted" style="margin-top:6px">操作或施打時間有任何疑問，歡迎隨時詢問醫護團隊。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+</div>
+
+<!-- 09 用藥注意事項 -->
+<section class="page" data-file="edu-medication-guide">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">用藥 02</span></div><div class="rule2"></div>
+  <h1>用藥注意事項</h1>
+
+  <div class="sec-h" style="margin-top:30px"><span class="n">01</span><h2>腸胃不適，可以這樣緩解</h2><span class="line"></span></div>
+  <div class="cols">
+    <div class="nlist"><span class="k">1</span><p>少量多餐、吃慢一點</p><span class="k">2</span><p>有飽足感就停止進食</p><span class="k">3</span><p>避免油炸、辛辣的食物</p></div>
+    <div class="nlist"><span class="k">4</span><p>飯後不要馬上躺下</p><span class="k">5</span><p>睡前 3 小時不進食</p><span class="k">6</span><p>適度運動，水分喝足</p></div>
+  </div>
+
+  <div class="sec-h"><span class="n">02</span><h2>口服藥：瑞倍適</h2><span class="line"></span></div>
+  <div class="nlist">
+    <span class="k">1</span><p>早上起床、空腹時服用。</p>
+    <span class="k">2</span><p>配不超過 120&nbsp;mL 的白開水，整顆吞服。</p>
+    <span class="k">3</span><p>服藥後至少等 30 分鐘，才能吃東西、喝其他飲料或吃其他藥。</p>
+  </div>
+  <p class="warn small" style="margin-top:6px">不可壓碎、剝半或咀嚼，會影響吸收。</p>
+
+  <div class="sec-h"><span class="n">03</span><h2>針劑：忘記打怎麼辦？</h2><span class="line"></span></div>
+  <div class="cols">
+    <div><div class="col-h">週纖達</div>
+      <ul class="dash small">
+        <li>漏打 <b>5 天以內</b>：盡快補打。</li>
+        <li>超過 5 天：跳過這次，照原訂日期打。</li>
+        <li>連續漏打好幾劑：先問醫師，<br>可能要從較低劑量重新開始。</li>
+      </ul></div>
+    <div><div class="col-h">猛健樂</div>
+      <ul class="dash small">
+        <li>漏打 <b>4 天（96 小時）以內</b>：盡快補打。</li>
+        <li>超過 4 天：跳過這次，照原訂日期打。</li>
+      </ul>
+      <div style="display:flex; margin-top:10px; font-size:13px; line-height:1.45; text-align:center">
+        <div style="flex:1.4; padding:5px 0; border-top:2px solid var(--navy)">週一<br><b>漏打</b></div>
+        <div style="flex:4; padding:5px 0; border-top:2px solid var(--teal); background:var(--teal-pale)">週二至週五<br><b style="color:var(--teal-dark)">盡快補打</b></div>
+        <div style="flex:2.4; padding:5px 0; border-top:2px solid var(--red); background:var(--red-pale)">週六、週日<br><b style="color:var(--red)">跳過</b></div>
+        <div style="flex:1.4; padding:5px 0; border-top:2px solid var(--navy); white-space:nowrap">下週一<br><b>照常</b></div>
+      </div></div>
+  </div>
+
+  <div class="note" style="margin-top:26px"><span class="tag">更改施打日</span>
+    <div><p>兩劑之間間隔足夠就可以：<br>週纖達、猛健樂都要間隔至少 3 天（72 小時）。</p>
+      <p class="warn" style="margin-top:4px">任何情況都不可一次打兩倍劑量。</p></div></div>
+  <p class="src" style="margin-top:8px">資料來源：週纖達、猛健樂、瑞倍適仿單。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 10 內視鏡減重治療 -->
+<section class="page" data-file="edu-endoscopic-treatment">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">療程 03</span></div><div class="rule2"></div>
+  <h1>內視鏡減重治療</h1>
+  <p class="dek">從口腔進入胃部操作，身體表面沒有傷口。</p>
+  <table class="hl" style="margin-top:22px; font-size:15px; line-height:1.55">
+    <tr><th style="width:62px"></th>
+      <th><span class="serif" style="font-size:18px; color:var(--navy)">胃內肉毒注射</span></th>
+      <th><span class="serif" style="font-size:18px; color:var(--navy)">胃內水球</span></th>
+      <th><span class="serif" style="font-size:18px; color:var(--navy)">內視鏡縮胃術 ESG</span></th></tr>
+    <tr><td></td>
+      <td style="padding:8px 10px 6px 0"><img src="crop/stomach-botox-duo.png" style="width:172px"></td>
+      <td style="padding:8px 10px 6px 0"><img src="crop/stomach-balloon-duo.png" style="width:172px"></td>
+      <td style="padding:8px 10px 6px 0"><img src="crop/stomach-esg-duo.png" style="width:177px"></td></tr>
+    <tr><td class="k">做法</td><td>在胃壁注射肉毒桿菌素，<br>減緩胃排空</td><td>放入水球佔據胃容量，<br>期滿取出</td><td>用縫線把胃縫小，不切除胃</td></tr>
+    <tr><td class="k">效果</td><td>作用約 3 至 6 個月；<br>研究結果不一致，<br>減重效果有限</td><td>置放 6 至 12 個月</td><td>研究追蹤 5 年<br>仍可維持減重效果</td></tr>
+    <tr><td class="k">副作用</td><td>少數胃部不適、便祕</td><td>置放初期噁心、嘔吐、<br>腹脹；少數胃潰瘍<br>或需提早取出</td><td>術後噁心、腹痛；<br>少數出血、胃周圍積液</td></tr>
+    <tr><td class="k">適合</td><td>BMI ≥ 27</td><td>BMI ≥ 27</td><td>BMI ≥ 30</td></tr>
+  </table>
+  <div class="note" style="margin-top:26px"><span class="tag">請先討論</span>
+    <p class="small">胃內肉毒注射屬於藥品適應症外使用。<br>實際適用條件、效果與費用，請與醫師討論；<br>內視鏡治療後仍需搭配飲食與運動。</p></div>
+  <p class="src" style="margin-top:8px">資料來源：MERIT，Lancet 2022；ASGE／ESGE 內視鏡減重治療指引。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 11 回診時程 -->
+<section class="page" data-file="edu-follow-up-schedule">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">療程 04</span></div><div class="rule2"></div>
+  <h1>回診時程</h1>
+  <p class="dek">每次回診要看的東西不一樣。把日子記下來，比較容易持續。</p>
+
+  <div class="tl" style="margin-top:52px">
+    <div class="it" style="margin-bottom:50px"><div class="when"><p class="stat">2 週</p><p class="small muted">開始用藥後</p></div><div class="dot" style="background:var(--gold)"></div>
+      <div class="body"><svg class="ico" viewBox="0 0 32 32"><path d="M9 23l12-12M19 9l4 4M22 6l4 4M7 25l3-3M12 18l2 2M15 15l2 2"/></svg>
+        <div><b>副作用與劑量</b><p>噁心、便祕等腸胃狀況是否可以忍受，決定能不能調升劑量。</p></div></div></div>
+    <div class="it" style="margin-bottom:50px"><div class="when"><p class="stat">1 個月</p></div><div class="dot"></div>
+      <div class="body"><svg class="ico" viewBox="0 0 32 32"><rect x="6" y="9" width="20" height="17" rx="3"/><path d="M11 14a5 5 0 0 1 10 0"/><path d="M16 14l2-2.5"/></svg>
+        <div><b>體重與身體組成</b><p>體重、腰圍、體脂與肌肉量，一起檢視這個月的飲食與運動。</p></div></div></div>
+    <div class="it" style="margin-bottom:50px"><div class="when"><p class="stat">3 個月</p></div><div class="dot"></div>
+      <div class="body"><svg class="ico" viewBox="0 0 32 32"><path d="M16 5c4 6 7 9.5 7 13a7 7 0 0 1-14 0c0-3.5 3-7 7-13z"/><path d="M13 19a3 3 0 0 0 3 3"/></svg>
+        <div><b>療效評估與抽血</b><p>確認減重是否達到原本體重的 5%；<br>抽血看血糖、血脂、肝腎功能。</p></div></div></div>
+    <div class="it" style="margin-bottom:50px"><div class="when"><p class="stat">6 個月</p></div><div class="dot"></div>
+      <div class="body"><svg class="ico" viewBox="0 0 32 32"><path d="M6 25h20"/><path d="M9 25v-6a7 7 0 0 1 14 0v6"/><path d="M16 12V7"/></svg>
+        <div><b>腹部超音波</b><p>看脂肪肝改善多少，追蹤血壓、血糖、血脂等共病指標。</p></div></div></div>
+    <div class="it"><div class="when"><p class="stat">長期</p></div><div class="dot" style="background:#fff; border:2px solid var(--teal)"></div>
+      <div class="body"><svg class="ico" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10"/><path d="M16 10v6l4 3"/></svg>
+        <div><b>每 3 至 6 個月</b><p>規律回診，目標是「不復胖」。停藥前後尤其要留意體重變化。</p></div></div></div>
+  </div>
+  <div class="note red" style="margin-top:52px"><span class="tag">提早就醫</span>
+    <p>持續噁心嘔吐、吃不下，或上腹痛延伸到背部、右上腹痛，不必等到回診日。</p></div>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 12 飲食一 -->
+<section class="page" data-file="diet-mediterranean-1">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">飲食 01</span></div><div class="rule2"></div>
+  <h1>減重，從餐盤開始</h1>
+  <p class="dek">藥物能幫忙降低食慾，真正讓體重穩定下來的，是每天怎麼吃。</p>
+
+  <div style="display:flex; gap:30px; margin-top:22px; align-items:center">
+    <img src="crop/plate.png" style="width:262px; flex:none">
+    <div style="flex:1">
+      <p class="serif" style="font-size:21px; font-weight:700; color:var(--navy)">每一餐，照這個比例裝</p>
+      <div style="display:grid; grid-template-columns:auto 1fr; column-gap:12px; row-gap:4px; margin-top:10px">
+        <b class="gold">半盤</b><span>蔬菜</span>
+        <b class="gold">一掌</b><span>魚、蛋、豆腐或雞肉</span>
+        <b class="gold">一拳</b><span>糙米、地瓜等主食</span>
+      </div>
+      <p class="small muted" style="margin-top:10px">先吃菜和蛋白質，最後吃主食。<br>照這個比例，不用計算熱量，<br>也能自然少吃一些。</p>
+    </div>
+  </div>
+
+  <div class="sec-h" style="margin-top:22px"><span class="n">01</span><h2>地中海飲食的五個習慣</h2><span class="line"></span></div>
+  <div class="nlist" style="row-gap:3px">
+    <span class="k">1</span><p><b>蔬果全穀</b>　主食換成糙米、地瓜、藜麥或燕麥。</p>
+    <span class="k">2</span><p><b>優質蛋白</b>　多吃魚、蛋、豆腐、雞胸；香腸、火腿等加工肉品少吃。</p>
+    <span class="k">3</span><p><b>好油堅果</b>　烹調用橄欖油或苦茶油；點心選無調味堅果，一天一小把。</p>
+    <span class="k">4</span><p><b>多喝水少糖</b>　每天喝水 1500 至 2000&nbsp;mL，無糖茶取代含糖飲料。</p>
+    <span class="k">5</span><p><b>原型食物</b>　少加工、少沾醬、少油炸。</p>
+  </div>
+
+  <div class="sec-h" style="margin-top:20px"><span class="n">02</span><h2>蛋白質要吃夠</h2><span class="line"></span></div>
+  <p>每天每公斤體重 <b>1.2 至 1.5 公克</b>，70 公斤的人約 84 至 105 公克。<br>蛋白質能延長飽足感，也減少減重時的肌肉流失。</p>
+  <table class="hl" style="margin-top:8px; font-size:15px">
+    <tr><th>常見食物</th><th>份量</th><th style="text-align:right">蛋白質約</th><th style="width:24px"></th><th>常見食物</th><th>份量</th><th style="text-align:right; padding-right:0">蛋白質約</th></tr>
+    <tr><td style="padding:5px 0">雞胸肉</td><td>100 公克</td><td style="text-align:right"><b>23 公克</b></td><td></td><td>傳統豆腐</td><td>100 公克</td><td style="text-align:right; padding-right:0"><b>8 公克</b></td></tr>
+    <tr><td style="padding:5px 0">鮭魚</td><td>100 公克</td><td style="text-align:right"><b>20 公克</b></td><td></td><td>無糖豆漿</td><td>240&nbsp;mL</td><td style="text-align:right; padding-right:0"><b>8 公克</b></td></tr>
+    <tr><td style="padding:5px 0">雞蛋</td><td>1 顆</td><td style="text-align:right"><b>7 公克</b></td><td></td><td>無糖優格</td><td>200 公克</td><td style="text-align:right; padding-right:0"><b>7 公克</b></td></tr>
+  </table>
+  <p class="small muted" style="margin-top:6px">腎功能不佳的人，蛋白質攝取量請先與醫師討論。數值為概略值，依品牌與做法略有不同。</p>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+<!-- 13 飲食二 -->
+<section class="page" data-file="diet-mediterranean-2">
+  <div class="mast"><span class="kicker">減重門診衛教</span><span class="no">飲食 02</span></div><div class="rule2"></div>
+  <h1>不挨餓的吃法</h1>
+
+  <div class="sec-h" style="margin-top:30px"><span class="n">01</span><h2>控制飢餓的六個技巧</h2><span class="line"></span></div>
+  <div class="nlist">
+    <span class="k">1</span><p><b>規律三餐不跳餐</b>　可加 1 至 2 次健康點心，避免餓過頭後暴食。</p>
+    <span class="k">2</span><p><b>餐前喝一碗清湯</b>　可減少正餐食量；濃湯熱量高，要避免。</p>
+    <span class="k">3</span><p><b>細嚼慢嚥</b>　每餐至少 20 分鐘，讓大腦接收到飽足訊號。</p>
+    <span class="k">4</span><p><b>口渴別誤當飢餓</b>　餐間多喝水或無糖茶。</p>
+    <span class="k">5</span><p><b>準備低熱量點心</b>　小黃瓜、番茄、蒟蒻、少量堅果。</p>
+    <span class="k">6</span><p><b>睡滿 7 小時</b>　睡眠不足會讓飢餓荷爾蒙上升，更容易暴食。</p>
+  </div>
+
+  <div class="sec-h"><span class="n">02</span><h2>一日飲食參考</h2><span class="line"></span></div>
+  <!-- 菜單卡：取代 AI 生成的四盤照片 -->
+  <div style="border:1px solid var(--gold-mid); padding:16px 22px; background:var(--gold-pale)">
+    <div style="display:grid; grid-template-columns:72px 1fr; row-gap:10px; column-gap:16px">
+      <span class="serif gold" style="font-size:18px; font-weight:700">早餐</span><p>無糖優格配莓果與一小把堅果、全麥吐司一片、無糖豆漿一杯</p>
+      <span class="serif gold" style="font-size:18px; font-weight:700">午餐</span><p>糙米藜麥飯一拳、煎魚排一掌、燙青菜半盤</p>
+      <span class="serif gold" style="font-size:18px; font-weight:700">晚餐</span><p>豆腐溫沙拉、烤時蔬、清湯一碗</p>
+      <span class="serif gold" style="font-size:18px; font-weight:700">點心</span><p>番茄、小黃瓜，或一份水果（約一個拳頭大）</p>
+    </div>
+  </div>
+
+  <div class="sec-h"><span class="n">03</span><h2>四個飲食重點</h2><span class="line"></span></div>
+  <div class="nlist">
+    <span class="k">1</span><p><b>定時進食</b>　不要整天不吃再一次吃很多，血糖與食慾比較穩定。</p>
+    <span class="k">2</span><p><b>進食順序</b>　先吃蔬菜與蛋白質，再吃澱粉，飯後血糖上升較緩和。</p>
+    <span class="k">3</span><p><b>腸胃不適時</b>　選稀飯、蒸蛋、蔬菜湯等清淡食物，避開油膩與辛辣。</p>
+    <span class="k">4</span><p><b>定期回診</b>　體重卡關時，醫療團隊會和您一起檢視飲食並調整。</p>
+  </div>
+  <div class="foot"><span>木子澄安診所　消化內科<br>高雄市仁武區仁孝路 282 號　07-3739496　v. 2026/10</span><img src="crop/logo.png" alt=""></div>
+</section>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function fitReport(){
+  return [...document.querySelectorAll('.page')].map(p=>{
+    const foot = p.querySelector('.foot').getBoundingClientRect().top;
+    let maxB = 0;
+    [...p.children].filter(c=> !c.classList.contains('foot')).forEach(c=>{ maxB = Math.max(maxB, c.getBoundingClientRect().bottom); });
+    return [(p.dataset.file || p.parentElement.dataset.file), Math.round(foot - maxB)];
+  });
+}
+async function renderAll(only){
+  await document.fonts.ready;
+  const res = [];
+  for(const el of document.querySelectorAll('[data-file]')){
+    const name = el.dataset.file;
+    if(only && !only.includes(name)) continue;
+    const canvas = await html2canvas(el, {scale: 1241 / 794, backgroundColor:'#ffffff', useCORS:true, logging:false});
+    const blob = await new Promise(r=> canvas.toBlob(r, 'image/webp', 0.9));
+    await fetch('/__save?name=out/' + name + '.webp', {method:'POST', body:blob});
+    res.push([name, canvas.width, canvas.height]);
+  }
+  return res;
+}
+</script>
+</body>
+</html>

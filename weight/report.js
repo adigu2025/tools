@@ -17,12 +17,12 @@ const REPORT_CSS = `
 @page{size:A4; margin:0;}
 *{box-sizing:border-box; margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
 html,body{background:#fff;}
-body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:#22302A; font-size:13px; line-height:1.8;
+body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:#24292B; font-size:13px; line-height:1.8;
   text-wrap:pretty; line-break:strict; -webkit-font-smoothing:antialiased;}
 .serif,.rc-head h2,.rb-h,.rb-no,.toc .no,.toc .t,.toc .p,.kcal .v,.goal .w,.find .i,.big,.co-l,.tier h5,.tl-when,.rpt-hd b,.toc-head h2{
   font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif;}
 #stage{position:absolute; left:-10000px; top:0; width:666px;}
-body.preview{background:#E3E7E5; padding:28px 0 8px;}
+body.preview{background:#E7E3DC; padding:28px 0 8px;}
 body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.18);}
 @media print{
   body.preview{background:#fff; padding:0;}
@@ -33,66 +33,62 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .rpt-page{width:794px; height:1123px; overflow:hidden; position:relative; background:#fff; display:flex; flex-direction:column;
   padding:0 64px; break-after:page; page-break-after:always;}
 .rpt-page:last-child{break-after:auto; page-break-after:auto;}
-.rpt-page:not(.cover)::before{content:''; position:absolute; left:0; right:0; top:0; height:5px; background:#2F5445;}
-.rpt-hd .l{display:flex; align-items:center; gap:9px;}
-.rpt-hd .l img{width:15px; height:auto; display:block; position:relative; top:-1px;}
 .rpt-hd{flex:none; height:76px; display:flex; align-items:flex-end; justify-content:space-between; padding-bottom:4px;
-  font-size:11.5px; color:#5E6662; letter-spacing:.2em;}
-.rpt-hd .r{letter-spacing:.12em; color:#33403A;}
-.rpt-hd b{color:#2F5445; font-size:16px; font-weight:700; letter-spacing:.04em; margin-left:8px;}
+  font-size:11.5px; color:#6F6A62; letter-spacing:.2em;}
+.rpt-hd .r{letter-spacing:.12em; color:#3B3A36;}
+.rpt-hd b{color:#9A6E2A; font-size:16px; font-weight:700; letter-spacing:.04em; margin-left:8px;}
 .rpt-body{flex:1; min-height:0; overflow:hidden; padding-top:26px;}
 .rpt-ft{flex:none; height:70px; display:flex; justify-content:space-between; align-items:flex-start; padding-top:12px;
-  border-top:1px solid #DCE2DF; font-size:10.5px; color:#5E6662; line-height:1.7; letter-spacing:.04em;}
-.rpt-ft .pg{font-variant-numeric:tabular-nums; color:#33403A; letter-spacing:.08em; padding-top:2px;}
+  border-top:1px solid #E6E1D8; font-size:10.5px; color:#6F6A62; line-height:1.7; letter-spacing:.04em;}
+.rpt-ft .pg{font-variant-numeric:tabular-nums; color:#3B3A36; letter-spacing:.08em; padding-top:2px;}
 
 /* 章首：襯線大標＋一句說明＋深色細線 */
-.rc-head{padding-bottom:20px; margin-bottom:26px; border-bottom:1px solid #22302A; position:relative;}
-.rc-head::after,.toc-head::after{content:''; position:absolute; left:0; bottom:-2px; width:56px; height:3px; background:#2F5445;}
-.rc-head h2{font-size:42px; color:#1A2822; letter-spacing:.04em; line-height:1.2; font-weight:700;}
-.rc-head .lead{font-size:14.5px; color:#4C5551; margin-top:12px; line-height:1.7;}
+.rc-head{padding-bottom:20px; margin-bottom:26px; border-bottom:1px solid #24292B;}
+.rc-head h2{font-size:42px; color:#1F262A; letter-spacing:.04em; line-height:1.2; font-weight:700;}
+.rc-head .lead{font-size:14.5px; color:#55524B; margin-top:12px; line-height:1.7;}
 
 /* 段落：左欄金色序號＋襯線小標，右欄內容，段落之間淡色細線 */
-.rb{display:grid; grid-template-columns:150px 1fr; border-top:1px solid #DCE2DF; padding-top:22px; margin-top:22px;}
+.rb{display:grid; grid-template-columns:150px 1fr; border-top:1px solid #E6E1D8; padding-top:22px; margin-top:22px;}
 .rpt-body > .rb:first-child, .rc-head + .rb{border-top:0; padding-top:0; margin-top:0;}
 .rb-l{padding-right:16px;}
-.rb-no{font-size:13px; color:#2F5445; letter-spacing:.14em; line-height:1.4; font-weight:700;}
+.rb-no{font-size:13px; color:#9A6E2A; letter-spacing:.14em; line-height:1.4; font-weight:700;}
 .rb-no:empty{display:none;}
-.rb-h{font-size:17.5px; font-weight:700; color:#1A2822; line-height:1.45; letter-spacing:.04em; margin-top:2px;}
-.rb-h .cont{display:block; font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-style:normal; font-size:11.5px; font-weight:400; color:#858D89; letter-spacing:.06em;}
+.rb-h{font-size:17.5px; font-weight:700; color:#1F262A; line-height:1.45; letter-spacing:.04em; margin-top:2px;}
+.rb-h .cont{display:block; font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-style:normal; font-size:11.5px; font-weight:400; color:#9A9387; letter-spacing:.06em;}
 .rb-r{min-width:0;}
-.muted{color:#59615D;} .small{font-size:11.5px;}
-.na{color:#7A827E; font-weight:400;}
-.empty{font-size:12.5px; color:#6E7672;}
-.note-line{font-size:12px; color:#535B57; margin-top:10px; line-height:1.75;}
-.mark{font-weight:700; color:#1A2822; background:linear-gradient(transparent 60%, #DCE8E0 60%);}
+.muted{color:#66615A;} .small{font-size:11.5px;}
+.na{color:#8A847A; font-weight:400;}
+.empty{font-size:12.5px; color:#77716A;}
+.note-line{font-size:12px; color:#5F5A53; margin-top:10px; line-height:1.75;}
+.mark{font-weight:700; color:#1F262A; background:linear-gradient(transparent 60%, #EFE1C2 60%);}
 
 /* 提示框：米色（一般）與淡紅（就醫），左側襯線標籤 */
-.rb.callout{grid-template-columns:118px 1fr; background:#EFF3F0; padding:18px 22px 18px 24px; border-top:0;}
+.rb.callout{grid-template-columns:118px 1fr; background:#F7F4EC; padding:18px 22px 18px 24px; border-top:0;}
 .rb.callout.red{background:#FAEDEA;}
-.co-l{font-size:16px; font-weight:700; color:#2F5445; letter-spacing:.1em; line-height:1.75;}
+.co-l{font-size:16px; font-weight:700; color:#9A6E2A; letter-spacing:.1em; line-height:1.75;}
 .callout.red .co-l{color:#A3362F;}
-.co-r{font-size:13.5px; color:#2A3530;}
+.co-r{font-size:13.5px; color:#2F3436;}
 
 /* 判讀與資料來源：彩色文字，不用圓角標籤 */
 .pill{font-size:11.5px; font-weight:700; letter-spacing:.12em; white-space:nowrap;}
-.g0{color:#3F6E4D;} .g1{color:#8A5F1F;} .g2{color:#A8352F;} .gna{color:#7A827E; font-weight:400;}
-.src{font-size:9.5px; color:#3F6656; margin-left:5px; letter-spacing:.08em; font-weight:500; white-space:nowrap; vertical-align:1px;}
-.src::before{content:'／';  color:#B7C7BF; margin-right:2px;}
+.g0{color:#3F6E4D;} .g1{color:#8A5F1F;} .g2{color:#A8352F;} .gna{color:#8A847A; font-weight:400;}
+.src{font-size:9.5px; color:#3E6A7C; margin-left:5px; letter-spacing:.08em; font-weight:500; white-space:nowrap; vertical-align:1px;}
+.src::before{content:'／';  color:#B9C9CF; margin-right:2px;}
 .arrow{font-weight:700; margin-left:3px;}
 .arrow.hi{color:#B3413B;} .arrow.lo{color:#2F5D8A;}
 
 /* 表格 */
 .rt{width:100%; border-collapse:collapse; table-layout:fixed; font-size:12.5px;}
-.rt th{font-size:11px; letter-spacing:.12em; color:#59615D; font-weight:400; text-align:left; padding:0 6px 7px; border-bottom:1px solid #22302A;}
-.rt td{padding:8px 6px; border-bottom:1px solid #E5EAE7; vertical-align:middle; overflow-wrap:anywhere;}
-.rt td.n{font-variant-numeric:tabular-nums; font-weight:700; color:#1A2822; font-size:13.5px; white-space:nowrap;}
-.rt td.n .u{font-size:10.5px; color:#6E7672; font-weight:400; margin-left:3px;}
-.rt td.ref{font-size:11.5px; color:#5E6662; font-variant-numeric:tabular-nums; white-space:nowrap;}
+.rt th{font-size:11px; letter-spacing:.12em; color:#66615A; font-weight:400; text-align:left; padding:0 6px 7px; border-bottom:1px solid #24292B;}
+.rt td{padding:8px 6px; border-bottom:1px solid #ECE7DE; vertical-align:middle; overflow-wrap:anywhere;}
+.rt td.n{font-variant-numeric:tabular-nums; font-weight:700; color:#1F262A; font-size:13.5px; white-space:nowrap;}
+.rt td.n .u{font-size:10.5px; color:#77716A; font-weight:400; margin-left:3px;}
+.rt td.ref{font-size:11.5px; color:#6F6A62; font-variant-numeric:tabular-nums; white-space:nowrap;}
 .rt td.c{text-align:right;} .rt th.c{text-align:right;}
-.rt .en{display:block; font-size:10.5px; color:#6E7672; letter-spacing:.02em; line-height:1.45;}
-.rt tr.grp td{padding:14px 6px 4px; font-size:11.5px; font-weight:700; color:#2F5445; letter-spacing:.2em; border-bottom:1px solid #DCE2DF;}
+.rt .en{display:block; font-size:10.5px; color:#77716A; letter-spacing:.02em; line-height:1.45;}
+.rt tr.grp td{padding:14px 6px 4px; font-size:11.5px; font-weight:700; color:#9A6E2A; letter-spacing:.2em; border-bottom:1px solid #E6E1D8;}
 .rt tr:first-child.grp td{padding-top:6px;}
-.rt.kv th{width:26%; font-size:12px; letter-spacing:.1em; color:#2F5445; font-weight:700; padding:9px 6px; border-bottom:1px solid #E5EAE7; vertical-align:top;}
+.rt.kv th{width:26%; font-size:12px; letter-spacing:.1em; color:#9A6E2A; font-weight:700; padding:9px 6px; border-bottom:1px solid #ECE7DE; vertical-align:top;}
 .rt.kv td{padding:9px 6px; line-height:1.75;}
 .rt.kv tr:first-child th, .rt.kv tr:first-child td{padding-top:2px;}
 .rt.track th,.rt.track td{text-align:center; padding-left:2px; padding-right:2px; font-variant-numeric:tabular-nums;}
@@ -101,102 +97,102 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 
 /* 總結 */
 .memo .rich p{font-size:13.5px;}
-.find{display:grid; grid-template-columns:24px 1fr auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px solid #E5EAE7;}
+.find{display:grid; grid-template-columns:24px 1fr auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px solid #ECE7DE;}
 .find:first-child{padding-top:0;}
-.find .i{font-weight:700; color:#2F5445; font-size:14px; font-variant-numeric:tabular-nums;}
-.find .t{font-size:12.5px; color:#2A3530; line-height:1.7; white-space:nowrap;}
-.find .t b{color:#1A2822;}
+.find .i{font-weight:700; color:#9A6E2A; font-size:14px; font-variant-numeric:tabular-nums;}
+.find .t{font-size:12.5px; color:#2F3436; line-height:1.7; white-space:nowrap;}
+.find .t b{color:#1F262A;}
 .tiles{display:grid; grid-template-columns:repeat(5,1fr); column-gap:12px; row-gap:16px;}
-.tile{border-top:2px solid #22302A; padding-top:8px;}
-.tile .k{font-size:12px; color:#1A2822; font-weight:700; letter-spacing:.08em; white-space:nowrap;}
-.tile .v{font-size:14px; font-weight:500; color:#1A2822; margin:4px 0 2px; line-height:1.4; font-variant-numeric:tabular-nums; white-space:nowrap;}
-.tile .v small{font-size:10.5px; color:#858D89; font-weight:400;}
+.tile{border-top:2px solid #24292B; padding-top:8px;}
+.tile .k{font-size:12px; color:#1F262A; font-weight:700; letter-spacing:.08em; white-space:nowrap;}
+.tile .v{font-size:14px; font-weight:500; color:#1F262A; margin:4px 0 2px; line-height:1.4; font-variant-numeric:tabular-nums; white-space:nowrap;}
+.tile .v small{font-size:10.5px; color:#9A9387; font-weight:400;}
 .tile .v .na{font-size:12.5px;}
 .goal{display:grid; grid-template-columns:repeat(4,1fr); position:relative;}
-.goal::before{content:''; position:absolute; left:7px; width:50%; top:6px; height:2px; background:#22302A;}
-.goal::after{content:''; position:absolute; left:calc(50% + 7px); width:25%; top:6px; height:0; border-top:2px dashed #B98A45;}
+.goal::before{content:''; position:absolute; left:7px; width:50%; top:6px; height:2px; background:#24292B;}
+.goal::after{content:''; position:absolute; left:calc(50% + 7px); width:25%; top:6px; height:0; border-top:2px dashed #9A6E2A;}
 .goal .st{position:relative; padding-right:8px;}
-.goal .pt{width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid #22302A; position:relative; z-index:1;}
-.goal .st.end .pt{border-color:#A87A35; background:#A87A35;}
-.goal .lbl{font-size:11px; letter-spacing:.08em; color:#59615D; margin-top:10px; white-space:nowrap;}
-.goal .w{font-size:24px; font-weight:700; color:#1A2822; line-height:1.3; font-variant-numeric:tabular-nums;}
-.goal .w small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#858D89; font-weight:400; margin-left:3px;}
-.goal .st.end .w{color:#96692A;}
-.goal .b{font-size:11.5px; color:#5E6662;}
-.rb.sign{display:grid; grid-template-columns:auto 1fr auto 150px; gap:14px; align-items:end; font-size:12px; color:#434C48; letter-spacing:.12em;}
-.sign .ln{border-bottom:1px solid #22302A; height:30px;}
+.goal .pt{width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid #24292B; position:relative; z-index:1;}
+.goal .st.end .pt{border-color:#9A6E2A; background:#9A6E2A;}
+.goal .lbl{font-size:11px; letter-spacing:.08em; color:#66615A; margin-top:10px; white-space:nowrap;}
+.goal .w{font-size:24px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
+.goal .w small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A9387; font-weight:400; margin-left:3px;}
+.goal .st.end .w{color:#9A6E2A;}
+.goal .b{font-size:11.5px; color:#6F6A62;}
+.rb.sign{display:grid; grid-template-columns:auto 1fr auto 150px; gap:14px; align-items:end; font-size:12px; color:#4A4740; letter-spacing:.12em;}
+.sign .ln{border-bottom:1px solid #24292B; height:30px;}
 
 /* 體位 */
 .bmi-top{display:flex; align-items:flex-end; gap:16px; margin-bottom:12px;}
-.big{font-size:50px; font-weight:700; color:#1A2822; line-height:.95; font-variant-numeric:tabular-nums;}
-.big small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:12.5px; font-weight:400; color:#858D89; margin-left:5px;}
-.bmi-top .facts{margin-left:auto; display:grid; grid-template-columns:auto auto; column-gap:14px; row-gap:0; font-size:12px; color:#5E6662; white-space:nowrap;}
-.bmi-top .facts b{color:#1A2822; font-weight:500; font-variant-numeric:tabular-nums;}
+.big{font-size:50px; font-weight:700; color:#1F262A; line-height:.95; font-variant-numeric:tabular-nums;}
+.big small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:12.5px; font-weight:400; color:#9A9387; margin-left:5px;}
+.bmi-top .facts{margin-left:auto; display:grid; grid-template-columns:auto auto; column-gap:14px; row-gap:0; font-size:12px; color:#6F6A62; white-space:nowrap;}
+.bmi-top .facts b{color:#1F262A; font-weight:500; font-variant-numeric:tabular-nums;}
 .pheno{display:flex; gap:12px; align-items:baseline; padding-top:12px; font-size:12px;}
-.pheno b{font-size:14px; color:#1A2822; letter-spacing:.04em;}
+.pheno b{font-size:14px; color:#1F262A; letter-spacing:.04em;}
 
 /* 治療階梯：每一階一列，本次所在的階層以米色底標出 */
-.tier{display:grid; grid-template-columns:158px 1fr; gap:14px; padding:12px 12px 12px 0; border-bottom:1px solid #E5EAE7;}
+.tier{display:grid; grid-template-columns:158px 1fr; gap:14px; padding:12px 12px 12px 0; border-bottom:1px solid #ECE7DE;}
 .tier:first-child{padding-top:0;}
-.tier .n{font-size:11px; letter-spacing:.16em; color:#2F5445; font-weight:700;}
-.tier h5{font-size:15px; color:#1A2822; letter-spacing:.04em; line-height:1.5;}
-.tier .when{font-size:10.5px; color:#5E6662; line-height:1.6; margin-top:2px; white-space:nowrap;}
-.tier p{font-size:12px; color:#33403A; line-height:1.75;}
-.tier.on{background:#EFF3F0; margin:0 -12px; padding:12px;}
-.tier .now{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#2F5445; font-weight:700; margin-left:6px; letter-spacing:.1em;}
+.tier .n{font-size:11px; letter-spacing:.16em; color:#9A6E2A; font-weight:700;}
+.tier h5{font-size:15px; color:#1F262A; letter-spacing:.04em; line-height:1.5;}
+.tier .when{font-size:10.5px; color:#6F6A62; line-height:1.6; margin-top:2px; white-space:nowrap;}
+.tier p{font-size:12px; color:#3B3A36; line-height:1.75;}
+.tier.on{background:#F7F4EC; margin:0 -12px; padding:12px;}
+.tier .now{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A6E2A; font-weight:700; margin-left:6px; letter-spacing:.1em;}
 
 /* 熱量：三欄，每欄上方深色粗線 */
 .kcal{display:grid; grid-template-columns:repeat(3,1fr); column-gap:14px;}
-.kcal > div{border-top:2px solid #22302A; padding-top:8px;}
-.kcal .k{font-size:12px; color:#1A2822; font-weight:700; letter-spacing:.06em;}
-.kcal .v{font-size:28px; font-weight:700; color:#1A2822; line-height:1.3; font-variant-numeric:tabular-nums;}
-.kcal .v small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11.5px; color:#858D89; font-weight:400; margin-left:4px;}
-.kcal .main .v{color:#2F5445;}
-.kcal .s{font-size:11px; color:#59615D; line-height:1.6;}
+.kcal > div{border-top:2px solid #24292B; padding-top:8px;}
+.kcal .k{font-size:12px; color:#1F262A; font-weight:700; letter-spacing:.06em;}
+.kcal .v{font-size:28px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
+.kcal .v small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11.5px; color:#9A9387; font-weight:400; margin-left:4px;}
+.kcal .main .v{color:#9A6E2A;}
+.kcal .s{font-size:11px; color:#66615A; line-height:1.6;}
 .macro{display:flex; height:8px; margin:18px 0 10px;}
 .macro i{display:block; height:100%;}
 .macro-lg{display:grid; grid-template-columns:repeat(3,1fr); column-gap:14px; font-size:12px;}
-.macro-lg b{display:block; font-size:15px; color:#1A2822; font-variant-numeric:tabular-nums;}
+.macro-lg b{display:block; font-size:15px; color:#1F262A; font-variant-numeric:tabular-nums;}
 .macro-lg .sw{display:inline-block; width:8px; height:8px; margin-right:6px;}
 .warn{font-size:12.5px; color:#B3413B; font-weight:700; margin-top:10px; line-height:1.75;}
 
 /* 自由文字 */
-.rich h4{font-size:13.5px; font-weight:700; color:#1A2822; margin:14px 0 2px; letter-spacing:.04em;}
+.rich h4{font-size:13.5px; font-weight:700; color:#1F262A; margin:14px 0 2px; letter-spacing:.04em;}
 .rich > h4:first-child{margin-top:0;}
 .rich p{margin:0 0 3px;}
 .rich .li{padding-left:16px; position:relative; margin:0 0 3px;}
 .rich .li::before{content:''; position:absolute; left:2px; top:.72em; width:6px; height:6px; background:#C9A15E;}
-.rich .note{font-size:12px; color:#535B57;}
+.rich .note{font-size:12px; color:#5F5A53;}
 
 /* 量表 */
 .scale-row{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center;}
-.scale-row .score{font-size:12px; color:#59615D;}
-.scale-row .score b{display:block; font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:30px; color:#1A2822; line-height:1.25;}
-.items{margin-top:10px; font-size:12px; color:#434C48; line-height:1.75;}
+.scale-row .score{font-size:12px; color:#66615A;}
+.scale-row .score b{display:block; font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:30px; color:#1F262A; line-height:1.25;}
+.items{margin-top:10px; font-size:12px; color:#4A4740; line-height:1.75;}
 
 /* 回診時程：左欄時間（襯線大字），右欄重點 */
-.tl-row{display:grid; grid-template-columns:120px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAE7;}
+.tl-row{display:grid; grid-template-columns:120px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid #ECE7DE;}
 .tl-row:first-child{padding-top:0;}
-.tl-when{font-size:22px; font-weight:700; color:#1A2822; line-height:1.3; white-space:nowrap;}
-.tl-row:first-child .tl-when{color:#2F5445;}
-.tl-sub{font-size:11px; color:#59615D; line-height:1.6; white-space:nowrap;}
-.tl-row h4{font-size:13.5px; color:#1A2822; font-weight:700; line-height:1.6;}
-.tl-row .what{font-size:12.5px; color:#33403A; line-height:1.75;}
-.chart svg{width:100%; height:auto; display:block; border:0 !important; border-top:1px solid #22302A !important; border-radius:0 !important; padding-top:6px; margin-top:16px;}
+.tl-when{font-size:22px; font-weight:700; color:#1F262A; line-height:1.3; white-space:nowrap;}
+.tl-row:first-child .tl-when{color:#9A6E2A;}
+.tl-sub{font-size:11px; color:#66615A; line-height:1.6; white-space:nowrap;}
+.tl-row h4{font-size:13.5px; color:#1F262A; font-weight:700; line-height:1.6;}
+.tl-row .what{font-size:12.5px; color:#3B3A36; line-height:1.75;}
+.chart svg{width:100%; height:auto; display:block; border:0 !important; border-top:1px solid #24292B !important; border-radius:0 !important; padding-top:6px; margin-top:16px;}
 
 /* 封面：依診所設計稿重建，位置由設計稿等比換算；個人資料由系統帶入 */
 .rpt-page.cover{padding:0; display:block; color:#1F2A26;}
 .cover .cv-wm{position:absolute; left:81px; top:-106px; width:1217px; height:1521px; display:block; pointer-events:none;}
-.cover .cv-bar{position:absolute; left:0; right:0; top:0; height:9px; background:#2E5244;}
+.cover .cv-bar{position:absolute; left:0; right:0; top:0; height:9px; background:#2E5244; box-shadow:0 2px 0 #C9A15E;}
 .cover .cv-brand{position:absolute; left:72px; top:64px; display:flex; align-items:center; gap:14px;}
 .cover .cv-mark{width:36px; height:auto; display:block;}
 .cover .cv-zh{font-size:16px; font-weight:700; letter-spacing:.24em; color:#202A26; line-height:1.3;}
 .cover .cv-en{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:12px; font-weight:500; letter-spacing:.3em; color:#4B5852; line-height:1.3; margin-top:5px;}
 .cover .cv-rule{position:absolute; left:72px; right:72px; top:129px; border-top:1px solid #DEE2E1;}
 .cover .cv-title{position:absolute; left:72px; top:340px;}
-.cover .cv-kicker{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:14px; font-weight:600; letter-spacing:.42em; color:#2F5445; line-height:1;}
-.cover h1{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:68px; font-weight:900; letter-spacing:.09em; line-height:1; color:#14251F; margin-top:33px;}
-.cover .cv-line{width:56px; height:3px; background:#2F5445; margin-top:36px;}
+.cover .cv-kicker{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:14px; font-weight:600; letter-spacing:.42em; color:#9A6E2A; line-height:1;}
+.cover h1{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:68px; font-weight:900; letter-spacing:.03em; line-height:1; color:#14251F; margin-top:33px;}
+.cover .cv-line{width:56px; height:3px; background:#BC7F30; margin-top:36px;}
 .cover .cv-sub{font-size:14.5px; letter-spacing:.22em; color:#4A524E; line-height:1; margin-top:28px;}
 .cover .cv-info{position:absolute; left:72px; top:741px; width:521px;}
 .cover .cv-info-h{display:flex; align-items:baseline; gap:16px; line-height:1;}
@@ -212,19 +208,19 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .cover .cv-foot .r{text-align:right;}
 
 /* 目錄頁 */
-.toc-head{padding-bottom:20px; margin-bottom:6px; border-bottom:1px solid #22302A; position:relative;}
-.toc-head h2{font-size:42px; color:#1A2822; letter-spacing:.04em; line-height:1.2;}
-.toc-head .lead{font-size:14.5px; color:#4C5551; margin-top:12px;}
-.toc{display:grid; grid-template-columns:54px 1fr auto; align-items:baseline; padding:13px 0; border-bottom:1px solid #E5EAE7;}
-.toc .no{font-size:16px; color:#2F5445; font-weight:700; letter-spacing:.1em;}
-.toc .t{font-size:19px; color:#1A2822; font-weight:700; letter-spacing:.06em;}
-.toc .p{font-size:16px; color:#33403A; font-variant-numeric:tabular-nums;}
+.toc-head{padding-bottom:20px; margin-bottom:6px; border-bottom:1px solid #24292B;}
+.toc-head h2{font-size:42px; color:#1F262A; letter-spacing:.04em; line-height:1.2;}
+.toc-head .lead{font-size:14.5px; color:#55524B; margin-top:12px;}
+.toc{display:grid; grid-template-columns:54px 1fr auto; align-items:baseline; padding:13px 0; border-bottom:1px solid #ECE7DE;}
+.toc .no{font-size:16px; color:#9A6E2A; font-weight:700; letter-spacing:.1em;}
+.toc .t{font-size:19px; color:#1F262A; font-weight:700; letter-spacing:.06em;}
+.toc .p{font-size:16px; color:#3B3A36; font-variant-numeric:tabular-nums;}
 .howto{margin-top:34px; grid-template-columns:1fr !important;}
 .howto .co-l{margin-bottom:10px;}
 .howto p{white-space:nowrap;}
 .howto .lg{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:12px;}
-.howto .lg div{font-size:12px; color:#33403A; line-height:1.7;}
-.howto p{font-size:12.5px; color:#33403A; line-height:1.85; margin-top:6px;}
+.howto .lg div{font-size:12px; color:#3B3A36; line-height:1.7;}
+.howto p{font-size:12.5px; color:#3B3A36; line-height:1.85; margin-top:6px;}
 
 /* 附錄名詞表：整頁寬，每列說明都不自動換行 */
 .rb.full{display:block;}
@@ -234,7 +230,7 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 /* 附件 */
 .rb.att{display:block; border:0; padding:0; margin:0;}
 .att .rb-h{margin-bottom:12px;}
-.att img{display:block; max-width:100%; margin:0 auto; border:1px solid #DCE2DF; object-fit:contain;}
+.att img{display:block; max-width:100%; margin:0 auto; border:1px solid #E4DED3; object-fit:contain;}
 `;
 
 // ---------- 取值與判讀 ----------
@@ -269,8 +265,8 @@ function rBar(v, scale, cuts, W){
     if(start >= hi) break;
   }
   const mx = x(v);
-  return `<svg class="bar" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect x="0" y="${y}" width="${W}" height="${bh}" fill="#ECEFED"/>${segs}` +
-    `<path d="M${mx.toFixed(1)} ${y - 1} l-4 -6 h8 z" fill="#1A2822"/><rect x="${(mx - .75).toFixed(1)}" y="${y - 1}" width="1.5" height="${bh + 2}" fill="#1A2822"/></svg>`;
+  return `<svg class="bar" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect x="0" y="${y}" width="${W}" height="${bh}" fill="#EEEAE3"/>${segs}` +
+    `<path d="M${mx.toFixed(1)} ${y - 1} l-4 -6 h8 z" fill="#152831"/><rect x="${(mx - .75).toFixed(1)}" y="${y - 1}" width="1.5" height="${bh + 2}" fill="#152831"/></svg>`;
 }
 
 // 分數量表（STOP-BANG、PHQ-9）。cells 是可能分數的個數（0 到 8 分共 9 格），標記畫在該分數那一格的中間
@@ -282,11 +278,11 @@ function rScale(v, cells, bands, W){
   let s = '', from = 0;
   bands.forEach(([to, g, label])=>{
     s += `<rect x="${x(from).toFixed(1)}" y="${y}" width="${(x(to) - x(from)).toFixed(1)}" height="${bh}" fill="${col[g]}"/>` +
-         `<text x="${((x(from) + x(to)) / 2).toFixed(1)}" y="${y + bh + 15}" text-anchor="middle" font-size="10.5" fill="#6E7672">${label}</text>`;
+         `<text x="${((x(from) + x(to)) / 2).toFixed(1)}" y="${y + bh + 15}" text-anchor="middle" font-size="10.5" fill="#7D776D">${label}</text>`;
     from = to;
   });
   const mx = v == null ? null : x(Math.max(0, Math.min(cells - 1, v)) + .5);
-  const mk = mx == null ? '' : `<path d="M${mx.toFixed(1)} ${y - 1} l-5 -8 h10 z" fill="#1A2822"/>`;
+  const mk = mx == null ? '' : `<path d="M${mx.toFixed(1)} ${y - 1} l-5 -8 h10 z" fill="#152831"/>`;
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${s}${mk}</svg>`;
 }
 
@@ -575,9 +571,9 @@ function rChBody(d){
     const xs = v=> (v - 15) / 25 * W;
     const gauge = `<svg viewBox="0 0 ${W} 64" width="${W}" height="64">` +
       zones.map(([a, b, c, l])=> `<rect x="${xs(a).toFixed(1)}" y="${y}" width="${(xs(b) - xs(a)).toFixed(1)}" height="10" fill="${c}"/>` +
-        `<text x="${((xs(a) + xs(b)) / 2).toFixed(1)}" y="${y + 27}" text-anchor="middle" font-size="10.5" fill="#5E6662">${l}</text>`).join('') +
-      [18.5, 24, 27, 30, 35].map(v=> `<text x="${xs(v).toFixed(1)}" y="${y - 6}" text-anchor="middle" font-size="10" fill="#858D89">${v}</text>`).join('') +
-      `<path d="M${(pos * W).toFixed(1)} ${y - 1} l-6 -10 h12 z" fill="#1A2822"/><rect x="${(pos * W - 1).toFixed(1)}" y="${y - 1}" width="2" height="12" fill="#1A2822"/></svg>`;
+        `<text x="${((xs(a) + xs(b)) / 2).toFixed(1)}" y="${y + 27}" text-anchor="middle" font-size="10.5" fill="#6F6A62">${l}</text>`).join('') +
+      [18.5, 24, 27, 30, 35].map(v=> `<text x="${xs(v).toFixed(1)}" y="${y - 6}" text-anchor="middle" font-size="10" fill="#9A9387">${v}</text>`).join('') +
+      `<path d="M${(pos * W).toFixed(1)} ${y - 1} l-6 -10 h12 z" fill="#152831"/><rect x="${(pos * W - 1).toFixed(1)}" y="${y - 1}" width="2" height="12" fill="#152831"/></svg>`;
     const hM = d.h / 100;
     blocks.push(rBlock('身體質量指數', 'BODY MASS INDEX',
       `<div class="bmi-top"><div class="big">${d.bmi.toFixed(1)}<small>kg/m²</small></div><div style="padding-bottom:6px">${rPill(d.gBmi, d.bmiCat)}</div>` +
@@ -741,14 +737,14 @@ function rChHistory(d){
 
   const sbHtml = d.sb == null
     ? '<div class="empty">未填寫 STOP-BANG 問卷。</div>'
-    : `<div class="scale-row"><div class="score">STOP-BANG 分數<b>${d.sb}<small style="font-size:13px; color:#858D89"> / 8</small></b>${rPill(d.gSb, ['低風險', '中風險', '高風險'][d.gSb])}</div>` +
+    : `<div class="scale-row"><div class="score">STOP-BANG 分數<b>${d.sb}<small style="font-size:13px; color:#9A9387"> / 8</small></b>${rPill(d.gSb, ['低風險', '中風險', '高風險'][d.gSb])}</div>` +
       rScale(d.sb, 9, [[3, 0, '0–2 低風險'], [5, 1, '3–4 中風險'], [9, 2, '5–8 高風險']], 340) + `</div>` +
       `<div class="items">${d.sbItems.length ? '問卷勾選：<br>' + d.sbItems.map(t=> '・' + esc(t)).join('<br>') : '問卷各題皆未勾選。'}<br>另依資料自動計分：BMI ＞ 35、年齡 ＞ 50 歲、男性；頸圍未納入。</div>`;
   blocks.push(rBlock('睡眠評估', 'SLEEP APNEA SCREENING', sbHtml));
 
   const phqHtml = !d.phq
     ? '<div class="empty">未完成 PHQ-9 量表。</div>'
-    : `<div class="scale-row"><div class="score">PHQ-9 總分<b>${d.phq.total}<small style="font-size:13px; color:#858D89"> / 27</small></b>${rPill(d.gPhq, d.phq.severity)}</div>` +
+    : `<div class="scale-row"><div class="score">PHQ-9 總分<b>${d.phq.total}<small style="font-size:13px; color:#9A9387"> / 27</small></b>${rPill(d.gPhq, d.phq.severity)}</div>` +
       rScale(d.phq.total, 28, [[5, 0, '0–4 無明顯'], [10, 1, '5–9 輕度'], [28, 2, '10 以上 中度至重度']], 340) + `</div>` +
       (d.phq.item9 >= 1 ? `<p class="warn">第 9 題（傷害自己的念頭）有作答，<br>建議立即評估自殺風險並轉介身心科。</p>` : '');
   blocks.push(rBlock('情緒評估', 'MOOD SCREENING', phqHtml + (rS('sleep-note') ? `<p class="note-line">${rLines('睡眠與心理評估備註：' + rS('sleep-note'), 42)}</p>` : '')));
@@ -774,7 +770,7 @@ function rChPlan(d){
 
   const eduText = rS('tx-edu');
   blocks.push(rBlock('本次用藥建議', 'MEDICATION',
-    `<p style="margin-bottom:${eduText ? 12 : 0}px"><span class="pill g1" style="margin-right:12px">本次選擇</span><b style="color:#1A2822">${esc(txChoiceText())}</b></p>` +
+    `<p style="margin-bottom:${eduText ? 12 : 0}px"><span class="pill g1" style="margin-right:12px">本次選擇</span><b style="color:#1F262A">${esc(txChoiceText())}</b></p>` +
     (eduText ? `<div class="rich ru-host">${rRich(eduText, 36)}</div>` : ''), {split:true}));
 
   const c = typeof computeCalorie === 'function' ? computeCalorie() : null;
@@ -784,10 +780,10 @@ function rChPlan(d){
       `<div class="kcal"><div><div class="k">基礎代謝率 BMR</div><div class="v">${Math.round(c.bmr)}<small>kcal</small></div><div class="s">${c.bmrSrc === 'measured' ? 'TANITA 實測' + (rUp('t-bmr') ? '（上傳）' : '') : 'Mifflin-St Jeor 公式估算'}</div></div>` +
       `<div><div class="k">每日總消耗 TDEE</div><div class="v">${Math.round(c.tdee)}<small>kcal</small></div><div class="s">${rBr(c.palLabel || '', 14)}</div></div>` +
       `<div class="main"><div class="k">建議每日攝取</div><div class="v">${Math.round(c.target)}<small>kcal</small></div><div class="s">${rBr(c.goalLabel || '', 14)}</div></div></div>` +
-      `<div class="macro"><i style="width:${(pk / tot * 100).toFixed(1)}%; background:#22302A"></i><i style="width:${(fk / tot * 100).toFixed(1)}%; background:#C9A15E"></i><i style="width:${(ck / tot * 100).toFixed(1)}%; background:#D5DCD8"></i></div>` +
-      `<div class="macro-lg"><div><span class="sw" style="background:#22302A"></span>蛋白質<b>${Math.round(c.proteinG)} g</b><span class="small muted">${c.perKg} g/kg<br>${rBr(c.refLabel, 14)}</span></div>` +
+      `<div class="macro"><i style="width:${(pk / tot * 100).toFixed(1)}%; background:#24292B"></i><i style="width:${(fk / tot * 100).toFixed(1)}%; background:#C9A15E"></i><i style="width:${(ck / tot * 100).toFixed(1)}%; background:#DDD6C9"></i></div>` +
+      `<div class="macro-lg"><div><span class="sw" style="background:#24292B"></span>蛋白質<b>${Math.round(c.proteinG)} g</b><span class="small muted">${c.perKg} g/kg<br>${rBr(c.refLabel, 14)}</span></div>` +
       `<div><span class="sw" style="background:#C9A15E"></span>脂肪<b>${Math.round(c.fatG)} g</b><span class="small muted">總熱量 25%</span></div>` +
-      `<div><span class="sw" style="background:#D5DCD8"></span>碳水化合物<b>${Math.round(c.carbG)} g</b><span class="small muted">其餘熱量</span></div></div>` +
+      `<div><span class="sw" style="background:#DDD6C9"></span>碳水化合物<b>${Math.round(c.carbG)} g</b><span class="small muted">其餘熱量</span></div></div>` +
       ((c.safetyNote || c.macroNote) ? `<p class="warn">${[c.safetyNote, c.macroNote].filter(Boolean).map(t=> rBr(t, 40)).join('<br>')}</p>` : '')));
   } else if(c && c.bmr){
     blocks.push(rBlock('熱量與營養素', 'ENERGY & MACRONUTRIENTS',
@@ -886,17 +882,17 @@ function rCoverHtml(m, logo){
   <div class="cv-brand"><img class="cv-mark" src="${logo.mark}" alt=""><div><div class="cv-zh">木子澄安診所</div><div class="cv-en">MUZI CHENG'AN CLINIC</div></div></div>
   <div class="cv-rule"></div>
   <div class="cv-title">
-    <div class="cv-kicker">WEIGHT MANAGEMENT REPORT</div>
-    <h1>減重評估報告</h1>
+    <div class="cv-kicker">HEALTH EXAMINATION REPORT</div>
+    <h1>健康檢查報告</h1>
     <div class="cv-line"></div>
-    <div class="cv-sub">個人減重評估結果彙整與醫師建議</div>
+    <div class="cv-sub">個人健康檢查結果彙整與醫師建議</div>
   </div>
   <div class="cv-info">
     <div class="cv-info-h"><b>個人資料</b><span>PERSONAL INFORMATION</span></div>
     <div class="cv-grid">
       ${f('姓名', esc(m.name))}${f('出生日期', esc(birth || '--'), !birth)}
       ${f('性別', gender)}${f('年齡', age ? esc(age) + ' 歲' : '-- 歲', !age)}
-      ${f('評估日期', esc(m.date))}
+      ${f('檢查日期', esc(m.date))}
     </div>
   </div>
   <div class="cv-foot"><div>高雄市仁武區仁孝路282號<br>07-3739496 ・ LINE @muzichengan</div><div class="r">本報告僅供臨床參考，<br>檢查結果請與主治醫師討論。</div></div>
@@ -950,9 +946,9 @@ function rTocHtml(m){
 async function layoutReport(doc, m){
   const pagesBox = doc.getElementById('pages');
   const stage = doc.getElementById('stage');
-  const logo = {wm: await rLogo('#F0F2F1', 1826), mark: await rLogo('#2F5445', 144, true)};
-  const hd = r=> `<div class="rpt-hd"><span class="l"><img src="${logo.mark}" alt="">木子澄安診所　減重評估報告</span><span class="r">${r}</span></div>`;
+  const hd = r=> `<div class="rpt-hd"><span>木子澄安診所　減重評估報告</span><span class="r">${r}</span></div>`;
 
+  const logo = {wm: await rLogo('#F0F2F1', 1826), mark: await rLogo('#2F5445', 144, true)};
   pagesBox.innerHTML = rCoverHtml(m, logo);
   stage.innerHTML = m.chapters.map(c=> `<div class="rc" data-id="${c.id}"><div class="rc-head"><h2>${c.zh}</h2>` +
     `<div class="lead">${rBr(c.lead, 42)}</div></div>${c.blocks.filter(Boolean).join('')}</div>`).join('');
@@ -978,7 +974,7 @@ async function layoutReport(doc, m){
     const pg = doc.createElement('section');
     pg.className = 'rpt-page';
     pg.innerHTML = hd(chLabel) + '<div class="rpt-body"></div>' +
-      `<div class="rpt-ft"><span>木子澄安診所　${esc(m.name)}　評估日期 ${esc(m.date)}<br>本報告僅供臨床評估參考，治療計畫請與醫師討論</span><span class="pg"></span></div>`;
+      `<div class="rpt-ft"><span>木子澄安診所　${esc(m.name)}　檢查日期 ${esc(m.date)}<br>本報告僅供臨床評估參考，治療計畫請與醫師討論</span><span class="pg"></span></div>`;
     pagesBox.appendChild(pg);
     pages.push(pg);
     body = pg.querySelector('.rpt-body');
