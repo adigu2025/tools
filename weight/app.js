@@ -131,11 +131,11 @@ function gridReset(){
 renderTopAreaGrid();
 
 const CATEGORIES = [
-  {id:'basic',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>', label:'基本資料',      desc:'患者資料'},
-  {id:'history', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/></svg>', label:'病史評估',      desc:'篩檢問卷'},
-  {id:'body',    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M12 4v17M8.5 21h7M4 7l8-2 8 2"/><path d="M4 7l-2 5a2.5 2.5 0 0 0 5 0z"/><path d="M20 7l-2 5a2.5 2.5 0 0 0 5 0z" transform="translate(-1 0)"/></svg>', label:'身體測量',      desc:'BMI／TANITA'},
+  {id:'basic',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>', label:'基本資料',      desc:'個人資料／身高體重血壓'},
+  {id:'history', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/></svg>', label:'評估問卷',      desc:'病史／生活型態／量表'},
+  {id:'body',    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M12 4v17M8.5 21h7M4 7l8-2 8 2"/><path d="M4 7l-2 5a2.5 2.5 0 0 0 5 0z"/><path d="M20 7l-2 5a2.5 2.5 0 0 0 5 0z" transform="translate(-1 0)"/></svg>', label:'身體組成',      desc:'上傳 TANITA 報告'},
+  {id:'lab',     icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 2.5v14a3.5 3.5 0 0 0 7 0v-14"/><path d="M7.5 2.5h10M9 12h7"/></svg>', label:'抽血檢驗',      desc:'上傳抽血報告'},
   {id:'image',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="2.5" y="4" width="19" height="14" rx="2"/><path d="M8 21h8M12 18v3"/><path d="M6 12.5h2l1.5-3 2 5 1.5-2.5h3"/></svg>', label:'影像檢查',      desc:'腹部／甲狀腺超音波'},
-  {id:'lab',     icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 2.5v14a3.5 3.5 0 0 0 7 0v-14"/><path d="M7.5 2.5h10M9 12h7"/></svg>', label:'檢驗數值',      desc:'抽血報告'},
   {id:'treat',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M8.5 8.5l7 7"/></svg>', label:'共病與治療',    desc:'分層流程／藥物'},
   {id:'calorie', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M12 3s5 4.2 5 9a5 5 0 0 1-10 0c0-2 1-3.4 1-3.4S9.5 11 11 11c0-3 1-5.5 1-8z"/></svg>', label:'熱量與運動',    desc:'BMR/TDEE'},
   {id:'diet',    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M3 20h18"/><path d="M9.5 12a4 4 0 0 1 5-5.5"/></svg>', label:'飲食衛教',      desc:'衛教主題'},
@@ -335,7 +335,7 @@ function renderStopBang(){
   const extra = document.createElement('div');
   extra.className = 'hint';
   extra.style.marginTop = '6px';
-  extra.textContent = '以下項目將依「身體測量」與「基本資料」頁數值自動判定：BMI＞35、年齡＞50歲、頸圍＞40cm（需另行測量）、性別為男性';
+  extra.textContent = '以下項目將依「基本資料」頁的數值自動判定：BMI＞35、年齡＞50歲、頸圍＞40cm（需另行測量）、性別為男性';
   box.appendChild(extra);
 }
 renderStopBang();
@@ -798,8 +798,8 @@ function calcBody(){
   const gender = document.getElementById('p-gender').value;
   let notes = [];
   if(!isNaN(fat)){
-    const fatHigh = gender === 'M' ? 25 : 32;
-    notes.push(fat >= fatHigh ? `體脂肪率 ${fat}% 偏高（男性標準 &lt;25%／女性 &lt;32%）` : `體脂肪率 ${fat}% 在合理範圍內`);
+    const fatHigh = gender === 'M' ? 25 : 30;
+    notes.push(fat >= fatHigh ? `體脂肪率 ${fat}% 偏高（男性標準 &lt;25%／女性 &lt;30%）` : `體脂肪率 ${fat}% 在合理範圍內`);
   }
   if(!isNaN(visceral)){
     if(visceral >= 15) notes.push(`內臟脂肪等級 ${visceral}：過高，建議積極介入`);
@@ -874,6 +874,58 @@ function delTrackRow(kind, idx){
 // FILE UPLOAD（含文字擷取，供追蹤表自動判讀使用）
 // ============================================================
 const uploadedFiles = { lab: [], tanita: [] };
+
+// 數值來源：由上傳報告擷取的欄位記為 'upload'，欄位旁顯示「上傳」標籤，報告也會註明。
+// 使用者自己改過該欄位就取消標記。上傳或實測的數值一律優先於公式估算（BMR、eGFR）。
+const FIELD_SRC = {};
+function markUploaded(el){
+  if(!el) return;
+  FIELD_SRC[el.id] = 'upload';
+  renderSrcTags();
+}
+function renderSrcTags(){
+  document.querySelectorAll('.src-tag').forEach(t=>{ if(!FIELD_SRC[t.dataset.for]) t.remove(); });
+  Object.keys(FIELD_SRC).forEach(id=>{
+    const el = document.getElementById(id);
+    const label = el && el.closest('.field') && el.closest('.field').querySelector('label');
+    if(!label || label.querySelector('.src-tag')) return;
+    const t = document.createElement('span');
+    t.className = 'src-tag';
+    t.dataset.for = id;
+    t.textContent = '上傳';
+    t.title = '由上傳的報告擷取，請核對';
+    label.appendChild(t);
+  });
+}
+document.addEventListener('input', e=>{
+  const t = e.target;
+  if(e.isTrusted && t && t.id && FIELD_SRC[t.id]){ delete FIELD_SRC[t.id]; renderSrcTags(); }
+}, true);
+
+// eGFR 估算（CKD-EPI 2021，不分種族）。檢驗單有 eGFR 時以檢驗值為準，這裡只在沒有時補位。
+function egfrEstimate(){
+  const cr = parseFloat(document.getElementById('lab-cr').value);
+  const age = parseFloat(document.getElementById('p-age').value);
+  if(isNaN(cr) || cr <= 0 || isNaN(age)) return null;
+  const female = document.getElementById('p-gender').value !== 'M';
+  const k = female ? 0.7 : 0.9, a = female ? -0.241 : -0.302;
+  const r = cr / k;
+  return 142 * Math.pow(Math.min(r, 1), a) * Math.pow(Math.max(r, 1), -1.2) * Math.pow(0.9938, age) * (female ? 1.012 : 1);
+}
+function updateEgfrHint(){
+  const el = document.getElementById('egfr-est');
+  if(!el) return;
+  const e = egfrEstimate();
+  const has = document.getElementById('lab-egfr').value.trim() !== '';
+  el.textContent = e == null ? '' : (has
+    ? `依肌酸酐估算約 ${Math.round(e)}（CKD-EPI 2021）；已有檢驗值，報告採用檢驗值。`
+    : `未填檢驗值，報告將採用估算值 ${Math.round(e)}（依肌酸酐、年齡、性別以 CKD-EPI 2021 計算）。`);
+}
+['lab-cr','lab-egfr','p-birth-y','p-birth-m','p-birth-d','p-date'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', ()=> setTimeout(updateEgfrHint, 0));
+});
+document.getElementById('p-gender').addEventListener('change', updateEgfrHint);
 function setupUpload(kind, dropId, inputId, listId){
   const drop = document.getElementById(dropId);
   const input = document.getElementById(inputId);
@@ -891,7 +943,12 @@ setupUpload('tanita','tanita-drop','tanita-file','tanita-filelist');
 async function handleFiles(kind, files, listId){
   await ensurePdfjs();
   for(const file of files){
-    if(file.type !== 'application/pdf'){ alert(file.name+' 不是PDF檔案，已略過'); continue; }
+    if(/^image\/(jpeg|png|webp)$/.test(file.type)){
+      const url = await new Promise(r=>{ const fr = new FileReader(); fr.onload = ()=> r(fr.result); fr.onerror = ()=> r(''); fr.readAsDataURL(file); });
+      if(url) uploadedFiles[kind].push({ name:file.name, pages:[url], text:'', image:true });
+      continue;
+    }
+    if(file.type !== 'application/pdf'){ alert(file.name+' 不是 PDF 或圖檔（JPG、PNG），已略過'); continue; }
     const entry = { name:file.name, pages:[], text:'' };
     if(typeof pdfjsLib === 'undefined'){
       alert('PDF預覽元件載入失敗（可能是離線環境），已記錄檔名但無法產生預覽圖，需連網後重新整理頁面再試');
@@ -1017,11 +1074,13 @@ function fillCurrentLabFieldsFromUpload(){
   if(keys.length === 0){ alert('未能自動辨識出可用數值，請於上方欄位手動輸入。'); return; }
   keys.forEach(k=>{
     const el = document.getElementById('lab-'+k);
-    if(el){ el.value = fields[k]; flashField(el); }
+    if(el){ el.value = fields[k]; flashField(el); markUploaded(el); }
   });
   if('hba1c' in fields){ syncHba1c('lab-hba1c'); flashField(document.getElementById('ms-hba1c')); }
   updateLabFlags();
-  alert(`已自動帶入 ${keys.length} 項數值到上方欄位（${keys.join('、')}），擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`);
+  updateEgfrHint();
+  try{ applyMsAuto(); calcMetabolic(); }catch(e){}
+  alert(`已自動帶入 ${keys.length} 項數值到下方欄位（${keys.join('、')}），欄位旁標示「上傳」。擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`);
 }
 
 // MC-980格式報表的欄位名稱是印在底圖上的圖片，PDF文字層內沒有「體脂肪率」「肌肉量」等文字，
@@ -1034,6 +1093,7 @@ function extractMC980BodyFields(text){
   const m = text.match(re);
   if(!m) return null;
   return {
+    weight: m[1],
     fat: m[2],
     fatmass: m[3],
     muscle: m[5],
@@ -1059,6 +1119,8 @@ function extractMC980PhaseAngle(text){
 }
 
 const BODY_CURRENT_EXTRACT_DICT = {
+  weight:['(?<![標準理想目])體重','\bWeight\b'],
+  height:['身高','\bHeight\b'],
   fat:['體脂肪率','体脂肪率','脂肪率','PBF','Fat\\s*%'],
   fatmass:['體脂肪量','体脂肪量','Fat\\s*Mass'],
   muscle:['肌肉量','筋肉量','Muscle'],
@@ -1081,13 +1143,26 @@ function fillCurrentBodyFieldsFromUpload(){
   const mc980PhaseAngle = extractMC980PhaseAngle(allText);
   if(mc980PhaseAngle){ fields.phaseangle = mc980PhaseAngle; }
   const keys = Object.keys(fields);
-  if(keys.length === 0){ alert('未能自動辨識出可用數值，此PDF可能無文字層或欄位名稱為圖片，請於上方欄位手動輸入。'); return; }
+  if(keys.length === 0){ alert('未能自動辨識出可用數值，此PDF可能無文字層或欄位名稱為圖片，請於下方欄位手動輸入。'); return; }
+  // 體重、身高寫進基本資料（上傳數值優先），超出合理範圍的不採用，避免把別的數字誤當成體重
+  [['weight','b-weight',20,400],['height','b-height',100,250]].forEach(([k, id, lo, hi])=>{
+    if(!(k in fields)) return;
+    const v = parseFloat(fields[k]);
+    if(!isNaN(v) && v >= lo && v <= hi){
+      const el = document.getElementById(id);
+      el.value = fields[k]; flashField(el); markUploaded(el);
+      el.dispatchEvent(new Event('input', {bubbles:true}));
+    } else delete fields[k];
+  });
+  keys.length = 0; keys.push(...Object.keys(fields));
   keys.forEach(k=>{
     const el = document.getElementById('t-'+k);
-    if(el){ el.value = fields[k]; flashField(el); }
+    if(el){ el.value = fields[k]; flashField(el); markUploaded(el); }
   });
+  try{ calcBMI(true); calcBody(); }catch(e){}
   const phaseAngleNote = mc980PhaseAngle ? '' : '相位角 Phase Angle 仍需手動輸入。';
-  alert(`已自動帶入 ${keys.length} 項數值到上方「身體組成分析」欄位（${keys.join('、')}）。${phaseAngleNote}擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。${fallbackNote}`);
+  const NAMES = {weight:'體重',height:'身高',fat:'體脂肪率',fatmass:'體脂肪量',muscle:'肌肉量',visceral:'內臟脂肪',water:'水分率',bmr:'基礎代謝',bodyage:'身體年齡',smi:'SMI',phaseangle:'相位角'};
+  alert(`已自動帶入 ${keys.length} 項數值（${keys.map(k=> NAMES[k] || k).join('、')}）${('weight' in fields || 'height' in fields) ? '，身高體重已寫入「基本資料」' : ''}，欄位旁標示「上傳」。${phaseAngleNote}擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。${fallbackNote}`);
 }
 
 function extractFromUploads(kind){
@@ -1128,29 +1203,36 @@ makeTagPicker('comorbid-list', 'cm-note', COMORBID_TAGS, null, 'cm-other-text');
 // ============================================================
 // 熱量計算
 // ============================================================
-function calcCalorie(){
+// 熱量與營養素計算（不動畫面）。BMR 有 TANITA 實測值（手動輸入或上傳擷取）就用實測值，沒有才用 Mifflin-St Jeor 公式估算。
+// 缺活動量或減重速度時回傳 error，並附上已算得出的 BMR，報告可以只列 BMR。
+function computeCalorie(){
   const hM = getHeightM();
   const w = parseFloat(document.getElementById('b-weight').value);
   const age = parseFloat(document.getElementById('p-age').value);
   const gender = document.getElementById('p-gender').value;
-  if(!hM || !w || isNaN(age)){ alert('請先完成基本資料（出生日期）與身體測量頁（身高體重）'); return; }
-
   const measuredBmr = parseFloat(document.getElementById('t-bmr').value);
-  let bmr;
-  if(!isNaN(measuredBmr) && measuredBmr > 0){
-    bmr = measuredBmr;
+  const hasMeasured = !isNaN(measuredBmr) && measuredBmr > 0;
+  if(!hasMeasured && (!hM || !w || isNaN(age))) return {error:'請先完成基本資料（出生日期、身高、體重）'};
+  if(!hM || !w) return {error:'請先於「基本資料」頁填寫身高體重', bmr: hasMeasured ? measuredBmr : null, bmrSrc:'measured'};
+  let bmr, bmrSrc;
+  if(hasMeasured){
+    bmr = measuredBmr; bmrSrc = 'measured';
   } else {
     bmr = gender === 'M'
       ? 10*w + 6.25*(hM*100) - 5*age + 5
       : 10*w + 6.25*(hM*100) - 5*age - 161;
+    bmrSrc = 'formula';
   }
-  if(document.getElementById('cal-activity').value === '' || document.getElementById('cal-goal').value === ''){
-    alert('請先點選「活動量等級」與「減重目標速度」，再計算熱量建議。');
-    return;
+  const actSel = document.getElementById('cal-activity'), goalSel = document.getElementById('cal-goal');
+  if(actSel.value === '' || goalSel.value === ''){
+    return {error:'請先點選「活動量等級」與「減重目標速度」，再計算熱量建議。', bmr, bmrSrc};
   }
-  const pal = parseFloat(document.getElementById('cal-activity').value);
+  const optText = sel=> (sel.options[sel.selectedIndex] || {}).text || '';
+  const palLabel = optText(actSel).split('（')[0] + '，活動係數 ' + actSel.value;
+  const goalLabel = optText(goalSel).split('（')[0] + (parseFloat(goalSel.value) > 0 ? '，每日減少 ' + goalSel.value + ' kcal' : '');
+  const pal = parseFloat(actSel.value);
   const tdee = bmr * pal;
-  const deficit = parseFloat(document.getElementById('cal-goal').value);
+  const deficit = parseFloat(goalSel.value);
   let target = tdee - deficit;
 
   const minSafe = gender === 'M' ? 1500 : 1200;
@@ -1159,11 +1241,6 @@ function calcCalorie(){
     safetyNote = `※ 計算目標低於建議安全下限（${minSafe} kcal/日），已自動調整至安全下限，建議搭配醫療監督進行更積極的減重計畫。`;
     target = minSafe;
   }
-
-  document.getElementById('cal-bmr').innerHTML = Math.round(bmr) + '<span class="unit"> kcal</span>';
-  document.getElementById('cal-tdee').innerHTML = Math.round(tdee) + '<span class="unit"> kcal</span>';
-  document.getElementById('cal-target').innerHTML = Math.round(target) + '<span class="unit"> kcal</span>';
-
 
   // 蛋白質以運動處方的表現型決定係數，兩頁採同一套標準，避免報告出現兩種建議。
   // 參考體重：BMI 40 以下用實際體重；BMI 40 以上改用調整體重
@@ -1193,22 +1270,38 @@ function calcCalorie(){
   const carbKcal = target - proteinKcal - fatKcal;
   const carbG = carbKcal / 4;
 
+  // 碳水過低時提醒，避免熱量赤字與高蛋白同時設定而擠壓到碳水
+  let macroNote = '';
+  if(carbG < 100){
+    macroNote = `※ 依目前設定，碳水化合物僅剩 ${Math.round(carbG)} g/日。建議放寬熱量赤字或下修蛋白質目標，並於門診確認可行性。`;
+  }
+  return {bmr, bmrSrc, tdee, target, proteinG, proteinKcal, fatG, fatKcal, carbG, carbKcal, safetyNote, macroNote, perKg, refLabel, phenotype, palLabel, goalLabel};
+}
+
+function calcCalorie(){
+  const c = computeCalorie();
+  if(c.error){ alert(c.error); return; }
+  const {bmr, tdee, target, proteinG, proteinKcal, fatG, fatKcal, carbG, carbKcal, safetyNote, macroNote, perKg, refLabel, phenotype} = c;
+  document.getElementById('cal-bmr').innerHTML = Math.round(bmr) + '<span class="unit"> kcal</span>' +
+    `<div class="hint" style="font-size:13px">${bmrSrcText(c)}</div>`;
+  document.getElementById('cal-tdee').innerHTML = Math.round(tdee) + '<span class="unit"> kcal</span>';
+  document.getElementById('cal-target').innerHTML = Math.round(target) + '<span class="unit"> kcal</span>';
+
   document.getElementById('macro-protein-label').textContent =
     `蛋白質（${phenotype || '一般'}：${perKg} g/kg × ${refLabel}）`;
   document.getElementById('macro-protein').textContent = `${Math.round(proteinG)} g（約 ${Math.round(proteinKcal)} kcal）`;
   document.getElementById('macro-fat').textContent = `${Math.round(fatG)} g（約 ${Math.round(fatKcal)} kcal）`;
   document.getElementById('macro-carb').textContent = `${Math.round(carbG)} g（約 ${Math.round(carbKcal)} kcal）`;
 
-  // 碳水過低時提醒，避免熱量赤字與高蛋白同時設定而擠壓到碳水
-  let macroNote = '';
-  if(carbG < 100){
-    macroNote = `※ 依目前設定，碳水化合物僅剩 ${Math.round(carbG)} g/日。建議放寬熱量赤字或下修蛋白質目標，並於門診確認可行性。`;
-  }
   const noteEl = document.getElementById('cal-safety');
   noteEl.textContent = [safetyNote, macroNote].filter(Boolean).join('　');
 
   document.getElementById('cal-result').style.display = 'block';
-  window._calorieData = {bmr, tdee, target, proteinG, fatG, carbG, safetyNote, macroNote, perKg, refLabel, phenotype};
+  window._calorieData = c;
+}
+function bmrSrcText(c){
+  if(c.bmrSrc !== 'measured') return '依 Mifflin-St Jeor 公式估算（沒有 TANITA 實測值）';
+  return FIELD_SRC['t-bmr'] === 'upload' ? '採用 TANITA 實測值（上傳報告擷取）' : '採用 TANITA 實測值';
 }
 
 // ============================================================
@@ -1281,7 +1374,7 @@ function genExercise(){
   const nafld = cmText.includes('脂肪肝');
   const pmos = /PMOS|PCOS|多囊/.test(cmText);
 
-  if(bmi === null){ alert('請先於「身體測量」頁填寫身高體重'); return; }
+  if(bmi === null){ alert('請先於「基本資料」頁填寫身高體重'); return; }
 
   const classification = classifyExercisePhenotype(gender, bmi, bodyFat, smi, phaseAngle);
   const rx = EXERCISE_PRESCRIPTIONS[classification];
@@ -1629,30 +1722,6 @@ initEdu();
 function esc(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function nl2br(s){ return esc(s).replace(/\n/g,'<br>'); }
 function chk(id){ return document.getElementById(id) && document.getElementById(id).checked; }
-// __RP_TOTAL__ 於報告組裝完成後統一替換為總頁數
-function rpHeader(id){
-  return `<div class="rp-header"><span class="clinic">木子澄安診所 Muzi Cheng'an Clinic</span>` +
-    `<span class="pagenum">第 ${id} 頁／共 __RP_TOTAL__ 頁</span></div>`;
-}
-
-// 將每個報告頁（封面除外）包進 table 結構：thead/tfoot 在瀏覽器列印時會自動於每一張紙重複，
-// 因此即使單頁內容超出一張A4而延續到下一張紙，頁首與頁尾仍會固定出現，且附件頁不再產生空白頁。
-function wrapReportPages(root){
-  root.querySelectorAll('.report-page').forEach(pg=>{
-    if(pg.classList.contains('report-cover')) return;
-    if(pg.querySelector(':scope > .rp-layout')) return;
-    const header = pg.querySelector(':scope > .rp-header');
-    if(!header) return;
-    const table = document.createElement('table');
-    table.className = 'rp-layout';
-    table.innerHTML = `<thead><tr><td></td></tr></thead><tfoot><tr><td><div class="rp-footer"><span>木子澄安診所 Muzi Cheng'an Clinic</span><span>本資料僅供臨床評估參考</span></div></td></tr></tfoot><tbody><tr><td class="rp-body-cell"></td></tr></tbody>`;
-    table.querySelector('thead td').appendChild(header);
-    const bodyCell = table.querySelector('.rp-body-cell');
-    while(pg.firstChild) bodyCell.appendChild(pg.firstChild);
-    pg.appendChild(table);
-  });
-}
-
 function flashField(el){
   el.classList.add('auto-filled');
   setTimeout(()=>el.classList.remove('auto-filled'), 2500);
@@ -1662,15 +1731,12 @@ function getUploadedPdfText(kind){
   const files = uploadedFiles[kind];
   if(!files || !files.length){ alert('請先上傳PDF檔案'); return null; }
   const allText = files.map(f=>f.text||'').join('\n');
-  if(!allText.trim()){ alert('未能讀取PDF文字內容，若為掃描圖檔（無文字層）則無法自動擷取，請於上方欄位手動輸入。'); return null; }
+  if(!allText.trim()){ alert('未能讀取文字內容。圖檔與掃描的 PDF（沒有文字層）無法自動擷取，請於欄位手動輸入；檔案仍會附在報告最後。'); return null; }
   return allText;
 }
 
 function stripHeaderLine(text, header){
   return (text || '').split('\n').filter(l => l !== header).join('\n');
-}
-function hxBlock(label, content){
-  return `<div class="rp-hx-label">${esc(label)}</div><div class="rp-note">${nl2br(content)}</div>`;
 }
 // 「其他」選項：有填文字就寫「其他：文字」，沒填就只寫「其他」
 function otherLabel(textId){
@@ -1690,280 +1756,6 @@ function syncOtherInputs(focus){
 document.addEventListener('change', e=>{
   if(e.target && e.target.closest && e.target.closest('.chk-other') && e.target.type === 'checkbox') syncOtherInputs(e.target);
 }, true);
-function hxHistoryBlocksHtml(){
-  const sc = [];
-  if(chk('sc-thyroid')) sc.push('甲狀腺功能低下');
-  if(chk('sc-cushing')) sc.push('庫欣氏症候群');
-  if(chk('sc-pcos')) sc.push('多囊性卵巢症候群');
-  if(chk('sc-hypothal')) sc.push('下視丘病灶');
-  if(chk('sc-gh')) sc.push('生長激素缺乏症');
-  if(chk('sc-hypogonad')) sc.push('性腺功能低下症');
-  if(chk('sc-genetic')) sc.push('遺傳性肥胖症候群');
-  if(chk('sc-other')) sc.push(otherLabel('sc-other-text'));
-  const meds = [];
-  if(chk('med-steroid')) meds.push('類固醇');
-  if(chk('med-psych')) meds.push('抗精神病藥/抗憂鬱藥');
-  if(chk('med-insulin')) meds.push('胰島素');
-  if(chk('med-bb')) meds.push('乙型阻斷劑');
-  if(chk('med-antiepileptic')) meds.push('抗癲癇藥物');
-  if(chk('med-hormone')) meds.push('荷爾蒙避孕藥');
-  if(chk('med-antihistamine')) meds.push('抗組織胺藥物');
-  if(chk('med-chemo')) meds.push('化療藥物');
-  if(chk('med-other')) meds.push(otherLabel('med-other-text'));
-
-  const dietText = stripHeaderLine(document.getElementById('diet-habit-text').value, CATEGORY_TEXT_HEADERS['diet-habit-text']);
-  const activityText = stripHeaderLine(document.getElementById('activity-habit-text').value, CATEGORY_TEXT_HEADERS['activity-habit-text']);
-  const motivNote = document.getElementById('fam-motiv-note').value;
-
-  let html = '';
-  html += hxBlock('次發性肥胖病因篩檢', (sc.length ? sc.join('、') : '無') + (document.getElementById('sc-note').value ? '（' + document.getElementById('sc-note').value + '）' : ''));
-  html += hxBlock('藥物性因素', (meds.length ? meds.join('、') : '無') + (document.getElementById('med-note').value ? '（' + document.getElementById('med-note').value + '）' : ''));
-  html += hxBlock('飲食習慣', dietText || '未記錄');
-  html += hxBlock('活動習慣', activityText || '未記錄');
-  html += hxBlock('家族史', document.getElementById('fam-note').value || '未記錄');
-  html += hxBlock('生育計畫', document.getElementById('preg-plan').value || '未評估');
-  html += `<div class="rp-note" style="margin-top:6px">減重動機分數：${esc(document.getElementById('motiv-score').value || '--')} / 10　社會支持：${esc(document.getElementById('motiv-support').value || '未記錄')}</div>`;
-  if(motivNote){
-    html += `<div class="rp-note" style="margin-top:4px">家族史／生育／動機備註：${nl2br(motivNote)}</div>`;
-  }
-  return html;
-}
-function comorbidSummary(){
-  return document.getElementById('cm-note').value || '無';
-}
-
-// 報告第 2 頁：一眼看完的重點數值。異常值以淡紅底標示，判斷規則與檢驗頁的「偏高／偏低」相同。
-function kpiSummaryHtml(){
-  const P = id => (document.getElementById(id) ? document.getElementById(id).value : '').trim();
-  const T = id => (document.getElementById(id) ? document.getElementById(id).textContent : '').trim();
-  const NA = '<span class="na">未測</span>';
-  const labVal = (k, unit)=> P('lab-'+k) ? `${esc(P('lab-'+k))}${unit ? '<small> '+unit+'</small>' : ''}${labFlag(k, P('lab-'+k)) === 'hi' ? ' ↑' : labFlag(k, P('lab-'+k)) === 'lo' ? ' ↓' : ''}` : NA;
-  const anyFlag = keys=> keys.some(k=> labFlag(k, P('lab-'+k)));
-  const bmi = T('bmi-value');
-  const bmiNum = parseFloat(bmi);
-  const msCount = ['ms-waist','ms-glucose','ms-bp','ms-tg','ms-hdl'].filter(id=> document.getElementById(id) && document.getElementById(id).checked).length;
-  const waistFlag = T('waist-flag');
-  const msH = parseFloat(P('ms-hba1c'));
-  const msHba1c = !isNaN(msH) && msH >= 5.7 && msH <= 6.4;
-  const msPositive = msCount >= 3 || msHba1c;
-  const cards = [
-    {k:'BMI', v: (bmi && bmi !== '--') ? `${esc(bmi)}<small> kg/m²</small>` : NA,
-     s: esc((T('bmi-category').split('（')[0]) || ''), abn: !isNaN(bmiNum) && bmiNum >= 24},
-    {k:'腰圍', v: P('b-waist') ? `${esc(P('b-waist'))}<small> cm</small>` : NA, s: waistFlag === '高' ? '超過標準' : waistFlag === '正常' ? '正常' : '',
-     abn: waistFlag === '高'},
-    {k:'體脂肪率', v: P('t-fat') ? `${esc(P('t-fat'))}<small> %</small>` : NA, s: '', abn:false},
-    {k:'目標體重', v: P('b-target-weight') ? `${esc(P('b-target-weight'))}<small> kg</small>` : NA, s: P('target-loss-pct') ? '需減重 ' + esc(P('target-loss-pct')) : '', abn:false},
-    {k:'血糖', v: `${labVal('hba1c','%')}`, s: `AC ${P('lab-ac') ? esc(P('lab-ac')) + ' mg/dL' : '未測'}`, abn: anyFlag(['hba1c','ac'])},
-    {k:'血脂', v: `LDL ${labVal('ldl')}`, s: `TG ${P('lab-tg') ? esc(P('lab-tg')) : '未測'}　HDL ${P('lab-hdl') ? esc(P('lab-hdl')) : '未測'}`, abn: anyFlag(['ldl','tg','hdl','tcho'])},
-    {k:'肝功能', v: `ALT ${labVal('alt')}`, s: `AST ${P('lab-ast') ? esc(P('lab-ast')) : '未測'}`, abn: anyFlag(['alt','ast'])},
-    {k:'代謝症候群', v: msPositive ? '符合' : '未達標準', s: `符合 ${msCount}／5 項指標` + (msHba1c ? '，HbA1c 5.7–6.4%' : ''), abn: msPositive},
-  ];
-  return '<div class="rp-kpis">' + cards.map(c=>
-    `<div class="rp-kpi${c.abn ? ' abn' : ''}"><div class="k">${c.k}</div><div class="v">${c.v}</div>${c.s ? `<div class="s">${c.s}</div>` : ''}</div>`
-  ).join('') + '</div>';
-}
-
-// 報告第 3 頁：檢驗追蹤紀錄。只列有資料的欄位，依日期排序取最近 6 次，異常值加 ↑↓。
-function labTrackReportHtml(){
-  const rows = (trackData.lab || []).filter(r=> TRACK_COLS.lab.some(([k])=> k !== 'date' && String(r[k] || '').trim()));
-  if(!rows.length) return '';
-  const recent = rows.slice().sort((a,b)=> String(a.date || '').localeCompare(String(b.date || ''))).slice(-6);
-  const cols = TRACK_COLS.lab.filter(([k])=> k === 'date' || recent.some(r=> String(r[k] || '').trim()));
-  const cell = (k, v)=>{
-    v = String(v || '').trim();
-    if(!v) return '<td class="na">—</td>';
-    if(k === 'date') return `<td>${esc(v)}</td>`;
-    const f = labFlag(k, v);
-    return `<td>${esc(v)}${f ? ` <span class="rp-flag ${f}">${f === 'hi' ? '↑' : '↓'}</span>` : ''}</td>`;
-  };
-  return `<div class="rp-section-title" style="margin-top:18px">檢驗追蹤紀錄</div>
-    <table class="rp-table rp-track"><thead><tr>${cols.map(([k,l])=> `<th>${esc(l)}</th>`).join('')}</tr></thead>
-    <tbody>${recent.map(r=> `<tr>${cols.map(([k])=> cell(k, r[k])).join('')}</tr>`).join('')}</tbody></table>
-    ${rows.length > recent.length ? `<div class="rp-footnote">共 ${rows.length} 筆紀錄，此處列出最近 ${recent.length} 筆。</div>` : ''}`;
-}
-
-function buildReport(){
-  // 產生報告前強制重算一次，確保報告內的判讀與目前輸入值一致
-  calcBMI(true);
-  if(typeof calcMetabolic === 'function') calcMetabolic();
-  if(typeof calcPhq9 === 'function') calcPhq9();
-  if(typeof calcStopBang === 'function') calcStopBang();
-  const P = id => document.getElementById(id).value;
-  const name = P('p-name') || '（未填寫姓名）';
-  const gender = P('p-gender') === 'M' ? '男' : '女';
-  const age = P('p-age') || '--';
-  const height = P('b-height') || '--';
-  const weight = P('b-weight') || '--';
-  const date = P('p-date') || '--';
-  const birth = P('p-birth') || '--';
-  const bmiVal = document.getElementById('bmi-value').textContent;
-
-  let pages = [];
-
-  pages.push(`
-  <div class="report-page report-cover">
-    <div class="cover-spacer-top"></div>
-    <div class="cover-content">
-      <img class="cover-logo" src="${CLINIC_LOGO_DATA_URI}" alt="logo">
-      <div class="brand">木子澄安診所 ・ MUZI CHENG'AN CLINIC</div>
-      <div class="gold-rule"></div>
-      <h1>減重治療<br>全面評估報告</h1>
-      <div class="subtitle">COMPREHENSIVE WEIGHT MANAGEMENT ASSESSMENT</div>
-      <div class="patient-box">
-        <div class="pb-title">個人資訊 PERSONAL INFORMATION</div>
-        <table>
-          <tr><td class="k">姓　　名</td><td>${esc(name)}</td><td class="k">出生日期</td><td>${esc(birth)}</td></tr>
-          <tr><td class="k">性　　別</td><td>${gender}　${esc(age)} 歲</td><td class="k">評估日期</td><td>${esc(date)}</td></tr>
-        </table>
-      </div>
-    </div>
-    <div class="cover-spacer-bottom"></div>
-    <div class="report-footer-strip"><span>本報告僅供臨床評估參考，實際治療計畫請與主治醫師討論</span><span>MUZI CHENG'AN CLINIC</span></div>
-  </div>`);
-
-  pages.push(`
-  <div class="report-page">
-    ${rpHeader(2)}
-    <div class="rp-patient-strip"><b>${esc(name)}</b><span>${gender}・${esc(age)} 歲</span><span>身高 ${esc(height)} cm・體重 ${esc(weight)} kg</span><span>評估日期 ${esc(date)}</span></div>
-    <div class="rp-section-title">評估重點摘要</div>
-    ${kpiSummaryHtml()}
-    <div class="rp-section-title" style="margin-top:18px">病史評估</div>
-    ${hxHistoryBlocksHtml()}
-  </div>`);
-
-  pages.push(`
-  <div class="report-page">
-    ${rpHeader(3)}
-    <div class="rp-section-title">體位與身體組成評估</div>
-    <table class="rp-table" style="table-layout:fixed">
-      <tr><th style="width:25%">身高</th><td style="width:25%">${esc(height)} cm</td><th style="width:25%">體重</th><td style="width:25%">${esc(weight)} kg</td></tr>
-      <tr><th>BMI</th><td>${esc(bmiVal)} kg/m²</td><th>體位分級</th><td>${esc(document.getElementById('bmi-category').textContent)}</td></tr>
-      <tr><th>理想體重</th><td>${rvText(document.getElementById('standard-weight-range').value)}</td><th>目標體重</th><td>${P('b-target-weight') ? esc(P('b-target-weight'))+' kg（'+esc(document.getElementById('target-loss-pct').value)+'）' : RV_NA}</td></tr>
-      <tr><th>腰圍</th><td>${rv(P('b-waist'),'cm')}</td><th>腰圍風險</th><td>${rvText(document.getElementById('waist-flag').textContent)}</td></tr>
-      <tr><th>血壓</th><td colspan="3">${(P('b-sbp')||P('b-dbp')) ? esc(P('b-sbp'))+'/'+esc(P('b-dbp'))+' mmHg' : RV_NA}</td></tr>
-      <tr><th>體脂肪率</th><td>${rv(P('t-fat'),'%')}</td><th>體脂肪量</th><td>${rv(P('t-fatmass'),'kg')}</td></tr>
-      <tr><th>肌肉量</th><td>${rv(P('t-muscle'),'kg')}</td><th>身體水分率</th><td>${rv(P('t-water'),'%')}</td></tr>
-      <tr><th>內臟脂肪等級</th><td>${rv(P('t-visceral'))}</td><th>基礎代謝量（實測）</th><td>${rv(P('t-bmr'),'kcal')}</td></tr>
-      <tr><th>身體年齡</th><td>${rv(P('t-bodyage'))}</td><th>SMI（骨骼肌指數）</th><td>${rv(P('t-smi'))}</td></tr>
-      <tr><th>相位角 Phase Angle</th><td>${rv(P('t-phaseangle'))}</td><td></td><td></td></tr>
-    </table>
-    <div class="rp-note">${nl2br(document.getElementById('body-result').innerText || '')}</div>
-    ${P('body-note') ? `<div class="rp-note" style="margin-top:4px">備註：${nl2br(P('body-note'))}</div>` : ''}
-
-    <div class="rp-section-title" style="margin-top:18px">影像檢查</div>
-    <table class="rp-table" style="table-layout:fixed">
-      <tr><th style="width:25%">腹部超音波</th><td style="width:75%">${esc(P('us-fatty') || '未檢查')}${P('us-text') ? '，'+esc(P('us-text')) : ''}</td></tr>
-      <tr><th style="width:25%">甲狀腺超音波</th><td style="width:75%">${esc(P('us-thyroid') || '未檢查')}${P('us-thyroid-text') ? '，'+esc(P('us-thyroid-text')) : ''}</td></tr>
-    </table>
-
-  </div>`);
-
-  pages.push(`
-  <div class="report-page">
-    ${rpHeader(4)}
-    <div class="rp-section-title">代謝相關檢驗數值</div>
-    <table class="rp-table rp-lab" style="table-layout:fixed">
-      <tr class="rp-group"><td colspan="4">血糖與胰島素阻抗</td></tr>
-      <tr><th style="width:25%">空腹血糖 AC Sugar</th><td style="width:25%">${rvLabF('ac')}</td><th style="width:25%">醣化血色素 HbA1c</th><td style="width:25%">${rvLabF('hba1c')}</td></tr>
-      <tr><th>胰島素阻抗 HOMA-IR</th><td>${rvLabF('homa')}</td><td></td><td></td></tr>
-      <tr class="rp-group"><td colspan="4">血脂</td></tr>
-      <tr><th>總膽固醇 T-CHO</th><td>${rvLabF('tcho')}</td><th>三酸甘油酯 TG</th><td>${rvLabF('tg')}</td></tr>
-      <tr><th>高密度膽固醇 HDL-C</th><td>${rvLabF('hdl')}</td><th>低密度膽固醇 LDL-C</th><td>${rvLabF('ldl')}</td></tr>
-      <tr class="rp-group"><td colspan="4">肝腎功能</td></tr>
-      <tr><th>ALT（GPT）</th><td>${rvLabF('alt')}</td><th>AST（GOT）</th><td>${rvLabF('ast')}</td></tr>
-      <tr><th>肌酸酐 Cr</th><td>${rvLabF('cr')}</td><th>腎絲球過濾率 eGFR</th><td>${rvLabF('egfr')}</td></tr>
-      <tr class="rp-group"><td colspan="4">其他</td></tr>
-      <tr><th>甲狀腺促素 TSH</th><td>${rvLabF('tsh')}</td><th>尿酸 UA</th><td>${rvLabF('ua')}</td></tr>
-    </table>
-    <div class="rp-footnote">↑ 偏高　↓ 偏低：依一般成人參考值標示，實際判讀以檢驗單位的參考範圍為準。</div>
-    ${P('lab-note') ? `<div class="rp-note">備註：${nl2br(P('lab-note'))}</div>` : ''}
-    ${labTrackReportHtml()}
-    <div class="rp-section-title" style="margin-top:18px">代謝症候群評估</div>
-    <div class="rp-note">${(function(){
-      const c = ['ms-waist','ms-glucose','ms-bp','ms-tg','ms-hdl'].filter(id=>document.getElementById(id).checked).length;
-      const h = parseFloat(document.getElementById('ms-hba1c').value);
-      const hFlag = !isNaN(h) && h >= 5.7 && h <= 6.4;
-      if(c >= 3 || hFlag) return document.getElementById('metabolic-result').innerHTML || '符合代謝症候群診斷';
-      return '目前無代謝症候群';
-    })()}</div>
-    ${P('metabolic-note') ? `<div class="rp-note" style="margin-top:4px">備註：${nl2br(P('metabolic-note'))}</div>` : ''}
-
-    <div class="rp-section-title" style="margin-top:18px">共病症整合評估</div>
-    <div class="rp-note">${nl2br(comorbidSummary())}</div>
-
-    <div class="rp-section-title" style="margin-top:18px">睡眠與心理評估</div>
-    <div class="rp-note">睡眠評估 ${document.getElementById('stopbang-result').innerHTML.replace(/（不含頸圍項目[^）]*）/,'')}</div>
-    <div class="rp-note" style="margin-top:6px">心理／飲食行為評估（PHQ-9） ${document.getElementById('phq9-result').innerHTML}</div>
-    ${P('sleep-note') ? `<div class="rp-note" style="margin-top:4px">備註：${nl2br(P('sleep-note'))}</div>` : ''}
-
-    <div class="rp-section-title" style="margin-top:18px">本次治療建議</div>
-    <div class="rp-note">用藥選擇：${esc(txChoiceText())}</div>
-    <div class="rp-note" style="margin-top:8px">${nl2br(P('tx-edu'))}</div>
-  </div>`);
-
-  const cd = window._calorieData;
-  pages.push(`
-  <div class="report-page">
-    ${rpHeader(5)}
-    <div class="rp-section-title">熱量與營養素建議</div>
-    <table class="rp-table">
-      <tr><th>基礎代謝率 BMR</th><td>${cd ? Math.round(cd.bmr) : '--'} kcal</td></tr>
-      <tr><th>每日總消耗 TDEE</th><td>${cd ? Math.round(cd.tdee) : '--'} kcal</td></tr>
-      <tr><th>建議每日攝取熱量</th><td>${cd ? Math.round(cd.target) : '--'} kcal</td></tr>
-      <tr><th>蛋白質</th><td>${cd ? Math.round(cd.proteinG) + ' g（' + cd.perKg + ' g/kg × ' + esc(cd.refLabel) + '）' : '--'}</td></tr>
-      <tr><th>脂肪</th><td>${cd ? Math.round(cd.fatG) : '--'} g</td></tr>
-      <tr><th>碳水化合物</th><td>${cd ? Math.round(cd.carbG) : '--'} g</td></tr>
-    </table>
-    ${cd && (cd.safetyNote || cd.macroNote) ? `<div class="rp-note" style="color:#B3413B">${esc([cd.safetyNote, cd.macroNote].filter(Boolean).join('　'))}</div>` : ''}
-    <div class="rp-section-title" style="margin-top:18px">運動處方建議</div>
-    <div class="rp-note">${nl2br(P('ex-text'))}</div>
-  </div>`);
-
-  pages.push(`
-  <div class="report-page">
-    ${rpHeader(6)}
-    <div class="rp-section-title">飲食衛教</div>
-    <div class="rp-note">${nl2br(P('edu-text'))}</div>
-
-    <div class="rp-section-title" style="margin-top:18px">追蹤與監測時程</div>
-    <table class="rp-table">
-      <tr><th>用藥/療程開始後2週</th><td>副作用評估（腸胃道症狀）、劑量調整</td></tr>
-      <tr><th>1個月</th><td>體重、腰圍、身體組成、飲食狀況</td></tr>
-      <tr><th>3個月</th><td>完整回診：抽血、療效評估（未達初始體重5%需檢討治療方案）</td></tr>
-      <tr><th>6個月</th><td>腹部超音波複查脂肪肝、共病指標追蹤</td></tr>
-      <tr><th>之後</th><td>每3–6個月規律追蹤，長期以「不復胖」為目標</td></tr>
-    </table>
-    ${P('track-note') ? `<div class="rp-note">備註：${nl2br(P('track-note'))}</div>` : ''}
-    ${(function(){ const s = trackChartSvg('body','weight','體重變化 (kg)', 640, 200); return s ? `<div class="rp-chart">${s}</div>` : ''; })()}
-
-    <div class="rp-section-title" style="margin-top:18px">心理支持</div>
-    <div class="rp-note">${chk('psy-refer') ? '建議轉介身心科／心理諮商\n' : ''}${chk('psy-support') ? '已建立支持系統\n' : ''}${nl2br(P('psy-note'))}</div>
-
-    <div class="rp-section-title" style="margin-top:18px">醫師綜合評語</div>
-    <div class="rp-note">${nl2br(document.getElementById('doc-comment').value)}</div>
-  </div>`);
-
-  let attachPageNum = 7;
-  ['lab','tanita'].forEach(kind=>{
-    const label = kind === 'lab' ? '抽血報告附件' : 'TANITA 報告附件';
-    uploadedFiles[kind].forEach(file=>{
-      file.pages.forEach((imgSrc, idx)=>{
-        pages.push(`
-        <div class="report-page rp-img-page">
-          ${rpHeader(attachPageNum++)}
-          <div class="rp-section-title">${label}：${esc(file.name)}（第${idx+1}/${file.pages.length}頁）</div>
-          <img src="${imgSrc}">
-        </div>`);
-      });
-    });
-  });
-
-  document.getElementById('report-preview').innerHTML =
-    pages.join('\n').split('__RP_TOTAL__').join(pages.length);
-  wrapReportPages(document.getElementById('report-preview'));
-  document.getElementById('status-pill').textContent = '報告已產生';
-}
-
 // 減重門診評估問卷（兩頁 A4）。選項文字直接取自上方資料陣列，
 // 確保紙本與螢幕上的選項完全一致，日後改一處即可同步。
 const QS_BOX = '<svg viewBox="0 0 16 16" fill="none" stroke="#152831" stroke-width="1.3"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/></svg>';
@@ -2547,7 +2339,7 @@ const COMPLETENESS_RULES = [
      if(!document.getElementById('p-date').value) miss.push('評估日期');
      return miss;
    }},
-  {screen:'body',    label:'身體測量',   parent:'workflow-hub', check:()=>{
+  {screen:'basic',   label:'身高體重血壓', parent:'workflow-hub', check:()=>{
      const miss = [];
      if(!document.getElementById('b-height').value) miss.push('身高');
      if(!document.getElementById('b-weight').value) miss.push('體重');
@@ -2555,12 +2347,12 @@ const COMPLETENESS_RULES = [
      if(!document.getElementById('b-sbp').value || !document.getElementById('b-dbp').value) miss.push('血壓');
      return miss;
    }},
-  {screen:'lab',     label:'檢驗數值',   parent:'workflow-hub', check:()=>{
+  {screen:'lab',     label:'抽血檢驗',   parent:'workflow-hub', check:()=>{
      const keys = [['lab-ac','空腹血糖'],['lab-hba1c','HbA1c'],['lab-tg','三酸甘油酯'],['lab-hdl','HDL-C']];
      return keys.filter(([id])=>!document.getElementById(id).value).map(([,l])=>l);
    }},
   {screen:'calorie', label:'熱量與運動', parent:'workflow-hub', check:()=>
-     window._calorieData ? [] : ['尚未計算熱量建議']},
+     (()=>{ const c = computeCalorie(); return c.error ? [c.error.replace(/^請先/, '').replace(/，再計算熱量建議。$/, '')] : []; })()},
   {screen:'report',  label:'醫師綜合評語', parent:'workflow-hub', check:()=>
      document.getElementById('doc-comment').value.trim() ? [] : ['尚未填寫']}
 ];
@@ -2601,48 +2393,6 @@ document.addEventListener('change', (e)=>{
 function getReportFilename(){
   const name = document.getElementById('p-name').value.trim();
   return (name ? name : '') + '減重評估報告';
-}
-
-async function exportPDF(){
-  buildReport();
-  const container = document.getElementById('report-preview');
-  const pages = container.querySelectorAll('.report-page');
-  if(!pages.length){ alert('報告內容為空，請確認已填寫資料'); return; }
-  try{ await Promise.all([loadLib('html2canvas'), loadLib('jspdf')]); }catch(e){}
-  if(typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined'){
-    printReport();
-    return;
-  }
-  const btn = document.getElementById('pdf-export-btn');
-  const originalHTML = btn.innerHTML;
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M7 3h10M7 21h10"/><path d="M8 3v3.5c0 2 4 3.5 4 5.5s-4 3.5-4 5.5V21M16 3v3.5c0 2-4 3.5-4 5.5s4 3.5 4 5.5V21"/></svg> 產生中，請稍候...';
-  btn.disabled = true;
-  try{
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ unit:'pt', format:'a4' });
-    const pageW = pdf.internal.pageSize.getWidth();
-    const pageH = pdf.internal.pageSize.getHeight();
-    for(let i=0;i<pages.length;i++){
-      const canvas = await html2canvas(pages[i], { scale:2, useCORS:true, backgroundColor:'#ffffff' });
-      const imgData = canvas.toDataURL('image/jpeg', 0.92);
-      const ratio = Math.min(pageW/canvas.width, pageH/canvas.height);
-      const w = canvas.width*ratio, h = canvas.height*ratio;
-      if(i>0) pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', (pageW-w)/2, (pageH-h)/2, w, h);
-    }
-    pdf.save(getReportFilename() + '.pdf');
-  }catch(err){
-    console.error(err);
-    printReport();
-  }finally{
-    btn.innerHTML = originalHTML;
-    btn.disabled = false;
-  }
-}
-
-function printReport(){
-  buildReport();
-  printIsolated(document.getElementById('report-preview').innerHTML, getReportFilename());
 }
 
 // A4 於 96dpi 的像素高。頁面內容只要超出一點點，尾端就會溢到下一張紙而印出空白頁。
@@ -2688,7 +2438,9 @@ function hidePrintBusy(){
 }
 
 // 以隱藏 iframe 列印，只會跳出列印對話框，不另開分頁
-function printIsolated(bodyHtml, title){
+// opts.html：整份文件（取代預設的「本頁樣式＋bodyHtml」）；opts.prepare(doc)：列印前要先完成的排版，可回傳 Promise
+function printIsolated(bodyHtml, title, opts){
+  opts = opts || {};
   const prev = document.getElementById('print-frame');
   if(prev) prev.remove();
 
@@ -2703,7 +2455,8 @@ function printIsolated(bodyHtml, title){
   const styleTag = document.querySelector('style');
   const styles = styleTag ? styleTag.innerHTML : '';
   doc.open();
-  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(title)}</title>` +
+  if(opts.html) doc.write(opts.html);
+  else doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(title)}</title>` +
     // 圖片改為外部檔案後，列印視窗需要 base 才能正確解析 img/ 相對路徑
     `<base href="${location.href}">` +
     `<style>${styles}
@@ -2768,6 +2521,13 @@ function printIsolated(bodyHtml, title){
 
   // 圖片為外部檔案，第一次列印需先下載完才能正確排版。
   // 期間顯示提示，並設 20 秒上限，避免網路異常時一直沒有反應。
+  if(opts.prepare){
+    showPrintBusy('正在排版報告…');
+    Promise.resolve().then(()=> opts.prepare(doc, win))
+      .catch(e=>{ console.error(e); alert('報告排版失敗：' + e.message); })
+      .then(()=> setTimeout(run, 80));
+    return;
+  }
   const pending = [...doc.images].filter(img=> !img.complete)
     .map(img=> new Promise(r=>{ img.onload = img.onerror = r; }));
   if(pending.length) showPrintBusy('正在準備列印…（' + pending.length + ' 張圖片下載中）');
@@ -2810,6 +2570,7 @@ function collectState(){
   });
   // 飲食／活動習慣的分類單選
   state._catSel = JSON.parse(JSON.stringify(categorySelections));
+  state._src = Object.assign({}, FIELD_SRC);
   return state;
 }
 function applyState(state){
@@ -2835,6 +2596,11 @@ function applyState(state){
         // 只切換反白，不重寫 textarea，避免與已還原的文字重複
         box.querySelectorAll('.tag').forEach(t=> t.classList.toggle('selected', want.includes(t.textContent)));
       });
+      return;
+    }
+    if(id === '_src'){
+      Object.keys(FIELD_SRC).forEach(k=> delete FIELD_SRC[k]);
+      Object.assign(FIELD_SRC, state._src || {});
       return;
     }
     if(id === '_catSel'){
@@ -2871,6 +2637,9 @@ function applyState(state){
   refreshChoiceButtons();
   syncTagOtherInputs();
   renderTxButtons();
+  if(!('_src' in state)) Object.keys(FIELD_SRC).forEach(k=> delete FIELD_SRC[k]);
+  renderSrcTags();
+  updateEgfrHint();
 }
 // ============================================================
 // 病人紀錄：多筆儲存、草稿自動暫存、離開提醒
@@ -3043,7 +2812,7 @@ function scheduleDraftSave(){
   document.addEventListener(evt, (e)=>{
     const t = e.target;
     if(!t || !t.closest) return;
-    if(t.closest('#report-preview') || t.closest('#records-list')) return;
+    if(t.closest('#rpt-overlay') || t.closest('#records-list')) return;
     if(t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA') scheduleDraftSave();
   }, true);
 });

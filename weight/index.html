@@ -340,87 +340,22 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .tt-del{color:var(--red); cursor:pointer; font-size:14px;}
 .auto-filled{background:#FFF3C4 !important; transition:background .8s;}
 
-/* Report */
-#report-preview{background:#fff; width:794px; margin:0 auto; box-shadow:0 0 14px rgba(0,0,0,.12); position:absolute; left:-99999px; top:0;}
+/* 由上傳報告擷取的欄位 */
+.src-tag{margin-left:6px; font-size:12px; font-weight:700; padding:1px 7px; border-radius:4px; vertical-align:1px;
+  background:#E7EFF2; color:#2F5566; border:1px solid #C3D5DC;}
+/* 報告預覽：全螢幕，iframe 內是排好版的 A4 頁 */
+.rpt-overlay{position:fixed; inset:0; z-index:300; background:#E7E3DC; display:flex; flex-direction:column;}
+.rpt-ov-bar{display:flex; align-items:center; gap:12px; padding:10px 18px; background:#fff; border-bottom:1px solid var(--border); box-shadow:var(--shadow-sm);}
+.rpt-ov-bar b{font-size:17px; color:var(--navy);}
+.rpt-ov-info{font-size:14px; color:var(--muted);}
+.rpt-ov-bar .btn{padding:7px 16px; font-size:14.5px;}
+.rpt-overlay iframe{flex:1; width:100%; border:0; background:#E7E3DC;}
+/* Report（問卷列印共用） */
 .report-page{width:794px; min-height:1123px; padding:42px 55px;}
 .report-page + .report-page{page-break-before:always; break-before:page;}
-.report-cover{
-  background:#fff;
-  color:var(--navy); display:flex; flex-direction:column; justify-content:space-between; overflow:hidden; position:relative;
-  border-top:7px solid var(--primary); border-bottom:2px solid var(--teal);
-}
-/* 右上角同心圓，兩層不同深淺的金色細線，作為低調的品牌裝飾 */
-.report-cover::before{
-  content:''; position:absolute; right:-120px; top:-120px; width:360px; height:360px; border-radius:50%;
-  border:1.5px solid rgba(188,127,48,.22);
-}
-.report-cover::after{
-  content:''; position:absolute; right:-52px; top:-52px; width:240px; height:240px; border-radius:50%;
-  border:1px solid rgba(62,106,124,.18);
-}
-.cover-logo{
-  width:62px; height:auto; margin-top:30px; margin-bottom:26px; display:block;
-}
-.cover-spacer-top{flex:1 1 0;}
-.cover-spacer-bottom{flex:1.5 1 0;}
-.cover-content{position:relative; z-index:1;}
-.report-cover .brand{font-size:13px; letter-spacing:.24em; color:var(--primary-dark); text-transform:uppercase; font-weight:700;}
-.report-cover .gold-rule{width:64px; height:3px; background:var(--primary); margin:16px 0 20px; border-radius:2px;}
-.report-cover h1{font-size:39px; margin:0 0 12px; font-weight:700; line-height:1.28; color:var(--navy); letter-spacing:.03em;}
-.report-cover .subtitle{font-size:11.5px; color:var(--muted); letter-spacing:.2em; text-transform:uppercase;}
-.patient-box{
-  border:1px solid #E8DBC2; border-left:5px solid var(--primary); border-radius:10px;
-  padding:20px 24px; margin-top:42px; background:var(--primary-pale);
-  position:relative; z-index:1;
-}
-.patient-box .pb-title{font-size:11.5px; letter-spacing:.2em; color:var(--primary-dark); text-transform:uppercase; margin-bottom:14px; font-weight:700;}
-.patient-box table{width:100%; font-size:15px; border-collapse:collapse; table-layout:fixed;}
-.patient-box td{padding:8px 0; color:var(--navy); border-bottom:1px solid #EDDFC6;}
-.patient-box tr:last-child td{border-bottom:none;}
-.patient-box td.k{color:var(--primary-dark); width:86px; font-size:12.5px; font-weight:700; letter-spacing:.06em;}
-.report-footer-strip{font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:14px; position:relative; z-index:1; display:flex; justify-content:space-between;}
 .rp-header{display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding-bottom:8px; margin-bottom:16px;}
 .rp-header .clinic{font-size:14px; color:var(--primary-dark); font-weight:700;}
 .rp-header .pagenum{font-size:12px; color:var(--muted); letter-spacing:.04em;}
-.rp-layout{width:100%; border-collapse:collapse; height:1039px;}
-.rp-layout>thead{display:table-header-group;}
-.rp-layout>tfoot{display:table-footer-group;}
-.rp-layout td{vertical-align:top; padding:0;}
-.rp-layout>thead td{height:1px;}
-.rp-layout>tfoot td{height:1px; padding-top:10px;}
-.rp-footer{display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:8px; font-size:12px; color:var(--muted);}
-.rp-section-title{font-size:17.5px; color:var(--navy); font-weight:700; border-left:4px solid var(--primary); padding-left:10px; margin:0 0 12px; break-after:avoid; page-break-after:avoid;}
-.rp-table{width:100%; border-collapse:collapse; font-size:14px; margin-bottom:12px; break-inside:auto; page-break-inside:auto;}
-.rp-table tr{break-inside:avoid; page-break-inside:avoid;}
-.rp-table thead{display:table-header-group;}
-.rp-table th,.rp-table td{border:1px solid #E3DED4; padding:6px 9px; text-align:left; overflow-wrap:anywhere; word-break:break-word;}
-.rp-table tr:nth-child(even) td{background:#FCFBF8;}
-.rp-table th{background:#F7F3EC; color:var(--navy);}
-.rp-note{font-size:14px; color:#3a3833; white-space:pre-wrap; line-height:1.56; overflow-wrap:anywhere; word-break:break-word;}
-/* 圖表與附件圖片不從中間切斷 */
-.rp-chart{break-inside:avoid; page-break-inside:avoid; margin-top:10px;}
-/* 報告第 2 頁：病人資訊一行帶過，重點數值用卡片呈現 */
-.rp-patient-strip{display:flex; flex-wrap:wrap; gap:6px 18px; align-items:baseline; font-size:14px; color:#3a3833;
-  padding:8px 12px; margin-bottom:16px; background:#FCFBF8; border:1px solid #E3DED4; border-radius:8px;}
-.rp-patient-strip b{font-size:16px; color:var(--navy);}
-.rp-kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; break-inside:avoid; page-break-inside:avoid;}
-.rp-kpi{border:1px solid #E3DED4; border-radius:8px; padding:8px 10px 9px; background:#fff;
-  -webkit-print-color-adjust:exact; print-color-adjust:exact;}
-.rp-kpi .k{font-size:12px; color:var(--muted); font-weight:700; letter-spacing:.04em;}
-.rp-kpi .v{font-size:19px; font-weight:700; color:var(--navy); line-height:1.3; margin-top:2px; font-variant-numeric:tabular-nums;}
-.rp-kpi .v small{font-size:12px; font-weight:400; color:var(--muted);}
-.rp-kpi .v .na, .rp-kpi .na{font-size:14px; font-weight:400; color:#9E9B94;}
-.rp-kpi .s{font-size:12px; color:#5c5952; margin-top:2px;}
-.rp-kpi.abn{background:#FBEFED; border-color:#E8C3BE;}
-.rp-kpi.abn .v{color:#A3362F;}
-/* 檢驗表：分組標題列與異常箭頭 */
-.rp-lab .rp-group td{background:#F3EEE4 !important; font-weight:700; font-size:12.5px; color:var(--navy); padding:4px 9px; letter-spacing:.05em;}
-.rp-flag{font-weight:700; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
-.rp-flag.hi{color:#B3413B;}
-.rp-flag.lo{color:#2F5D8A;}
-.rp-track th, .rp-track td{text-align:center; padding:5px 6px; font-size:13px;}
-.rp-track td.na{color:#C4C0B8;}
-.rp-footnote{font-size:12px; color:var(--muted); margin:-6px 0 8px;}
 /* 檢驗數值輸入：分組小標、單位、偏高偏低標籤 */
 .lab-group + .lab-group{margin-top:6px;}
 .lab-group h3{margin:16px 0 8px;}
@@ -430,21 +365,13 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .lab-flag.hi{background:#F7E6E4; color:#B3413B;}
 .lab-flag.lo{background:#E6EEF7; color:#2F5D8A;}
 .field input.lab-abn{border-color:#E3B4AF; background:#FFFBFA;}
-.rp-img-page img{break-inside:avoid; page-break-inside:avoid;}
-.patient-box td{overflow-wrap:anywhere;}
-.rp-hx-label{display:inline-block; background:#FFF3C4; color:var(--navy); font-weight:700; font-size:13px; padding:2px 10px; border-radius:5px; margin:8px 0 3px; break-after:avoid; page-break-after:avoid;}
-.rp-hx-label:first-child{margin-top:0;}
-
-.rp-img-page img{display:block; width:auto; max-width:100%; max-height:880px; margin:0 auto 10px; border:1px solid var(--border);}
 
 @media print{
   .banner,.no-print,.bottom-nav{display:none !important;}
   body{background:#fff;}
   main{max-width:none; margin:0; padding:0;}
   .screen{display:none !important;}
-  #report-preview{display:block !important; position:static !important; left:auto !important; top:auto !important; box-shadow:none; width:794px; margin:0;}
   .report-page{width:794px;}
-  .report-cover{min-height:1123px;}
   .report-page + .report-page{page-break-before:always; break-before:page;}
   @page{ margin:0; size:A4; }
 }
@@ -527,6 +454,12 @@ main{padding-bottom:80px;}
 /* 被工作台（../）嵌入時，在第一次繪製前就載入工作台外觀，不會先閃出單獨開啟時的畫面；
    頁面準備好後通知工作台，工作台在這之前會先遮住這一頁。 */
 window.IN_HUB = window.self !== window.top;
+/* 單獨開啟減重頁時一律轉到工作台的「製作報告 → 減重報告」，畫面與工作台一致，不再出現舊版畫面。
+   以 file:// 開啟（無法嵌入）或網址帶 ?solo 時不轉址。 */
+if(!window.IN_HUB && location.protocol !== 'file:' && !/[?&]solo(?:[=&]|$)/.test(location.search)){
+  try{ localStorage.setItem('hub-view', JSON.stringify('weight')); localStorage.setItem('hub-rep', JSON.stringify('weight')); }catch(e){}
+  location.replace('../');
+}
 if(window.IN_HUB){
   document.write('<link rel="stylesheet" href="hub.css">');
   document.addEventListener('DOMContentLoaded', function(){ try{ parent.hubFrameReady(window); }catch(e){} });
@@ -595,9 +528,50 @@ if(window.IN_HUB){
       <div class="field"><label>年齡（自動計算）</label><input id="p-age" readonly style="background:#F4F2EE"></div>
     </div>
   </div>
+  <div class="card">
+    <h2>身高體重、腰圍、血壓</h2>
+    <div class="hint" style="margin-top:-4px">上傳 TANITA 報告時，身高與體重會自動帶入這裡（標示「上傳」），以上傳的數值為準。</div>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="field"><label>身高 (cm)</label><input id="b-height" type="number" min="100" max="250" step="0.1"></div>
+      <div class="field"><label>體重 (kg)</label><input id="b-weight" type="number" min="20" max="400" step="0.1"></div>
+      <div class="field"><label>腰圍 (cm)</label><input id="b-waist" type="number" min="40" max="250" step="0.1"></div>
+      <div class="field"><label>血壓 收縮/舒張 (mmHg)</label><div style="display:flex; gap:6px"><input id="b-sbp" type="number" min="60" max="300"><input id="b-dbp" type="number" min="30" max="200"></div></div>
+    </div>
+    <div class="grid" style="margin-top:14px">
+      <div class="field"><label>目標體重 (kg)</label><input id="b-target-weight" type="number" min="20" max="400" step="0.1"></div>
+      <div class="field"><label>預計減重比例</label><input id="target-loss-pct" readonly style="background:#F4F2EE" placeholder="填寫目標體重後自動計算"></div>
+      <div class="field"><label>標準體重範圍（BMI 18.5–24）</label><input id="standard-weight-range" readonly style="background:#F4F2EE" placeholder="填寫身高後自動計算"></div>
+    </div>
+    <div id="bmi-result" style="margin-top:20px; display:none">
+      <div style="display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap">
+        <div class="big-number"><span id="bmi-value">--</span><span class="unit"> kg/m²</span></div>
+        <div id="bmi-flag" style="margin-bottom:8px"></div>
+      </div>
+      <div style="margin:16px 0 20px">
+        <div class="bmi-gauge-bar">
+          <div class="bmi-gauge-seg" style="background:#8FB7C4; flex:3.5">過輕</div>
+          <div class="bmi-gauge-seg" style="background:var(--green); flex:5.5">正常</div>
+          <div class="bmi-gauge-seg" style="background:#C7952F; flex:3">過重</div>
+          <div class="bmi-gauge-seg" style="background:#C4703F; flex:3">輕度肥胖</div>
+          <div class="bmi-gauge-seg" style="background:var(--red); flex:10">中重度肥胖</div>
+        </div>
+        <div class="bmi-gauge-track"><div class="bmi-gauge-marker" id="bmi-marker"></div></div>
+        <div class="bmi-gauge-scale"><span style="flex:3.5">18.5</span><span style="flex:5.5">24</span><span style="flex:3">27</span><span style="flex:3">30</span><span style="flex:10">40+</span></div>
+      </div>
+      <table class="rtable">
+        <tr><th>體重分級（亞洲人標準）</th><td id="bmi-category">--</td></tr>
+        <tr><th>理想體重（BMI 22 法）</th><td id="ibw">--</td></tr>
+        <tr><th>目前體重 / 理想體重比</th><td id="ibw-pct">--</td></tr>
+        <tr><th>建議減重目標（達BMI 24以下）</th><td id="target-loss">--</td></tr>
+        <tr><th>腰圍風險（男≥90 / 女≥80 cm）</th><td id="waist-flag">--</td></tr>
+        <tr><th>血壓判讀</th><td id="bp-flag">--</td></tr>
+      </table>
+    </div>
+  </div>
+
 </section>
 
-<!-- ══════════ 2 病史評估 ══════════ -->
+<!-- ══════════ 2 評估問卷 ══════════ -->
 <section class="screen" id="screen-history">
   <div class="card">
     <h2 style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; border-left:4px solid var(--primary); padding-left:11px;" onclick="toggleCollapse('screening-body','screening-toggle')">
@@ -693,83 +667,23 @@ if(window.IN_HUB){
   </div>
 </section>
 
-<!-- ══════════ 3 身體測量 ══════════ -->
+<!-- ══════════ 3 身體組成 ══════════ -->
 <section class="screen" id="screen-body">
   <div class="card">
-    <h2>基本篩檢：身高體重、腰圍、血壓</h2>
-    <div class="grid" style="grid-template-columns:repeat(4,1fr)">
-      <div class="field"><label>身高 (cm)</label><input id="b-height" type="number" min="100" max="250" step="0.1"></div>
-      <div class="field"><label>體重 (kg)</label><input id="b-weight" type="number" min="20" max="400" step="0.1"></div>
-      <div class="field"><label>腰圍 (cm)</label><input id="b-waist" type="number" min="40" max="250" step="0.1"></div>
-      <div class="field"><label>血壓 收縮/舒張 (mmHg)</label><div style="display:flex; gap:6px"><input id="b-sbp" type="number" min="60" max="300"><input id="b-dbp" type="number" min="30" max="200"></div></div>
+    <h2>上傳 TANITA 報告</h2>
+    <div class="hint" style="margin-top:-4px">上傳的報告會附在評估報告最後。有文字層的 PDF 可自動擷取數值；擷取到的數值優先於公式估算（例如 BMR）。</div>
+    <div class="upload-zone" id="tanita-drop" onclick="document.getElementById('tanita-file').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳 TANITA 報告（PDF 或 JPG、PNG 圖檔）
+      <input type="file" id="tanita-file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none">
     </div>
-    <div class="grid" style="margin-top:14px">
-      <div class="field"><label>目標體重 (kg)</label><input id="b-target-weight" type="number" min="20" max="400" step="0.1"></div>
-      <div class="field"><label>預計減重比例</label><input id="target-loss-pct" readonly style="background:#F4F2EE" placeholder="填寫目標體重後自動計算"></div>
-      <div class="field"><label>標準體重範圍（BMI 18.5–24）</label><input id="standard-weight-range" readonly style="background:#F4F2EE" placeholder="填寫身高後自動計算"></div>
-    </div>
-    <div id="bmi-result" style="margin-top:20px; display:none">
-      <div style="display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap">
-        <div class="big-number"><span id="bmi-value">--</span><span class="unit"> kg/m²</span></div>
-        <div id="bmi-flag" style="margin-bottom:8px"></div>
-      </div>
-      <div style="margin:16px 0 20px">
-        <div class="bmi-gauge-bar">
-          <div class="bmi-gauge-seg" style="background:#8FB7C4; flex:3.5">過輕</div>
-          <div class="bmi-gauge-seg" style="background:var(--green); flex:5.5">正常</div>
-          <div class="bmi-gauge-seg" style="background:#C7952F; flex:3">過重</div>
-          <div class="bmi-gauge-seg" style="background:#C4703F; flex:3">輕度肥胖</div>
-          <div class="bmi-gauge-seg" style="background:var(--red); flex:10">中重度肥胖</div>
-        </div>
-        <div class="bmi-gauge-track"><div class="bmi-gauge-marker" id="bmi-marker"></div></div>
-        <div class="bmi-gauge-scale"><span style="flex:3.5">18.5</span><span style="flex:5.5">24</span><span style="flex:3">27</span><span style="flex:3">30</span><span style="flex:10">40+</span></div>
-      </div>
-      <table class="rtable">
-        <tr><th>體重分級（亞洲人標準）</th><td id="bmi-category">--</td></tr>
-        <tr><th>理想體重（BMI 22 法）</th><td id="ibw">--</td></tr>
-        <tr><th>目前體重 / 理想體重比</th><td id="ibw-pct">--</td></tr>
-        <tr><th>建議減重目標（達BMI 24以下）</th><td id="target-loss">--</td></tr>
-        <tr><th>腰圍風險（男≥90 / 女≥80 cm）</th><td id="waist-flag">--</td></tr>
-        <tr><th>血壓判讀</th><td id="bp-flag">--</td></tr>
-      </table>
-    </div>
+    <div class="file-list" id="tanita-filelist"></div>
+    <div class="btnrow"><button class="btn outline" onclick="fillCurrentBodyFieldsFromUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 自動擷取數值到下方欄位</button><button class="btn outline" onclick="extractFromUploads('tanita')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 加入追蹤紀錄</button></div>
+    <div class="hint">以關鍵字比對PDF文字內容擷取，非AI判讀，僅適用於有文字層的 PDF（掃描檔與圖檔只附在報告中），擷取後請務必核對再使用</div>
   </div>
 
   <div class="card">
-    <h2>代謝症候群評估</h2>
-    <div class="hint">符合下列 5 項指標中任 3 項以上，即符合代謝症候群診斷；或符合糖尿病前期者（HbA1c 5.7%–6.4%）<br>系統會依「身體測量」與「檢驗數值」頁已輸入的數值自動勾選；若因已用藥治療等原因需人工調整，直接點選即可，該項會改以手動為準。</div>
-    <div style="margin-top:14px">
-      <label class="ms-item" style="cursor:pointer">
-        <input type="checkbox" id="ms-waist">
-        <div><div class="ms-title">腰圍</div><div class="ms-desc">男性≥90cm，女性≥80cm，或 BMI≥27</div></div>
-      </label>
-      <label class="ms-item" style="cursor:pointer">
-        <input type="checkbox" id="ms-bp">
-        <div><div class="ms-title">血壓</div><div class="ms-desc">收縮壓≥130mmHg，舒張壓≥85mmHg，或已用藥治療</div></div>
-      </label>
-      <label class="ms-item" style="cursor:pointer">
-        <input type="checkbox" id="ms-glucose">
-        <div><div class="ms-title">血糖</div><div class="ms-desc">飯前血糖≥100mg/dL，或已用藥治療</div></div>
-      </label>
-      <label class="ms-item" style="cursor:pointer">
-        <input type="checkbox" id="ms-tg">
-        <div><div class="ms-title">三酸甘油脂 (TG)</div><div class="ms-desc">≥150mg/dL，或已用藥治療</div></div>
-      </label>
-      <label class="ms-item" style="cursor:pointer">
-        <input type="checkbox" id="ms-hdl">
-        <div><div class="ms-title">高密度膽固醇 (HDL)</div><div class="ms-desc">男性&lt;40mg/dL，女性&lt;50mg/dL，或已用藥治療</div></div>
-      </label>
-    </div>
-    <div class="btnrow" style="margin-top:4px"><button class="btn outline" onclick="resetMsAuto()">依實測值重新帶入</button></div>
-    <div class="ms-divider">或符合糖尿病前期者</div>
-    <div class="field" style="max-width:280px"><label>糖化血紅素 HbA1c (%)</label><input id="ms-hba1c" type="number" min="3" max="20" step="0.1"></div>
-    <div class="hint" id="ms-hba1c-readout" style="margin-top:8px">5.7%–6.4% 為糖尿病前期，符合獨立診斷條件</div>
-    <div class="summary-box" id="metabolic-result" style="margin-top:14px; display:none"></div>
-    <div class="field" style="margin-top:12px"><label>代謝症候群備註</label><textarea id="metabolic-note"></textarea></div>
-  </div>
-
-  <div class="card">
-    <h2>身體組成分析（TANITA 手動輸入）</h2>
+    <h2>身體組成數值</h2>
+    <div class="hint" style="margin-top:-4px">可由上方上傳的報告自動帶入，也可以直接輸入。</div>
     <div class="grid">
       <div class="field"><label>體脂肪率 (%)</label><input id="t-fat" type="number" min="1" max="80" step="0.1"></div>
       <div class="field"><label>肌肉量 (kg)</label><input id="t-muscle" type="number" min="5" max="150" step="0.1"></div>
@@ -788,17 +702,6 @@ if(window.IN_HUB){
   </div>
 
   <div class="card">
-    <h2>上傳 TANITA 報告 PDF（直接嵌入報告，不進行文字解析）</h2>
-    <div class="upload-zone" id="tanita-drop" onclick="document.getElementById('tanita-file').click()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳 TANITA 報告 PDF
-      <input type="file" id="tanita-file" accept="application/pdf" multiple style="display:none">
-    </div>
-    <div class="file-list" id="tanita-filelist"></div>
-    <div class="btnrow"><button class="btn outline" onclick="fillCurrentBodyFieldsFromUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 自動擷取數值到上方欄位</button><button class="btn outline" onclick="extractFromUploads('tanita')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 自動擷取數值到下方追蹤表</button></div>
-    <div class="hint">以關鍵字比對PDF文字內容擷取，非AI判讀，僅適用於有文字層的PDF（非掃描圖檔），擷取後請務必核對再使用</div>
-  </div>
-
-  <div class="card">
     <h2>身體組成追蹤紀錄</h2>
     <div class="hint">每次回診記錄一筆，用於追蹤治療進度</div>
     <div class="btnrow" style="margin-top:0"><button class="btn outline" onclick="addTrackRow('body')">＋ 帶入目前頁面數值</button><button class="btn outline" onclick="addBlankTrackRow('body')">＋ 新增空白列手動輸入</button></div>
@@ -808,7 +711,7 @@ if(window.IN_HUB){
   </div>
 </section>
 
-<!-- ══════════ 4 影像檢查 ══════════ -->
+<!-- ══════════ 5 影像檢查 ══════════ -->
 <section class="screen" id="screen-image">
   <div class="image-cols">
   <div class="card">
@@ -845,8 +748,19 @@ if(window.IN_HUB){
   </div>
 </section>
 
-<!-- ══════════ 5 檢驗數值 ══════════ -->
+<!-- ══════════ 4 抽血檢驗 ══════════ -->
 <section class="screen" id="screen-lab">
+  <div class="card">
+    <h2>上傳抽血報告</h2>
+    <div class="hint" style="margin-top:-4px">上傳的報告會附在評估報告最後。有文字層的 PDF 可自動擷取數值；檢驗單上的 eGFR 優先於依肌酸酐估算的數值。</div>
+    <div class="upload-zone" id="lab-drop" onclick="document.getElementById('lab-file').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳抽血報告（PDF 或 JPG、PNG 圖檔）
+      <input type="file" id="lab-file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none">
+    </div>
+    <div class="file-list" id="lab-filelist"></div>
+    <div class="btnrow"><button class="btn outline" onclick="fillCurrentLabFieldsFromUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 自動擷取數值到下方欄位</button><button class="btn outline" onclick="extractFromUploads('lab')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 加入追蹤紀錄</button></div>
+    <div class="hint">以關鍵字比對PDF文字內容擷取，非AI判讀，僅適用於有文字層的 PDF（掃描檔與圖檔只附在報告中），擷取後請務必核對再使用</div>
+  </div>
   <div class="card">
     <h2>檢驗數值</h2>
     <div class="hint" style="margin-top:-4px">數值超出一般成人參考值時，欄位名稱旁會標示「偏高／偏低」，實際判讀以檢驗單位的參考範圍為準。</div>
@@ -873,7 +787,7 @@ if(window.IN_HUB){
         <div class="field"><label for="lab-alt">ALT（GPT） <span class="unit">U/L</span></label><input id="lab-alt" type="number" min="1" max="2000"></div>
         <div class="field"><label for="lab-ast">AST（GOT） <span class="unit">U/L</span></label><input id="lab-ast" type="number" min="1" max="2000"></div>
         <div class="field"><label for="lab-cr">肌酸酐 Cr <span class="unit">mg/dL</span></label><input id="lab-cr" type="number" min="0.1" max="20" step="0.01"></div>
-        <div class="field"><label for="lab-egfr">腎絲球過濾率 eGFR <span class="unit">mL/min/1.73m²</span></label><input id="lab-egfr" type="number" min="1" max="200"></div>
+        <div class="field"><label for="lab-egfr">腎絲球過濾率 eGFR <span class="unit">mL/min/1.73m²</span></label><input id="lab-egfr" type="number" min="1" max="200"><div class="hint" id="egfr-est" style="margin-top:4px"></div></div>
       </div>
     </div>
     <div class="lab-group">
@@ -887,16 +801,38 @@ if(window.IN_HUB){
     <div class="field" style="margin-top:12px"><label>檢驗數值備註</label><textarea id="lab-note"></textarea></div>
   </div>
   <div class="card">
-    <h2>上傳抽血報告 PDF</h2>
-    <div class="hint" style="margin-top:-4px">上傳的報告會附在評估報告最後；有文字層的 PDF 可以自動擷取數值。</div>
-    <div class="upload-zone" id="lab-drop" onclick="document.getElementById('lab-file').click()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳抽血報告 PDF
-      <input type="file" id="lab-file" accept="application/pdf" multiple style="display:none">
+    <h2>代謝症候群評估</h2>
+    <div class="hint">符合下列 5 項指標中任 3 項以上，即符合代謝症候群診斷；或符合糖尿病前期者（HbA1c 5.7%–6.4%）<br>系統會依「基本資料」與本頁已輸入的數值自動勾選；若因已用藥治療等原因需人工調整，直接點選即可，該項會改以手動為準。</div>
+    <div style="margin-top:14px">
+      <label class="ms-item" style="cursor:pointer">
+        <input type="checkbox" id="ms-waist">
+        <div><div class="ms-title">腰圍</div><div class="ms-desc">男性≥90cm，女性≥80cm，或 BMI≥27</div></div>
+      </label>
+      <label class="ms-item" style="cursor:pointer">
+        <input type="checkbox" id="ms-bp">
+        <div><div class="ms-title">血壓</div><div class="ms-desc">收縮壓≥130mmHg，舒張壓≥85mmHg，或已用藥治療</div></div>
+      </label>
+      <label class="ms-item" style="cursor:pointer">
+        <input type="checkbox" id="ms-glucose">
+        <div><div class="ms-title">血糖</div><div class="ms-desc">飯前血糖≥100mg/dL，或已用藥治療</div></div>
+      </label>
+      <label class="ms-item" style="cursor:pointer">
+        <input type="checkbox" id="ms-tg">
+        <div><div class="ms-title">三酸甘油脂 (TG)</div><div class="ms-desc">≥150mg/dL，或已用藥治療</div></div>
+      </label>
+      <label class="ms-item" style="cursor:pointer">
+        <input type="checkbox" id="ms-hdl">
+        <div><div class="ms-title">高密度膽固醇 (HDL)</div><div class="ms-desc">男性&lt;40mg/dL，女性&lt;50mg/dL，或已用藥治療</div></div>
+      </label>
     </div>
-    <div class="file-list" id="lab-filelist"></div>
-    <div class="btnrow"><button class="btn outline" onclick="fillCurrentLabFieldsFromUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 自動擷取數值到上方欄位</button><button class="btn outline" onclick="extractFromUploads('lab')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 自動擷取數值到下方追蹤表</button></div>
-    <div class="hint">以關鍵字比對PDF文字內容擷取，非AI判讀，僅適用於有文字層的PDF（非掃描圖檔），擷取後請務必核對再使用</div>
+    <div class="btnrow" style="margin-top:4px"><button class="btn outline" onclick="resetMsAuto()">依實測值重新帶入</button></div>
+    <div class="ms-divider">或符合糖尿病前期者</div>
+    <div class="field" style="max-width:280px"><label>糖化血紅素 HbA1c (%)</label><input id="ms-hba1c" type="number" min="3" max="20" step="0.1"></div>
+    <div class="hint" id="ms-hba1c-readout" style="margin-top:8px">5.7%–6.4% 為糖尿病前期，符合獨立診斷條件</div>
+    <div class="summary-box" id="metabolic-result" style="margin-top:14px; display:none"></div>
+    <div class="field" style="margin-top:12px"><label>代謝症候群備註</label><textarea id="metabolic-note"></textarea></div>
   </div>
+
   <div class="card">
     <h2>檢驗追蹤紀錄</h2>
     <div class="btnrow" style="margin-top:0"><button class="btn outline" onclick="addTrackRow('lab')">＋ 帶入目前頁面數值</button><button class="btn outline" onclick="addBlankTrackRow('lab')">＋ 新增空白列手動輸入</button></div>
@@ -967,7 +903,7 @@ if(window.IN_HUB){
 <section class="screen" id="screen-calorie">
   <div class="card">
     <h2>基礎代謝率 (BMR) 與每日總消耗熱量 (TDEE)</h2>
-    <div class="hint">BMR 預設以 Mifflin-St Jeor 公式由身高體重年齡計算；若已於「身體測量」頁輸入 TANITA 實測 BMR，將優先採用實測值。</div>
+    <div class="hint">有 TANITA 實測 BMR（「身體組成」頁輸入或上傳擷取）時一律採用實測值；沒有時才以 Mifflin-St Jeor 公式由身高、體重、年齡估算。</div>
     <div class="field" style="margin-top:14px"><label>活動量等級</label>
       <select id="cal-activity" class="as-buttons">
         <option value=""></option>
@@ -1068,7 +1004,8 @@ if(window.IN_HUB){
   <div class="card no-print">
     <h2>產生與匯出報告</h2>
     <div class="btnrow">
-      <button class="btn teal" id="pdf-export-btn" onclick="printReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg> 列印 / 輸出 PDF</button>
+      <button class="btn teal" onclick="previewReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> 預覽報告</button>
+      <button class="btn outline" id="pdf-export-btn" onclick="printReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg> 列印 / 輸出 PDF</button>
       <button class="btn outline" onclick="saveRecord()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M8 3v5h6"/></svg> 儲存病人紀錄</button>
     </div>
     <div class="hint" style="margin-top:10px">儲存後可在下方紀錄清單中隨時載入。系統會自動暫存草稿，關閉分頁也不會遺失。</div>
@@ -1085,7 +1022,6 @@ if(window.IN_HUB){
     <div id="records-list" style="margin-top:12px"></div>
   </div>
 </section>
-<div id="report-preview"></div>
 
 <!-- ══════════ 衛教資料 ══════════ -->
 <section class="screen" id="screen-education">
@@ -1119,5 +1055,6 @@ if(window.IN_HUB){
 </nav>
 
 <script src="app.js"></script>
+<script src="report.js"></script>
 </body>
 </html>
