@@ -39,7 +39,7 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .rpt-hd b{color:#9A6E2A; font-size:16px; font-weight:700; letter-spacing:.04em; margin-left:8px;}
 .rpt-body{flex:1; min-height:0; overflow:hidden; padding-top:26px;}
 .rpt-ft{flex:none; height:70px; display:flex; justify-content:space-between; align-items:flex-start; padding-top:12px;
-  border-top:1px solid #E6E1D8; font-size:10.5px; color:#8A847A; line-height:1.7; letter-spacing:.04em;}
+  border-top:1px solid #E6E1D8; font-size:10.5px; color:#6F6A62; line-height:1.7; letter-spacing:.04em;}
 .rpt-ft .pg{font-variant-numeric:tabular-nums; color:#3B3A36; letter-spacing:.08em; padding-top:2px;}
 
 /* 章首：襯線大標＋一句說明＋深色細線 */
@@ -56,10 +56,10 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .rb-h{font-size:17.5px; font-weight:700; color:#1F262A; line-height:1.45; letter-spacing:.04em; margin-top:2px;}
 .rb-h .cont{display:block; font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-style:normal; font-size:11.5px; font-weight:400; color:#9A9387; letter-spacing:.06em;}
 .rb-r{min-width:0;}
-.muted{color:#7D776D;} .small{font-size:11.5px;}
-.na{color:#A8A296; font-weight:400;}
-.empty{font-size:12.5px; color:#9A9387;}
-.note-line{font-size:11.5px; color:#7D776D; margin-top:10px; line-height:1.75;}
+.muted{color:#66615A;} .small{font-size:11.5px;}
+.na{color:#8A847A; font-weight:400;}
+.empty{font-size:12.5px; color:#77716A;}
+.note-line{font-size:12px; color:#5F5A53; margin-top:10px; line-height:1.75;}
 .mark{font-weight:700; color:#1F262A; background:linear-gradient(transparent 60%, #EFE1C2 60%);}
 
 /* 提示框：米色（一般）與淡紅（就醫），左側襯線標籤 */
@@ -71,7 +71,7 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 
 /* 判讀與資料來源：彩色文字，不用圓角標籤 */
 .pill{font-size:11.5px; font-weight:700; letter-spacing:.12em; white-space:nowrap;}
-.g0{color:#4C7A5A;} .g1{color:#9A6E2A;} .g2{color:#B3413B;} .gna{color:#A8A296; font-weight:400;}
+.g0{color:#3F6E4D;} .g1{color:#8A5F1F;} .g2{color:#A8352F;} .gna{color:#8A847A; font-weight:400;}
 .src{font-size:9.5px; color:#3E6A7C; margin-left:5px; letter-spacing:.08em; font-weight:500; white-space:nowrap; vertical-align:1px;}
 .src::before{content:'／';  color:#B9C9CF; margin-right:2px;}
 .arrow{font-weight:700; margin-left:3px;}
@@ -79,13 +79,13 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 
 /* 表格 */
 .rt{width:100%; border-collapse:collapse; table-layout:fixed; font-size:12.5px;}
-.rt th{font-size:11px; letter-spacing:.12em; color:#7D776D; font-weight:400; text-align:left; padding:0 6px 7px; border-bottom:1px solid #24292B;}
+.rt th{font-size:11px; letter-spacing:.12em; color:#66615A; font-weight:400; text-align:left; padding:0 6px 7px; border-bottom:1px solid #24292B;}
 .rt td{padding:8px 6px; border-bottom:1px solid #ECE7DE; vertical-align:middle; overflow-wrap:anywhere;}
 .rt td.n{font-variant-numeric:tabular-nums; font-weight:700; color:#1F262A; font-size:13.5px; white-space:nowrap;}
-.rt td.n .u{font-size:10.5px; color:#9A9387; font-weight:400; margin-left:3px;}
+.rt td.n .u{font-size:10.5px; color:#77716A; font-weight:400; margin-left:3px;}
 .rt td.ref{font-size:11.5px; color:#6F6A62; font-variant-numeric:tabular-nums; white-space:nowrap;}
 .rt td.c{text-align:right;} .rt th.c{text-align:right;}
-.rt .en{display:block; font-size:10.5px; color:#9A9387; letter-spacing:.02em; line-height:1.45;}
+.rt .en{display:block; font-size:10.5px; color:#77716A; letter-spacing:.02em; line-height:1.45;}
 .rt tr.grp td{padding:14px 6px 4px; font-size:11.5px; font-weight:700; color:#9A6E2A; letter-spacing:.2em; border-bottom:1px solid #E6E1D8;}
 .rt tr:first-child.grp td{padding-top:6px;}
 .rt.kv th{width:26%; font-size:12px; letter-spacing:.1em; color:#9A6E2A; font-weight:700; padding:9px 6px; border-bottom:1px solid #ECE7DE; vertical-align:top;}
@@ -114,7 +114,7 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .goal .st{position:relative; padding-right:8px;}
 .goal .pt{width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid #24292B; position:relative; z-index:1;}
 .goal .st.end .pt{border-color:#9A6E2A; background:#9A6E2A;}
-.goal .lbl{font-size:11px; letter-spacing:.08em; color:#7D776D; margin-top:10px; white-space:nowrap;}
+.goal .lbl{font-size:11px; letter-spacing:.08em; color:#66615A; margin-top:10px; white-space:nowrap;}
 .goal .w{font-size:24px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
 .goal .w small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A9387; font-weight:400; margin-left:3px;}
 .goal .st.end .w{color:#9A6E2A;}
@@ -132,11 +132,11 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .pheno b{font-size:14px; color:#1F262A; letter-spacing:.04em;}
 
 /* 治療階梯：每一階一列，本次所在的階層以米色底標出 */
-.tier{display:grid; grid-template-columns:132px 1fr; gap:14px; padding:12px 12px 12px 0; border-bottom:1px solid #ECE7DE;}
+.tier{display:grid; grid-template-columns:158px 1fr; gap:14px; padding:12px 12px 12px 0; border-bottom:1px solid #ECE7DE;}
 .tier:first-child{padding-top:0;}
 .tier .n{font-size:11px; letter-spacing:.16em; color:#9A6E2A; font-weight:700;}
 .tier h5{font-size:15px; color:#1F262A; letter-spacing:.04em; line-height:1.5;}
-.tier .when{font-size:10.5px; color:#9A9387; line-height:1.6; margin-top:2px;}
+.tier .when{font-size:10.5px; color:#6F6A62; line-height:1.6; margin-top:2px; white-space:nowrap;}
 .tier p{font-size:12px; color:#3B3A36; line-height:1.75;}
 .tier.on{background:#F7F4EC; margin:0 -12px; padding:12px;}
 .tier .now{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A6E2A; font-weight:700; margin-left:6px; letter-spacing:.1em;}
@@ -148,7 +148,7 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .kcal .v{font-size:28px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
 .kcal .v small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11.5px; color:#9A9387; font-weight:400; margin-left:4px;}
 .kcal .main .v{color:#9A6E2A;}
-.kcal .s{font-size:11px; color:#7D776D; line-height:1.6;}
+.kcal .s{font-size:11px; color:#66615A; line-height:1.6;}
 .macro{display:flex; height:8px; margin:18px 0 10px;}
 .macro i{display:block; height:100%;}
 .macro-lg{display:grid; grid-template-columns:repeat(3,1fr); column-gap:14px; font-size:12px;}
@@ -162,11 +162,11 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .rich p{margin:0 0 3px;}
 .rich .li{padding-left:16px; position:relative; margin:0 0 3px;}
 .rich .li::before{content:''; position:absolute; left:2px; top:.72em; width:6px; height:6px; background:#C9A15E;}
-.rich .note{font-size:12px; color:#7D776D;}
+.rich .note{font-size:12px; color:#5F5A53;}
 
 /* 量表 */
 .scale-row{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center;}
-.scale-row .score{font-size:12px; color:#7D776D;}
+.scale-row .score{font-size:12px; color:#66615A;}
 .scale-row .score b{display:block; font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:30px; color:#1F262A; line-height:1.25;}
 .items{margin-top:10px; font-size:12px; color:#4A4740; line-height:1.75;}
 
@@ -175,7 +175,7 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .tl-row:first-child{padding-top:0;}
 .tl-when{font-size:22px; font-weight:700; color:#1F262A; line-height:1.3; white-space:nowrap;}
 .tl-row:first-child .tl-when{color:#9A6E2A;}
-.tl-sub{font-size:11px; color:#7D776D; line-height:1.6; white-space:nowrap;}
+.tl-sub{font-size:11px; color:#66615A; line-height:1.6; white-space:nowrap;}
 .tl-row h4{font-size:13.5px; color:#1F262A; font-weight:700; line-height:1.6;}
 .tl-row .what{font-size:12.5px; color:#3B3A36; line-height:1.75;}
 .chart svg{width:100%; height:auto; display:block; border:0 !important; border-top:1px solid #24292B !important; border-radius:0 !important; padding-top:6px; margin-top:16px;}
@@ -210,10 +210,17 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .toc .no{font-size:16px; color:#9A6E2A; font-weight:700; letter-spacing:.1em;}
 .toc .t{font-size:19px; color:#1F262A; font-weight:700; letter-spacing:.06em;}
 .toc .p{font-size:16px; color:#3B3A36; font-variant-numeric:tabular-nums;}
-.howto{margin-top:34px;}
+.howto{margin-top:34px; grid-template-columns:1fr !important;}
+.howto .co-l{margin-bottom:10px;}
+.howto p{white-space:nowrap;}
 .howto .lg{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:12px;}
 .howto .lg div{font-size:12px; color:#3B3A36; line-height:1.7;}
 .howto p{font-size:12.5px; color:#3B3A36; line-height:1.85; margin-top:6px;}
+
+/* 附錄名詞表：整頁寬，每列說明都不自動換行 */
+.rb.full{display:block;}
+.gloss .rt.kv th{width:150px; padding:8px 6px 8px 0;}
+.gloss .rt.kv td{padding:8px 6px; white-space:nowrap; line-height:1.7;}
 
 /* 附件 */
 .rb.att{display:block; border:0; padding:0; margin:0;}
@@ -748,13 +755,13 @@ function rChPlan(d){
   const tiers = [
     ['第一階', '生活型態介入', '飲食調整、運動、行為改變、睡眠管理。<br>所有人都需要，貫穿全程。', 'BMI ≥ 24，或腰圍超標'],
     ['第二階', '藥物治療', '以腸泌素類藥物為主，搭配生活型態調整。', 'BMI ≥ 27，<br>或 BMI ≥ 24 合併代謝問題'],
-    ['第三階', '內視鏡輔助減重', '胃內肉毒桿菌注射、胃內水球置放、<br>內視鏡縮胃術。<br>自費項目，需完整說明效果、風險與費用。', '藥物治療 3 個月，<br>減重未達 5%，或無法用藥'],
-    ['第四階', '減重手術', '袖狀胃切除、胃繞道，轉介外科評估。', 'BMI ≥ 37.5，<br>或 BMI ≥ 32.5<br>合併嚴重共病'],
+    ['第三階', '內視鏡輔助減重', '胃內肉毒桿菌注射、胃內水球置放、內視鏡縮胃術。<br>自費項目，需完整說明效果、風險與費用。', '藥物治療 3 個月，<br>減重未達 5%，或無法用藥'],
+    ['第四階', '減重手術', '袖狀胃切除、胃繞道，轉介外科評估。', 'BMI ≥ 37.5，<br>或 BMI ≥ 32.5 合併嚴重共病'],
   ];
   const cur = onMed ? 1 : (tx.length ? 0 : -1);
   blocks.push(rBlock('治療階梯', 'TREATMENT PATHWAY',
     `<div class="ladder">${tiers.map(([n, h, p, w], i)=> `<div class="tier${i === cur ? ' on' : ''}"><div><div class="n">${n}${i === cur ? '<span class="now">本次</span>' : ''}</div><h5>${h}</h5><div class="when">${w}</div></div><p>${p}</p></div>`).join('')}</div>` +
-    `<p class="note-line">肥胖治療採階梯式進行，每一階都建立在生活型態調整上；<br>符合手術條件者可直接轉介評估。</p>`));
+    `<p class="note-line" style="white-space:nowrap">肥胖治療採階梯式進行，每一階都建立在生活型態調整上；符合手術條件者可直接轉介評估。</p>`));
 
   const eduText = rS('tx-edu');
   blocks.push(rBlock('本次用藥建議', 'MEDICATION',
@@ -816,23 +823,23 @@ function rChFollow(d){
 }
 
 function rChAppendix(){
+  // 說明文字已依標點手動斷行（每行一個完整意思），不再交給 rBr 自動切
   const g = [
-    ['BMI 身體質量指數', '體重（公斤）÷ 身高（公尺）²。國民健康署成人標準：18.5 至 24 為正常，24 至 27 為過重，27 以上為肥胖。'],
+    ['BMI 身體質量指數', '體重（公斤）÷ 身高（公尺）²。<br>國民健康署成人標準：18.5 至 24 為正常，24 至 27 為過重，27 以上為肥胖。'],
     ['腰圍', '男性 90 公分、女性 80 公分以上為腹部肥胖，與內臟脂肪及代謝疾病風險相關。'],
-    ['BMR 基礎代謝率', '維持生命所需的最低熱量。有 TANITA 實測值時採用實測值，沒有時以 Mifflin-St Jeor 公式估算。'],
+    ['BMR 基礎代謝率', '維持生命所需的最低熱量。<br>有 TANITA 實測值時採用實測值，沒有時以 Mifflin-St Jeor 公式估算。'],
     ['TDEE 每日總消耗', '基礎代謝率乘上活動係數，代表一天實際消耗的熱量。'],
-    ['HbA1c 糖化血色素', '反映近 2 至 3 個月的平均血糖。5.7% 至 6.4% 為糖尿病前期，6.5% 以上達糖尿病診斷值。'],
-    ['HOMA-IR', '由空腹血糖與胰島素計算的胰島素阻抗指數，數值越高代表阻抗越明顯；各研究採用的切點不一，本報告不另作判讀。'],
-    ['eGFR 腎絲球過濾率', '評估腎臟功能。檢驗報告未提供時，依肌酸酐、年齡、性別以 CKD-EPI 2021 公式估算，並標示「估算」。'],
+    ['HbA1c 糖化血色素', '反映近 2 至 3 個月的平均血糖。<br>5.7% 至 6.4% 為糖尿病前期，6.5% 以上達糖尿病診斷值。'],
+    ['HOMA-IR', '由空腹血糖與胰島素計算的胰島素阻抗指數，數值越高代表阻抗越明顯。'],
+    ['eGFR 腎絲球過濾率', '評估腎臟功能。<br>檢驗報告未提供時，依肌酸酐、年齡、性別以 CKD-EPI 2021 公式估算，<br>並標示「估算」。'],
     ['內臟脂肪等級', 'TANITA 指標。1 至 9 為標準，10 至 14 偏高，15 以上過高。'],
-    ['SMI 四肢骨骼肌指數', '四肢骨骼肌量 ÷ 身高²。依亞洲肌少症工作小組（AWGS 2019）生物電阻抗切點，男性低於 7.0、女性低於 5.7 kg/m² 為偏低。'],
-    ['相位角', '生物電阻抗量測的細胞完整性指標，偏低時常與肌肉品質或營養狀態不佳有關。各族群參考值不同，本報告以 4.5° 作為分型參考。'],
-    ['代謝症候群', '腰圍、血壓、空腹血糖、三酸甘油酯、HDL-C 五項中符合三項以上（國民健康署標準）。'],
-    ['STOP-BANG', '阻塞性睡眠呼吸中止症篩檢問卷，0 至 2 分低風險，3 至 4 分中風險，5 分以上高風險。'],
-    ['PHQ-9', '憂鬱症狀篩檢量表。5、10、15、20 分分別是輕度、中度、中重度、重度的切點。篩檢結果需由醫師進一步評估。'],
+    ['SMI 四肢骨骼肌指數', '四肢骨骼肌量 ÷ 身高²。<br>依亞洲肌少症工作小組（AWGS 2019）生物電阻抗切點，<br>男性低於 7.0、女性低於 5.7 kg/m² 為偏低。'],
+    ['相位角', '生物電阻抗量測的細胞完整性指標，偏低時常與肌肉品質或營養狀態不佳有關。<br>各族群參考值不同，本報告以 4.5° 作為分型參考。'],
+    ['代謝症候群', '腰圍、血壓、空腹血糖、三酸甘油酯、HDL-C<br>五項中符合三項以上（國民健康署標準）。'],
+    ['STOP-BANG', '阻塞性睡眠呼吸中止症篩檢問卷。<br>0 至 2 分低風險，3 至 4 分中風險，5 分以上高風險。'],
+    ['PHQ-9', '憂鬱症狀篩檢量表。5、10、15、20 分分別是輕度、中度、中重度、重度的切點。<br>篩檢結果需由醫師進一步評估。'],
   ];
-  return [rBlock('名詞與判讀說明', 'GLOSSARY',
-    `<table class="rt kv"><tbody class="ru-host">${g.map(([k, v])=> `<tr class="ru"><th>${k}</th><td>${rBr(v, 27)}</td></tr>`).join('')}</tbody></table>`, {split:true})];
+  return [`<div class="rb full gloss"><div class="rb-r"><table class="rt kv"><tbody>${g.map(([k, v])=> `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table></div></div>`];
 }
 
 // ---------- 整份報告的內容模型 ----------
@@ -894,9 +901,9 @@ function rTocHtml(m){
       <div>${rPill(2)}<br>明顯超出範圍，<br>建議優先處理。</div>
       <div>${rPill(-1, '未測')}<br>本次沒有資料。</div>
     </div>
-    <p>每項數值旁的長條代表參考範圍，<br>綠色為正常區間，黑色標記是您這次的位置。</p>
-    <p>數值後面的小字註明資料來源：「上傳」由上傳報告擷取，<br>「實測」為儀器量測，「估算」依公式計算。<br>同一項目有實測值時，一律以實測值為準。</p>
-    <p>判讀以一般成人參考值為基準，不能取代醫師的臨床判斷，<br>治療計畫請與醫師討論後再進行。</p>
+    <p>每項數值旁的長條代表參考範圍，綠色為正常區間，黑色標記是您這次的位置。</p>
+    <p>數值後面的小字註明資料來源：「上傳」由上傳報告擷取，「實測」為儀器量測，「估算」依公式計算。<br>同一項目有實測值時，一律以實測值為準。</p>
+    <p>判讀以一般成人參考值為基準，不能取代醫師的臨床判斷，治療計畫請與醫師討論後再進行。</p>
   </div></div>`;
 }
 
@@ -1023,7 +1030,7 @@ async function layoutReport(doc, m){
     lead.forEach(x=> x.remove()); blk.remove(); probe.remove();
     const A = avail();
     // 比半頁還高、而本頁還剩三成以上空間：在列與列之間拆開，避免留下大片空白
-    if(splittable && (h > A || (h > A * .5 && remaining() > A * .3))){ splitPlace(blk, lead); return; }
+    if(splittable && (h > A || (h > A * .4 && remaining() > A * .3))){ splitPlace(blk, lead); return; }
     if(used()){ newPage(); if(tryPut([...lead, blk])) return; }
     if(splittable){ splitPlace(blk, lead); return; }
     lead.forEach(x=> body.appendChild(x)); body.appendChild(blk);
