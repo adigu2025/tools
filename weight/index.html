@@ -293,6 +293,10 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .ms-item input[type=checkbox]{margin-top:3px; width:18px; height:18px; accent-color:var(--primary); flex-shrink:0;}
 .ms-item .ms-title{font-weight:700; color:var(--navy); font-size:15px;}
 .ms-item .ms-desc{font-size:13px; color:var(--muted); margin-top:3px; line-height:1.5;}
+.ms-grid{display:grid; grid-template-columns:repeat(6, 1fr); gap:9px; margin:14px 0 9px;}
+.ms-grid .ms-item{grid-column:span 2; margin:0; padding:11px 13px; gap:10px;}
+.ms-grid .ms-item.w3{grid-column:span 3;}
+\@media (max-width:640px){ .ms-grid .ms-item, .ms-grid .ms-item.w3{grid-column:span 6;} }
 .ms-divider{display:flex; align-items:center; gap:12px; margin:16px 0; color:var(--muted); font-size:13px;}
 .ms-divider::before,.ms-divider::after{content:''; flex:1; height:1px; background:var(--border);}
 
@@ -348,6 +352,8 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .rpt-ov-bar{display:flex; align-items:center; gap:12px; padding:10px 18px; background:#fff; border-bottom:1px solid var(--border); box-shadow:var(--shadow-sm);}
 .rpt-ov-bar b{font-size:17px; color:var(--navy);}
 .rpt-ov-info{font-size:14px; color:var(--muted);}
+.rpt-att-opt{display:inline-flex; align-items:center; gap:6px; font-size:14px; color:var(--navy); cursor:pointer; user-select:none;}
+.rpt-att-opt input{width:16px; height:16px; accent-color:var(--primary); margin:0;}
 .rpt-ov-bar .btn{padding:7px 16px; font-size:14.5px;}
 .rpt-overlay iframe{flex:1; width:100%; border:0; background:#E7E3DC;}
 /* Report（問卷列印共用） */
@@ -803,26 +809,26 @@ if(window.IN_HUB){
   <div class="card">
     <h2>代謝症候群評估</h2>
     <div class="hint">符合下列 5 項指標中任 3 項以上，即符合代謝症候群診斷；或符合糖尿病前期者（HbA1c 5.7%–6.4%）<br>系統會依「基本資料」與本頁已輸入的數值自動勾選；若因已用藥治療等原因需人工調整，直接點選即可，該項會改以手動為準。</div>
-    <div style="margin-top:14px">
-      <label class="ms-item" style="cursor:pointer">
+    <div class="ms-grid">
+      <label class="ms-item w3" style="cursor:pointer">
         <input type="checkbox" id="ms-waist">
-        <div><div class="ms-title">腰圍</div><div class="ms-desc">男性≥90cm，女性≥80cm，或 BMI≥27</div></div>
+        <div><div class="ms-title">腰圍</div><div class="ms-desc">男≥90、女≥80 cm，或 BMI≥27</div></div>
       </label>
-      <label class="ms-item" style="cursor:pointer">
+      <label class="ms-item w3" style="cursor:pointer">
         <input type="checkbox" id="ms-bp">
-        <div><div class="ms-title">血壓</div><div class="ms-desc">收縮壓≥130mmHg，舒張壓≥85mmHg，或已用藥治療</div></div>
+        <div><div class="ms-title">血壓</div><div class="ms-desc">≥130／85 mmHg，或用藥中</div></div>
       </label>
       <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-glucose">
-        <div><div class="ms-title">血糖</div><div class="ms-desc">飯前血糖≥100mg/dL，或已用藥治療</div></div>
+        <div><div class="ms-title">空腹血糖</div><div class="ms-desc">≥100 mg/dL，或用藥中</div></div>
       </label>
       <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-tg">
-        <div><div class="ms-title">三酸甘油脂 (TG)</div><div class="ms-desc">≥150mg/dL，或已用藥治療</div></div>
+        <div><div class="ms-title">三酸甘油脂</div><div class="ms-desc">≥150 mg/dL，或用藥中</div></div>
       </label>
       <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-hdl">
-        <div><div class="ms-title">高密度膽固醇 (HDL)</div><div class="ms-desc">男性&lt;40mg/dL，女性&lt;50mg/dL，或已用藥治療</div></div>
+        <div><div class="ms-title">高密度膽固醇</div><div class="ms-desc">男&lt;40、女&lt;50 mg/dL，或用藥中</div></div>
       </label>
     </div>
     <div class="btnrow" style="margin-top:4px"><button class="btn outline" onclick="resetMsAuto()">依實測值重新帶入</button></div>
@@ -942,7 +948,7 @@ if(window.IN_HUB){
 
   <div class="card">
     <h2>運動處方建議</h2>
-    <div class="hint">將依病史頁勾選之危險因子與 BMI 分級自動產生建議內容，可自由編輯。</div>
+    <div class="hint">依 BMI、體脂、SMI、相位角決定運動分型，再依血壓、血糖、血脂、脂肪肝、問卷分數、用藥與目前活動量加上個人化提醒，可自由編輯。</div>
     <div class="btnrow"><button class="btn" onclick="genExercise()">產生運動建議草稿</button></div>
     <div class="field" style="margin-top:14px"><label>運動建議內容（可編輯）</label>
       <textarea id="ex-text" style="min-height:200px"></textarea>
@@ -992,6 +998,8 @@ if(window.IN_HUB){
 <section class="screen" id="screen-report">
   <div class="card no-print">
     <h2>醫師綜合評語</h2>
+    <div class="hint">按下按鈕會依本次的身體組成、抽血、問卷與治療選擇組出評語草稿，已點選的標籤句會保留在後面，可自由編輯。</div>
+    <div class="btnrow"><button class="btn" onclick="genDocComment()">依檢查結果產生評語草稿</button></div>
     <div id="comment-tags" class="tag-box" style="margin-top:8px"></div>
     <div class="field" style="margin-top:10px"><textarea id="doc-comment" style="min-height:130px"></textarea></div>
   </div>
@@ -1006,6 +1014,7 @@ if(window.IN_HUB){
     <div class="btnrow">
       <button class="btn teal" onclick="previewReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> 預覽報告</button>
       <button class="btn outline" id="pdf-export-btn" onclick="printReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg> 列印 / 輸出 PDF</button>
+      <label class="rpt-att-opt"><input type="checkbox" id="rpt-att" checked> 附上原始報告（上傳的 TANITA、抽血報告）</label>
       <button class="btn outline" onclick="saveRecord()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M8 3v5h6"/></svg> 儲存病人紀錄</button>
     </div>
     <div class="hint" style="margin-top:10px">儲存後可在下方紀錄清單中隨時載入。系統會自動暫存草稿，關閉分頁也不會遺失。</div>

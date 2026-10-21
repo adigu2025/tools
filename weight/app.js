@@ -1366,6 +1366,74 @@ function classifyExercisePhenotype(gender, bmi, bodyFat, smi, phaseAngle){
   return '肌肉發展潛力型';
 }
 
+// 依本次實測與檢驗數值（rCollect，與報告同一套判讀）逐條加上個人化提醒，句子帶入病人自己的數值
+function exerciseAdjustments(){
+  const d = rCollect(), L = d.lab, B = d.body;
+  const out = [];
+  const cm = document.getElementById('cm-note').value;
+  const txs = getTxChoices();
+  const glp1 = txs.some(k=> k !== 'lifestyle');
+
+  if(d.bmi != null && d.bmi >= 35)
+    out.push(`BMI ${d.bmi.toFixed(1)}，膝踝負擔大：先以水中運動、固定式腳踏車、橢圓機為主，暫不跑步與跳躍。`);
+  else if(d.bmi != null && d.bmi >= 30)
+    out.push(`BMI ${d.bmi.toFixed(1)}：先用快走、腳踏車建立基礎體能，體重下降約 5% 後再加入慢跑。`);
+
+  if(d.sbp != null && d.dbp != null){
+    const bp = `血壓 ${d.sbp}/${d.dbp} mmHg`;
+    if(d.sbp >= 160 || d.dbp >= 100) out.push(`${bp}：血壓控制到 160/100 以下之前，暫不做高強度間歇與大重量訓練；阻力訓練全程規律呼吸，不要憋氣。`);
+    else if(d.gBp === 2) out.push(`${bp}：以中等強度有氧為主，阻力訓練不要憋氣，運動前後量血壓。`);
+    else if(d.gBp === 1) out.push(`${bp}，略高：每週累積 150 分鐘以上中等強度有氧，有助於降低血壓。`);
+  }
+
+  const glu = [];
+  if(L.ac.v != null && L.ac.g >= 1) glu.push(`空腹血糖 ${L.ac.v} mg/dL`);
+  if(L.hba1c.v != null && L.hba1c.g >= 1) glu.push(`HbA1c ${L.hba1c.v}%`);
+  if(glu.length){
+    out.push(`${glu.join('、')}：每餐飯後 30 分鐘內快走 10 至 15 分鐘，可壓低飯後血糖；每週至少 2 次阻力訓練，改善胰島素敏感度。`);
+    if((L.ac.v != null && L.ac.v >= 126) || (L.hba1c.v != null && L.hba1c.v >= 6.5) || chk('med-insulin'))
+      out.push('已達糖尿病範圍：若使用胰島素或磺醯尿素類藥物，運動前後量血糖，隨身帶糖果，避免空腹運動。');
+  }
+
+  const lip = [];
+  if(L.tg.v != null && L.tg.g >= 1) lip.push(`三酸甘油酯 ${L.tg.v} mg/dL`);
+  if(L.hdl.v != null && L.hdl.g >= 1) lip.push(`HDL-C ${L.hdl.v} mg/dL 偏低`);
+  if(d.gFatty >= 1) lip.push(d.fatty);
+  else if((L.alt.v != null && L.alt.g >= 1)) lip.push(`ALT ${L.alt.v} U/L`);
+  if(lip.length) out.push(`${lip.join('、')}：有氧運動每週累積 150 至 300 分鐘，中等強度即可，持續的總量比強度更重要。`);
+
+  const vis = B['t-visceral'].v;
+  if((d.waist != null && d.gWaist >= 1) || (vis != null && B['t-visceral'].g >= 1)){
+    const p = [];
+    if(d.waist != null && d.gWaist >= 1) p.push(`腰圍 ${d.waist} 公分`);
+    if(vis != null && B['t-visceral'].g >= 1) p.push(`內臟脂肪等級 ${vis}`);
+    out.push(`${p.join('、')}：腹部脂肪靠全身性有氧與飲食減少，局部的仰臥起坐無法針對性消除。`);
+  }
+
+  const smi = B['t-smi'], pa = B['t-phaseangle'];
+  if((smi.v != null && smi.g >= 1) || (pa.v != null && pa.g >= 1)){
+    const p = [];
+    if(smi.v != null && smi.g >= 1) p.push(`SMI ${smi.v} kg/m²`);
+    if(pa.v != null && pa.g >= 1) p.push(`相位角 ${pa.v}°`);
+    out.push(`${p.join('、')} 偏低：每週 2 至 3 次阻力訓練不可省略，減重期間蛋白質要吃足，避免減掉的是肌肉。`);
+  }
+  if(glp1) out.push('使用腸泌素類藥物時體重下降較快，肌肉也容易跟著流失，阻力訓練要從開始用藥的第一週就做。');
+
+  if(d.sb != null && d.gSb >= 1 && !cm.includes('阻塞性睡眠呼吸中止症'))
+    out.push(`STOP-BANG ${d.sb} 分，睡眠呼吸中止症${d.gSb === 2 ? '高' : '中'}風險：白天易疲倦，運動排在白天，睡前 2 小時內不做劇烈運動。`);
+  if(d.phq && d.gPhq >= 1)
+    out.push(`PHQ-9 ${d.phq.total} 分：先從每天散步 10 分鐘這類容易做到的目標開始，規律運動對情緒也有幫助。`);
+  if(L.egfr.v != null && L.egfr.g >= 1)
+    out.push(`eGFR ${L.egfr.v}：運動中適量補水，避免脫水；蛋白質攝取量請依醫師建議，不要自行大幅增加。`);
+  if(d.age != null && d.age >= 65)
+    out.push(`${d.age} 歲：每週加入 2 至 3 次平衡訓練（單腳站立、直線行走），預防跌倒。`);
+
+  const act = document.getElementById('cal-activity').value;
+  if(act === '1.2') out.push('目前幾乎沒有運動：前 2 週先從每天快走 15 至 20 分鐘開始，每週增加 5 分鐘，逐步達到上方的頻率。');
+  else if(act === '1.375') out.push('目前已有輕度活動：維持原本習慣，每週再多加 1 次阻力訓練。');
+  return out;
+}
+
 function genExercise(){
   const hM = getHeightM();
   const w = parseFloat(document.getElementById('b-weight').value);
@@ -1400,6 +1468,12 @@ function genExercise(){
   lines.push(`• 強度：${rx.resistance.intensity}`);
   lines.push(`• 頻率：${rx.resistance.frequency}`);
   if(joint) lines.push('• 關節負擔問題者，建議由物理治療師或教練指導動作，優先選擇低衝擊訓練');
+  const adj = exerciseAdjustments();
+  if(adj.length){
+    lines.push('');
+    lines.push('【依本次檢查數值調整】');
+    adj.forEach(t=> lines.push('• ' + t));
+  }
   lines.push('');
   lines.push('【營養與恢復策略】');
   lines.push(`• 核心策略：${rx.nutrition.strategy}`);
@@ -1696,6 +1770,50 @@ const COMMENT_TAGS = [
   '建議搭配家庭支持系統以提升治療效果',
   '共病尚未達標，建議轉介相關專科共同照護',
 ];
+// 醫師綜合評語草稿：依本次檢查結果組出 4 至 6 句，保留已點選的標籤句（「• 」開頭）
+function genDocComment(){
+  if(rNeedGender()) return;
+  const d = rCollect(), L = d.lab, B = d.body;
+  const plain = html=> html.replace(/<br\s*\/?>/g, '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
+  const s = [];
+
+  const head = [];
+  if(d.bmi != null) head.push(`BMI ${d.bmi.toFixed(1)}（${d.bmiCat}）`);
+  if(d.waist != null) head.push(`腰圍 ${d.waist} 公分`);
+  if(head.length || d.msAny){
+    const ms = d.msAny ? (d.msPositive ? `符合代謝症候群（五項符合 ${d.msCount} 項${d.msHba1c ? '，另 HbA1c 屬糖尿病前期' : ''}）` : `未達代謝症候群診斷標準（五項符合 ${d.msCount} 項）`) : '';
+    s.push('本次評估 ' + head.join('，') + (head.length && ms ? '；' : '') + ms + '。');
+  }
+
+  // 優先處理事項：排除第一句已講過的 BMI、腰圍、代謝症候群，取最需要處理的前三項
+  const skip = /^(BMI |腰圍 |符合代謝症候群)/;
+  const top = rFindings(d).map(x=> plain(x.html)).filter(t=> !skip.test(t)).slice(0, 3);
+  if(top.length) s.push('需要優先處理的是：' + top.join('；') + '。');
+
+  const txs = getTxChoices();
+  if(!txs.length || (txs.length === 1 && txs[0] === 'lifestyle')) s.push('本次以飲食與運動調整為主，暫不用藥。');
+  else s.push(`治療選擇 ${txs.filter(k=> k !== 'lifestyle').map(k=> TX_OPTIONS.find(o=> o.key === k).title).join('、')}，搭配飲食與運動調整。`);
+
+  if(d.bmi != null && d.bmi >= 24 && d.w != null){
+    const lo = d.w * .05, hi = d.w * .10;
+    s.push(`第一階段目標是 3 至 6 個月內減少體重 5% 至 10%，約 ${lo.toFixed(1)} 至 ${hi.toFixed(1)} 公斤，也就是體重降到 ${(d.w - hi).toFixed(1)} 至 ${(d.w - lo).toFixed(1)} 公斤。`);
+  }
+
+  const smi = B['t-smi'];
+  if(smi.v != null && smi.g >= 1) s.push('肌肉量偏低，減重期間要同時做阻力訓練並吃足蛋白質。');
+  if(d.sb != null && d.gSb === 2) s.push('睡眠呼吸中止症風險高，建議安排睡眠檢查。');
+  if(d.phq && d.phq.item9 >= 1) s.push('情緒量表需要進一步評估，已建議轉介身心科。');
+  else if(d.phq && d.gPhq === 2) s.push('憂鬱症狀較明顯，建議同時處理情緒與睡眠。');
+  if(d.gThyUs >= 1 && txs.some(k=> k !== 'lifestyle')) s.push('甲狀腺超音波有發現，使用腸泌素類藥物前需確認結節性質。');
+
+  const base = rS('p-date') || todayLocal();
+  s.push(`預計 ${rAddMonths(base, 3)} 前後回診，複查體重、身體組成${Object.values(L).some(x=> x.v != null) ? '與抽血' : ''}。`);
+
+  const ta = document.getElementById('doc-comment');
+  const tags = ta.value.split('\n').filter(l=> /^•/.test(l.trim()));
+  ta.value = s.concat(tags).join('\n');
+}
+
 makeTagPicker('comment-tags', 'doc-comment', COMMENT_TAGS, ['已討論藥物治療選項並取得同意','已衛教用藥注意事項與可能副作用']);
 
 const EDU_PRESELECTED = ['減重飲食基本原則','控制飢餓技巧','家庭支持與共餐策略'];
@@ -2399,7 +2517,8 @@ document.addEventListener('change', (e)=>{
 }, true);
 function getReportFilename(){
   const name = document.getElementById('p-name').value.trim();
-  return (name ? name : '') + '減重評估報告';
+  // 另存 PDF 的預設檔名：患者姓名＋當日日期，例如「王小明_20261021」
+  return (name ? name + '_' : '減重評估報告_') + todayLocal().replace(/-/g, '');
 }
 
 // A4 於 96dpi 的像素高。頁面內容只要超出一點點，尾端就會溢到下一張紙而印出空白頁。

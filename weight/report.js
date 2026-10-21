@@ -119,8 +119,10 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .goal .w small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A9387; font-weight:400; margin-left:3px;}
 .goal .st.end .w{color:#9A6E2A;}
 .goal .b{font-size:11.5px; color:#6F6A62;}
-.rb.sign{display:grid; grid-template-columns:auto 1fr auto 150px; gap:14px; align-items:end; font-size:12px; color:#4A4740; letter-spacing:.12em;}
-.sign .ln{border-bottom:1px solid #24292B; height:30px;}
+/* 評估醫師與日期：放在「評估總結」標題列右側，不另佔高度 */
+.rc-head{position:relative;}
+.rc-sign{position:absolute; right:0; top:14px; display:grid; grid-template-columns:auto 130px auto 96px; gap:8px; align-items:end; font-size:11px; color:#4A4740; letter-spacing:.12em;}
+.rc-sign .ln{border-bottom:1px solid #24292B; height:24px;}
 
 /* 體位 */
 .bmi-top{display:flex; align-items:flex-end; gap:16px; margin-bottom:12px;}
@@ -558,7 +560,6 @@ function rChSummary(d){
     }
     blocks.push(rBlock('減重目標', 'WEIGHT GOAL', goal));
   }
-  blocks.push(`<div class="rb sign"><span>評估醫師</span><span class="ln"></span><span>日期</span><span class="ln"></span></div>`);
   return blocks;
 }
 
@@ -864,7 +865,9 @@ function buildReportModel(){
     {id:'appx',    no:'A',  zh:'附錄',             en:'APPENDIX',             lead:'報告中用到的名詞與判讀標準。',                  blocks: rChAppendix()},
   ];
   const attachments = [];
-  [['lab', '抽血報告'], ['tanita', 'TANITA 報告']].forEach(([kind, label])=>{
+  // 「附上原始報告」沒勾就只印到附錄
+  const attBox = document.getElementById('rpt-att');
+  if(!attBox || attBox.checked) [['lab', '抽血報告'], ['tanita', 'TANITA 報告']].forEach(([kind, label])=>{
     (uploadedFiles[kind] || []).forEach(file=>{
       file.pages.forEach((src, i)=> attachments.push({title: `${label}：${file.name}`, sub: file.pages.length > 1 ? `第 ${i + 1}／${file.pages.length} 頁` : '', src}));
     });
@@ -951,6 +954,7 @@ async function layoutReport(doc, m){
   const logo = {wm: await rLogo('#F0F2F1', 1826), mark: await rLogo('#2F5445', 144, true)};
   pagesBox.innerHTML = rCoverHtml(m, logo);
   stage.innerHTML = m.chapters.map(c=> `<div class="rc" data-id="${c.id}"><div class="rc-head"><h2>${c.zh}</h2>` +
+    (c.id === 'summary' ? `<div class="rc-sign"><span>評估醫師</span><span class="ln"></span><span>日期</span><span class="ln"></span></div>` : '') +
     `<div class="lead">${rBr(c.lead, 42)}</div></div>${c.blocks.filter(Boolean).join('')}</div>`).join('');
   // 每章的段落依序編上 01、02…（左欄金色序號）
   stage.querySelectorAll(':scope > .rc').forEach(rc=>{
@@ -1150,6 +1154,8 @@ function reportDocHtml(title, preview){
 
 // 列印：在隱藏的 iframe 裡排好版再叫出列印對話框（沿用 printIsolated 的清理流程）
 // 判讀標準（腰圍、HDL-C、體脂肪率、eGFR、BMR）依性別不同，沒選性別就不產生報告
+function rHasUploads(){ return ['lab', 'tanita'].some(k=> (uploadedFiles[k] || []).length); }
+function rAttOn(){ const box = document.getElementById('rpt-att'); return !box || box.checked; }
 function rNeedGender(){
   if(rS('p-gender')) return false;
   alert('請先在「基本資料」選擇性別，報告的判讀標準依性別不同。');
@@ -1178,12 +1184,20 @@ async function previewReport(){
   ov.className = 'rpt-overlay no-print';
   ov.id = 'rpt-overlay';
   ov.innerHTML = `<div class="rpt-ov-bar"><b>報告預覽</b><span class="rpt-ov-info" id="rpt-ov-info">排版中…</span>` +
-    `<span style="flex:1"></span><button class="btn teal" id="rpt-ov-print">列印／輸出 PDF</button><button class="btn outline" id="rpt-ov-close">關閉</button></div>` +
+    `<span style="flex:1"></span>` +
+    (rHasUploads() ? `<label class="rpt-att-opt"><input type="checkbox" id="rpt-ov-att"${rAttOn() ? ' checked' : ''}> 附上原始報告</label>` : '') +
+    `<button class="btn teal" id="rpt-ov-print">列印／輸出 PDF</button><button class="btn outline" id="rpt-ov-close">關閉</button></div>` +
     `<iframe id="rpt-ov-frame" title="報告預覽"></iframe>`;
   document.body.appendChild(ov);
   document.body.style.overflow = 'hidden';
   ov.querySelector('#rpt-ov-close').onclick = closeReportPreview;
   ov.querySelector('#rpt-ov-print').onclick = ()=> printReport();
+  const ovAtt = ov.querySelector('#rpt-ov-att');
+  if(ovAtt) ovAtt.onchange = ()=>{
+    const box = document.getElementById('rpt-att');
+    if(box) box.checked = ovAtt.checked;
+    previewReport();
+  };
   const frame = ov.querySelector('#rpt-ov-frame');
   const doc = frame.contentWindow.document;
   doc.open(); doc.write(reportDocHtml(getReportFilename(), true)); doc.close();
