@@ -121,8 +121,8 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .goal .b{font-size:11.5px; color:#6F6A62;}
 /* 評估醫師與日期：放在「評估總結」標題列右側，不另佔高度 */
 .rc-head{position:relative;}
-.rc-sign{position:absolute; right:0; top:14px; display:grid; grid-template-columns:auto 130px auto 96px; gap:8px; align-items:end; font-size:11px; color:#4A4740; letter-spacing:.12em;}
-.rc-sign .ln{border-bottom:1px solid #24292B; height:24px;}
+.rc-sign{position:absolute; right:0; bottom:20px; height:24.65px; display:grid; grid-template-columns:auto 130px auto 96px; gap:8px; align-items:center; font-size:12px; line-height:1; color:#4A4740; letter-spacing:.12em;}
+.rc-sign .ln{border-bottom:1px solid #24292B; height:16px; align-self:start;}
 
 /* 體位 */
 .bmi-top{display:flex; align-items:flex-end; gap:16px; margin-bottom:12px;}

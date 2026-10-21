@@ -297,6 +297,16 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .ms-grid .ms-item{grid-column:span 2; margin:0; padding:11px 13px; gap:10px;}
 .ms-grid .ms-item.w3{grid-column:span 3;}
 \@media (max-width:640px){ .ms-grid .ms-item, .ms-grid .ms-item.w3{grid-column:span 6;} }
+/* 醫療人員參考資料：預設收起，點標題列展開 */
+.ref-card > summary{display:flex; align-items:center; gap:10px; cursor:pointer; list-style:none;}
+.ref-card > summary::-webkit-details-marker{display:none;}
+.ref-card > summary h2{margin:0;}
+.ref-card .ref-tag{font-size:12.5px; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:2px 10px;}
+.ref-card .ref-toggle{margin-left:auto; font-size:13.5px; color:var(--primary);}
+.ref-card .ref-toggle::after{content:'展開 ▾';}
+.ref-card[open] .ref-toggle::after{content:'收起 ▴';}
+.ref-card[open] > summary{margin-bottom:8px;}
+.ref-card .dtable td:first-child{white-space:nowrap;}
 .ms-divider{display:flex; align-items:center; gap:12px; margin:16px 0; color:var(--muted); font-size:13px;}
 .ms-divider::before,.ms-divider::after{content:''; flex:1; height:1px; background:var(--border);}
 
@@ -871,21 +881,27 @@ if(window.IN_HUB){
     <div class="hint" style="margin-top:10px">介入時機參考：BMI ≥27，或 BMI ≥24 合併代謝性問題</div>
   </div>
 
-  <div class="card">
-    <h2>藥物選擇比較</h2>
-    <div class="tt-wrap">
+  <details class="card ref-card">
+    <summary><h2>藥物選擇比較</h2><span class="ref-tag">醫療人員參考</span><span class="ref-toggle"></span></summary>
+    <div class="hint" style="margin-top:4px">資料查核日期 2026-10-21。台灣適應症以食藥署許可證與最新仿單為準；試驗數值為各試驗主要結果，族群與設計不同，不宜直接相互比較。</div>
+    <div class="tt-wrap" style="margin-top:10px">
       <table class="dtable">
         <tr><th>項目</th><th>Rybelsus 瑞倍適</th><th>Wegovy 週纖達</th><th>Mounjaro 猛健樂</th></tr>
-        <tr><td>學名（機制）</td><td>Semaglutide (GLP-1)</td><td>Semaglutide (GLP-1)</td><td>Tirzepatide (GIP/GLP-1)</td></tr>
-        <tr><td>劑量調整</td><td>每日口服3mg→逐月增至14mg</td><td>每週注射0.25mg→逐月增至2.4mg</td><td>每週注射2.5mg→逐月增至15mg</td></tr>
-        <tr><td>給藥方式</td><td>每日口服</td><td>每週皮下注射</td><td>每週皮下注射</td></tr>
-        <tr><td>適應症與族群</td><td>成人</td><td>成人；另有 12 歲以上青少年肥胖症之適應症</td><td>成人</td></tr>
-        <tr><td>臨床試驗觀察到的其他變化</td><td>相關試驗以血糖控制為主要指標</td><td>試驗中觀察到心血管事件與脂肪肝指標的變化</td><td>試驗中觀察到內臟脂肪與體重的變化</td></tr>
-        <tr><td>給付狀態</td><td>減重適應症為自費</td><td>減重適應症為自費</td><td>減重適應症為自費</td></tr>
+        <tr><td>成分（機制）</td><td>Semaglutide 口服錠（GLP-1）</td><td>Semaglutide 注射（GLP-1）</td><td>Tirzepatide 注射（GIP／GLP-1）</td></tr>
+        <tr><td>台灣核准適應症</td><td>第二型糖尿病血糖控制。<br><b>未核准用於體重管理</b>，減重屬適應症外使用</td><td>成人體重管理：BMI ≥30，或 BMI ≥27 合併至少一項體重相關共病</td><td>第二型糖尿病，以及成人肥胖、過重的體重管理</td></tr>
+        <tr><td>劑量與調升</td><td>每日 3 mg → 7 mg → 14 mg，每階段至少 30 天</td><td>每週 0.25 → 0.5 → 1 → 1.7 → 2.4 mg，每 4 週調升</td><td>每週 2.5 → 5 → 7.5 → 10 → 12.5 → 15 mg，每 4 週加 2.5 mg</td></tr>
+        <tr><td>使用方式</td><td>早上空腹，以不超過 120 mL 的水整顆吞服，30 分鐘後才可進食、喝水或服其他藥</td><td>每週同一天皮下注射，時間不限、與進食無關</td><td>每週同一天皮下注射，時間不限、與進食無關</td></tr>
+        <tr><td>漏藥處理</td><td>當天跳過，隔天照常服用</td><td>台灣仿單：漏打 5 天內補打，超過就跳過（本診所病人報告統一寫 4 天內）</td><td>漏打 4 天（96 小時）內補打，超過就跳過</td></tr>
+        <tr><td>主要試驗</td><td>PIONEER 系列（第二型糖尿病），以血糖為主要指標，體重下降幅度小於注射劑型。<br>減重用的口服 semaglutide 25 mg（美國 2025 年 12 月核准）為不同劑量產品</td><td>STEP 1（NEJM 2021，1,961 人）：68 週體重 −14.9%，安慰劑 −2.4%。<br>SELECT（NEJM 2023，17,604 人，已有心血管疾病）：主要心血管事件 HR 0.80。<br>ESSENCE（NEJM 2025）：MASH 緩解 62.9%，安慰劑 34.3%</td><td>SURMOUNT-1（NEJM 2022，2,539 人）：72 週 15 mg 體重 −20.9%，安慰劑 −3.1%。<br>SURMOUNT-OSA（NEJM 2024）：中重度睡眠呼吸中止症 AHI 明顯下降。<br>SURMOUNT-5（NEJM 2025，751 人）：與 semaglutide 2.4 mg 直接比較，72 週 −20.2% 對 −13.7%</td></tr>
+        <tr><td>給付</td><td>第二型糖尿病依健保規定給付；減重使用為自費</td><td>自費</td><td>減重自費；第二型糖尿病是否給付依健保最新規定</td></tr>
       </table>
     </div>
-    <div class="hint" style="margin-top:8px">共通副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。禁忌：MTC／MEN2 病史、第一型糖尿病、肝腎功能不良、孕婦哺乳，胰臟炎病史慎用。<br>本表僅供醫師臨床決策參考，實際用藥需依個別病況評估；表列內容不作為療效比較或宣傳用途。</div>
-  </div>
+    <div class="hint" style="margin-top:10px"><b>禁忌</b>：本人或家族有甲狀腺髓質癌（MTC）、第二型多發性內分泌腫瘤（MEN2）病史；懷孕；對成分過敏。計畫懷孕者，semaglutide 需停藥至少 2 個月。<br>
+    <b>慎用與監測</b>：胰臟炎病史、膽結石、嚴重腸胃疾病（如胃輕癱）；體重快速下降時留意膽囊疾病與脫水造成的急性腎損傷；semaglutide 用於糖尿病視網膜病變者，血糖快速下降時視網膜病變可能惡化。<br>
+    <b>猛健樂與口服避孕藥</b>：開始用藥與每次調升劑量後 4 週，口服避孕藥效果可能下降，需改用或加上非口服避孕方式。<br>
+    <b>鎮靜內視鏡與手術</b>：胃排空延遲會增加吸入風險，檢查前依院內流程評估是否延長禁食或暫停用藥。<br>
+    共通副作用：噁心、嘔吐、腹瀉、便祕、食慾降低，多在調升劑量期間出現。本表供醫療人員臨床決策參考，不作為療效比較或宣傳用途。</div>
+  </details>
 
   <div class="card">
     <h2>本次治療建議</h2>
@@ -1014,7 +1030,7 @@ if(window.IN_HUB){
     <div class="btnrow">
       <button class="btn teal" onclick="previewReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> 預覽報告</button>
       <button class="btn outline" id="pdf-export-btn" onclick="printReport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg> 列印 / 輸出 PDF</button>
-      <label class="rpt-att-opt"><input type="checkbox" id="rpt-att" checked> 附上原始報告（上傳的 TANITA、抽血報告）</label>
+      <label class="rpt-att-opt"><input type="checkbox" id="rpt-att"> 附上原始報告（上傳的 TANITA、抽血報告）</label>
       <button class="btn outline" onclick="saveRecord()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M8 3v5h6"/></svg> 儲存病人紀錄</button>
     </div>
     <div class="hint" style="margin-top:10px">儲存後可在下方紀錄清單中隨時載入。系統會自動暫存草稿，關閉分頁也不會遺失。</div>

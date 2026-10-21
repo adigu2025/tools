@@ -206,7 +206,11 @@ function showLeaf(id, parent){
   currentParent = parent;
   renderBottomNav();
   window.scrollTo(0,0);
-  if(id === 'report'){ try{ renderCompleteness(); }catch(e){} }
+  if(id === 'report'){
+    // 評語是空的就先依檢查結果產生一份草稿
+    try{ if(!document.getElementById('doc-comment').value.trim()) genDocComment(true); }catch(e){}
+    try{ renderCompleteness(); }catch(e){}
+  }
   if(id === 'track' || id === 'body' || id === 'lab'){ try{ renderTrackChart('body'); renderTrackChart('lab'); }catch(e){} }
 }
 function showScreen(id){
@@ -1771,8 +1775,10 @@ const COMMENT_TAGS = [
   '共病尚未達標，建議轉介相關專科共同照護',
 ];
 // 醫師綜合評語草稿：依本次檢查結果組出 4 至 6 句，保留已點選的標籤句（「• 」開頭）
-function genDocComment(){
-  if(rNeedGender()) return;
+// silent：進入「報告輸出」頁時自動產生，不跳提醒；沒選性別就先不產生
+function genDocComment(silent){
+  if(silent){ if(!rS('p-gender')) return; }
+  else if(rNeedGender()) return;
   const d = rCollect(), L = d.lab, B = d.body;
   const plain = html=> html.replace(/<br\s*\/?>/g, '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
   const s = [];
@@ -1807,14 +1813,17 @@ function genDocComment(){
   if(d.gThyUs >= 1 && txs.some(k=> k !== 'lifestyle')) s.push('甲狀腺超音波有發現，使用腸泌素類藥物前需確認結節性質。');
 
   const base = rS('p-date') || todayLocal();
-  s.push(`預計 ${rAddMonths(base, 3)} 前後回診，複查體重、身體組成${Object.values(L).some(x=> x.v != null) ? '與抽血' : ''}。`);
+  const onMed = txs.some(k=> k !== 'lifestyle');
+  s.push(`預計回診：一週後（${rAddDays(base, 7)}）${onMed ? '確認副作用與劑量' : '檢視飲食與運動執行狀況'}；` +
+    `一個月後（${rAddMonths(base, 1)}）量體重與身體組成；` +
+    `三個月後（${rAddMonths(base, 3)}）評估療效${Object.values(L).some(x=> x.v != null) ? '並複查抽血' : ''}。`);
 
   const ta = document.getElementById('doc-comment');
   const tags = ta.value.split('\n').filter(l=> /^•/.test(l.trim()));
   ta.value = s.concat(tags).join('\n');
 }
 
-makeTagPicker('comment-tags', 'doc-comment', COMMENT_TAGS, ['已討論藥物治療選項並取得同意','已衛教用藥注意事項與可能副作用']);
+makeTagPicker('comment-tags', 'doc-comment', COMMENT_TAGS, []);
 
 const EDU_PRESELECTED = ['減重飲食基本原則','控制飢餓技巧','家庭支持與共餐策略'];
 function initEdu(){
@@ -2460,6 +2469,7 @@ const COMPLETENESS_RULES = [
   {screen:'basic',   label:'基本資料',   parent:null, check:()=>{
      const miss = [];
      if(!document.getElementById('p-name').value.trim()) miss.push('姓名');
+     if(!document.getElementById('p-gender').value) miss.push('性別');
      if(!document.getElementById('p-birth').value) miss.push('出生年月日');
      if(!document.getElementById('p-date').value) miss.push('評估日期');
      return miss;
