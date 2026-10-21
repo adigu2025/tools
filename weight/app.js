@@ -677,9 +677,9 @@ function updateHba1cReadout(){
   const el = document.getElementById('ms-hba1c-readout');
   if(!el) return;
   const hba1c = parseFloat(document.getElementById('ms-hba1c').value);
-  if(isNaN(hba1c)){ el.innerHTML = '5.7%–6.4% 為糖尿病前期，符合獨立診斷條件'; return; }
+  if(isNaN(hba1c)){ el.innerHTML = '5.7% 至 6.4% 為糖尿病前期，符合獨立診斷條件'; return; }
   const preDM = hba1c >= 5.7 && hba1c <= 6.4;
-  el.innerHTML = preDM ? `<span class="flag high">5.7%–6.4%，符合糖尿病前期，符合獨立診斷條件</span>` : `<span class="flag low">未達5.7%–6.4%範圍</span>`;
+  el.innerHTML = preDM ? `<span class="flag high">5.7% 至 6.4%，符合糖尿病前期，符合獨立診斷條件</span>` : `<span class="flag low">未達 5.7% 至 6.4% 範圍</span>`;
 }
 // 代謝症候群五項可由已輸入的腰圍、血壓、血糖、TG、HDL 直接判定。
 // 預設依實測值自動帶入；醫師手動改過的項目（例如已用藥治療）以手動為準，
@@ -780,7 +780,7 @@ function calcMetabolic(){
   const box = document.getElementById('metabolic-result');
   box.style.display = 'block';
   box.innerHTML = `符合項目：<b>${count}</b> / 5` +
-    (hba1cFlag ? `<br>另符合糖尿病前期（HbA1c 5.7%–6.4%）診斷條件` : '') +
+    (hba1cFlag ? `<br>另符合糖尿病前期（HbA1c 5.7% 至 6.4%）診斷條件` : '') +
     `<br>` +
     (positive ? `<span class="flag high">符合代謝症候群診斷</span>` : `<span class="flag low">未達代謝症候群診斷標準</span>`);
 }
@@ -1322,37 +1322,37 @@ const EXERCISE_PRESCRIPTIONS = {
   '衰弱與肌少高風險型': {
     proteinPerKg: 1.35,
     focus: '修復大於消耗，預防跌倒、核心穩定、基礎生活動作（ADL）重建',
-    aerobic: {type:'散步、太極拳、坐姿腳踏車（極低阻力）', intensity:'RPE 3–4（非常輕鬆），不應產生明顯喘息或疲勞', frequency:'每週3–5次，每次10–15分鐘（可分段進行）'},
-    resistance: {type:'無負重平衡訓練、坐姿抬腿、極輕磅數彈力帶', intensity:'神經喚醒為主，強調大腦控制肌肉', frequency:'每週2次，每次2–3個動作，每組8–10下'},
-    nutrition: {strategy:'強制介入高蛋白與抗發炎，補足修復原料，不可限制熱量', protein:'目標1.2–1.5g/kg，必要時輔以高蛋白營養品或胺基酸補充劑', notes:'增加Omega-3及維生素D攝取，監控水分補充，避免細胞脫水降低相位角'},
+    aerobic: {type:'散步、太極拳、坐姿腳踏車（極低阻力）', intensity:'RPE 3 至 4（非常輕鬆），不應產生明顯喘息或疲勞', frequency:'每週 3 至 5 次，每次 10 至 15 分鐘（可分段進行）'},
+    resistance: {type:'無負重平衡訓練、坐姿抬腿、極輕磅數彈力帶', intensity:'神經喚醒為主，強調大腦控制肌肉', frequency:'每週 2 次，每次 2 至 3 個動作，每組 8 至 10 下'},
+    nutrition: {strategy:'強制介入高蛋白與抗發炎，補足修復原料，不可限制熱量', protein:'目標 1.2 至 1.5g/kg，必要時輔以高蛋白營養品或胺基酸補充劑', notes:'增加 Omega-3 及維生素 D 攝取，監控水分補充，避免細胞脫水降低相位角'},
   },
   '肌少肥胖型': {
     proteinPerKg: 1.65,
     focus: '先增肌，後減脂，下肢關節保護為絕對前提',
-    aerobic: {type:'水中快走、橢圓機、固定式腳踏車（嚴禁跑步或跳躍高衝擊運動）', intensity:'Zone 1–2（微喘可說話），最大心率60–70%', frequency:'每週3–4次，每次30–40分鐘'},
-    resistance: {type:'固定軌跡機械式器材（如腿部推舉、坐姿划船），避免自由重量代償', intensity:'中等重量12–15 RM，著重肌肉收縮感受度', frequency:'每週2–3次'},
-    nutrition: {strategy:'微幅熱量赤字下維持高蛋白，啟動身體重組', protein:'目標1.5–1.8g/kg，三餐平均分配維持血液胺基酸濃度', notes:'低GI碳水集中於訓練前後攝取，避免胰島素大幅波動'},
+    aerobic: {type:'水中快走、橢圓機、固定式腳踏車（嚴禁跑步或跳躍高衝擊運動）', intensity:'Zone 1 至 2（微喘可說話），最大心率 60 至 70%', frequency:'每週 3 至 4 次，每次 30 至 40 分鐘'},
+    resistance: {type:'固定軌跡機械式器材（如腿部推舉、坐姿划船），避免自由重量代償', intensity:'中等重量 12 至 15 RM，著重肌肉收縮感受度', frequency:'每週 2 至 3 次'},
+    nutrition: {strategy:'微幅熱量赤字下維持高蛋白，啟動身體重組', protein:'目標 1.5 至 1.8g/kg，三餐平均分配維持血液胺基酸濃度', notes:'低 GI 碳水集中於訓練前後攝取，避免胰島素大幅波動'},
   },
   '代謝症候群／單純肥胖型': {
     proteinPerKg: 1.1,
     focus: '最大化熱量消耗，改善胰島素敏感度與心血管健康',
-    aerobic: {type:'快走、慢跑、划船機、階梯機', intensity:'Zone 2連續有氧為主，體能建立後每週加入1次無氧間歇（HIIT）', frequency:'每週4–5次，每次45–60分鐘'},
-    resistance: {type:'全身性多關節動作（深蹲、硬舉），可採循環訓練模式', intensity:'中高重量8–12 RM，縮短組間休息維持心率', frequency:'每週2–3次'},
-    nutrition: {strategy:'嚴格熱量控管（每日赤字500–750大卡）', protein:'維持正常1.0–1.2g/kg即可', notes:'限制精緻糖與加工食品，可導入168斷食，每日蔬菜需達400g以上'},
+    aerobic: {type:'快走、慢跑、划船機、階梯機', intensity:'Zone 2 連續有氧為主，體能建立後每週加入 1 次無氧間歇（HIIT）', frequency:'每週 4 至 5 次，每次 45 至 60 分鐘'},
+    resistance: {type:'全身性多關節動作（深蹲、硬舉），可採循環訓練模式', intensity:'中高重量 8 至 12 RM，縮短組間休息維持心率', frequency:'每週 2 至 3 次'},
+    nutrition: {strategy:'嚴格熱量控管（每日赤字 500 至 750 大卡）', protein:'維持正常 1.0 至 1.2g/kg 即可', notes:'限制精緻糖與加工食品，可導入 168 斷食，每日蔬菜需達 400g 以上'},
   },
   '健康／表現強化型': {
     proteinPerKg: 1.75,
     focus: '週期化訓練與專項突破（如馬拉松破二、最大肌力養成）',
-    aerobic: {type:'依據專項目標設計', intensity:'嚴格執行80/20法則（80% Zone 2，20% Zone 4/5），避免無效疲勞累積', frequency:'每週3–4次，包含一次長距離訓練（LSD）'},
-    resistance: {type:'最大肌力與爆發力訓練（如大重量推舉），提升運動經濟性', intensity:'1–6 RM（最大肌力期）或8–12 RM（肌肥大期），依週期調整', frequency:'每週2次，賽前應進行減量（Tapering）'},
-    nutrition: {strategy:'運動營養學應用，碳水循環支持高強度訓練', protein:'目標1.5–2.0g/kg（依訓練量而定）', notes:'注重營養時機，訓練後30分鐘內補充碳水與蛋白質（比例3:1或4:1）'},
+    aerobic: {type:'依據專項目標設計', intensity:'嚴格執行 80/20 法則（80% Zone 2，20% Zone 4/5），避免無效疲勞累積', frequency:'每週 3 至 4 次，包含一次長距離訓練（LSD）'},
+    resistance: {type:'最大肌力與爆發力訓練（如大重量推舉），提升運動經濟性', intensity:'1 至 6 RM（最大肌力期）或 8 至 12 RM（肌肥大期），依週期調整', frequency:'每週 2 次，賽前應進行減量（Tapering）'},
+    nutrition: {strategy:'運動營養學應用，碳水循環支持高強度訓練', protein:'目標 1.5 至 2.0g/kg（依訓練量而定）', notes:'注重營養時機，訓練後 30 分鐘內補充碳水與蛋白質（比例 3:1 或 4:1）'},
   },
   '肌肉發展潛力型': {
     proteinPerKg: 1.35,
     focus: '穩健增加肌肉量，優化身體組成',
     aerobic: {type:'基礎心肺有氧', intensity:'Zone 2', frequency:'每週2次，約30分鐘'},
-    resistance: {type:'漸進式超負荷訓練，著重下肢與核心', intensity:'8–12 RM', frequency:'每週3次'},
-    nutrition: {strategy:'微幅熱量盈餘', protein:'1.2–1.5g/kg', notes:'訓練後確實補充碳水與蛋白質'},
+    resistance: {type:'漸進式超負荷訓練，著重下肢與核心', intensity:'8 至 12 RM', frequency:'每週 3 次'},
+    nutrition: {strategy:'微幅熱量盈餘', protein:'1.2 至 1.5g/kg', notes:'訓練後確實補充碳水與蛋白質'},
   },
 };
 
@@ -1363,8 +1363,9 @@ function classifyExercisePhenotype(gender, bmi, bodyFat, smi, phaseAngle){
   const isSmiLow = !isNaN(smi) && ((gender === 'M' && smi < 7.0) || (gender === 'F' && smi < 5.7));
   const isPhaseAngleLow = !isNaN(phaseAngle) && phaseAngle < 4.5;
 
-  if(isSmiLow && isPhaseAngleLow) return '衰弱與肌少高風險型';
+  // 肥胖合併肌少時一律歸肌少肥胖型（相位角偏低也一樣），避免 BMI 偏高的病人拿到「不可限制熱量」的衰弱型處方
   if(isSmiLow && hasFatRisk) return '肌少肥胖型';
+  if(isSmiLow && isPhaseAngleLow) return '衰弱與肌少高風險型';
   if(hasFatRisk && !isSmiLow) return '代謝症候群／單純肥胖型';
   if(!hasFatRisk && !isSmiLow && !isPhaseAngleLow) return '健康／表現強化型';
   return '肌肉發展潛力型';
@@ -1485,14 +1486,16 @@ function genExercise(){
   lines.push(`• 重點提醒：${rx.nutrition.notes}`);
   lines.push('');
   lines.push('【日常活動建議】');
-  lines.push('• 減少久坐，每小時起身活動3–5分鐘');
-  lines.push('• 增加日常步數目標，建議每日7,000–10,000步');
+  lines.push('• 減少久坐，每小時起身活動 3 至 5 分鐘');
+  lines.push('• 增加日常步數目標，建議每日 7,000 至 10,000 步');
 
-  if(dm){ lines.push(''); lines.push('※ 糖尿病前期／糖尿病者，運動前後建議監測血糖，避免空腹劇烈運動造成低血糖'); }
+  // 共病勾選的通用提醒：上方已依實測數值寫過同一件事時就不再重複
+  const adjText = adj.join('');
+  if(dm && !adjText.includes('血糖')){ lines.push(''); lines.push('※ 糖尿病前期／糖尿病者，運動前後建議監測血糖，避免空腹劇烈運動造成低血糖'); }
   if(osa){ lines.push(''); lines.push('※ 阻塞性睡眠呼吸中止症者，建議規律有氧運動有助改善病情，但避免睡前劇烈運動影響睡眠品質'); }
-  if(nafld){ lines.push(''); lines.push('※ 脂肪肝患者，規律有氧運動搭配飲食調整為主要治療方式，建議持續規律執行'); }
+  if(nafld && !adjText.includes('脂肪肝')){ lines.push(''); lines.push('※ 脂肪肝患者，規律有氧運動搭配飲食調整為主要治療方式，建議持續規律執行'); }
   if(pmos){ lines.push(''); lines.push('※ 多囊性卵巢症候群（PCOS）患者，規律運動有助改善胰島素阻抗，建議阻力訓練與有氧並重'); }
-  if(isNaN(smi) || isNaN(phaseAngle)){ lines.push(''); lines.push('※ 提醒：本分型未納入SMI與／或相位角數值（未填寫），如TANITA機型有提供，建議補充填寫以提高分型準確度'); }
+  if(isNaN(smi) || isNaN(phaseAngle)){ lines.push(''); lines.push('※ 提醒：本分型未納入 SMI 或相位角數值（未填寫），如 TANITA 機型有提供，建議補充填寫以提高分型準確度'); }
 
   document.getElementById('ex-text').value = lines.join('\n');
 }
@@ -1501,7 +1504,7 @@ function genExercise(){
 // 藥物衛教自動帶入
 // ============================================================
 const MED_EDU = {
-  '': '【生活型態介入為主】\n目前階段以飲食調整、運動、行為改變與睡眠管理為核心，暫不使用藥物治療。若3–6個月效果不足，或BMI／共病已達介入標準，可與醫師討論藥物治療選項。',
+  '': '【生活型態介入為主】\n目前階段以飲食調整、運動、行為改變與睡眠管理為核心，暫不使用藥物治療。若 3 至 6 個月效果不足，或 BMI／共病已達介入標準，可與醫師討論藥物治療選項。',
   'rybelsus': '【Rybelsus 瑞倍適 用藥衛教】\n每日早上空腹服用，配不超過120mL的白開水整顆吞服，服藥後至少等30分鐘再進食、喝水或服用其他口服藥物。切勿壓碎、剝半、咀嚼。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
   'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在4天（96小時）內盡快補打；\n超過4天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
   'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在4天（96小時）內盡快補打；\n超過4天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
@@ -1520,17 +1523,17 @@ function genMedEdu(){
 const EDU = {
   '減重飲食基本原則':'【減重飲食基本原則】\n以熱量赤字為核心，搭配均衡三大營養素分配，避免極端節食造成復胖與肌肉流失。減重關鍵不在藥物，而是良好飲食習慣與熱量管理。\n◆ 建議：\n• 定時定量，避免長時間空腹後暴食\n• 優先選擇原型食物，減少加工與精緻食品\n• 每餐蛋白質、蔬菜、全穀雜糧均衡搭配',
   '地中海飲食五原則':'【地中海飲食五原則】\n蔬果全穀、優質蛋白、好油堅果、喝水戒糖、原型天然。\n◆ 建議：\n• 每週至少2次魚類，尤其深海魚\n• 烹調以橄欖油取代動物性油脂\n• 大量蔬菜與豆類，適量堅果',
-  '高蛋白策略':'【減重期高蛋白飲食策略】\n延長飽足感、避免肌肉流失、提升代謝率。\n◆ 建議：\n• 每日攝取【體重 × 1.2–1.5】公克蛋白質\n• 來源：雞胸肉、魚、蛋、豆腐、乳製品\n• 分散於三餐，避免集中單一餐攝取',
+  '高蛋白策略':'【減重期高蛋白飲食策略】\n延長飽足感、避免肌肉流失、提升代謝率。\n◆ 建議：\n• 每日攝取【體重 × 1.2 至 1.5】公克蛋白質\n• 來源：雞胸肉、魚、蛋、豆腐、乳製品\n• 分散於三餐，避免集中單一餐攝取',
   '控制飢餓技巧':'【控制飢餓技巧】\n• 規律三餐不跳餐\n• 餐前喝清湯\n• 細嚼慢嚥20分鐘\n• 口渴別當飢餓，先補充水分\n• 準備低熱量點心備用\n• 睡滿7小時（睡眠不足會提高飢餓荷爾蒙）',
   '四大飲食重點':'【四大飲食重點】\n• 少量多餐，穩定血糖\n• 先吃蛋白質與蔬菜，再吃澱粉\n• 腸胃不適時選擇清淡食物\n• 定期追蹤，適時調整飲食計畫',
   '低GI飲食':'【低升糖指數（低GI）飲食】\n選擇消化吸收較慢、血糖上升較緩的食物，有助穩定血糖與延長飽足感。\n◆ 建議：\n• 主食以糙米、燕麥、全麥製品取代白飯白麵\n• 水果選擇芭樂、蘋果等中低GI選項，避免大量果汁\n• 進食順序：先蔬菜和蛋白質，最後吃澱粉類',
   '間歇性斷食':'【間歇性斷食（IF）】\n將進食時間限縮在特定時段內（如16:8），可作為熱量控制的輔助策略，非人人適用。\n◆ 建議：\n• 糖尿病、低血糖病史、孕婦不建議自行嘗試\n• 進食時段仍須注意營養均衡，非放縱進食\n• 建議先諮詢醫師評估是否適合',
   '外食族選擇技巧':'【外食族飲食選擇技巧】\n◆ 建議：\n• 優先選擇蒸、煮、烤、滷，避免油炸與勾芡\n• 便當選擇「三蔬一肉」，飯量減半並優先吃菜\n• 湯品選擇清湯，避免濃湯與勾芡羹湯\n• 含糖飲料改為無糖茶或水',
   '飲食紀錄與行為策略':'【飲食紀錄與行為改變策略】\n記錄飲食內容有助覺察飲食習慣，是體重管理的重要工具。\n◆ 建議：\n• 可用手機APP或筆記記錄三餐內容與份量\n• 留意情緒性進食（壓力、無聊時的進食行為）\n• 設定階段性小目標，避免一次設定過大目標造成挫折',
-  '減重高原期因應':'【減重停滯期（高原期）因應】\n體重下降一段時間後趨緩為正常生理現象，非減重失敗。\n◆ 建議：\n• 重新檢視飲食紀錄，確認熱量攝取是否隨體重下降同步調整\n• 適度增加運動強度或變化訓練方式\n• 停滯期通常持續2–4週，勿因此放棄，必要時回診調整計畫',
+  '減重高原期因應':'【減重停滯期（高原期）因應】\n體重下降一段時間後趨緩為正常生理現象，非減重失敗。\n◆ 建議：\n• 重新檢視飲食紀錄，確認熱量攝取是否隨體重下降同步調整\n• 適度增加運動強度或變化訓練方式\n• 停滯期通常持續 2 至 4 週，勿因此放棄，必要時回診調整計畫',
   '蔬菜與纖維攝取':'【蔬菜與纖維攝取】\n膳食纖維延長飽足感、穩定血糖、改善腸道菌相。\n◆ 建議：\n• 每日至少3份蔬菜（1份約1碗），優先選深色蔬菜\n• 水果適量攝取，選擇連皮可食者增加纖維\n• 全穀雜糧取代部分精緻澱粉，增加纖維攝取量',
   '手搖飲與含糖飲料替代':'【手搖飲與含糖飲料替代策略】\n含糖飲料是熱量攝取的隱形殺手，戒除比想像中重要。\n◆ 建議：\n• 無糖茶、氣泡水、檸檬水取代手搖飲\n• 若無法立即戒除，先從全糖改半糖、微糖逐步減量\n• 留意「無糖」不等於「無熱量」（如珍珠、椰果仍有熱量）',
-  '節慶聚餐因應技巧':'【節慶聚餐／應酬飲食因應技巧】\n偶爾聚餐不需過度焦慮，掌握原則即可將影響降到最低。\n◆ 建議：\n• 聚餐前先吃少量蛋白質或蔬菜墊胃，避免過度飢餓暴食\n• 優先選擇蒸煮烤，減少油炸與勾芡\n• 淺嚐重口味料理與甜點，避免多樣同時大量攝取\n• 聚餐後1–2天正常飲食即可，不需刻意節食彌補',
+  '節慶聚餐因應技巧':'【節慶聚餐／應酬飲食因應技巧】\n偶爾聚餐不需過度焦慮，掌握原則即可將影響降到最低。\n◆ 建議：\n• 聚餐前先吃少量蛋白質或蔬菜墊胃，避免過度飢餓暴食\n• 優先選擇蒸煮烤，減少油炸與勾芡\n• 淺嚐重口味料理與甜點，避免多樣同時大量攝取\n• 聚餐後 1 至 2 天正常飲食即可，不需刻意節食彌補',
   '腸胃道副作用飲食調整':'【用藥期間腸胃道副作用飲食調整】\n使用GLP-1/GIP類藥物期間常見腸胃道不適，可透過飲食調整緩解。\n◆ 建議：\n• 少量多餐，避免一次進食過量\n• 避免高油、油炸、辛辣刺激性食物\n• 進食後避免立即躺下，可散步幫助腸胃蠕動\n• 症狀持續或惡化應回診與醫師討論劑量調整',
   '家庭支持與共餐策略':'【家庭支持與共餐策略】\n家人的飲食型態與支持程度，是減重成功與否的重要因素。\n◆ 建議：\n• 與家人溝通減重目標，尋求共餐時的體諒與配合\n• 避免家中囤積高熱量零食、含糖飲料\n• 鼓勵家人共同採買、備餐，建立健康飲食環境',
   '外出旅遊飲食因應':'【外出旅遊飲食因應】\n旅遊期間作息與飲食型態改變，容易造成短期體重波動。\n◆ 建議：\n• 早餐選擇原型食物為主，避免精緻澱粉過量\n• 善用步行探索景點，增加日常活動量\n• 不需為了維持飲食計畫犧牲旅遊體驗，返家後恢復規律即可',
@@ -1586,9 +1589,9 @@ function makeTagPicker(containerId, textareaId, phrases, preselected, otherInput
       tag.classList.toggle('selected');
       const ta = document.getElementById(textareaId);
       if(tag.classList.contains('selected')){
-        // 新選的項目插在「• 其他」那一行之前，讓「其他」永遠排在最後
+        // 新選的項目插在「• 其他」那一行之前，讓「其他」永遠排在最後；醫師評語另有「預計回診」清單時插在清單前
         const lines = ta.value.replace(/\n+$/,'').split('\n').filter((l, i, a)=> !(a.length === 1 && !l.trim()));
-        const oi = lines.findIndex(l=> /^• 其他(：|$)/.test(l.trim()));
+        const oi = lines.findIndex(l=> /^(• 其他(：|$)|【預計回診】)/.test(l.trim()));
         if(oi >= 0) lines.splice(oi, 0, '• ' + p); else lines.push('• ' + p);
         ta.value = lines.join('\n');
       } else {
@@ -1755,7 +1758,7 @@ renderCategoryGroup('diet-category-group', DIET_CATEGORIES, 'diet-habit-text');
 renderCategoryGroup('activity-category-group', ACTIVITY_CATEGORIES, 'activity-habit-text');
 
 const COMMENT_TAGS = [
-  '建議持續生活型態介入，3個月後回診追蹤',
+  '建議持續生活型態介入，3 個月後回診追蹤',
   '已討論藥物治療選項並取得同意',
   '共病控制穩定，維持目前治療計畫',
   '體重下降未達預期目標，建議調整治療策略',
@@ -1764,7 +1767,7 @@ const COMMENT_TAGS = [
   '建議轉介身心科／心理諮商',
   '腸胃道副作用可耐受，劑量維持不變',
   '建議下次回診複查抽血與身體組成',
-  '體重下降已達初始體重5%以上，成效良好',
+  '體重下降已達初始體重 5% 以上，成效良好',
   '建議調整藥物劑量並密切追蹤反應',
   '代謝症候群指標已改善，持續監測中',
   '建議安排腹部超音波追蹤脂肪肝變化',
@@ -1812,15 +1815,25 @@ function genDocComment(silent){
   else if(d.phq && d.gPhq === 2) s.push('憂鬱症狀較明顯，建議同時處理情緒與睡眠。');
   if(d.gThyUs >= 1 && txs.some(k=> k !== 'lifestyle')) s.push('甲狀腺超音波有發現，使用腸泌素類藥物前需確認結節性質。');
 
+  // 醫師點選的片語放在回診清單前面，報告上才不會被排進「預計回診」底下
+  const ta = document.getElementById('doc-comment');
+  ta.value.split('\n').filter(l=> /^•/.test(l.trim())).forEach(l=> s.push(l));
+
   const base = rS('p-date') || todayLocal();
   const onMed = txs.some(k=> k !== 'lifestyle');
-  s.push(`預計回診：一週後（${rAddDays(base, 7)}）${onMed ? '確認副作用與劑量' : '檢視飲食與運動執行狀況'}；` +
-    `一個月後（${rAddMonths(base, 1)}）量體重與身體組成；` +
-    `三個月後（${rAddMonths(base, 3)}）評估療效${Object.values(L).some(x=> x.v != null) ? '並複查抽血' : ''}。`);
+  // 以「- 」開頭：報告排成條列，重新產生時也不會被當成片語保留下來
+  s.push('【預計回診】');
+  if(onMed){
+    s.push(`- 一週後（${rAddDays(base, 7)}）確認副作用與劑量`);
+    s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重並評估是否調整劑量`);
+    s.push('- 一個療程（用完一盒藥物）測量身體組成');
+  }else{
+    s.push(`- 一週後（${rAddDays(base, 7)}）檢視飲食與運動執行狀況`);
+    s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重與身體組成`);
+  }
+  s.push(`- 三個月後（${rAddMonths(base, 3)}）評估療效並複查抽血。`);
 
-  const ta = document.getElementById('doc-comment');
-  const tags = ta.value.split('\n').filter(l=> /^•/.test(l.trim()));
-  ta.value = s.concat(tags).join('\n');
+  ta.value = s.join('\n');
 }
 
 makeTagPicker('comment-tags', 'doc-comment', COMMENT_TAGS, []);
