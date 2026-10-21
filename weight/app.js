@@ -1758,7 +1758,6 @@ renderCategoryGroup('diet-category-group', DIET_CATEGORIES, 'diet-habit-text');
 renderCategoryGroup('activity-category-group', ACTIVITY_CATEGORIES, 'activity-habit-text');
 
 const COMMENT_TAGS = [
-  '建議持續生活型態介入，3 個月後回診追蹤',
   '已討論藥物治療選項並取得同意',
   '共病控制穩定，維持目前治療計畫',
   '體重下降未達預期目標，建議調整治療策略',
@@ -1831,7 +1830,7 @@ function genDocComment(silent){
     s.push(`- 一週後（${rAddDays(base, 7)}）檢視飲食與運動執行狀況`);
     s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重與身體組成`);
   }
-  s.push(`- 三個月後（${rAddMonths(base, 3)}）評估療效並複查抽血。`);
+  s.push(`- 三個月後（${rAddMonths(base, 3)}）評估療效並複查抽血`);
 
   ta.value = s.join('\n');
 }
