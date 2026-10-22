@@ -797,7 +797,7 @@ const C = n=> Array.from({length:n.pages}, (_, i)=> `img/consent-${n.file}-${i +
 let FORMS = [
   {group:'weight', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'scales'},
   {group:'weight', label:'地中海飲食衛教', note:'共 2 頁', pages:[W('img/diet-mediterranean-1.webp'), W('img/diet-mediterranean-2.webp')], kind:'img'},
-  {group:'weight', label:'健康紀錄表', note:'共 1 頁', pages:[W('img/health-record.webp')], kind:'img'},
+  {group:'weight', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'record'},
   {group:'weight', label:'腸泌素針劑自費使用同意書', note:'共 1 頁', pages:[W('img/consent-glp1.webp')], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
@@ -1025,6 +1025,11 @@ function renderForms(){
   });
 }
 function printForm(t){
+  if(t.kind === 'record'){
+    try{ frames.weight.contentWindow.printHealthRecord(); }
+    catch(err){ toast('紀錄表要等減重系統載入完成才能列印，請稍候再試。'); }
+    return;
+  }
   if(t.kind === 'scales' || !t.pages.length){
     try{ frames.weight.contentWindow.printBlankScales(); }
     catch(err){ toast('問卷要等減重系統載入完成才能列印，請稍候再試。'); }

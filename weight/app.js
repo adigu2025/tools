@@ -39,7 +39,7 @@ const TOP_AREAS = [
 ];
 
 // 最後改版日期：每次改版請一併更新，會顯示於首頁左下角
-const APP_REVISION = '2026-10-21';
+const APP_REVISION = '2026-10-22';
 function renderAppRevision(){
   const el = document.getElementById('app-revision');
   if(el) el.textContent = '最後改版：' + APP_REVISION;
@@ -50,7 +50,7 @@ renderAppRevision();
 const PRINT_TILES = [
   {label:'減重門診評估問卷',       note:'共 2 頁', assets:()=>[],                 icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h4"/></svg>', run:()=>printBlankScales()},
   {label:'地中海飲食衛教',         note:'共 2 頁', assets:()=>EDU_MED_DIET_PAGES, icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M3 20h18"/><path d="M9.5 12a4 4 0 0 1 5-5.5"/></svg>', run:()=>printEducation()},
-  {label:'健康紀錄表',             note:'共 1 頁', assets:()=>[HEALTH_RECORD_PAGE], icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h3"/></svg>', run:()=>printHealthRecord()},
+  {label:'健康紀錄表',             note:'共 2 頁', assets:()=>[],                  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h3"/></svg>', run:()=>printHealthRecord()},
   {label:'腸泌素針劑自費使用同意書', note:'共 1 頁', assets:()=>[CONSENT_PDF_PAGE],  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7"/><path d="M14 3v5h5"/><path d="M18.5 13.5a1.8 1.8 0 0 1 2.5 2.5L17 20l-3 .7.7-3z"/></svg>', run:()=>printConsent()},
 ];
 // 進入列印單張時先把四張表單的圖片抓下來，
@@ -1621,11 +1621,11 @@ const ACTIVITY_CATEGORIES = [
     label: '一、運動習慣（肌肉與心肺刺激、身體活動度）',
     intro: '評估除日常走路外，是否有刻意給予身體足夠的運動刺激與肌肉阻力訓練。',
     options: [
-      '高強度規律訓練：每週4次以上，含重量訓練或HIIT',
-      '有氧與重訓兼顧：每週2~3次，達微喘流汗程度',
-      '假日運動員/低頻率：每週僅1次或集中於週末',
-      '靜態生活/以車代步：無運動習慣，能坐不站',
-      '久坐臥床/關節受限：近乎全天靜態，體力差',
+      '高強度規律訓練：每週 4 次以上，含重量訓練或 HIIT',
+      '有氧與重訓兼顧：每週 2 至 3 次，達微喘流汗程度',
+      '假日運動員／低頻率：每週僅 1 次或集中於週末',
+      '靜態生活／以車代步：無運動習慣，能坐不站',
+      '久坐臥床／關節受限：近乎全天靜態，體力差',
     ]
   },
   {
@@ -1634,10 +1634,10 @@ const ACTIVITY_CATEGORIES = [
     intro: '工作型態決定日常「非運動性熱量消耗」的基底，是評估久坐風險的核心。',
     options: [
       '高體力勞動：持續走動、搬重物、長時間站立',
-      '動靜皆宜/頻繁走動：常起身走動、開會巡視',
+      '動靜皆宜／頻繁走動：常起身走動、開會巡視',
       '混合型辦公：坐辦公室但會定時起身活動',
-      '長時間定著久坐：連續久坐8小時以上不挪動',
-      '職業駕駛/高壓禁錮：長時間受限座位、高壓力',
+      '長時間定著久坐：連續久坐 8 小時以上不挪動',
+      '職業駕駛／高壓禁錮：長時間受限座位、高壓力',
     ]
   },
   {
@@ -1645,11 +1645,11 @@ const ACTIVITY_CATEGORIES = [
     label: '三、睡眠作息（修復能力、皮質醇與飢餓素節律）',
     intro: '睡眠時間與品質直接影響瘦素與飢餓素分泌，是許多減重卡關者的隱形因素。',
     options: [
-      '黃金睡眠：11點前入睡，睡足7~8小時',
-      '規律穩定：12點前入睡，睡6~7小時',
-      '晚睡少眠：常超過1點才睡，不足6小時',
-      '睡眠障礙/夜醒頻繁：難入睡、易夜醒、打呼',
-      '輪班/日夜顛倒：長期輪大夜班或日夜顛倒',
+      '黃金睡眠：11 點前入睡，睡足 7 至 8 小時',
+      '規律穩定：12 點前入睡，睡 6 至 7 小時',
+      '晚睡少眠：常超過 1 點才睡，不足 6 小時',
+      '睡眠障礙／夜醒頻繁：難入睡、易夜醒、打呼',
+      '輪班／日夜顛倒：長期輪大夜班或日夜顛倒',
     ]
   },
 ];
@@ -1671,9 +1671,9 @@ const DIET_CATEGORIES = [
     key: 'behavior',
     label: '二、進食行為與頻率（進食模式與情緒關係）',
     options: [
-      '正念慢食：細嚼慢嚥、7分飽、不吃零食',
+      '正念慢食：細嚼慢嚥、7 分飽、不吃零食',
       '隨性規律：進食速度正常，吃飽就停',
-      '社交/環境誘導：易受周遭環境影響多吃',
+      '社交／環境誘導：易受周遭環境影響多吃',
       '狼吞虎嚥：進食極快，邊看螢幕邊吃零食',
       '情緒衝動：依賴手搖飲，常情緒性進食',
     ]
@@ -1682,8 +1682,8 @@ const DIET_CATEGORIES = [
     key: 'timing',
     label: '三、時間與餐次結構（進食時間軸與節律）',
     options: [
-      '嚴格斷食/定時：規律執行間歇性斷食',
-      '規律三餐：固定2~3餐，無宵夜習慣',
+      '嚴格斷食／定時：規律執行間歇性斷食',
+      '規律三餐：固定 2 至 3 餐，無宵夜習慣',
       '作息晃動：三餐時間不固定但餐數穩定',
       '頻繁刺激：正餐外常吃點心、含糖飲料',
       '夜貓宵夜：睡前吃宵夜，熱量集中深夜',
@@ -1693,8 +1693,8 @@ const DIET_CATEGORIES = [
     key: 'hydration',
     label: '四、飲水與微量元素（代謝基礎原料）',
     options: [
-      '水分豐沛：純水2000cc以上，蔬果蛋白足量',
-      '基礎及格：純水1500~2000cc，蔬菜略不足',
+      '水分豐沛：純水 2000 cc 以上，蔬果蛋白足量',
+      '基礎及格：純水 1500 至 2000 cc，蔬菜略不足',
       '代替性飲水：多以茶、咖啡、湯代替純水',
       '蛋白質缺乏：偏好單一澱粉餐，少吃蛋豆肉',
       '嚴重脫水：幾乎不喝水，飲食缺乏蔬菜',
@@ -1902,9 +1902,20 @@ function syncOtherInputs(focus){
 document.addEventListener('change', e=>{
   if(e.target && e.target.closest && e.target.closest('.chk-other') && e.target.type === 'checkbox') syncOtherInputs(e.target);
 }, true);
-// 減重門診評估問卷（兩頁 A4）。選項文字直接取自上方資料陣列，
-// 確保紙本與螢幕上的選項完全一致，日後改一處即可同步。
+// 減重門診評估問卷（兩頁 A4），題目順序對應報告第 04 章「病史與身心評估」。
+// 選項文字直接取自系統的資料陣列與表單標籤，紙本與螢幕上的選項一致，日後改一處即可同步。
+// 病人填寫的題目都有對應的系統欄位；身體測量、量表計分與本次治療留給醫療人員填寫。
 const QS_BOX = '<svg viewBox="0 0 16 16" fill="none" stroke="#152831" stroke-width="1.3"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/></svg>';
+// 病人勾選後由醫師判斷是否影響用藥選擇（腸泌素類藥物的禁忌與注意事項）
+const QS_MED_SAFETY = [
+  '胰臟炎病史',
+  '膽結石或膽囊疾病',
+  '本人或家族有甲狀腺髓質癌（含 MEN 2 症候群）',
+  '胃排空異常或嚴重腸胃蠕動問題',
+  '曾有暴食、催吐或其他飲食障礙',
+];
+const QS_MED_IDS = ['med-steroid','med-psych','med-insulin','med-bb','med-antiepileptic','med-hormone','med-antihistamine','med-chemo'];
+const QS_SUPPORT = ['家人','伴侶','朋友','同事','病友或社群','目前沒有'];
 
 function qsOpt(text, splitKey){
   let body;
@@ -1918,76 +1929,135 @@ function qsOpt(text, splitKey){
   }
   return '<div class="qs-opt">' + QS_BOX + '<span>' + body + '</span></div>';
 }
+function qsOther(label, w){
+  return '<div class="qs-opt">' + QS_BOX + '<span>' + esc(label || '其他') + ' <span class="qs-blank" style="min-width:' + (w || 110) + 'px"></span></span></div>';
+}
+// 分類標題去掉「一、」編號與括號說明，紙本只留病人看得懂的部分
+function qsCatName(label){
+  return label.replace(/^[一二三四五六七八九十]+、/, '').replace(/（.*?）$/, '');
+}
 function qsCatBlock(cat){
-  return '<div class="qs-cat">' + esc(cat.label) + '</div>' +
-    cat.options.map(o=> qsOpt(o, true)).join('');
+  return '<div class="qs-catbox"><div class="qs-cat">' + esc(qsCatName(cat.label)) + '</div>' +
+    cat.options.map(o=> qsOpt(o, true)).join('') + '</div>';
+}
+function qsLabelOf(id){
+  const el = document.querySelector('label[for="' + id + '"]');
+  return el ? el.textContent.trim() : '';
 }
 function qsHeader(pageNo){
   return '<div class="rp-header"><span class="clinic">木子澄安診所 Muzi Cheng\'an Clinic</span>' +
     '<span class="pagenum">第 ' + pageNo + ' 頁／共 2 頁</span></div>';
 }
+function qsFoot(note){
+  return '<div class="qs-foot"><span>木子澄安診所 Muzi Cheng\'an Clinic</span><span>' + (note || '本問卷僅供臨床評估參考，內容依個人資料保護規定保管') + '</span></div>';
+}
+function qsStaffLine(label, unit, w){
+  return '<span class="qs-sf"><span class="l">' + label + '</span><span class="ln" style="min-width:' + (w || 46) + 'px"></span>' + (unit ? '<span class="u">' + unit + '</span>' : '') + '</span>';
+}
 
 function buildBlankScalesHtml(){
   const name = document.getElementById('p-name').value || '';
+  const pregSel = document.getElementById('preg-plan');
+  const pregOpts = pregSel ? [...pregSel.options].map(o=> o.value).filter(Boolean) : ['無相關計畫','計畫懷孕中','懷孕中','哺乳中'];
+  const medOpts = QS_MED_IDS.map(qsLabelOf).filter(Boolean);
 
   const pageA = `
   <div class="report-page qs-page">
     ${qsHeader(1)}
     <div class="qs-title">減重門診評估問卷</div>
-    <div class="qs-fill">
-      <span><span class="lbl">姓名</span> <span class="line">${esc(name)}</span></span>
-      <span><span class="lbl">填寫日期</span> <span class="line short"></span></span>
+    <div class="qs-lead">請依您目前的實際狀況填寫，沒有標準答案。看不懂的題目可以空著，門診時醫師會再跟您確認。</div>
+    <div class="qs-basic">
+      <span><span class="lbl">姓名</span><span class="line">${esc(name)}</span></span>
+      <span class="qs-sex"><span class="lbl">性別</span>${qsOpt('男')}${qsOpt('女')}</span>
+      <span><span class="lbl">出生日期</span><span class="line short"></span>年<span class="line tiny"></span>月<span class="line tiny"></span>日</span>
+      <span><span class="lbl">填寫日期</span><span class="line short"></span></span>
     </div>
 
+    <div class="qs-sec">一、這次的目標與期待</div>
     <div class="qs-grid">
-      <div class="qs-col">
-        <div class="qs-sec">一、您這次想減重的原因<span class="note">可複選</span></div>
-        <div class="qs-panel">
+      <div class="qs-panel">
+        <div class="qs-q"><span class="num">1</span>這次想減重的原因<span class="hint">可複選</span></div>
+        <div class="qs-inline">
           ${qsOpt('改善健康檢查的異常數據')}
+          ${qsOpt('改善關節或行動上的不適')}
           ${qsOpt('調整體態與外型')}
           ${qsOpt('為特定活動做準備（如婚禮、同學會）')}
-          ${qsOpt('改善關節或行動上的不適')}
-          <div class="qs-opt">${QS_BOX}<span>其他 <span class="qs-blank" style="min-width:118px"></span></span></div>
-
-          <div class="qs-q"><span class="num">1</span>過去是否曾嘗試減重？</div>
-          <div class="qs-inline">
-            ${qsOpt('沒有')}
-            <div class="qs-opt">${QS_BOX}<span>有，方式為 <span class="qs-blank" style="min-width:90px"></span></span></div>
-          </div>
-
-          <div class="qs-q"><span class="num">2</span>成年後的最高體重</div>
-          <div class="qs-fillrow">
-            <span>約 <span class="qs-blank"></span> 公斤</span>
-            <span>當時年齡 <span class="qs-blank" style="min-width:44px"></span> 歲</span>
-          </div>
+          ${qsOther('其他', 150)}
+        </div>
+        <div class="qs-q"><span class="num">2</span>過去是否曾嘗試減重？</div>
+        <div class="qs-inline">
+          ${qsOpt('沒有')}
+          ${qsOther('有，方式為', 120)}
+        </div>
+        <div class="qs-q"><span class="num">3</span>成年後的最高體重</div>
+        <div class="qs-fillrow">
+          <span>約 <span class="qs-blank"></span> 公斤</span>
+          <span>當時年齡 <span class="qs-blank"></span> 歲</span>
         </div>
       </div>
-
-      <div class="qs-col">
-        <div class="qs-sec">二、您的期待</div>
-        <div class="qs-panel">
-          <div class="qs-target"><span>目標體重</span><span class="fill"></span><span>公斤</span></div>
-
-          <div class="qs-q"><span class="num">1</span>您希望多久達到這個體重？</div>
-          <div class="qs-inline">
-            ${qsOpt('1 個月')}${qsOpt('3 個月')}${qsOpt('6 個月')}${qsOpt('1 年')}
-            ${qsOpt('沒有特定時間，穩定就好')}
-          </div>
-
-          <div class="qs-q"><span class="num">2</span>您每月可安排的治療費用預算？</div>
-          <div class="qs-inline">
-            ${qsOpt('1,000 至 5,000 元')}${qsOpt('5,000 至 10,000 元')}
-            ${qsOpt('10,000 至 15,000 元')}${qsOpt('15,000 元以上')}
-            ${qsOpt('尚未考慮，想先了解')}
-          </div>
-          <div class="qs-note">僅用於安排合適的治療組合，不影響專業醫療建議。</div>
+      <div class="qs-panel">
+        <div class="qs-target"><span>目標體重</span><span class="fill"></span><span>公斤</span></div>
+        <div class="qs-q"><span class="num">4</span>希望多久達到這個體重？</div>
+        <div class="qs-inline">
+          ${qsOpt('1 個月')}${qsOpt('3 個月')}${qsOpt('6 個月')}${qsOpt('1 年')}
+          ${qsOpt('沒有特定時間，穩定就好')}
         </div>
+        <div class="qs-q"><span class="num">5</span>每月可安排的治療費用預算</div>
+        <div class="qs-inline">
+          ${qsOpt('1,000 至 5,000 元')}${qsOpt('5,000 至 10,000 元')}
+          ${qsOpt('10,000 至 15,000 元')}${qsOpt('15,000 元以上')}
+          ${qsOpt('尚未考慮，想先了解')}
+        </div>
+        <div class="qs-note">預算僅用於安排合適的治療組合，不影響專業醫療建議。</div>
       </div>
     </div>
 
-    <div class="qs-sec">三、飲食習慣<span class="note">每一類請選擇一項最接近的描述</span></div>
-    ${DIET_CATEGORIES.map(qsCatBlock).join('')}
-    <div class="qs-foot"><span>木子澄安診所 Muzi Cheng'an Clinic</span><span>本問卷僅供臨床評估參考</span></div>
+    <div class="qs-sec">二、健康狀況與用藥</div>
+    <div class="qs-q"><span class="num">1</span>目前或過去曾被診斷的疾病<span class="hint">可複選</span></div>
+    <div class="qs-3col">
+      ${qsOpt('目前沒有')}
+      ${COMORBID_TAGS.map(t=> qsOpt(t)).join('')}
+      ${qsOpt(qsLabelOf('sc-thyroid') || '甲狀腺功能低下')}
+      ${qsOther('其他', 96)}
+    </div>
+    <div class="qs-q"><span class="num">2</span>是否有下列狀況<span class="hint">會影響減重藥物的選擇，請盡量填寫</span></div>
+    <div class="qs-2col">
+      ${qsOpt('以上皆無')}
+      ${QS_MED_SAFETY.map(t=> qsOpt(t)).join('')}
+    </div>
+    <div class="qs-q"><span class="num">3</span>目前正在使用的藥物<span class="hint">可複選，保健食品也請一併寫下</span></div>
+    <div class="qs-3col">
+      ${qsOpt('目前沒有用藥')}
+      ${medOpts.map(t=> qsOpt(t)).join('')}
+    </div>
+    <div class="qs-lines">
+      <div><span class="l">其他藥物或保健食品</span><span class="ln"></span></div>
+      <div><span class="l">藥物過敏</span><span class="ln"></span></div>
+    </div>
+    <div class="qs-q"><span class="num">4</span>睡眠時是否有下列狀況？<span class="hint">符合者請勾選，可複選</span></div>
+    <div class="qs-2col">${STOPBANG_ITEMS.map(it=> qsOpt(it.label)).join('')}</div>
+
+    <div class="qs-sec">三、家族史與生活背景</div>
+    <div class="qs-q"><span class="num">1</span>父母、兄弟姊妹或子女是否有下列疾病？<span class="hint">可複選</span></div>
+    <div class="qs-3col">
+      ${qsOpt('都沒有或不清楚')}
+      ${FAMILY_HISTORY_TAGS.map(t=> qsOpt(t.replace(/家族史/, ''))).join('')}
+      ${qsOther('其他', 96)}
+    </div>
+    <div class="qs-grid qs-grid-tight">
+      <div>
+        <div class="qs-q"><span class="num">2</span>生育計畫<span class="hint">女性請填</span></div>
+        <div class="qs-inline">${pregOpts.map(t=> qsOpt(t)).join('')}</div>
+        <div class="qs-q"><span class="num">3</span>減重過程中，誰可以支持您？<span class="hint">可複選</span></div>
+        <div class="qs-inline">${QS_SUPPORT.map(t=> qsOpt(t)).join('')}${qsOther('其他', 60)}</div>
+      </div>
+      <div>
+        <div class="qs-q"><span class="num">4</span>您現在想開始減重的意願有多強？<span class="hint">請圈選</span></div>
+        <div class="qs-scale">${Array.from({length:10}, (_, i)=> `<span>${i + 1}</span>`).join('')}</div>
+        <div class="qs-scale-cap"><span>還在考慮</span><span>已經準備好</span></div>
+      </div>
+    </div>
+    ${qsFoot()}
   </div>`;
 
   const phqRows = PHQ9_ITEMS.map((q,i)=>
@@ -1997,11 +2067,11 @@ function buildBlankScalesHtml(){
   const pageB = `
   <div class="report-page qs-page">
     ${qsHeader(2)}
-    <div class="qs-sec">四、活動與作息<span class="note">每一類請選擇一項最接近的描述</span></div>
-    ${ACTIVITY_CATEGORIES.map(qsCatBlock).join('')}
+    <div class="qs-sec">四、飲食習慣<span class="note">每一類請選擇一項最接近的描述</span></div>
+    <div class="qs-cats">${DIET_CATEGORIES.map(qsCatBlock).join('')}</div>
 
-    <div class="qs-sec">五、睡眠呼吸風險<span class="note">符合者請勾選，可複選</span></div>
-    <div class="qs-2col">${STOPBANG_ITEMS.map(it=> qsOpt(it.label)).join('')}</div>
+    <div class="qs-sec">五、活動與作息<span class="note">每一類請選擇一項最接近的描述</span></div>
+    <div class="qs-cats three">${ACTIVITY_CATEGORIES.map(qsCatBlock).join('')}</div>
 
     <div class="qs-sec">六、近兩週的情緒與睡眠<span class="note">請就每一題勾選一格</span></div>
     <table class="qs-phq">
@@ -2011,16 +2081,27 @@ function buildBlankScalesHtml(){
 
     <div class="qs-staff">
       <div class="qs-staff-title">以下由醫療人員填寫</div>
-      <div class="qs-staff-grid">
-        <div class="qs-staff-row"><span class="l">個人病史</span><span class="ln"></span></div>
-        <div class="qs-staff-row"><span class="l">服用藥物</span><span class="ln"></span></div>
-        <div class="qs-staff-row"><span class="l">家族病史</span><span class="ln"></span></div>
-        <div class="qs-staff-row"><span class="l">生育計畫</span><span class="ln"></span></div>
-        <div class="qs-staff-row"><span class="l">社會支持</span><span class="ln"></span></div>
-        <div class="qs-staff-row"><span class="l">備註</span><span class="ln"></span></div>
+      <div class="qs-sfrow">
+        ${qsStaffLine('身高', 'cm')}${qsStaffLine('體重', 'kg')}${qsStaffLine('BMI', '')}
+        ${qsStaffLine('腰圍', 'cm')}${qsStaffLine('頸圍', 'cm')}${qsStaffLine('血壓', 'mmHg', 64)}
+      </div>
+      <div class="qs-sfrow">
+        ${qsStaffLine('STOP-BANG', '／8 分', 34)}${qsStaffLine('PHQ-9', '／27 分', 34)}
+        <span class="qs-sf">${qsOpt('第 9 題有作答，已評估自殺風險')}</span>
+      </div>
+      <div class="qs-sfrow">
+        <span class="qs-sf"><span class="l">次發性肥胖</span>${qsOpt('未發現')}${qsOpt('疑似')}<span class="ln" style="min-width:150px"></span></span>
+        <span class="qs-sf grow"><span class="l">藥物可否調整</span><span class="ln"></span></span>
+      </div>
+      <div class="qs-sfrow">
+        <span class="qs-sf"><span class="l">本次治療</span>${TX_OPTIONS.map(o=> qsOpt(o.key === 'lifestyle' ? '生活型態介入' : o.title)).join('')}</span>
+      </div>
+      <div class="qs-sfrow">
+        <span class="qs-sf grow"><span class="l">備註</span><span class="ln"></span></span>
+        ${qsStaffLine('評估人員', '', 90)}
       </div>
     </div>
-    <div class="qs-foot"><span>木子澄安診所 Muzi Cheng'an Clinic</span><span>本問卷僅供臨床評估參考</span></div>
+    ${qsFoot()}
   </div>`;
 
   return pageA + pageB;
@@ -2050,7 +2131,6 @@ const EDU_PDF_PAGES = [
   {label:'追蹤與監測時程', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>', src:'img/edu-follow-up-schedule.webp'}
 ];
 const CONSENT_PDF_PAGE = 'img/consent-glp1.webp';
-const HEALTH_RECORD_PAGE = 'img/health-record.webp';
 
 let eduActiveIdx = 0;
 function renderEduGallery(){
@@ -2364,11 +2444,198 @@ function printConsent(){
   printImagePages(CONSENT_PDF_PAGE, '腸泌素針劑自費使用同意書');
 }
 
-function printHealthRecord(){
-  printImagePages(HEALTH_RECORD_PAGE, '健康紀錄表');
+// 健康紀錄表（兩頁 A4），欄位對應系統的追蹤紀錄（TRACK_COLS）、檢驗判讀標準（rLabMeta）與報告的回診時程。
+// 目前畫面有資料時自動帶入：基本資料、起始與目標體重、超音波結果、已存的追蹤紀錄與回診日期；空白時就是可手寫的空白表。
+const QS_CHK = '<svg viewBox="0 0 16 16" fill="none" stroke="#152831" stroke-width="1.3"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/><path d="M4.2 8.3l2.6 2.6 5-5.6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const HR_SIDE_EFFECTS = ['噁心','嘔吐','腹瀉','便秘','腹脹或胃脹','食慾很差','注射部位紅腫','其他'];
+const HR_LAB_ROWS = 7, HR_BODY_ROWS = 18;
+const HR_FOOT = '本紀錄表由醫療人員協助填寫，請妥善保管並於回診時攜帶';
+
+function hrVal(id){ const el = document.getElementById(id); return el ? (el.value || '').trim() : ''; }
+function hrPick(text, on){ return '<div class="qs-opt">' + (on ? QS_CHK : QS_BOX) + '<span>' + esc(text) + '</span></div>'; }
+function hrFix(n, d){ return (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); }
+// 紙本參考值：範圍改用「至」；未選性別而男女切點不同時，兩個都列出
+function hrLabMeta(){
+  if(typeof rLabMeta !== 'function') return [];
+  const g = document.getElementById('p-gender');
+  const keep = g ? g.value : '';
+  const by = sex=>{ if(g) g.value = sex; return rLabMeta().filter(m=> m.k); };
+  const male = by('M'), female = by('F');
+  if(g) g.value = keep;
+  const cur = keep === 'M' ? male : female;
+  return cur.map((m, i)=>{
+    const fix = s=> (s || '').replace(/–/g, ' 至 ').replace(/\s+/g, ' ').trim();
+    let ref = fix(m.ref);
+    if(!keep && male[i].ref !== female[i].ref) ref = '男 ' + fix(male[i].ref) + '<br>女 ' + fix(female[i].ref);
+    if(m.ref === '無統一切點') ref = '';
+    return {k:m.k, ref, u:m.u};
+  });
+}
+function hrStaffDate(base, fn, n){
+  return base && typeof fn === 'function' ? fn(base, n) : '';
 }
 
+function buildHealthRecordHtml(){
+  const name = hrVal('p-name');
+  const dob = hrVal('p-birth');
+  const has0 = !!(name || hrVal('b-weight'));
+  const start = has0 ? hrVal('p-date') : '';
+  const hCm = hrVal('b-height');
+  const w0 = parseFloat(hrVal('b-weight'));
+  const target = hrVal('b-target-weight');
+  const has = !isNaN(w0) && w0 > 0;
+  const fatty = hrVal('us-fatty'), thy = hrVal('us-thyroid');
+  const usText = hrVal('us-text'), thyText = hrVal('us-thyroid-text');
 
+  // 檢驗表：欄位順序與單位取自報告的判讀標準，找不到時退回追蹤表欄位
+  const SHORT = {ac:'AC', hba1c:'HbA1c', homa:'HOMA-IR', tcho:'TC', tg:'TG', hdl:'HDL', ldl:'LDL', alt:'ALT', ast:'AST', cr:'Cr', egfr:'eGFR', ua:'UA', tsh:'TSH'};
+  const GROUPS = [['血糖', ['ac','hba1c','homa']], ['血脂', ['tcho','tg','hdl','ldl']], ['肝腎功能', ['alt','ast','cr','egfr']], ['其他', ['ua','tsh']]];
+  const meta = {};
+  hrLabMeta().forEach(m=> meta[m.k] = m);
+  const labKeys = GROUPS.flatMap(([, ks])=> ks);
+  const labRows = (trackData.lab || []).slice(-HR_LAB_ROWS);
+  let labBody = '';
+  for(let i = 0; i < HR_LAB_ROWS; i++){
+    const r = labRows[i] || {};
+    const first = i === 0 && !r.date ? '<span class="hr-ph">治療前</span>' : esc(r.date || '');
+    labBody += `<tr><td class="d">${first}</td>${labKeys.map(k=> `<td>${esc(r[k] || '')}</td>`).join('')}</tr>`;
+  }
+  const labTable = `
+    <table class="hr-tb hr-lab">
+      <colgroup><col style="width:74px">${labKeys.map(()=> '<col>').join('')}</colgroup>
+      <tr class="g"><th rowspan="2">日期</th>${GROUPS.map(([n, ks])=> `<th colspan="${ks.length}">${n}</th>`).join('')}</tr>
+      <tr class="n">${labKeys.map(k=> `<th${k === 'homa' ? ' class="sm"' : ''}>${SHORT[k]}</th>`).join('')}</tr>
+      <tr class="u"><td>單位</td>${labKeys.map(k=> `<td>${esc((meta[k] && meta[k].u) || (k === 'egfr' ? 'mL/min' : ''))}</td>`).join('')}</tr>
+      <tr class="u"><td>參考值</td>${labKeys.map(k=> `<td>${meta[k] ? meta[k].ref : ''}</td>`).join('')}</tr>
+      ${labBody}
+    </table>`;
+
+  // 回診時程：與醫師評語的回診清單、報告第 06 章一致
+  const addD = typeof rAddDays === 'function' ? rAddDays : null;
+  const addM = typeof rAddMonths === 'function' ? rAddMonths : null;
+  const plan = [
+    ['一週後', hrStaffDate(start, addD, 7), '確認副作用與劑量'],
+    ['一個月後', hrStaffDate(start, addM, 1), '測量體重，評估是否調整劑量'],
+    ['一個療程', '', '用完一盒藥物時測量身體組成'],
+    ['三個月後', hrStaffDate(start, addM, 3), '評估療效並複查抽血'],
+    ['六個月後', hrStaffDate(start, addM, 6), '腹部超音波，追蹤脂肪肝'],
+  ];
+  const planRows = plan.map(([w, d, what])=>
+    `<tr><td class="w">${w}</td><td>${esc(d)}</td><td class="l">${what}</td><td></td><td>${QS_BOX}</td></tr>`).join('');
+
+  const pageA = `
+  <div class="report-page qs-page hr-page">
+    ${qsHeader(1)}
+    <div class="qs-title">健康紀錄表</div>
+    <div class="qs-lead">回診時可以帶著這份紀錄表由醫療人員協助填寫，或回家後自行記錄。</div>
+    <div class="qs-basic">
+      <span><span class="lbl">姓名</span><span class="line">${esc(name)}</span></span>
+      <span><span class="lbl">出生日期</span><span class="line mid">${esc(dob)}</span></span>
+      <span><span class="lbl">身高</span><span class="line short">${esc(hCm)}</span>cm</span>
+      <span><span class="lbl">開始治療日期</span><span class="line mid">${esc(start)}</span></span>
+    </div>
+
+    <div class="hr-goals">
+      <div><span class="t">起始體重</span><span class="v">${has ? hrFix(w0, 1) : ''}</span><span class="u">kg</span></div>
+      <div><span class="t">減 5% 的體重</span><span class="v">${has ? hrFix(w0 * 0.95, 1) : ''}</span><span class="u">kg</span><span class="s">第一個里程碑</span></div>
+      <div><span class="t">減 10% 的體重</span><span class="v">${has ? hrFix(w0 * 0.9, 1) : ''}</span><span class="u">kg</span><span class="s">代謝明顯改善</span></div>
+      <div class="me"><span class="t">我的目標體重</span><span class="v">${esc(target)}</span><span class="u">kg</span></div>
+    </div>
+
+    <div class="qs-sec">一、治療前影像檢查</div>
+    <div class="hr-us">
+      <div class="row"><span class="k">腹部超音波</span>
+        ${['無脂肪肝','輕度脂肪肝','中度脂肪肝','重度脂肪肝'].map(t=> hrPick(t, fatty === t)).join('')}
+      </div>
+      <div class="row line"><span class="k sub">所見</span><span class="ln">${esc(usText.replace(/\n/g, ' '))}</span></div>
+      <div class="row"><span class="k">甲狀腺超音波</span>
+        ${[['無異常','無異常'],['甲狀腺結節','甲狀腺結節'],['甲狀腺腫大','甲狀腺腫大'],['其他異常','其他異常']].map(([v, t])=> hrPick(t, thy === v)).join('')}
+      </div>
+      <div class="row line"><span class="k sub">所見</span><span class="ln">${esc(thyText.replace(/\n/g, ' '))}</span></div>
+    </div>
+
+    <div class="qs-sec">二、檢驗紀錄<span class="note">第一列為治療前數值，之後每次抽血記錄一列</span></div>
+    ${labTable}
+
+    <div class="qs-sec">三、回診時程<span class="note">日期由開始治療日推算，實際以預約為準</span></div>
+    <table class="hr-tb hr-plan">
+      <colgroup><col style="width:82px"><col style="width:104px"><col><col style="width:104px"><col style="width:56px"></colgroup>
+      <tr><th>時間點</th><th>預計日期</th><th>這次要做什麼</th><th>實際回診日</th><th>已完成</th></tr>
+      ${planRows}
+    </table>
+    <div class="hr-plan-note">之後每 3 至 6 個月規律回診，目標是減重後不復胖。</div>
+
+    <div class="hr-alert">
+      <div class="h">出現下列狀況，請提早回診或就醫</div>
+      <ul>
+        <li>上腹痛延伸到背部、持續嘔吐無法進食，或出現黃疸，請立即就醫。</li>
+        <li>嚴重腹瀉、頭暈、尿量明顯減少，可能是脫水，請盡快回診。</li>
+        <li>計畫懷孕、已懷孕或開始哺乳，請先停藥並回診討論。</li>
+      </ul>
+      <div class="tel">木子澄安診所　07-3739496　高雄市仁武區仁孝路 282 號</div>
+    </div>
+    ${qsFoot(HR_FOOT)}
+  </div>`;
+
+  // 身體組成與用藥紀錄：體重變化以起始體重計算，追蹤表已有資料時自動帶入
+  const bodyRows = (trackData.body || []).slice(-HR_BODY_ROWS);
+  let bodyHtml = '';
+  for(let i = 0; i < HR_BODY_ROWS; i++){
+    const r = bodyRows[i] || {};
+    const w = parseFloat(r.weight);
+    let chg = '';
+    if(has && !isNaN(w)){
+      const dk = w - w0;
+      chg = (dk > 0 ? '+' : '') + hrFix(dk, 1) + '<small>（' + (dk > 0 ? '+' : '') + hrFix(dk / w0 * 100, 1) + '%）</small>';
+    }
+    bodyHtml += `<tr><td class="d">${esc(r.date || '')}</td><td></td><td>${esc(r.weight || '')}</td><td>${chg}</td>` +
+      `<td>${esc(r.bmi || '')}</td><td>${esc(r.waist || '')}</td><td>${esc(r.fat || '')}</td><td>${esc(r.muscle || '')}</td>` +
+      `<td>${esc(r.visceral || '')}</td><td>${esc(r.bp || '')}</td><td></td></tr>`;
+  }
+
+  // 體重變化圖：橫軸 0 至 24 週，縱軸留白讓醫療人員依起始體重自行標刻度
+  const gx0 = 40, gx1 = 694, gy0 = 8, gy1 = 182, weeks = 24, rowsN = 10;
+  let grid = '';
+  for(let i = 0; i <= weeks; i++){
+    const x = gx0 + (gx1 - gx0) * i / weeks;
+    grid += `<line x1="${x}" y1="${gy0}" x2="${x}" y2="${gy1}" stroke="${i % 4 ? '#ECE7DF' : '#D8D1C5'}" stroke-width="1"/>`;
+    if(i % 4 === 0) grid += `<text x="${x}" y="${gy1 + 14}" text-anchor="middle">${i}</text>`;
+  }
+  for(let j = 0; j <= rowsN; j++){
+    const y = gy0 + (gy1 - gy0) * j / rowsN;
+    grid += `<line x1="${gx0}" y1="${y}" x2="${gx1}" y2="${y}" stroke="${j % 5 ? '#ECE7DF' : '#D8D1C5'}" stroke-width="1"/>` +
+      `<line x1="${gx0 - 26}" y1="${y}" x2="${gx0 - 4}" y2="${y}" stroke="#D8D1C5" stroke-width="1"/>`;
+  }
+  const chart = `<svg class="hr-chart" viewBox="0 0 706 212" xmlns="http://www.w3.org/2000/svg">${grid}` +
+    `<text x="${gx1}" y="${gy1 + 28}" text-anchor="end">週數</text><text x="2" y="${gy0 + 4}" text-anchor="start">kg</text></svg>`;
+
+  const pageB = `
+  <div class="report-page qs-page hr-page">
+    ${qsHeader(2)}
+    <div class="qs-sec">四、身體組成與用藥紀錄<span class="note">每次回診記錄一列，副作用請填下方代碼</span></div>
+    <table class="hr-tb hr-body">
+      <colgroup><col style="width:68px"><col style="width:92px"><col style="width:46px"><col style="width:76px"><col style="width:40px"><col style="width:42px"><col style="width:56px"><col style="width:46px"><col style="width:56px"><col style="width:62px"><col></colgroup>
+      <tr><th>日期</th><th>藥物與劑量</th><th>體重</th><th>累計變化</th><th>BMI</th><th>腰圍</th><th>體脂肪率</th><th>肌肉量</th><th>內臟脂肪</th><th>血壓</th><th>副作用代碼</th></tr>
+      <tr class="u"><td></td><td></td><td>kg</td><td>kg（%）</td><td></td><td>cm</td><td>%</td><td>kg</td><td>等級</td><td>mmHg</td><td></td></tr>
+      ${bodyHtml}
+    </table>
+    <div class="hr-codes"><b>副作用代碼</b><span><i>0</i>沒有不適</span>${HR_SIDE_EFFECTS.map((t, i)=> `<span><i>${i + 1}</i>${esc(t)}</span>`).join('')}</div>
+
+    <div class="qs-sec">五、體重變化圖<span class="note">每次回診在對應週數點上體重，連成曲線</span></div>
+    ${chart}
+
+    <div class="hr-notes">
+      <div class="h">備註</div>
+      <div class="ln"></div><div class="ln"></div><div class="ln"></div>
+    </div>
+    ${qsFoot(HR_FOOT)}
+  </div>`;
+
+  return pageA + pageB;
+}
+function printHealthRecord(){
+  printIsolated(buildHealthRecordHtml(), '健康紀錄表');
+}
 
 // ============================================================
 // 追蹤趨勢圖：以內嵌 SVG 繪製，不依賴外部函式庫，離線與列印皆可用
@@ -2761,7 +3028,9 @@ function applyState(state){
             const lab = r.parentNode.querySelector('.ms-title');
             const desc = r.parentNode.querySelector('.ms-desc');
             const full = desc && desc.textContent ? lab.textContent + '：' + desc.textContent : (lab ? lab.textContent : '');
-            r.checked = (full === val);
+            // 舊紀錄的選項文字可能是半形寫法（2~3次、/），比對前先統一
+            const norm = t=> (t || '').replace(/\s/g, '').replace(/~/g, '至').replace(/\//g, '／');
+            r.checked = (norm(full) === norm(val));
           });
         });
       });
