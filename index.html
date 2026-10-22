@@ -841,7 +841,8 @@ function pullWeightData(win){
     if(Array.isArray(tiles) && tiles.length){
       const weightForms = tiles.map(t=>{
         const pages = (t.assets ? t.assets() : []).map(W);
-        return {group:'weight', label:t.label, note:t.note, pages, kind: pages.length ? 'img' : 'scales'};
+        // 沒有圖片的表單（問卷、健康紀錄表）由減重頁自己產生，直接呼叫該表單的列印函式
+        return {group:'weight', label:t.label, note:t.note, pages, kind: pages.length ? 'img' : 'run', run: t.run};
       });
       FORMS = weightForms.concat(FORMS.filter(f=> f.group !== 'weight'));
       renderForms();
@@ -1025,6 +1026,11 @@ function renderForms(){
   });
 }
 function printForm(t){
+  if(t.kind === 'run' && typeof t.run === 'function'){
+    try{ t.run(); }
+    catch(err){ toast('表單要等減重系統載入完成才能列印，請稍候再試。'); }
+    return;
+  }
   if(t.kind === 'record'){
     try{ frames.weight.contentWindow.printHealthRecord(); }
     catch(err){ toast('紀錄表要等減重系統載入完成才能列印，請稍候再試。'); }

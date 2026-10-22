@@ -2471,6 +2471,11 @@ function hrLabMeta(){
     return {k:m.k, ref, u:m.u};
   });
 }
+// 筆數超過表格列數時，保留第一筆（治療前）與最近的幾筆
+function hrRows(list, n){
+  list = list || [];
+  return list.length <= n ? list : [list[0]].concat(list.slice(-(n - 1)));
+}
 function hrStaffDate(base, fn, n){
   return base && typeof fn === 'function' ? fn(base, n) : '';
 }
@@ -2493,7 +2498,7 @@ function buildHealthRecordHtml(){
   const meta = {};
   hrLabMeta().forEach(m=> meta[m.k] = m);
   const labKeys = GROUPS.flatMap(([, ks])=> ks);
-  const labRows = (trackData.lab || []).slice(-HR_LAB_ROWS);
+  const labRows = hrRows(trackData.lab, HR_LAB_ROWS);
   let labBody = '';
   for(let i = 0; i < HR_LAB_ROWS; i++){
     const r = labRows[i] || {};
@@ -2578,7 +2583,7 @@ function buildHealthRecordHtml(){
   </div>`;
 
   // 身體組成與用藥紀錄：體重變化以起始體重計算，追蹤表已有資料時自動帶入
-  const bodyRows = (trackData.body || []).slice(-HR_BODY_ROWS);
+  const bodyRows = hrRows(trackData.body, HR_BODY_ROWS);
   let bodyHtml = '';
   for(let i = 0; i < HR_BODY_ROWS; i++){
     const r = bodyRows[i] || {};
