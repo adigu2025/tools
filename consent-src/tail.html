@@ -1,0 +1,53 @@
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// 共用的頁首、頁尾與簽名欄由這裡填入，七份同意書格式一致
+const VER = 'v. 2026/10';
+document.querySelectorAll('.head').forEach(h=>{
+  h.innerHTML = '<div class="brand"><img src="crop/muzi-mark-bw.png" alt="木子澄安診所標誌"><div><b>木子澄安診所</b><small>MUZI CHENG AN CLINIC</small></div></div>'
+    + '<div class="info">消化內科｜肝膽胃腸科<br>高雄市仁武區仁孝路282號｜07-3739496</div>';
+});
+document.querySelectorAll('.foot').forEach(f=>{
+  f.innerHTML = '<span>' + f.dataset.name + '</span><span>' + f.dataset.pg + '　　' + VER + '</span>';
+});
+const L = t => '<div class="f">' + t + '<span class="l"></span></div>';
+const ROWS = {
+  appt: [[L('預約日期：'), L('檢查時間：'), L('報到時間：')]],
+  treat: [[L('預約日期：'), L('治療時間：'), L('報到時間：')]],
+  exam: [[L('檢查日期：'), L('檢查時間：')]],
+};
+document.querySelectorAll('.final[data-kind]').forEach(b=>{
+  const rows = (ROWS[b.dataset.kind] || []).concat([
+    [L('同意人簽名：'), L('關係：受檢人之')],
+    [L('身分證字號：'), L('出生年月日：')],
+    [L('說明醫師：'), '<div class="f"></div>'],
+  ]);
+  b.innerHTML = rows.map(r=> '<div class="row">' + r.join('') + '</div>').join('') + '<div class="date">年　　月　　日</div>';
+});
+
+// 每頁剩餘高度：數字小於 0 代表內容壓到頁尾
+function fitReport(){
+  return [...document.querySelectorAll('.page')].map(p=>{
+    const f = p.querySelector('.foot'), prev = f.previousElementSibling;
+    return [p.dataset.file, Math.round(f.getBoundingClientRect().top - prev.getBoundingClientRect().bottom)];
+  });
+}
+// 輸出：工作台用 WebP（out/tools/），報價系統用 JPG（out/planner/）
+async function renderAll(only){
+  await document.fonts.ready;
+  const res = [];
+  for(const el of document.querySelectorAll('[data-file]')){
+    const name = el.dataset.file;
+    if(only && !only.includes(name)) continue;
+    const canvas = await html2canvas(el, {scale: 1414 / 794, backgroundColor:'#ffffff', useCORS:true, logging:false});
+    const webp = await new Promise(r=> canvas.toBlob(r, 'image/webp', 0.9));
+    await fetch('/__save?name=out/tools/' + name + '.webp', {method:'POST', body:webp});
+    const jpg = await new Promise(r=> canvas.toBlob(r, 'image/jpeg', 0.88));
+    await fetch('/__save?name=out/planner/' + name + '.jpg', {method:'POST', body:jpg});
+    res.push([name, canvas.width, canvas.height]);
+  }
+  return res;
+}
+</script>
+</body>
+</html>

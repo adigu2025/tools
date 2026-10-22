@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>同意書插圖裁切</title>
+<!-- 從舊版同意書圖片裁出插圖，轉成灰階 PNG 存進 crop/。座標以 1414 寬的畫面為準，依原圖實際寬度換算 -->
+<script>
+const CROPS = [
+  ['consent-gastroscopy-2', 'scope-standard', 235, 430, 435, 632],
+  ['consent-gastroscopy-2', 'scope-thin-oral', 648, 430, 850, 632],
+  ['consent-gastroscopy-2', 'scope-thin-nasal', 1053, 430, 1256, 632],
+  ['consent-gastroscopy-2', 'hp-kit', 220, 897, 932, 1090],
+  ['consent-gastroscopy-2', 'inject-needle', 485, 1220, 688, 1424],
+  ['consent-gastroscopy-2', 'hemoclip', 1007, 1220, 1211, 1424],
+  ['consent-colonoscopy-2', 'meal-jp', 372, 498, 672, 797],
+  ['consent-colonoscopy-2', 'meal-tw', 887, 500, 1186, 800],
+  ['consent-capsule-1', 'capsule', 515, 1315, 875, 1655],
+  ['consent-het-2', 'het-anatomy', 268, 262, 652, 658],
+  ['consent-het-2', 'het-treat', 848, 280, 1200, 640],
+];
+function load(src){ return new Promise((ok, no)=>{ const i = new Image(); i.onload = ()=> ok(i); i.onerror = no; i.src = src; }); }
+async function cropAll(){
+  const res = [];
+  for(let [file, name, x0, y0, x1, y1] of CROPS){
+    // 有圓角外框的插圖再往內縮，避免裁到框線
+    if(!['capsule','het-anatomy'].includes(name)){ x0 += 8; y0 += 8; x1 -= 8; y1 -= 8; }
+    const img = await load('../img/' + file + '.webp');
+    const k = img.naturalWidth / 1414;
+    const w = Math.round((x1 - x0) * k), h = Math.round((y1 - y0) * k);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d');
+    g.drawImage(img, Math.round(x0 * k), Math.round(y0 * k), w, h, 0, 0, w, h);
+    const d = g.getImageData(0, 0, w, h), p = d.data;
+    for(let i = 0; i < p.length; i += 4){ const v = Math.round(p[i]*.299 + p[i+1]*.587 + p[i+2]*.114); p[i] = p[i+1] = p[i+2] = v; }
+    g.putImageData(d, 0, 0);
+    const blob = await new Promise(r=> c.toBlob(r, 'image/png'));
+    await fetch('/__save?name=crop/' + name + '.png', {method:'POST', body:blob});
+    res.push([name, w, h, img.naturalWidth, img.naturalHeight]);
+  }
+  return res;
+}
+</script>

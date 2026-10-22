@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<title>木子澄安診所同意書</title>
+<!-- 七份同意書的版面原始檔。每頁 A4 直式 794 × 1123，黑白列印版；輸出方式見 README.md -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* 黑白列印版：只用黑、灰、白 */
+    --ink:#000; --gold:#333; --sub:#555; --line:#BBB; --shade:#F2F2F2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#9AA5AA;color:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:14.2px;line-height:1.6}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:24px;padding:24px}
+  .page{width:794px;height:1123px;background:#fff;padding:42px 58px 34px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+  /* 頁首：診所標誌在左，同意書名稱置中 */
+  .head{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:3px solid var(--ink)}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand img{height:50px;display:block}
+  .brand b{display:block;font-family:'Noto Serif TC',serif;font-weight:600;font-size:19px;line-height:1.2;color:#3a3a3a}
+  .brand small{display:block;font-family:'Noto Serif TC',serif;font-weight:600;font-size:7.5px;letter-spacing:.06em;color:#3a3a3a}
+  .head .info{text-align:right;font-size:11px;color:var(--sub);line-height:1.55}
+  .title{text-align:center;margin:12px 0 2px}
+  .title h1{font-family:'Noto Serif TC',serif;font-weight:900;font-size:26px;letter-spacing:.08em;line-height:1.3}
+  .title p{font-size:13px;color:var(--sub);letter-spacing:.1em}
+
+  h2{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:700;margin:11px 0 5px}
+  h2 i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:50%;
+    background:var(--ink);color:#fff;font-size:14px;flex-shrink:0}
+  h2 small{font-size:12.5px;font-weight:500;color:var(--sub)}
+  h3{font-size:14.5px;font-weight:700;margin:8px 0 3px}
+
+  ol.items{list-style:none;counter-reset:n}
+  ol.items > li{counter-increment:n;position:relative;padding-left:22px;margin-bottom:4px}
+  ol.items > li::before{content:counter(n) ".";position:absolute;left:0;font-weight:700}
+  ul.dots{list-style:none}
+  ul.dots > li{position:relative;padding-left:16px;margin-bottom:4px}
+  ul.dots > li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+  .k{font-weight:700}
+  .note{font-size:12.5px;color:var(--sub)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .side{display:grid;grid-template-columns:1fr 190px;gap:16px;align-items:start}
+  .side img{width:100%;display:block}
+
+  /* 灰底框：預約、押金、急診提醒 */
+  .boxed{border:1.3px solid var(--line);border-radius:6px;background:var(--shade);padding:8px 14px}
+  .boxed.dark{background:#fff;border:1.8px solid var(--ink)}
+
+  /* 費用 */
+  .fees{display:flex;gap:14px;margin:4px 0 2px}
+  .fee{flex:1;border:1.8px solid var(--gold);border-radius:6px;padding:6px 10px;text-align:center}
+  .fee .t{font-size:12.5px;color:var(--sub);letter-spacing:.08em}
+  .fee .v{font-size:16px;font-weight:700}
+  .fee .v em{font-style:normal;font-family:'Noto Serif TC',serif;font-weight:900;font-size:23px}
+  .fee .n{font-size:11.5px;color:var(--sub)}
+
+  /* 自費選項卡：圖、名稱、內容、價格，左上角勾選框 */
+  .opts{display:grid;gap:12px}
+  .opt{border:1.3px solid var(--line);border-radius:6px;padding:8px 10px 7px;position:relative;display:flex;flex-direction:column}
+  .opt img{display:block;margin:0 auto 5px;max-width:100%}
+  .opt .nm{font-weight:700;font-size:14.5px;line-height:1.4}
+  .opt .ct{font-size:12px;color:var(--sub);line-height:1.5}
+  .opt .pr{margin-top:auto;text-align:right;font-size:13px;padding-top:3px}
+  .opt .pr em{font-style:normal;font-family:'Noto Serif TC',serif;font-weight:900;font-size:20px}
+  .opt.row{flex-direction:row;align-items:center;gap:12px}
+  .opt.row .tx{flex:1;display:flex;flex-direction:column;align-self:stretch}
+  .box{display:inline-block;width:15px;height:15px;border:1.6px solid var(--ink);vertical-align:-2px;margin-right:6px;background:#fff}
+
+  /* 同意與簽名 */
+  .agree{border:1.3px solid var(--line);border-radius:6px;padding:9px 14px 10px;margin-top:6px}
+  .agree p{margin-bottom:4px}
+  .rec{font-size:11.5px;color:var(--sub);margin-top:8px}
+  .final{border:2.2px solid var(--ink);padding:6px 14px 9px;margin-top:5px}
+  .row{display:flex;align-items:flex-end;gap:12px;margin:7px 0}
+  .f{display:flex;align-items:flex-end;gap:3px;white-space:nowrap;flex:1}
+  .f span.l{flex:1;border-bottom:1.2px solid var(--ink);min-width:50px;height:22px}
+  .date{text-align:right;letter-spacing:.5em;margin-top:6px}
+
+  table.tb{width:100%;border-collapse:collapse;font-size:13px}
+  table.tb th,table.tb td{border:1px solid #999;padding:4px 8px;text-align:center;vertical-align:middle}
+  table.tb th{background:var(--shade);font-weight:700}
+  table.tb td.l{text-align:left}
+
+  .foot{display:flex;justify-content:space-between;font-size:10.5px;color:var(--sub);margin-top:auto;padding-top:5px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- ───────── 胃鏡 ───────── -->
+<section class="page" data-file="consent-gastroscopy-1">
+  <header class="head"></header>
+  <div class="title"><h1>上消化道內視鏡（胃鏡）檢查同意書</h1><p>說明　第 1 頁</p></div>
+
+  <h2><i>1</i>檢查介紹</h2>
+  <ol class="items">
+    <li><span class="k">檢查方式：</span>使用直徑約 0.9 公分、長度約 110 公分的纖維內視鏡，經口腔或鼻腔進入，依序觀察下咽部、食道、胃與十二指腸前半段。</li>
+    <li><span class="k">檢查目的：</span>評估上腹部不適，診斷發炎、潰瘍、瘜肉、腫瘤、出血等上消化道疾病。必要時可在檢查中同時進行<span class="k">切片化驗、瘜肉切除、內視鏡止血、取出異物</span>等處置。</li>
+    <li><span class="k">自費情形：</span>未經醫師診查，或沒有上消化道檢查的適應症而要求做胃鏡者，須自費接受本項檢查，費用為檢查費 1600 元另加耗材費用。</li>
+  </ol>
+
+  <h2><i>2</i>檢查前請注意</h2>
+  <ol class="items">
+    <li>請主動告知慢性病史（如心血管疾病、慢性肝病、慢性腎病、氣喘等）與過敏史。</li>
+    <li>正在服用<span class="k">抗血小板藥物或抗凝血劑</span>，請主動告知，由醫師評估是否需要停藥。</li>
+    <li>檢查當日暫停<span class="k">降血糖藥物</span>，檢查完成後再依指示服用。降血壓藥、降膽固醇藥可照常服用，不必停藥。</li>
+    <li><span class="k">檢查前禁食至少 8 小時，檢查前 2 小時內不可喝水。</span></li>
+  </ol>
+
+  <h2><i>3</i>檢查當日與檢查後</h2>
+  <ol class="items">
+    <li>抵達診所後，會先服用消除胃內氣泡、減緩腸胃蠕動的藥物，接受咽喉局部麻醉後再開始檢查。</li>
+    <li>檢查時偶爾會發生輕微損傷，例如咽喉疼痛、因緊咬咬口器造成嘴唇破皮。如決定接受檢查，發生不可避免的損傷時，本診所無法負責後續處置費用。</li>
+    <li>檢查完成後醫師會解釋報告。沒有特殊情況，<span class="k">半小時後即可恢復進食</span>。</li>
+    <li>檢查中如發現潰瘍或急性出血，或切除瘜肉時評估為高出血風險，醫師會視情況使用止血醫材：拋棄式內視鏡注射針 1500 元、內視鏡止血夾每支 1000 元。</li>
+  </ol>
+  <div class="boxed dark" style="margin-top:4px"><span class="k">檢查後如出現劇烈腹痛、吐血、解黑便或發燒，請立即回診或至急診就醫。</span></div>
+
+  <h2><i>4</i>預約與押金</h2>
+  <div class="boxed">
+    <ul class="dots">
+      <li>因排程緊湊，取消檢查或改期請於<span class="k">檢查日 3 天前</span>來電。預約後多次聯繫不到，本診所有權取消當日預約。</li>
+      <li>健保檢查當日請務必攜帶健保卡。未帶健保卡須付門診押金 1600 元，病理切片押金 2000 元。</li>
+      <li>有長期服用的藥物，請帶藥袋或藥單，方便醫師確認。</li>
+    </ul>
+  </div>
+
+  <footer class="foot" data-name="上消化道內視鏡（胃鏡）檢查同意書" data-pg="1 / 2"></footer>
+</section>
+
+<section class="page" data-file="consent-gastroscopy-2">
+  <header class="head"></header>
+  <div class="title"><h1>胃鏡檢查費用與同意</h1><p>受檢人姓名：＿＿＿＿＿＿＿＿＿＿　　病歷號碼：＿＿＿＿＿＿＿＿</p></div>
+
+  <h2><i>5</i>檢查費用</h2>
+  <div class="fees">
+    <div class="fee"><div class="t">健保身分</div><div class="v">檢查費 <em>免自付</em></div><div class="n">符合健保適應症者</div></div>
+    <div class="fee"><div class="t">自費身分</div><div class="v">檢查費 <em>1600</em> 元</div><div class="n">另加下方選項與耗材費用</div></div>
+  </div>
+
+  <h3>基本選項<span class="note">　三選一，請勾選</span></h3>
+  <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+    <div class="opt"><img src="crop/scope-standard.png" style="height:74px"><div class="nm"><span class="box"></span>標準胃鏡，經口</div><div class="ct">＋拋棄式咬口器</div><div class="pr"><em>100</em> 元</div></div>
+    <div class="opt"><img src="crop/scope-thin-oral.png" style="height:74px"><div class="nm"><span class="box"></span>極細胃鏡，經口</div><div class="ct">＋拋棄式咬口器</div><div class="pr"><em>700</em> 元</div></div>
+    <div class="opt"><img src="crop/scope-thin-nasal.png" style="height:74px"><div class="nm"><span class="box"></span>極細胃鏡，經鼻</div><div class="ct">無耗材</div><div class="pr"><em>600</em> 元</div></div>
+  </div>
+
+  <h3>進階選項與臨床需要時使用<span class="note">　幽門桿菌檢測可自行勾選；止血醫材由醫師在檢查中視情況使用</span></h3>
+  <div class="opts" style="grid-template-columns:1.5fr 1fr 1fr">
+    <div class="opt"><img src="crop/hp-kit.png" style="height:64px"><div class="nm"><span class="box"></span>加驗幽門桿菌</div><div class="ct">快速尿素酶測試卡＋拋棄式切片鉗</div><div class="pr"><em>1300</em> 元</div></div>
+    <div class="opt"><img src="crop/inject-needle.png" style="height:64px"><div class="nm">注射針＋止血藥物</div><div class="ct">拋棄式內視鏡注射針</div><div class="pr"><em>1500</em> 元</div></div>
+    <div class="opt"><img src="crop/hemoclip.png" style="height:64px"><div class="nm">內視鏡止血夾</div><div class="ct">依使用支數計費</div><div class="pr">每支 <em>1000</em> 元</div></div>
+  </div>
+  <p class="note" style="margin-top:5px">同一天內，健保只給付胃鏡與大腸鏡其中一項。如要申請商業保險理賠，請先與您的保險公司確認。</p>
+
+  <h2><i>6</i>同意書</h2>
+  <div class="agree">
+    <p>本人已詳閱上述說明，了解胃鏡檢查的必要性與可能的風險，同意接受上消化道內視鏡（胃鏡）檢查。</p>
+    <p>此致　木子澄安診所</p>
+  </div>
+  <div class="rec">治療室內設有錄音錄影設備，用於記錄醫療過程並保障雙方權益；設置位置已確保維護您的隱私。</div>
+  <div class="final" data-kind="appt"></div>
+
+  <footer class="foot" data-name="上消化道內視鏡（胃鏡）檢查同意書" data-pg="2 / 2"></footer>
+</section>
+<!-- ───────── 大腸鏡 ───────── -->
+<section class="page" data-file="consent-colonoscopy-1">
+  <header class="head"></header>
+  <div class="title"><h1>下消化道內視鏡（大腸鏡）檢查同意書</h1><p>說明　第 1 頁</p></div>
+
+  <h2><i>1</i>檢查介紹</h2>
+  <ol class="items">
+    <li><span class="k">檢查方式：</span>使用直徑約 1.2 公分、長度約 130 公分的纖維內視鏡，由肛門進入，依序觀察直腸、乙狀結腸、降結腸、橫結腸、升結腸至盲腸。</li>
+    <li><span class="k">檢查目的：</span>診斷發炎、潰瘍、瘜肉、腫瘤、出血等下消化道疾病。必要時可在檢查中同時進行<span class="k">切片化驗、瘜肉切除、內視鏡止血、取出異物</span>等處置。</li>
+    <li><span class="k">自費情形：</span>未經醫師診查，或沒有下消化道檢查的適應症而要求做大腸鏡者，須自費接受本項檢查，費用為檢查費 2500 元另加耗材費用。</li>
+  </ol>
+
+  <h2><i>2</i>檢查前請注意</h2>
+  <ol class="items">
+    <li>請主動告知慢性病史（如心血管疾病、慢性肝病、慢性腎病、氣喘等）與過敏史。</li>
+    <li>正在服用<span class="k">抗血小板藥物或抗凝血劑</span>，請主動告知，由醫師評估是否需要停藥。</li>
+    <li>檢查當日暫停<span class="k">降血糖藥物</span>，檢查完成後再依指示服用。降血壓藥、降膽固醇藥可照常服用，不必停藥。</li>
+    <li><span class="k">清腸是檢查品質的關鍵。</span>請依清腸衛教單：檢查前 2 至 3 天吃低渣飲食，檢查前一天服用清腸藥並喝足量清水，直到排出物清澈、沒有殘渣。</li>
+    <li><span class="k">檢查當日 00:00 起只能喝水、運動飲料與清腸藥，檢查前 2 小時內不可喝水。</span></li>
+  </ol>
+
+  <h2><i>3</i>檢查中與檢查後</h2>
+  <ol class="items">
+    <li>大腸鏡屬於侵入性檢查，<span class="k">出血與穿孔的發生率約 0.1%</span>，發生時須轉往醫院接受後續治療。</li>
+    <li>檢查中醫師需要充氣，才能完整觀察大腸。如有不適可隨時告訴醫師，無法忍受時也可以中止檢查。</li>
+    <li>檢查完成後醫師會解釋報告。沒有特殊情況，檢查後即可恢復進食。</li>
+    <li>檢查中如發現潰瘍或急性出血，或切除瘜肉時評估為高出血風險，醫師會視情況使用止血醫材：拋棄式內視鏡注射針 1500 元、內視鏡止血夾每支 1000 元。</li>
+  </ol>
+  <div class="boxed dark" style="margin-top:4px"><span class="k">檢查後如出現持續或加劇的腹痛、腹脹、大量血便或發燒，請立即回診或至急診就醫。</span></div>
+
+  <h2><i>4</i>預約與押金</h2>
+  <div class="boxed">
+    <ul class="dots">
+      <li>因排程緊湊，取消檢查或改期請於<span class="k">檢查日 3 天前</span>來電。預約後多次聯繫不到，本診所有權取消當日預約。</li>
+      <li>健保檢查當日請務必攜帶健保卡。未帶健保卡須付門診押金 2500 元，病理切片押金 2000 元。</li>
+    </ul>
+  </div>
+
+  <footer class="foot" data-name="下消化道內視鏡（大腸鏡）檢查同意書" data-pg="1 / 2"></footer>
+</section>
+
+<section class="page" data-file="consent-colonoscopy-2">
+  <header class="head"></header>
+  <div class="title"><h1>大腸鏡檢查費用與同意</h1><p>受檢人姓名：＿＿＿＿＿＿＿＿＿＿　　病歷號碼：＿＿＿＿＿＿＿＿</p></div>
+
+  <h2><i>5</i>檢查費用</h2>
+  <div class="fees">
+    <div class="fee"><div class="t">健保身分</div><div class="v">檢查費 <em>免自付</em></div><div class="n">符合健保適應症者</div></div>
+    <div class="fee"><div class="t">自費身分</div><div class="v">檢查費 <em>2500</em> 元</div><div class="n">另加下方選項與耗材費用</div></div>
+  </div>
+
+  <h3>基本選項<span class="note">　二選一，請勾選</span></h3>
+  <div class="opts" style="grid-template-columns:1fr 1fr">
+    <div class="opt row"><img src="crop/meal-jp.png" style="height:128px;margin:0"><div class="tx"><div class="nm"><span class="box"></span>日本製代餐與清腸藥</div><div class="ct">拋棄式檢查褲<br>二氧化碳充氣<br>日本製造代餐<br>日本製造清腸藥</div><div class="pr"><em>1500</em> 元</div></div></div>
+    <div class="opt row"><img src="crop/meal-tw.png" style="height:128px;margin:0"><div class="tx"><div class="nm"><span class="box"></span>台灣製代餐與清腸藥</div><div class="ct">拋棄式檢查褲<br>二氧化碳充氣<br>台灣製造代餐<br>台灣製造清腸藥</div><div class="pr"><em>1200</em> 元</div></div></div>
+  </div>
+
+  <h3>臨床需要時使用<span class="note">　止血醫材由醫師在檢查中視情況使用</span></h3>
+  <div class="opts" style="grid-template-columns:1fr 1fr">
+    <div class="opt row"><img src="crop/inject-needle.png" style="height:74px;margin:0"><div class="tx"><div class="nm">注射針＋止血藥物</div><div class="ct">拋棄式內視鏡注射針</div><div class="pr"><em>1500</em> 元</div></div></div>
+    <div class="opt row"><img src="crop/hemoclip.png" style="height:74px;margin:0"><div class="tx"><div class="nm">內視鏡止血夾</div><div class="ct">依使用支數計費</div><div class="pr">每支 <em>1000</em> 元</div></div></div>
+  </div>
+  <p class="note" style="margin-top:5px">同一天內，健保只給付胃鏡與大腸鏡其中一項。如要申請商業保險理賠，請先與您的保險公司確認。</p>
+
+  <h2><i>6</i>同意書</h2>
+  <div class="agree">
+    <p>本人已詳閱上述說明，了解大腸鏡檢查的必要性與可能的風險，同意接受下消化道內視鏡（大腸鏡）檢查。</p>
+    <p>此致　木子澄安診所</p>
+  </div>
+  <div class="rec">治療室內設有錄音錄影設備，用於記錄醫療過程並保障雙方權益；設置位置已確保維護您的隱私。</div>
+  <div class="final" data-kind="appt"></div>
+
+  <footer class="foot" data-name="下消化道內視鏡（大腸鏡）檢查同意書" data-pg="2 / 2"></footer>
+</section>
+<!-- ───────── 膠囊內視鏡 ───────── -->
+<section class="page" data-file="consent-capsule-1">
+  <header class="head"></header>
+  <div class="title"><h1>膠囊內視鏡檢查同意書</h1><p>說明　第 1 頁</p></div>
+
+  <h2><i>1</i>檢查介紹</h2>
+  <div class="side" style="grid-template-columns:1fr 200px">
+    <ol class="items">
+      <li><span class="k">檢查方式：</span>吞下一顆長約 25 公釐的膠囊攝影機，膠囊隨腸道蠕動通過消化道，沿途拍攝的影像即時傳到腰帶式接收器與記錄主機，最後隨糞便排出體外。</li>
+      <li><span class="k">適合評估的部位：</span>主要用於觀察胃鏡與大腸鏡到達不了的<span class="k">小腸</span>，屬於非侵入性檢查，不需要插管。</li>
+      <li><span class="k">膠囊構造：</span>外殼為生物相容性材質，內含高解析度廣角鏡頭，可自動調整拍攝頻率。</li>
+      <li><span class="k">影像判讀：</span>全程影像可達 50,000 至 100,000 張，醫師使用閱片工作站並搭配人工智慧輔助判讀。</li>
+    </ol>
+    <img src="crop/capsule.png" alt="膠囊內視鏡構造示意圖">
+  </div>
+
+  <h2><i>2</i>哪些人不適合做？</h2>
+  <div class="two">
+    <div class="boxed dark">
+      <h3 style="margin-top:0">絕對禁忌症：不可執行</h3>
+      <ul class="dots">
+        <li>已知或高度懷疑腸道狹窄、瘻管，且未完成通暢性測試。</li>
+        <li>無法吞嚥或明顯吞嚥困難，且無法配合內視鏡輔助置入。</li>
+        <li>腸道阻塞或急性腸阻塞。</li>
+      </ul>
+    </div>
+    <div class="boxed">
+      <h3 style="margin-top:0">相對禁忌症：需醫師評估</h3>
+      <ul class="dots">
+        <li>心律調節器或植入式電子設備。</li>
+        <li>懷孕：安全性尚未完全建立，原則上避免。</li>
+        <li>腸道動力障礙，如胃輕癱、腸阻塞病史。</li>
+        <li>吞嚥困難但可藉內視鏡輔助置入：需另加費用，也有相應風險。</li>
+        <li>嚴重腹脹或急性腸炎期間。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><i>3</i>報告與健保給付</h2>
+  <ol class="items">
+    <li><span class="k">報告時間：</span>醫師判讀通常在 3 至 7 個工作天內完成，部分急性出血個案可當天優先判讀。</li>
+    <li><span class="k">報告內容：</span>小腸黏膜狀態描述、病灶位置（以占小腸長度的比例標示）與影像截圖。</li>
+    <li><span class="k">健保給付：</span>本診所的膠囊內視鏡不在健保給付範圍，須自費。健保給付的適應症須事前審查，且必須在醫學中心執行，包括：
+      <ul class="dots" style="margin-top:3px">
+        <li>不明原因消化道出血，且上、下消化道內視鏡各做兩次後仍找不到出血來源。</li>
+        <li>克隆氏症（Crohn's disease）的診斷或追蹤輔助。</li>
+        <li>小腸腫瘤、遺傳性瘜肉症候群。</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2><i>4</i>膠囊排出與滯留</h2>
+  <p>膠囊通常在 24 至 72 小時內隨糞便排出。超過 2 週仍未確認排出，或出現腹脹、腹痛、噁心等症狀，<span class="k">請立即回診確認膠囊位置</span>。統計上膠囊滯留超過 14 天的發生率約 1%，若藥物治療反應不佳，可能需要手術或深部小腸鏡取出。</p>
+
+  <footer class="foot" data-name="膠囊內視鏡檢查同意書" data-pg="1 / 2"></footer>
+</section>
+
+<section class="page" data-file="consent-capsule-2">
+  <header class="head"></header>
+  <div class="title"><h1>膠囊內視鏡檢查流程、費用與同意</h1><p>受檢人姓名：＿＿＿＿＿＿＿＿＿＿　　病歷號碼：＿＿＿＿＿＿＿＿</p></div>
+
+  <h2><i>5</i>檢查前準備</h2>
+  <ul class="dots">
+    <li>檢查前 3 天開始吃低渣飲食。</li>
+    <li>檢查前一天 18:00 後不吃固體食物，可喝清澈液體（水、運動飲料）。</li>
+    <li>檢查前一天 19:00 開始服用清腸藥並喝 2000 mL 開水，在 2 小時內喝完。</li>
+  </ul>
+
+  <h2><i>6</i>檢查當日流程</h2>
+  <table class="tb">
+    <tr><th style="width:118px">步驟</th><th>內容</th></tr>
+    <tr><td>報到與準備<br><span class="note">約 30 分鐘</span></td><td class="l">穿戴記錄設備並確認功能正常；說明注意事項，確認身上沒有磁鐵類飾品。</td></tr>
+    <tr><td>吞服膠囊<br><span class="note">約 5 分鐘</span></td><td class="l">以 250 mL 開水吞服膠囊，並搭配藥物減少氣泡。</td></tr>
+    <tr><td>吞服後</td><td class="l">2 小時內不吃不喝，4 小時後可少量喝水，8 小時後可吃清淡食物。<span class="k">避免劇烈運動，也不要靠近強磁場設備</span>（MRI、業餘無線電設備）。</td></tr>
+    <tr><td>日常活動</td><td class="l">經醫師確認膠囊進入小腸後即可離開診所。穿戴記錄器期間避免彎腰或壓迫腹部。</td></tr>
+    <tr><td>歸還記錄器<br><span class="note">約 8 至 12 小時後</span></td><td class="l">返回診所歸還記錄器，由診所上傳影像。</td></tr>
+  </table>
+
+  <h2><i>7</i>檢查費用與同意</h2>
+  <div class="fees">
+    <div class="fee" style="flex:2.2"><div class="t">自費項目</div><div class="v" style="font-size:14.5px">膠囊內視鏡檢查＋AI 輔助判讀＋醫師諮詢＋專用清腸藥物</div></div>
+    <div class="fee"><div class="t">合計</div><div class="v"><em>56000</em> 元</div><div class="n">不在健保給付範圍</div></div>
+  </div>
+  <p class="note" style="margin-top:3px">如要申請商業保險理賠，請先與您的保險公司確認。</p>
+  <div class="agree">
+    <p>本人已詳閱上述說明，了解膠囊內視鏡檢查的必要性與可能的風險，同意接受膠囊內視鏡檢查。　此致　木子澄安診所</p>
+  </div>
+  <div class="rec">治療室內設有錄音錄影設備，用於記錄醫療過程並保障雙方權益；設置位置已確保維護您的隱私。</div>
+  <div class="final" data-kind="appt"></div>
+
+  <footer class="foot" data-name="膠囊內視鏡檢查同意書" data-pg="2 / 2"></footer>
+</section>
+<!-- ───────── 輕中度鎮靜 ───────── -->
+<section class="page" data-file="consent-sedation-1">
+  <header class="head"></header>
+  <div class="title"><h1>內視鏡輕中度鎮靜同意書</h1><p>鎮靜與麻醉說明　第 1 頁</p></div>
+
+  <h2><i>1</i>本診所的兩種舒眠內視鏡</h2>
+  <ul class="dots">
+    <li>本診所提供兩種舒眠內視鏡檢查方式：「輕中度鎮靜」與「靜脈麻醉」。規劃時以病人安全為第一原則，採專業分工的雙軌制度。</li>
+    <li>不論選擇哪一種，負責鎮靜或麻醉的醫師都受過完整的急救與呼吸道處置訓練，能在第一時間處理鎮靜相關的風險：
+      <div class="two" style="margin:5px 0 2px;gap:12px">
+        <div class="boxed" style="text-align:center"><span class="k">輕中度鎮靜</span>由<span class="k">急診專科醫師</span>執行</div>
+        <div class="boxed" style="text-align:center"><span class="k">靜脈麻醉</span>由<span class="k">麻醉專科醫師</span>執行</div>
+      </div>
+    </li>
+    <li>鎮靜與麻醉的安全由專責醫師把關，執行內視鏡的醫師可以專注在檢查品質與病灶判讀。</li>
+  </ul>
+
+  <h2><i>2</i>兩種方式怎麼選？</h2>
+  <table class="tb" style="font-size:13.5px">
+    <tr><th style="width:24%"></th><th>輕中度鎮靜</th><th>靜脈麻醉</th></tr>
+    <tr><th>主要藥物</th><td>midazolam（苯二氮平類）</td><td>propofol（丙泊酚）</td></tr>
+    <tr><th>意識程度</th><td>輕度鎮靜，拍打可喚醒</td><td>深度鎮靜，無意識</td></tr>
+    <tr><th>生效時間</th><td>2 至 5 分鐘</td><td>約 1 分鐘</td></tr>
+    <tr><th>恢復時間</th><td>5 至 10 分鐘</td><td>約 5 分鐘</td></tr>
+    <tr><th>拮抗藥物</th><td>flumazenil（可逆轉）</td><td>無拮抗劑（自然代謝）</td></tr>
+    <tr><th>呼吸抑制風險</th><td>低</td><td>高</td></tr>
+    <tr><th>舒適度</th><td>中度，可能有輕微感覺</td><td>高，過程通常沒有感覺</td></tr>
+    <tr><th>執行醫師</th><td>急診專科醫師</td><td>麻醉專科醫師</td></tr>
+    <tr><th>同意書</th><td>本同意書</td><td>另簽麻醉同意書</td></tr>
+  </table>
+
+  <h2><i>3</i>鎮靜前後請注意</h2>
+  <ol class="items">
+    <li>禁食、禁水時間，依胃鏡或大腸鏡同意書的說明。</li>
+    <li><span class="k">需有親友陪同。完成後當天不可開車、騎車，也不要坐機車後座。</span></li>
+    <li>請穿寬鬆衣物。有光療指甲者，請事先卸除至少兩指，以便監測血氧。</li>
+    <li>過程中若出現躁動，為避免受傷，必要時會以約束帶做保護性約束。</li>
+  </ol>
+
+  <footer class="foot" data-name="內視鏡輕中度鎮靜同意書" data-pg="1 / 2"></footer>
+</section>
+
+<section class="page" data-file="consent-sedation-2">
+  <header class="head"></header>
+  <div class="title"><h1>鎮靜前自我評估、費用與同意</h1><p>受檢人姓名：＿＿＿＿＿＿＿＿＿＿　　病歷號碼：＿＿＿＿＿＿＿＿</p></div>
+
+  <h2><i>4</i>自我評估<small>由受檢人填寫，每題請勾選</small></h2>
+  <table class="tb qa" style="font-size:13px">
+    <tr><td class="l" style="width:62%">1. 曾經接受手術麻醉</td><td class="l"><span class="box"></span>否　<span class="box"></span>是</td></tr>
+    <tr><td class="l">2. 曾有麻醉併發症（呼吸停止或其他）</td><td class="l"><span class="box"></span>否　<span class="box"></span>是</td></tr>
+    <tr><td class="l">3. 曾有藥物過敏反應</td><td class="l"><span class="box"></span>否　<span class="box"></span>是，藥名：</td></tr>
+    <tr><td class="l">4. 目前懷孕中</td><td class="l"><span class="box"></span>否　<span class="box"></span>是</td></tr>
+    <tr><td class="l">5. 身上有人造物品（義肢、假牙、隱形眼鏡）</td><td class="l"><span class="box"></span>否　<span class="box"></span>是</td></tr>
+    <tr><td class="l">6. 有藥物依賴或酗酒</td><td class="l"><span class="box"></span>否　<span class="box"></span>是</td></tr>
+    <tr><td class="l" colspan="2">7. 曾患以下疾病：<span class="box"></span>無　<span class="box"></span>高血壓　<span class="box"></span>心臟病　<span class="box"></span>糖尿病　<span class="box"></span>氣喘　<span class="box"></span>腎臟病　<span class="box"></span>肝病<br>
+      　　<span class="box"></span>甲狀腺疾病　<span class="box"></span>癲癇　<span class="box"></span>中風　<span class="box"></span>精神疾病　<span class="box"></span>其他：＿＿＿＿＿＿＿＿</td></tr>
+    <tr><td class="l" colspan="2">8. 正在服用以下藥物：<span class="box"></span>無　<span class="box"></span>降血壓藥或心臟病藥物　<span class="box"></span>抗癲癇藥物　<span class="box"></span>鎮靜安眠藥物<br>
+      　　<span class="box"></span>抗凝血劑或抗血小板藥物（如阿斯匹靈、保栓通）　<span class="box"></span>減重口服或針劑藥物</td></tr>
+    <tr><td class="l" colspan="2" style="height:34px">9. 其他疾病史或身體不適：</td></tr>
+  </table>
+
+  <h2><i>5</i>鎮靜費用<small>請勾選本次項目</small></h2>
+  <div class="opts" style="grid-template-columns:repeat(4,1fr);gap:10px">
+    <div class="opt"><div class="nm"><span class="box"></span>手術</div><div class="pr"><em>2000</em> 元</div></div>
+    <div class="opt"><div class="nm"><span class="box"></span>胃鏡</div><div class="pr"><em>2000</em> 元</div></div>
+    <div class="opt"><div class="nm"><span class="box"></span>大腸鏡</div><div class="pr"><em>2500</em> 元</div></div>
+    <div class="opt"><div class="nm"><span class="box"></span>胃鏡＋大腸鏡</div><div class="pr"><em>4500</em> 元</div></div>
+  </div>
+  <p class="note" style="margin-top:4px">腸胃鏡的鎮靜與麻醉不在健保給付範圍，須自費。如要申請商業保險理賠，請先與您的保險公司確認。</p>
+
+  <h2><i>6</i>同意書</h2>
+  <div class="agree">
+    <p>本人已詳閱上述說明，了解鎮靜的必要性與可能的風險，同意接受輕中度鎮靜。　此致　木子澄安診所</p>
+  </div>
+  <div class="rec">治療室內設有錄音錄影設備，用於記錄醫療過程並保障雙方權益；設置位置已確保維護您的隱私。</div>
+  <div class="final" data-kind="appt"></div>
+
+  <footer class="foot" data-name="內視鏡輕中度鎮靜同意書" data-pg="2 / 2"></footer>
+</section>
+<!-- ───────── 靜脈麻醉 ───────── -->
+<!-- 依衛福部麻醉同意書範本的項目編排，說明文字改寫為白話；第 1 頁說明、第 2 頁術前評估、第 3 頁聲明與簽名 -->
+<section class="page" data-file="consent-anesthesia-1">
+  <header class="head"></header>
+  <div class="title"><h1>內視鏡靜脈麻醉同意書</h1><p>麻醉說明　第 1 頁</p></div>
+
+  <h2><i>1</i>本次預計的麻醉</h2>
+  <table class="tb" style="font-size:13.5px">
+    <tr><th style="width:24%">檢查項目</th><td class="l"><span class="box"></span>胃鏡　　<span class="box"></span>大腸鏡　　<span class="box"></span>胃鏡＋大腸鏡</td></tr>
+    <tr><th>麻醉方式</th><td class="l">靜脈麻醉（propofol），由<span class="k">麻醉專科醫師</span>執行</td></tr>
+  </table>
+
+  <h2><i>2</i>麻醉可能的副作用與併發症</h2>
+  <p style="margin-bottom:4px">麻醉能讓檢查順利進行，免除過程中的不適與緊張，並維持生理功能穩定。少數人仍可能出現以下狀況：</p>
+  <ol class="items">
+    <li>原本就有、或尚未發現心臟血管疾病的人，檢查中或麻醉後較容易發生急性心肌梗塞。</li>
+    <li>有心臟血管或腦血管疾病的人，檢查中或麻醉後較容易發生腦中風。</li>
+    <li>未依指示禁食、緊急處置，或腹內壓力高（例如腸阻塞、懷孕）的人，麻醉時可能嘔吐，造成吸入性肺炎。</li>
+    <li>特殊體質的人，麻醉可能引發惡性發燒。這是一種潛在的遺傳疾病，目前沒有適當的事前檢查可以預知。</li>
+    <li>對藥物特別過敏而引起的突發反應。</li>
+    <li>其他偶發的病變。</li>
+  </ol>
+
+  <h2><i>3</i>麻醉前後請注意</h2>
+  <ol class="items">
+    <li><span class="k">麻醉前至少禁食、禁水 8 小時</span>（特殊狀況依醫師指示）。需要服藥者請先詢問醫師，並在麻醉前至少 2 小時以少量白開水服藥。</li>
+    <li><span class="k">需有親友陪同。完成後當天不可開車、騎車，也不要坐機車後座。</span></li>
+    <li>有光療指甲者，請事先卸除至少兩指，以便監測血氧。</li>
+  </ol>
+
+  <h2><i>4</i>關於同意與簽署</h2>
+  <ul class="dots">
+    <li>麻醉同意書原則上由病人本人簽名。病人未成年或無法表達同意時，可由法定代理人、配偶、親屬或關係人簽名，並填寫與病人的關係。</li>
+    <li>關係人是指與病人關係特別密切的人，例如伴侶（不分性別）、同居人、摯友；或依法令、契約對病人負有保護義務的人。</li>
+    <li>病人不識字時，可以按指印代替簽名，並由兩位見證人在指印旁簽名。</li>
+    <li>檢查中如需變更麻醉方式或範圍，病人清醒時會先告知並取得同意；病人無法表達時，由上述人員代為同意。上述人員都不在場時，麻醉醫師會以病人的最大利益依專業判斷決定，但不違反病人明示或可推知的意思。</li>
+    <li>之後如再次接受需要麻醉的檢查或手術，需重新簽署麻醉同意書。</li>
+  </ul>
+
+  <footer class="foot" data-name="內視鏡靜脈麻醉同意書" data-pg="1 / 3"></footer>
+</section>
+
+<section class="page" data-file="consent-anesthesia-2">
+  <header class="head"></header>
+  <div class="title"><h1>麻醉術前評估單</h1><p>由受檢人填寫，每題請勾選</p></div>
+
+  <table class="tb" style="font-size:13.5px;margin-top:8px">
+    <tr><td class="l" style="width:50%">姓名：</td><td class="l">病歷號碼：</td></tr>
+    <tr><td class="l">性別：<span class="box"></span>男　<span class="box"></span>女　　年齡：</td><td class="l">身高：　　　公分　　體重：　　　公斤</td></tr>
+    <tr><td class="l" colspan="2">預計檢查日期：　　　年　　月　　日　　檢查項目：<span class="box"></span>胃鏡　<span class="box"></span>大腸鏡　<span class="box"></span>胃鏡＋大腸鏡</td></tr>
+  </table>
+
+  <h2><i>5</i>過去病史</h2>
+  <table class="tb qa" style="font-size:13px">
+    <tr><td class="l" style="width:52%">1. 曾經接受手術麻醉</td><td class="l"><span class="box"></span>無　<span class="box"></span>有：</td></tr>
+    <tr><td class="l">2. 自己或家人曾因麻醉發生意外</td><td class="l"><span class="box"></span>無　<span class="box"></span>有：</td></tr>
+    <tr><td class="l" colspan="2">3. 藥物或食物過敏：<span class="box"></span>無　<span class="box"></span>抗生素　<span class="box"></span>消炎止痛藥　<span class="box"></span>酒精　<span class="box"></span>麻醉藥　<span class="box"></span>其他：<br>　　過敏症狀：</td></tr>
+    <tr><td class="l" colspan="2">4. 慢性病：<span class="box"></span>無　<span class="box"></span>高血壓　<span class="box"></span>糖尿病　<span class="box"></span>氣喘　<span class="box"></span>心臟病　<span class="box"></span>中風　<span class="box"></span>腎臟病</td></tr>
+    <tr><td class="l" colspan="2">5. 其他疾病：<span class="box"></span>無　<span class="box"></span>B 型或 C 型肝炎　<span class="box"></span>甲狀腺疾病　<span class="box"></span>凝血異常　<span class="box"></span>癲癇　<span class="box"></span>心律不整<br>
+      　　<span class="box"></span>睡眠呼吸中止症　<span class="box"></span>胃腸道疾病　<span class="box"></span>其他：</td></tr>
+    <tr><td class="l" colspan="2" style="height:34px">6. 目前用藥：<span class="box"></span>無　<span class="box"></span>有：</td></tr>
+    <tr><td class="l">7. 近兩年曾住院</td><td class="l"><span class="box"></span>無　<span class="box"></span>有，原因：</td></tr>
+    <tr><td class="l" colspan="2">8. 生活習慣：<span class="box"></span>抽菸　<span class="box"></span>喝酒　<span class="box"></span>嚼檳榔　<span class="box"></span>打鼾　<span class="box"></span>容易暈車</td></tr>
+    <tr><td class="l">9. 最近一週內感冒或發燒</td><td class="l"><span class="box"></span>無　<span class="box"></span>有（<span class="box"></span>好轉中　<span class="box"></span>症狀持續）</td></tr>
+    <tr><td class="l">10. 目前懷孕中</td><td class="l"><span class="box"></span>否　<span class="box"></span>是</td></tr>
+  </table>
+
+  <h2><i>6</i>體能狀況</h2>
+  <table class="tb qa" style="font-size:13px">
+    <tr><td class="l" style="width:52%">1. 能爬樓梯到三樓</td><td class="l"><span class="box"></span>能　<span class="box"></span>不能；中途需要休息：<span class="box"></span>是　<span class="box"></span>否</td></tr>
+    <tr><td class="l">2. 能慢走 100 公尺</td><td class="l"><span class="box"></span>能　<span class="box"></span>不能；中途需要休息：<span class="box"></span>是　<span class="box"></span>否</td></tr>
+    <tr><td class="l">3. 運動或勞動時胸悶不適</td><td class="l"><span class="box"></span>沒有　<span class="box"></span>有</td></tr>
+  </table>
+
+  <div class="final" style="margin-top:12px">
+    <div class="row"><div class="f">填寫人簽名：<span class="l"></span></div><div class="f">關係：受檢人之<span class="l"></span></div></div>
+    <div class="row"><div class="f">填寫日期：<span class="l"></span></div><div class="f">核對人員：<span class="l"></span></div></div>
+  </div>
+
+  <footer class="foot" data-name="內視鏡靜脈麻醉同意書" data-pg="2 / 3"></footer>
+</section>
+
+<section class="page" data-file="consent-anesthesia-3">
+  <header class="head"></header>
+  <div class="title"><h1>麻醉聲明與同意</h1><p>病人姓名：＿＿＿＿＿＿＿＿　出生日期：＿＿＿年＿＿月＿＿日　病歷號碼：＿＿＿＿＿＿</p></div>
+
+  <h2><i>7</i>醫師之聲明<small>由麻醉醫師填寫</small></h2>
+  <ol class="items">
+    <li>我已為病人完成術前麻醉評估。</li>
+    <li>我已盡量以病人能了解的方式，說明麻醉的相關資訊，特別是以下事項：<br>
+      <span class="box"></span>麻醉的步驟　　<span class="box"></span>麻醉的風險　　<span class="box"></span>麻醉後可能出現的症狀　　<span class="box"></span>其他麻醉相關資料已交給病人</li>
+    <li>我已給病人充足時間，詢問本次檢查有關麻醉的問題，並給予答覆：
+      <div class="row" style="margin:3px 0"><div class="f">（1）<span class="l"></span></div></div>
+      <div class="row" style="margin:3px 0"><div class="f">（2）<span class="l"></span></div></div>
+      <div class="row" style="margin:3px 0"><div class="f">（3）<span class="l"></span></div></div>
+    </li>
+  </ol>
+  <div class="row"><div class="f">麻醉醫師簽名：<span class="l"></span></div><div class="f">日期時間：<span class="l"></span></div></div>
+
+  <h2><i>8</i>病人之聲明</h2>
+  <ol class="items">
+    <li>我了解為了讓檢查順利進行，需要同時接受麻醉，以免除檢查造成的不適與恐懼。</li>
+    <li>麻醉醫師已向我說明，我已了解麻醉的方式與風險。</li>
+    <li>我已了解麻醉可能發生的副作用與併發症。</li>
+    <li>對於麻醉，我可以向醫師提出問題與疑慮，並已獲得說明。</li>
+  </ol>
+
+  <div class="agree" style="margin-top:8px">
+    <p class="k" style="font-size:15px">基於上述聲明，我同意進行麻醉。</p>
+    <p class="note">如果您拿到的同意書還沒有醫師之聲明，請先不要簽名。本同意書簽署完成後，一份由本診所連同病歷保存，一份交由病人收執。</p>
+  </div>
+  <div class="rec">治療室內設有錄音錄影設備，用於記錄醫療過程並保障雙方權益；設置位置已確保維護您的隱私。</div>
+  <div class="final">
+    <div class="row"><div class="f">立同意書人姓名：<span class="l"></span></div><div class="f">簽名：<span class="l"></span></div></div>
+    <div class="row"><div class="f">關係：病人之<span class="l"></span></div><div class="f">電話：<span class="l"></span></div></div>
+    <div class="row"><div class="f">身分證統一編號／居留證或護照號碼：<span class="l"></span></div></div>
+    <div class="row"><div class="f">住址：<span class="l"></span></div></div>
+    <div class="row"><div class="f">日期：<span class="l"></span></div><div class="f">時間：<span class="l"></span></div></div>
+  </div>
+
+  <footer class="foot" data-name="內視鏡靜脈麻醉同意書" data-pg="3 / 3"></footer>
+</section>
+<!-- ───────── 冷凝刀 ───────── -->
+<section class="page" data-file="consent-het-1">
+  <header class="head"></header>
+  <div class="title"><h1>痔瘡能量治療（冷凝刀）同意書</h1><p>說明　第 1 頁</p></div>
+
+  <h2><i>1</i>治療介紹</h2>
+  <div class="side" style="grid-template-columns:1fr 180px">
+    <ol class="items">
+      <li><span class="k">治療方式：</span>冷凝刀（HET）以溫控探頭經肛門夾住齒狀線以上的內痔組織與供應血管，用約 55 至 60°C 的低溫熱能（傳統電燒約 400°C）阻斷血流，讓痔瘡逐漸萎縮。不需要切割與縫合。</li>
+      <li><span class="k">治療時間：</span>過程約 15 至 20 分鐘。治療後在診所觀察 30 分鐘，沒有異狀即可回家，不需住院。</li>
+      <li><span class="k">治療感受：</span>治療位置在齒狀線以上，這一段痛覺神經較少，多數人只感覺輕微溫熱或脹感。</li>
+      <li><span class="k">保留肛門組織：</span>不切除肛門軟墊組織（anal cushions），可降低肛門狹窄與失禁的風險。</li>
+    </ol>
+    <img src="crop/het-treat.png" alt="冷凝刀治療示意圖">
+  </div>
+
+  <h2><i>2</i>哪些痔瘡適合？</h2>
+  <table class="tb" style="font-size:13.5px">
+    <tr><th style="width:24%">適合</th><td class="l">第一度與第二度內痔（出血、輕微脫垂）</td></tr>
+    <tr><th>需醫師評估</th><td class="l">輕微的第三度內痔</td></tr>
+    <tr><th>不適合</th><td class="l">外痔（外痔皮膚神經豐富，不適用此方法）、嚴重的第四度脫垂內痔、急性血栓性痔瘡</td></tr>
+  </table>
+
+  <h2><i>3</i>治療前請注意</h2>
+  <ol class="items">
+    <li>冷凝刀治療前，宜先接受<span class="k">全大腸鏡檢查</span>。一年內做過全大腸鏡者，可改以乙狀結腸鏡評估。</li>
+    <li>治療當天醫師會先以內視鏡再次評估，確認適合冷凝刀才會進行治療。</li>
+    <li>清腸與禁食方式，依大腸鏡同意書的說明。</li>
+    <li>正在服用<span class="k">抗血小板藥物或抗凝血劑</span>，請主動告知，由醫師評估是否需要停藥。</li>
+  </ol>
+
+  <h2><i>4</i>治療後可能出現的狀況</h2>
+  <ol class="items">
+    <li>治療後幾天內可能有肛門脹感、輕微疼痛或排便時少量出血，通常會逐漸改善。</li>
+    <li>少數人可能出現延遲性出血、排尿困難或血栓性痔瘡，需要回診處理。</li>
+    <li>痔瘡日後仍可能復發，必要時需要再次治療。</li>
+  </ol>
+  <div class="boxed dark" style="margin-top:4px"><span class="k">治療後如出現大量出血、劇烈疼痛、發燒或無法排尿，請立即回診或至急診就醫。</span></div>
+
+  <footer class="foot" data-name="痔瘡能量治療（冷凝刀）同意書" data-pg="1 / 2"></footer>
+</section>
+
+<section class="page" data-file="consent-het-2">
+  <header class="head"></header>
+  <div class="title"><h1>冷凝刀治療費用與同意</h1><p>受治療者姓名：＿＿＿＿＿＿＿＿＿＿　　病歷號碼：＿＿＿＿＿＿＿＿</p></div>
+
+  <h2><i>5</i>痔瘡的位置</h2>
+  <div class="side" style="grid-template-columns:150px 1fr;align-items:center">
+    <img src="crop/het-anatomy.png" alt="肛門與痔瘡位置示意圖">
+    <ul class="dots">
+      <li>痔瘡是肛門口靜脈叢擴張、脫垂所形成，分為齒狀線以上的內痔與以下的外痔。</li>
+      <li>內痔依脫垂程度分為四度。冷凝刀處理的是<span class="k">齒狀線以上的內痔</span>。</li>
+    </ul>
+  </div>
+
+  <h2><i>6</i>治療費用<small>以合併大腸鏡評估、輕中度鎮靜為例</small></h2>
+  <table class="tb" style="font-size:13.5px">
+    <tr><th>項目</th><th>內容</th><th style="width:22%">費用</th></tr>
+    <tr><td>大腸鏡</td><td class="l">治療前評估</td><td>健保給付</td></tr>
+    <tr><td>大腸鏡自費選項</td><td class="l">拋棄式檢查褲、二氧化碳充氣、日本製造代餐與清腸藥</td><td>1500 元</td></tr>
+    <tr><td>輕中度鎮靜</td><td class="l">由急診專科醫師執行，另簽鎮靜同意書</td><td>2500 元</td></tr>
+    <tr><td>冷凝刀治療</td><td class="l">痔瘡能量治療</td><td>35500 元</td></tr>
+    <tr><th colspan="2" style="text-align:right">合計</th><th style="font-size:16px">39500 元</th></tr>
+  </table>
+  <ul class="dots" style="margin-top:6px">
+    <li>同日加做胃鏡，或改為靜脈麻醉，會另外增加費用。</li>
+    <li>健保不給付冷凝刀治療（健保只給付傳統痔瘡手術與橡皮筋結紮），須全額自費。治療當天本診所會開立完整收據。</li>
+    <li>如要申請商業保險理賠，請先與您的保險公司確認。</li>
+  </ul>
+
+  <h2><i>7</i>同意書</h2>
+  <div class="agree">
+    <p>本人已詳閱上述說明，了解冷凝刀治療的方式、可能的不適與風險，同意接受痔瘡能量治療（冷凝刀）。</p>
+    <p>此致　木子澄安診所</p>
+  </div>
+  <div class="rec">治療室內設有錄音錄影設備，用於記錄醫療過程並保障雙方權益；設置位置已確保維護您的隱私。</div>
+  <div class="final" data-kind="treat"></div>
+
+  <footer class="foot" data-name="痔瘡能量治療（冷凝刀）同意書" data-pg="2 / 2"></footer>
+</section>
+<!-- ───────── 甲狀腺細針穿刺 ───────── -->
+<section class="page" data-file="consent-thyroid-fna-1">
+  <header class="head"></header>
+  <div class="title"><h1>甲狀腺細針穿刺說明與同意書</h1><p>受檢人姓名：＿＿＿＿＿＿＿＿＿＿　　病歷號碼：＿＿＿＿＿＿＿＿</p></div>
+
+  <h2><i>1</i>檢查說明</h2>
+  <div class="side" style="grid-template-columns:1fr 210px">
+    <ol class="items">
+      <li><span class="k">檢查目的：</span>判斷甲狀腺結節是良性或惡性。</li>
+      <li><span class="k">檢查方式：</span>在超音波導引下，以 21 或 23 號細針穿刺結節，抽取內容物做細胞學檢查。</li>
+      <li><span class="k">檢查後注意：</span>穿刺完成後需在診所停留 <span class="k">20 分鐘</span>，以兩指在穿刺處加壓，確認無異樣才離開。</li>
+      <li><span class="k">可能的併發症：</span>較常見的是加壓不當造成局部出血。</li>
+    </ol>
+    <img src="crop/thyroid-fna-illus.png" alt="超音波導引甲狀腺細針穿刺示意圖">
+  </div>
+  <div class="boxed dark" style="margin-top:6px"><span class="k">回家後如果穿刺處腫脹或呼吸困難，請立即回診或至急診就醫。</span></div>
+
+  <h2><i>2</i>檢查前請告知醫師</h2>
+  <ol class="items">
+    <li>服用<span class="k">抗凝血藥物</span>者，檢查前應至少停用 7 天。停藥前請先與醫師確認。</li>
+    <li>有血小板不足、肝硬化、腎功能不佳等容易出血的疾病，請事先告知。</li>
+    <li>請攜帶健保卡；有長期服用的藥物，請帶藥袋或藥單。</li>
+  </ol>
+
+  <h2><i>3</i>同意書</h2>
+  <div class="agree">
+    <p>本人經醫師說明後，已了解甲狀腺細針穿刺的目的、方式、注意事項與可能的併發症，同意接受此項檢查。</p>
+    <p>此致　木子澄安診所</p>
+  </div>
+  <div class="rec">治療室內設有錄音錄影設備，用於記錄醫療過程並保障雙方權益；設置位置已確保維護您的隱私。</div>
+  <div class="final" data-kind="appt"></div>
+
+  <footer class="foot" data-name="甲狀腺細針穿刺說明與同意書" data-pg="1 / 1"></footer>
+</section>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// 共用的頁首、頁尾與簽名欄由這裡填入，七份同意書格式一致
+const VER = 'v. 2026/10';
+document.querySelectorAll('.head').forEach(h=>{
+  h.innerHTML = '<div class="brand"><img src="crop/muzi-mark-bw.png" alt="木子澄安診所標誌"><div><b>木子澄安診所</b><small>MUZI CHENG AN CLINIC</small></div></div>'
+    + '<div class="info">消化內科｜肝膽胃腸科<br>高雄市仁武區仁孝路282號｜07-3739496</div>';
+});
+document.querySelectorAll('.foot').forEach(f=>{
+  f.innerHTML = '<span>' + f.dataset.name + '</span><span>' + f.dataset.pg + '　　' + VER + '</span>';
+});
+const L = t => '<div class="f">' + t + '<span class="l"></span></div>';
+const ROWS = {
+  appt: [[L('預約日期：'), L('檢查時間：'), L('報到時間：')]],
+  treat: [[L('預約日期：'), L('治療時間：'), L('報到時間：')]],
+  exam: [[L('檢查日期：'), L('檢查時間：')]],
+};
+document.querySelectorAll('.final[data-kind]').forEach(b=>{
+  const rows = (ROWS[b.dataset.kind] || []).concat([
+    [L('同意人簽名：'), L('關係：受檢人之')],
+    [L('身分證字號：'), L('出生年月日：')],
+    [L('說明醫師：'), '<div class="f"></div>'],
+  ]);
+  b.innerHTML = rows.map(r=> '<div class="row">' + r.join('') + '</div>').join('') + '<div class="date">年　　月　　日</div>';
+});
+
+// 每頁剩餘高度：數字小於 0 代表內容壓到頁尾
+function fitReport(){
+  return [...document.querySelectorAll('.page')].map(p=>{
+    const f = p.querySelector('.foot'), prev = f.previousElementSibling;
+    return [p.dataset.file, Math.round(f.getBoundingClientRect().top - prev.getBoundingClientRect().bottom)];
+  });
+}
+// 輸出：工作台用 WebP（out/tools/），報價系統用 JPG（out/planner/）
+async function renderAll(only){
+  await document.fonts.ready;
+  const res = [];
+  for(const el of document.querySelectorAll('[data-file]')){
+    const name = el.dataset.file;
+    if(only && !only.includes(name)) continue;
+    const canvas = await html2canvas(el, {scale: 1414 / 794, backgroundColor:'#ffffff', useCORS:true, logging:false});
+    const webp = await new Promise(r=> canvas.toBlob(r, 'image/webp', 0.9));
+    await fetch('/__save?name=out/tools/' + name + '.webp', {method:'POST', body:webp});
+    const jpg = await new Promise(r=> canvas.toBlob(r, 'image/jpeg', 0.88));
+    await fetch('/__save?name=out/planner/' + name + '.jpg', {method:'POST', body:jpg});
+    res.push([name, canvas.width, canvas.height]);
+  }
+  return res;
+}
+</script>
+</body>
+</html>
