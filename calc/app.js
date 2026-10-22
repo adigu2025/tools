@@ -1000,6 +1000,298 @@
   };
 
   /* ======================================================
+     用藥給付判定：檢驗截圖自動帶入
+     以 Tesseract.js 在本機瀏覽器辨識文字，影像不會送出；
+     辨識元件第一次使用時從 CDN 下載（約 5 MB），之後由瀏覽器快取。
+     ====================================================== */
+  var OCR_LIB = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+  var ocrWorker = null, ocrBusy = false;
+
+  function ocrLoadLib(){
+    if (window.Tesseract) return Promise.resolve();
+    return new Promise(function(ok, fail){
+      var s = document.createElement('script');
+      s.src = OCR_LIB; s.onload = ok; s.onerror = function(){ fail(new Error('lib')); };
+      document.head.appendChild(s);
+    });
+  }
+  function ocrGetWorker(){
+    if (ocrWorker) return ocrWorker;
+    ocrWorker = ocrLoadLib().then(function(){
+      return Tesseract.createWorker(['eng', 'chi_tra'], 1, {
+        logger: function(m){ if (ocrProgress) ocrProgress(m); }
+      });
+    }).catch(function(err){ ocrWorker = null; throw err; });
+    return ocrWorker;
+  }
+  var ocrProgress = null;
+
+  // 截圖字小時先放大並轉灰階。中文小字在不同放大倍率下時好時壞，所以準備兩種倍率各辨識一次再合併
+  function ocrPrepare(file){
+    return new Promise(function(ok, fail){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        var base = img.naturalWidth;
+        var ks = [Math.max(1, Math.min(3, 2000 / base)), Math.max(1.3, Math.min(4, 2800 / base))];
+        URL.revokeObjectURL(url);
+        ok(ks.map(function(k){
+          var c = document.createElement('canvas');
+          c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+          var g = c.getContext('2d');
+          g.imageSmoothingQuality = 'high';
+          g.filter = 'grayscale(1)';
+          g.drawImage(img, 0, 0, c.width, c.height);
+          return c;
+        }));
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); fail(new Error('img')); };
+      img.src = url;
+    });
+  }
+
+  // 全形轉半形、數字中的千分位去掉、常見複合名稱先合併，避免 HDL Cholesterol 被當成總膽固醇
+  function ocrNormalize(text){
+    return text
+      .replace(/[！-～]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+      .replace(/　/g, ' ')
+      .replace(/([一-鿿])\s+(?=[一-鿿])/g, '$1')   // 中文辨識常在字與字之間插空白
+      .replace(/(\d),(\d{3})(?!\d)/g, '$1$2')
+      .replace(/non[-\s]?HDL[-\s]?(?:C(?:holesterol)?)?/ig, ' NONHDL ')
+      .replace(/(?:T[-.\s]?CHO\w*|Chol\w*|TC)\s*\/\s*HDL\w*/ig, ' RATIO ')
+      .replace(/LDL\s*\/\s*HDL\w*/ig, ' RATIO ')
+      .replace(/\b(HDL|LDL)[-\s]*C(?:hol(?:esterol)?)?\b/ig, ' $1 ')
+      .replace(/\bALT\s*[\/(]\s*S?GPT\s*\)?|\bS?GPT\s*[\/(]\s*ALT\s*\)?/ig, ' ALT ')
+      .replace(/\bAST\s*[\/(]\s*S?GOT\s*\)?|\bS?GOT\s*[\/(]\s*AST\s*\)?/ig, ' AST ');
+  }
+
+  var OCR_NUM = /(\d+(?:\.\d+)?)/;
+  // 每個檢驗項目：名稱的寫法、合理範圍；同一行出現多項時，各取名稱後面到下一個名稱之前的第一個數字
+  var OCR_KEYS = {
+    tc:  { re: /\bTC\b|T[-.\s]?CHO(?:L)?\b|Total\s*Chol\w*|\bCholesterol\b|\bCHOL\b|總膽固醇/ig, lo: 50, hi: 800 },
+    tg:  { re: /\bT\.?G\b|Triglycerides?|三酸甘油酯?/ig, lo: 10, hi: 5000 },
+    hdl: { re: /\bHDL\b|高密度/ig, lo: 5, hi: 200 },
+    ldl: { re: /\bLDL\b|低密度/ig, lo: 5, hi: 500 },
+    waist: { re: /腰\s*圍|Waist/ig, lo: 40, hi: 200 },
+    alt: { re: /\bALT\b|\bS?GPT\b/ig, lo: 1, hi: 5000 },
+    ast: { re: /\bAST\b|\bS?GOT\b/ig, lo: 1, hi: 5000 },
+    plt: { re: /\bPLT\b|Platelets?|血小板/ig, lo: 1, hi: 1500, plt: true },
+    bil: { re: /T[-.\s]?BIL\w*|Total\s*Bil\w*|Bilirubin\s*[,(]?\s*total|總膽紅素/ig, lo: 0.1, hi: 40 }
+  };
+
+  function ocrPick(lines, keys){
+    var out = {};
+    function accept(k, v){
+      var spec = OCR_KEYS[k];
+      if (spec.plt && v > 2000) v = v / 1000;   // 以 /µL 表示的血小板換算成 ×10³/µL
+      if (v >= spec.lo && v <= spec.hi && !(k in out)) out[k] = v;
+    }
+    lines.forEach(function(line, li){
+      var hits = [];
+      keys.forEach(function(k){
+        var re = OCR_KEYS[k].re; re.lastIndex = 0;
+        var m;
+        while ((m = re.exec(line))) hits.push({ k: k, s: m.index, e: m.index + m[0].length });
+      });
+      if (!hits.length) return;
+      hits.sort(function(a, b){ return a.s - b.s; });
+      var got = 0;
+      hits.forEach(function(h, i){
+        var seg = line.slice(h.e, i + 1 < hits.length ? hits[i + 1].s : undefined);
+        var m = seg.match(OCR_NUM);
+        if (m) { accept(h.k, parseFloat(m[1])); got++; }
+      });
+      // 表格把名稱排成一列、數值在下一列：依順序對應
+      if (!got && hits.length >= 2) {
+        var next = (lines[li + 1] || '').match(/\d+(?:\.\d+)?/g) || [];
+        if (next.length >= hits.length) hits.forEach(function(h, i){ accept(h.k, parseFloat(next[i])); });
+      }
+    });
+    return out;
+  }
+
+  function ocrAge(text){
+    var m = text.match(/(?:年\s*齡|Age)\s*[:：]?\s*(\d{1,3})/i) || text.match(/(\d{1,3})\s*(?:歲|y\/o\b|yo\b|yrs?\b)/i);
+    if (m && +m[1] > 0 && +m[1] <= 120) return +m[1];
+    // 「歲」常被認成「%」：只在有姓名、性別的那幾行採用，避免抓到檢驗的百分比
+    m = text.match(/^.*(?:姓名|性別|病歷|男|女).*$/mg);
+    m = m && m.join(' ').match(/(?:^|[^\d.])(\d{1,3})\s*%/);
+    if (m && +m[1] > 0 && +m[1] <= 120) return +m[1];
+    m = text.match(/(?:出生日期|出生|生日|DOB|Birth\w*)\D{0,8}(\d{2,4})\s*[\/.\-年]\s*(\d{1,2})\s*[\/.\-月]\s*(\d{1,2})/i);
+    if (!m) return NaN;
+    var y = +m[1]; if (y < 1000) y += 1911;   // 民國年
+    var now = new Date(), age = now.getFullYear() - y;
+    if (now.getMonth() + 1 < +m[2] || (now.getMonth() + 1 === +m[2] && now.getDate() < +m[3])) age--;
+    return age > 0 && age <= 120 ? age : NaN;
+  }
+  function ocrSex(text){
+    var m = text.match(/(?:性\s*別|Sex|Gender)\s*[:：]?\s*(男|女|M(?:ale)?\b|F(?:emale)?\b)/i) || text.match(/\b(Male|Female)\b/i);
+    if (!m) return '';
+    return /^(男|M)/i.test(m[1]) ? 'M' : 'F';
+  }
+  // HBsAg／HBeAg：文字判讀優先，沒有文字時以 COI ≥1 判定陽性
+  function ocrAntigen(lines, re){
+    for (var i = 0; i < lines.length; i++) {
+      var m = lines[i].match(re);
+      if (!m) continue;
+      var seg = lines[i].slice(m.index + m[0].length);
+      if (/non[-\s]?reactive|negative|陰性|\(\s*-\s*\)/i.test(seg)) return 'N';
+      if (/reactive|positive|陽性|\(\s*\+\s*\)/i.test(seg)) return 'P';
+      var n = seg.match(/([<>]?)\s*(\d+(?:\.\d+)?)/);
+      if (n) { var v = parseFloat(n[2]); if (n[1] !== '<' && v >= 1) return 'P'; if (v < 1) return 'N'; }
+    }
+    return '';
+  }
+  // HBV DNA：可能寫成 2.3E+05、2.3x10^5、<20 或 Not detected；copies/mL 依 5.82 換算 IU/mL
+  function ocrDna(lines){
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i], m = line.match(/HBV[-\s]*DNA|DNA\s*(?:viral\s*load|定量)/i);
+      if (!m) continue;
+      var seg = line.slice(m.index + m[0].length) + ' ' + (lines[i + 1] || '');
+      if (/not\s*detect|undetect|\bTND\b|未檢出|測不到/i.test(seg)) return { und: true, note: '測不到' };
+      var n = seg.match(/(<)?\s*(\d+(?:\.\d+)?)\s*(?:(?:[xX×*]\s*10\s*\^?\s*\(?\s*([+-]?\d+)\s*\)?)|[eE]\s*\+?\s*(\d+))?/);
+      if (!n) continue;
+      if (n[1]) return { und: true, note: '<' + n[2] + '，視為低於偵測下限' };
+      var v = parseFloat(n[2]) * Math.pow(10, +(n[3] || n[4] || 0));
+      if (/copies/i.test(seg)) return { v: Math.round(v / 5.82), note: '由 copies/mL 換算' };
+      return { v: v };
+    }
+    return null;
+  }
+  function ocrFibroscan(text){
+    var m = text.match(/(\d+(?:\.\d+)?)\s*kPa/i);
+    return m && +m[1] >= 2 && +m[1] <= 75 ? +m[1] : NaN;
+  }
+
+  function ocrSet(id, v){
+    var el = $(id);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!v; else el.value = v;
+    el.classList.add('ocr-filled');
+    var flag = el.closest('.flag'); if (flag) flag.classList.add('ocr-filled');
+    el.dispatchEvent(new Event(el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input', { bubbles: true }));
+  }
+  function ocrClearMarks(panel){
+    panel.querySelectorAll('.ocr-filled').forEach(function(el){ el.classList.remove('ocr-filled'); });
+  }
+
+  // 依工具把辨識結果填入欄位，回傳已帶入與未辨識的清單
+  var OCR_APPLY = {
+    lipidrx: function(text, lines){
+      var got = [], miss = [];
+      var sex = ocrSex(text), age = ocrAge(text);
+      var v = ocrPick(lines, ['tc', 'tg', 'hdl', 'ldl', 'waist']);
+      if (sex) { ocrSet('lx-sex', sex); got.push('性別 ' + (sex === 'M' ? '男' : '女')); }
+      if (isNum(age)) { ocrSet('lx-age', age); got.push('年齡 ' + age); } else miss.push('年齡');
+      [['tc', 'lx-tc', 'Cholesterol'], ['tg', 'lx-tg', 'TG'], ['hdl', 'lx-hdl', 'HDL'], ['ldl', 'lx-ldl', 'LDL']].forEach(function(f){
+        if (f[0] in v) { ocrSet(f[1], v[f[0]]); got.push(f[2] + ' ' + v[f[0]]); } else miss.push(f[2]);
+      });
+      if ('waist' in v) { ocrSet('lx-waist', v.waist); got.push('腰圍 ' + v.waist); }
+      return { got: got, miss: miss };
+    },
+    hbvrx: function(text, lines){
+      var got = [], miss = [];
+      var age = ocrAge(text);
+      var v = ocrPick(lines, ['alt', 'ast', 'plt', 'bil']);
+      if (isNum(age)) { ocrSet('hb-age', age); got.push('年齡 ' + age); } else miss.push('年齡');
+      var sag = ocrAntigen(lines, /HBs\s*Ag/i), eag = ocrAntigen(lines, /HBe\s*Ag/i);
+      if (sag === 'P') { ocrSet('hb-hbsag', true); got.push('HBsAg（＋）'); }
+      else if (sag === 'N') { ocrSet('hb-hbsag', false); got.push('HBsAg（－）'); }
+      if (eag) { ocrSet('hb-eag', eag); got.push('HBeAg ' + (eag === 'P' ? '陽性' : '陰性')); } else miss.push('HBeAg');
+      [['alt', 'hb-alt1', 'ALT'], ['ast', 'hb-ast', 'AST'], ['plt', 'hb-plt', '血小板']].forEach(function(f){
+        if (f[0] in v) { ocrSet(f[1], Math.round(v[f[0]] * 10) / 10); got.push(f[2] + ' ' + Math.round(v[f[0]] * 10) / 10); } else miss.push(f[2]);
+      });
+      var dna = ocrDna(lines);
+      if (dna && dna.und) { $('hb-dna').value = ''; ocrSet('hb-dnaUnd', true); got.push('HBV DNA ' + dna.note); }
+      else if (dna) { ocrSet('hb-dnaUnd', false); ocrSet('hb-dna', dna.v); got.push('HBV DNA ' + rxFmt(dna.v) + (dna.note ? '（' + dna.note + '）' : '')); }
+      else miss.push('HBV DNA');
+      if ('bil' in v) { ocrSet('hb-bil', v.bil); got.push('總膽紅素 ' + v.bil); }
+      var fs = ocrFibroscan(text);
+      if (isNum(fs)) { ocrSet('hb-fs', fs); got.push('Fibroscan ' + fs); }
+      return { got: got, miss: miss };
+    }
+  };
+
+  function ocrRun(tool, file){
+    var box = document.querySelector('.rx-ocr[data-ocr="' + tool + '"]');
+    if (!box || !file || !/^image\//.test(file.type) || ocrBusy) return;
+    var msg = box.querySelector('.rx-ocr-msg');
+    function say(cls, html){ box.className = 'rx-ocr ' + cls; msg.innerHTML = html; }
+    ocrBusy = true;
+    var pass = 0;
+    say('busy', '準備辨識元件中…（第一次使用需下載約 5 MB）');
+    ocrProgress = function(m){
+      if (m.status === 'recognizing text') say('busy', '辨識中… ' + Math.round((pass + m.progress) / 2 * 100) + '%');
+    };
+    Promise.all([ocrGetWorker(), ocrPrepare(file)]).then(function(r){
+      var worker = r[0], imgs = r[1], texts = [];
+      say('busy', '辨識中…');
+      // 依序辨識（同一個 worker 不能並行），先找到的值優先
+      return imgs.reduce(function(p, c){
+        return p.then(function(){ pass = texts.length; return worker.recognize(c); }).then(function(res){ texts.push(res.data.text || ''); });
+      }, Promise.resolve()).then(function(){ return texts.join('\n'); });
+    }).then(function(raw){
+      var text = ocrNormalize(raw);
+      var lines = text.split(/\n+/).map(function(l){ return l.trim(); }).filter(Boolean);
+      var panel = $('panel-' + tool);
+      ocrClearMarks(panel);
+      var out = OCR_APPLY[tool](text, lines);
+      if (!out.got.length) say('fail', '沒有辨識到可帶入的數值。請確認截圖清楚、包含項目名稱，或直接手動輸入。');
+      else say('done', '已帶入（黃底欄位）：<b>' + esc(out.got.join('、')) + '</b>' +
+        (out.miss.length ? '。未辨識：' + esc(out.miss.join('、')) : '') + '。請核對後再判定。');
+    }).catch(function(err){
+      say('fail', err && err.message === 'lib' ?
+        '辨識元件載入失敗：需要連上網路下載（第一次約 5 MB），請確認網路後再試。' :
+        '圖片讀取或辨識失敗，請換一張截圖再試。');
+    }).then(function(){ ocrBusy = false; ocrProgress = null; });
+  }
+
+  document.querySelectorAll('.rx-ocr').forEach(function(box){
+    var tool = box.dataset.ocr, panel = $('panel-' + tool);
+    var input = panel.querySelector('input[type=file]');
+    panel.querySelector('[data-ocr-pick]').addEventListener('click', function(){ input.click(); });
+    input.addEventListener('change', function(){
+      var f = input.files && input.files[0];
+      input.value = '';   // 清掉，免得 saveState 存到檔名
+      ocrRun(tool, f);
+    });
+    // 整個面板都可以拖放圖檔
+    panel.addEventListener('dragover', function(e){
+      if (e.dataTransfer && [].indexOf.call(e.dataTransfer.types, 'Files') !== -1) { e.preventDefault(); panel.classList.add('drag'); }
+    });
+    panel.addEventListener('dragleave', function(e){ if (!panel.contains(e.relatedTarget)) panel.classList.remove('drag'); });
+    panel.addEventListener('drop', function(e){
+      var f = e.dataTransfer && e.dataTransfer.files[0];
+      panel.classList.remove('drag');
+      if (!f) return;
+      e.preventDefault();
+      ocrRun(tool, f);
+    });
+    // 手動修改後就不再標示為自動帶入
+    panel.addEventListener('input', function(e){ if (e.isTrusted && e.target.classList) e.target.classList.remove('ocr-filled'); });
+    panel.addEventListener('change', function(e){
+      if (!e.isTrusted || !e.target.classList) return;
+      e.target.classList.remove('ocr-filled');
+      var flag = e.target.closest('.flag'); if (flag) flag.classList.remove('ocr-filled');
+    });
+    var reset = panel.querySelector('[data-reset]');
+    var msg = box.querySelector('.rx-ocr-msg'), msg0 = msg.innerHTML;
+    if (reset) reset.addEventListener('click', function(){ ocrClearMarks(panel); box.className = 'rx-ocr'; msg.innerHTML = msg0; });
+  });
+
+  // Ctrl+V 貼上截圖：只在降血脂或 B 肝面板開啟時接手
+  document.addEventListener('paste', function(e){
+    var items = (e.clipboardData && e.clipboardData.items) || [];
+    var file = null;
+    for (var i = 0; i < items.length; i++) if (items[i].kind === 'file' && /^image\//.test(items[i].type)) { file = items[i].getAsFile(); break; }
+    if (!file) return;
+    var panel = document.querySelector('.rx-panel.active');
+    if (!panel) return;
+    e.preventDefault();
+    ocrRun(panel.querySelector('.rx-ocr').dataset.ocr, file);
+  });
+
+  /* ======================================================
      Bristol Stool Scale
      ====================================================== */
   var BRISTOL = {
@@ -1745,7 +2037,7 @@
      最後改版日期（顯示於主畫面左下角）
      每次改版請一併更新這個常數
      ====================================================== */
-  var APP_REVISION = '2026-10-20';
+  var APP_REVISION = '2026-10-22';
   (function renderAppRevision(){
     var el = $('app-revision');
     if (el) el.textContent = '最後改版：' + APP_REVISION;

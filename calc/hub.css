@@ -102,6 +102,10 @@ body{padding:12px 16px !important; min-height:0 !important;}
   .hub-out{position:sticky; top:var(--hub-sticky, 140px);}
   .hub-out > :first-child{margin-top:0 !important;}
   .hub-in .grid-4{grid-template-columns:repeat(2,1fr) !important;}
+  /* 降血脂與 B 肝用藥：輸入欄較寬（勾選題分三欄），結果欄在欄內捲動，整頁不必捲 */
+  .rx-panel.hub-split.active{grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); column-gap:26px;}
+  .rx-panel .hub-out{overflow:auto; padding-right:4px; scrollbar-width:thin;}
+  .rx-panel .hub-in > :last-child{margin-bottom:0;}
   /* 判讀結果先保留填值後的高度，預估倍率才準，填完不會再縮 */
   #fib4-result{min-height:200px;} #rfactor-result{min-height:180px;} #childpugh-result{min-height:195px;}
   #bristol-result{min-height:150px;}

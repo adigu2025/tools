@@ -2,6 +2,7 @@
    網頁、程式與樣式：先連網拿最新版，連不上才用快取，所以改版後不必手動清快取。
    圖片：先用快取立即顯示，同時在背景向網路拿新版更新快取（下次開啟就是新圖）。
    外部程式庫與字型（網址含版本號，不會變）：有快取就直接用。
+   檢驗截圖辨識（Tesseract.js）從 jsDelivr 載入，用過一次後斷網也能辨識。
    工作台開啟後會把所有衛教與表單圖片預先存下，斷網時也能顯示與列印。 */
 const CACHE = 'tools-v4';
 const CORE = [
@@ -10,7 +11,7 @@ const CORE = [
   'weight/', 'weight/index.html', 'weight/app.js', 'weight/report.js', 'weight/hub.css'
 ];
 const IMG = /\.(webp|png|jpe?g|svg)$/i;
-const CDN = /^(cdnjs\.cloudflare\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
+const CDN = /^(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
 
 self.addEventListener('install', e=>{
   e.waitUntil(caches.open(CACHE).then(c=> c.addAll(CORE)).then(()=> self.skipWaiting()));

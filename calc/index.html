@@ -560,23 +560,22 @@ if(window.IN_HUB){
     </section>
 
     <!-- ===================== 降血脂 / TG 用藥給付 ===================== -->
-    <section class="tool-panel" id="panel-lipidrx" role="tabpanel" aria-labelledby="tab-lipidrx" tabindex="0" hidden>
+    <section class="tool-panel rx-panel" id="panel-lipidrx" role="tabpanel" aria-labelledby="tab-lipidrx" tabindex="0" hidden>
       <div class="panel-head">
         <div class="panel-title">降血脂／三酸甘油酯用藥健保給付判定<small>依 ASCVD 風險分級判斷 statin、ezetimibe、PCSK9 抑制劑與 TG 藥物給付資格</small></div>
         <div class="panel-actions">
+          <input type="file" id="lx-ocrFile" accept="image/*" hidden>
+          <button class="act" type="button" data-ocr-pick="lx-ocrFile">上傳檢驗截圖</button>
           <button class="act" type="button" data-reset="lipidrx">重設</button>
           <button class="act" type="button" data-copy="lipidrx" disabled>複製結果</button>
         </div>
       </div>
 
-      <div class="formula">
-        <strong>依據：</strong>「藥品給付規定」修訂對照表第 2 節（降血脂，自 115 年 9 月 1 日生效，表一＋表二並存）；降三酸甘油酯規定本次未修訂。<br>
-        <span class="unitline">表一／表二品項以健保代碼為準，非僅看商品名；最終以健保署公告及個案審查為準</span>
-      </div>
+      <p class="rx-ocr" data-ocr="lipidrx"><span class="rx-ocr-msg" id="lx-ocrMsg">截圖可按 Ctrl+V 貼上或直接拖進來，自動帶入性別、年齡、血脂四項與腰圍；影像只在本機辨識，不上傳。</span></p>
 
-      <div class="grid-2">
+      <div class="rx-fields">
         <div class="field">
-          <div class="field-head"><label for="lx-sex">生理性別</label></div>
+          <div class="field-head"><label for="lx-sex">性別</label></div>
           <select id="lx-sex">
             <option value="">未選擇</option>
             <option value="M">男性</option>
@@ -588,131 +587,122 @@ if(window.IN_HUB){
           <input type="number" id="lx-age" min="0" max="120" step="1" inputmode="numeric" autocomplete="off">
           <p class="field-err" hidden></p>
         </div>
-      </div>
-
-      <div class="rx-section">
-        <div class="rx-section-title">動脈硬化心血管疾病（ASCVD）</div>
-        <p class="rx-hint">依實際病史勾選；系統自動判斷極高或非常高風險。</p>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="lx-acs">急性冠心症（ACS）病史</label>
-          <label class="flag sub"><input type="checkbox" id="lx-mi1y">一年內曾心肌梗塞</label>
-          <label class="flag sub"><input type="checkbox" id="lx-mi2">兩次以上心肌梗塞</label>
-          <label class="flag"><input type="checkbox" id="lx-revasc">曾接受 PCI 或 CABG</label>
-          <label class="flag"><input type="checkbox" id="lx-mvd">多支冠狀動脈阻塞</label>
-          <label class="flag"><input type="checkbox" id="lx-cadPlaque">冠狀動脈 ≥50% 狹窄（血管攝影或冠狀動脈 CTA）</label>
-          <label class="flag"><input type="checkbox" id="lx-carotid">頸動脈 ≥50% 狹窄（超音波或 CTA）</label>
-          <label class="flag"><input type="checkbox" id="lx-padPlaque">周邊動脈 ≥50% 狹窄（超音波或 CTA）</label>
-          <label class="flag"><input type="checkbox" id="lx-padSym">周邊動脈疾病：曾血管再通、肢體缺血症狀或截肢</label>
-          <label class="flag"><input type="checkbox" id="lx-stroke">缺血性中風／TIA，合併動脈硬化相關疾病</label>
+        <div class="field">
+          <div class="field-head"><label for="lx-tc">Cholesterol</label></div>
+          <input type="number" id="lx-tc" min="0" max="800" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-tg">TG</label></div>
+          <input type="number" id="lx-tg" min="0" max="3000" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-hdl">HDL</label></div>
+          <input type="number" id="lx-hdl" min="0" max="200" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-ldl">LDL</label></div>
+          <input type="number" id="lx-ldl" min="0" max="500" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-waist">腰圍</label><span class="field-unit">cm</span></div>
+          <input type="number" id="lx-waist" min="40" max="200" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
         </div>
       </div>
-
-      <div class="rx-section">
-        <div class="rx-section-title">高風險條件</div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="lx-dm">糖尿病</label>
-          <label class="flag"><input type="checkbox" id="lx-ckd">慢性腎臟病未透析（UACR ≥30 mg/g 或 eGFR &lt;60，持續 ≥3 個月）</label>
-          <label class="flag"><input type="checkbox" id="lx-cac">冠狀動脈鈣化分數 CAC ≥400</label>
-        </div>
-        <p class="rx-hint">LDL-C ≥190 mg/dL 由下方抽血數值自動判斷。</p>
-      </div>
-
-      <div class="rx-section">
-        <div class="rx-section-title">心血管風險因子</div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="lx-htn">高血壓</label>
-          <label class="flag"><input type="checkbox" id="lx-smoke">抽菸</label>
-          <label class="flag"><input type="checkbox" id="lx-fhx">早發性冠心病家族史（男 ≤55 歲、女 ≤65 歲）</label>
-          <label class="flag"><input type="checkbox" id="lx-meno">已停經（僅表二計入）</label>
-        </div>
-        <p class="rx-hint">代謝症候群（表一第六項，五項中 ≥3 項）：</p>
-        <div class="grid-3" style="margin-bottom:10px;">
-          <div class="field">
-            <div class="field-head"><label for="lx-waist">腰圍</label><span class="field-unit">cm</span></div>
-            <input type="number" id="lx-waist" min="40" max="200" step="0.1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-        </div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="lx-bpHigh">血壓 ≥130/85 mmHg 或服降壓藥</label>
-          <label class="flag"><input type="checkbox" id="lx-fgHigh">空腹血糖 ≥100 mg/dL 或服糖尿病藥</label>
-          <label class="flag"><input type="checkbox" id="lx-tgMed">正使用治療 TG 的血脂藥物</label>
-        </div>
+      <div class="rx-calc">
+        <p class="rx-hint" id="lx-calcLine"></p>
         <div class="chips" id="lx-rfChips"></div>
       </div>
 
-      <div class="rx-section">
-        <div class="rx-section-title">抽血（mg/dL）</div>
-        <div class="grid-4">
-          <div class="field">
-            <div class="field-head"><label for="lx-ldl">LDL-C</label></div>
-            <input type="number" id="lx-ldl" min="0" max="500" step="1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="lx-tc">總膽固醇 TC</label></div>
-            <input type="number" id="lx-tc" min="0" max="800" step="1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="lx-hdl">HDL-C</label></div>
-            <input type="number" id="lx-hdl" min="0" max="200" step="1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="lx-tg">三酸甘油酯 TG</label></div>
-            <input type="number" id="lx-tg" min="0" max="3000" step="1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
+      <div class="rx-cols">
+        <div class="rx-section">
+          <div class="rx-section-title">ASCVD 病史</div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="lx-acs">急性冠心症（ACS）病史</label>
+            <div class="flag-row"><label class="flag sub"><input type="checkbox" id="lx-mi1y">一年內 MI</label><label class="flag"><input type="checkbox" id="lx-mi2">兩次以上 MI</label></div>
+            <label class="flag"><input type="checkbox" id="lx-revasc">曾接受 PCI 或 CABG</label>
+            <label class="flag"><input type="checkbox" id="lx-mvd">多支冠狀動脈阻塞</label>
+            <label class="flag" title="血管攝影或冠狀動脈 CTA"><input type="checkbox" id="lx-cadPlaque">冠狀動脈 ≥50% 狹窄</label>
+            <label class="flag" title="超音波或 CTA"><input type="checkbox" id="lx-carotid">頸動脈 ≥50% 狹窄</label>
+            <label class="flag" title="超音波或 CTA"><input type="checkbox" id="lx-padPlaque">周邊動脈 ≥50% 狹窄</label>
+            <label class="flag"><input type="checkbox" id="lx-padSym">周邊動脈：再通術、缺血或截肢</label>
+            <label class="flag"><input type="checkbox" id="lx-stroke">缺血性中風／TIA（動脈硬化相關）</label>
           </div>
         </div>
-        <p class="rx-hint" id="lx-calcLine"></p>
-      </div>
 
-      <div class="rx-section">
-        <div class="rx-section-title">治療狀態</div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="lx-life3">已完成 3–6 個月生活型態調整（非藥物治療）</label>
+        <div class="rx-section">
+          <div class="rx-section-title">高風險條件</div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="lx-dm">糖尿病</label>
+            <label class="flag" title="UACR ≥30 mg/g 或 eGFR &lt;60，持續 ≥3 個月"><input type="checkbox" id="lx-ckd">慢性腎臟病未透析</label>
+            <label class="flag"><input type="checkbox" id="lx-cac">冠狀動脈鈣化分數 CAC ≥400</label>
+          </div>
+          <div class="rx-section-title">心血管風險因子</div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="lx-htn">高血壓</label>
+            <label class="flag"><input type="checkbox" id="lx-smoke">抽菸</label>
+            <label class="flag" title="男 ≤55 歲、女 ≤65 歲"><input type="checkbox" id="lx-fhx">早發性冠心病家族史</label>
+            <label class="flag"><input type="checkbox" id="lx-meno">已停經（僅表二計入）</label>
+          </div>
         </div>
-        <div class="field" style="margin:8px 0 10px;max-width:320px;">
-          <div class="field-head"><label for="lx-statin">Statin 使用情形</label></div>
-          <select id="lx-statin">
-            <option value="none">尚未使用 statin</option>
-            <option value="6w">statin 單一治療 6–8 週，未達標</option>
-            <option value="3m">statin 單一治療 ≥3 個月，未達標</option>
-          </select>
-        </div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="lx-intol">對 statin 無法耐受（如 severe myalgia、myositis）</label>
-          <label class="flag"><input type="checkbox" id="lx-event1y">一年內重大心血管事件（MI、血管再通術、動脈硬化缺血性中風）</label>
-          <label class="flag sub"><input type="checkbox" id="lx-pcskPre">已用高強度或最大耐受 statin ≥3 個月，再合併 ezetimibe ≥3 個月</label>
+
+        <div class="rx-section">
+          <div class="rx-section-title" title="另含腰圍、TG、HDL，由數值自動判斷">代謝症候群</div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="lx-bpHigh">血壓 ≥130/85 或服降壓藥</label>
+            <label class="flag"><input type="checkbox" id="lx-fgHigh">空腹血糖 ≥100 或服糖尿病藥</label>
+            <label class="flag"><input type="checkbox" id="lx-tgMed">正使用治療 TG 的藥物</label>
+          </div>
+          <div class="rx-section-title"><label for="lx-statin">治療狀態</label></div>
+          <div class="field">
+            <select id="lx-statin">
+              <option value="none">尚未使用 statin</option>
+              <option value="6w">單一治療 6–8 週，未達標</option>
+              <option value="3m">單一治療 ≥3 個月，未達標</option>
+            </select>
+          </div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="lx-life3">已完成 3–6 個月生活型態調整</label>
+            <label class="flag" title="如 severe myalgia、myositis"><input type="checkbox" id="lx-intol">對 statin 無法耐受</label>
+            <label class="flag" title="MI、血管再通術、動脈硬化缺血性中風"><input type="checkbox" id="lx-event1y">一年內重大心血管事件</label>
+            <label class="flag sub" title="高強度或最大耐受 statin ≥3 個月，再合併 ezetimibe ≥3 個月"><input type="checkbox" id="lx-pcskPre">高強度 statin ≥3 個月＋ezetimibe ≥3 個月</label>
+          </div>
         </div>
       </div>
 
       <div class="rx-cards" id="lipidrx-result" aria-live="polite"></div>
+
+      <div class="formula rx-basis">
+        <strong>依據：</strong>「藥品給付規定」修訂對照表第 2 節（降血脂，自 115 年 9 月 1 日生效，表一＋表二並存）；降三酸甘油酯規定本次未修訂。
+        <span class="unitline">表一／表二品項以健保代碼為準，非僅看商品名；最終以健保署公告及個案審查為準。</span>
+      </div>
     </section>
 
     <!-- ===================== B 型肝炎用藥給付 ===================== -->
-    <section class="tool-panel" id="panel-hbvrx" role="tabpanel" aria-labelledby="tab-hbvrx" tabindex="0" hidden>
+    <section class="tool-panel rx-panel" id="panel-hbvrx" role="tabpanel" aria-labelledby="tab-hbvrx" tabindex="0" hidden>
       <div class="panel-head">
         <div class="panel-title">B 型肝炎抗病毒藥物健保給付判定<small>依「藥品給付規定」第 10 節 10.7.3（自 114 年 6 月 1 日生效）</small></div>
         <div class="panel-actions">
+          <input type="file" id="hb-ocrFile" accept="image/*" hidden>
+          <button class="act" type="button" data-ocr-pick="hb-ocrFile">上傳檢驗截圖</button>
           <button class="act" type="button" data-reset="hbvrx">重設</button>
           <button class="act" type="button" data-copy="hbvrx" disabled>複製結果</button>
         </div>
       </div>
 
-      <div class="formula">
-        <strong>基層院所須有消化系內科專任專科醫師開立。</strong><br>
-        <span class="unitline">本工具為臨床判讀輔助，最終以健保署公告及個案審查為準</span>
-      </div>
+      <p class="rx-ocr" data-ocr="hbvrx"><span class="rx-ocr-msg" id="hb-ocrMsg">截圖可按 Ctrl+V 貼上或直接拖進來，自動帶入年齡、HBsAg、HBeAg、ALT、AST、血小板、HBV DNA 等；影像只在本機辨識，不上傳。</span></p>
 
-      <div class="rx-section">
-        <div class="rx-section-title">血清學</div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="hb-hbsag">HBsAg（＋）</label>
-          <label class="flag sub"><input type="checkbox" id="hb-hbsag6">持續超過 6 個月（或 IgM anti-HBc 陰性）</label>
+      <div class="rx-fields">
+        <div class="field">
+          <div class="field-head"><label for="hb-age">年齡</label><span class="field-unit">歲</span></div>
+          <input type="number" id="hb-age" min="0" max="120" step="1" inputmode="numeric" autocomplete="off">
+          <p class="field-err" hidden></p>
         </div>
-        <div class="field" style="margin-top:8px;max-width:220px;">
+        <div class="field">
           <div class="field-head"><label for="hb-eag">HBeAg</label></div>
           <select id="hb-eag">
             <option value="">未選擇</option>
@@ -720,118 +710,110 @@ if(window.IN_HUB){
             <option value="N">陰性</option>
           </select>
         </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-alt1">ALT 最近</label><span class="field-unit">U/L</span></div>
+          <input type="number" id="hb-alt1" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-alt2" title="半年內另一次">ALT 前次</label><span class="field-unit">U/L</span></div>
+          <input type="number" id="hb-alt2" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-uln">ALT 上限</label><span class="field-unit">U/L</span></div>
+          <input type="number" id="hb-uln" min="1" max="200" step="1" inputmode="numeric" autocomplete="off" value="40">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-ast">AST</label><span class="field-unit">U/L</span></div>
+          <input type="number" id="hb-ast" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-plt">血小板</label><span class="field-unit">×10³/µL</span></div>
+          <input type="number" id="hb-plt" min="1" max="1500" step="1" inputmode="numeric" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field rx-wide">
+          <div class="field-head"><label for="hb-dna">HBV DNA</label><span class="field-unit">IU/mL</span></div>
+          <input type="text" id="hb-dna" min="0" max="500000000" inputmode="decimal" autocomplete="off" title="可輸入 20000 或 2e5">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-fs">Fibroscan</label><span class="field-unit">kPa</span></div>
+          <input type="number" id="hb-fs" min="0" max="75" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-arfi">ARFI</label><span class="field-unit">m/s</span></div>
+          <input type="number" id="hb-arfi" min="0" max="5" step="0.01" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-bx">肝切片</label></div>
+          <select id="hb-bx">
+            <option value="">未做</option>
+            <option value="1">METAVIR F1</option>
+            <option value="2">METAVIR F2</option>
+            <option value="3">METAVIR F3</option>
+            <option value="4">F4 或 Ishak ≥F5</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-bil">總膽紅素</label><span class="field-unit">mg/dL</span></div>
+          <input type="number" id="hb-bil" min="0" max="30" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-pt" title="對照該次 control">PT 延長</label><span class="field-unit">秒</span></div>
+          <input type="number" id="hb-pt" min="0" max="30" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
       </div>
-
-      <div class="rx-section">
-        <div class="rx-section-title">年齡與肝功能、病毒量</div>
-        <div class="grid-4">
-          <div class="field">
-            <div class="field-head"><label for="hb-age">年齡</label><span class="field-unit">歲</span></div>
-            <input type="number" id="hb-age" min="0" max="120" step="1" inputmode="numeric" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-uln">ALT 正常值上限</label><span class="field-unit">U/L</span></div>
-            <input type="number" id="hb-uln" min="1" max="200" step="1" inputmode="numeric" autocomplete="off" value="40">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-alt1">ALT（最近一次）</label><span class="field-unit">U/L</span></div>
-            <input type="number" id="hb-alt1" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-alt2">ALT（半年內另一次）</label><span class="field-unit">U/L</span></div>
-            <input type="number" id="hb-alt2" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-ast">AST</label><span class="field-unit">U/L</span></div>
-            <input type="number" id="hb-ast" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-plt">血小板</label><span class="field-unit">×10³/µL</span></div>
-            <input type="number" id="hb-plt" min="1" max="1500" step="1" inputmode="numeric" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-dna">HBV DNA</label><span class="field-unit">IU/mL</span></div>
-            <input type="text" id="hb-dna" min="0" max="500000000" inputmode="decimal" autocomplete="off" placeholder="例：20000 或 2e5">
-            <p class="field-err" hidden></p>
-          </div>
-        </div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="hb-gap3">兩次 ALT 間隔超過 3 個月</label>
-          <label class="flag"><input type="checkbox" id="hb-dnaUnd">HBV DNA 低於偵測下限</label>
-        </div>
+      <div class="rx-calc">
         <p class="rx-hint" id="hb-altLine"></p>
-      </div>
-
-      <div class="rx-section">
-        <div class="rx-section-title">纖維化評估</div>
-        <div class="grid-3">
-          <div class="field">
-            <div class="field-head"><label for="hb-fs">Fibroscan</label><span class="field-unit">kPa</span></div>
-            <input type="number" id="hb-fs" min="0" max="75" step="0.1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-arfi">ARFI</label><span class="field-unit">m/s</span></div>
-            <input type="number" id="hb-arfi" min="0" max="5" step="0.01" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-bx">肝切片</label></div>
-            <select id="hb-bx">
-              <option value="">未做</option>
-              <option value="1">METAVIR F1</option>
-              <option value="2">METAVIR F2</option>
-              <option value="3">METAVIR F3</option>
-              <option value="4">METAVIR F4 或 Ishak ≥F5</option>
-            </select>
-          </div>
-        </div>
         <p class="rx-hint" id="hb-fibLine"></p>
       </div>
 
-      <div class="rx-section">
-        <div class="rx-section-title">肝硬化影像</div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="hb-usLc">超音波診斷肝硬化</label>
-          <label class="flag sub"><input type="checkbox" id="hb-usVar">合併食道或胃靜脈曲張</label>
-          <label class="flag sub"><input type="checkbox" id="hb-usSpl">合併脾腫大</label>
-          <label class="flag"><input type="checkbox" id="hb-ctLc">因其他適應症做 CT／MRI，診斷肝硬化</label>
-        </div>
-        <p class="rx-hint">超音波肝硬化且血小板 &lt;120,000/µL 由數值自動判斷。</p>
-      </div>
-
-      <div class="rx-section">
-        <div class="rx-section-title">代償不全</div>
-        <div class="grid-2">
-          <div class="field">
-            <div class="field-head"><label for="hb-bil">總膽紅素</label><span class="field-unit">mg/dL</span></div>
-            <input type="number" id="hb-bil" min="0" max="30" step="0.1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
-          </div>
-          <div class="field">
-            <div class="field-head"><label for="hb-pt">PT 延長（秒，對照該次 control）</label></div>
-            <input type="number" id="hb-pt" min="0" max="30" step="0.1" inputmode="decimal" autocomplete="off">
-            <p class="field-err" hidden></p>
+      <div class="rx-cols">
+        <div class="rx-section">
+          <div class="rx-section-title">血清學與檢驗條件</div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="hb-hbsag">HBsAg（＋）</label>
+            <label class="flag sub"><input type="checkbox" id="hb-hbsag6">持續超過 6 個月（或 IgM anti-HBc 陰性）</label>
+            <label class="flag"><input type="checkbox" id="hb-gap3">兩次 ALT 間隔超過 3 個月</label>
+            <label class="flag"><input type="checkbox" id="hb-dnaUnd">HBV DNA 低於偵測下限</label>
           </div>
         </div>
-      </div>
 
-      <div class="rx-section">
-        <div class="rx-section-title">特殊情況</div>
-        <div class="flags">
-          <label class="flag"><input type="checkbox" id="hb-preg">懷孕滿 27 週</label>
-          <label class="flag"><input type="checkbox" id="hb-hcc">肝癌已接受根除性治療</label>
-          <label class="flag"><input type="checkbox" id="hb-immuno">即將接受化療或免疫抑制治療</label>
+        <div class="rx-section">
+          <div class="rx-section-title">肝硬化影像</div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="hb-usLc">超音波診斷肝硬化</label>
+            <label class="flag sub"><input type="checkbox" id="hb-usVar">合併食道或胃靜脈曲張</label>
+            <label class="flag sub"><input type="checkbox" id="hb-usSpl">合併脾腫大</label>
+            <label class="flag"><input type="checkbox" id="hb-ctLc">CT／MRI 診斷肝硬化（因其他適應症）</label>
+          </div>
+          <p class="rx-hint">超音波肝硬化且血小板 &lt;120,000/µL 由數值自動判斷。</p>
+        </div>
+
+        <div class="rx-section">
+          <div class="rx-section-title">特殊情況</div>
+          <div class="flags">
+            <label class="flag"><input type="checkbox" id="hb-preg">懷孕滿 27 週</label>
+            <label class="flag"><input type="checkbox" id="hb-hcc">肝癌已接受根除性治療</label>
+            <label class="flag"><input type="checkbox" id="hb-immuno">即將接受化療或免疫抑制治療</label>
+          </div>
         </div>
       </div>
 
       <div class="rx-cards" id="hbvrx-result" aria-live="polite"></div>
+
+      <div class="formula rx-basis">
+        <strong>基層院所須有消化系內科專任專科醫師開立。</strong>
+        <span class="unitline">本工具為臨床判讀輔助，最終以健保署公告及個案審查為準。</span>
+      </div>
     </section>
 
     <!-- ===================== BRISTOL ===================== -->

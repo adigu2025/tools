@@ -383,7 +383,7 @@ body.edu-max .edu-view img{box-shadow:none;}
 </div>
 
 <script>
-const APP_REVISION = '2026-10-20';
+const APP_REVISION = '2026-10-22';
 
 /* 臨床計算（calc/）與減重報告（weight/）是同一個 repo 裡的兩個子頁，以 iframe 嵌入；
    外觀由子頁自己的 hub.css 負責（只在被嵌入時載入）。三者同網域，外殼才能注入樣式、讀取結果、執行清除。
@@ -534,6 +534,8 @@ function hookFrame(key, f){
     setTimeout(()=>{ calcZ = null; fitCalc(); }, 400);
     let rt = null;
     win.addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(()=>{ calcZ = null; fitCalc(); }, 120); });
+    // 切換到降血脂或 B 肝用藥時，結果欄才看得到；等面板淡入動畫（0.28 秒，會位移）結束再量
+    doc.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(fitRxOut, 320); }, true);
     // 輸入過程不再改變倍率：少數狀態（例如欄位錯誤提示）超出畫面時，寧可短暫出現捲軸，也不讓全部字級跳動
   }
   updateChips();
@@ -543,7 +545,7 @@ function hookFrame(key, f){
 /* 臨床計算自動縮放：所有工具共用同一個倍率，切換工具或分類時字級不會跳動。
    倍率取「每個工具都放得進畫面」的最大值：逐一量過每個工具（結果區全部展開的最壞情況），取最小者。
    量測在同一段同步程式內完成，畫面不會閃。
-   降血脂與 B 肝用藥兩個判定表單題目很多，不列入計算、允許捲動，但字級與其他工具相同。 */
+   降血脂與 B 肝用藥兩個判定表單不列入計算（避免拉低所有工具的字級），輸入區已排成一屏，結果欄在欄內捲動（fitRxOut）。 */
 const CALC_SCROLL_OK = new Set(['panel-lipidrx', 'panel-hbvrx']);
 const CALC_MIN_Z = 0.8, CALC_MAX_Z = 1.45;
 let calcZ = null;
@@ -626,9 +628,29 @@ function fitCalc(){
   const c = calcCtx();
   if(!c) return;
   // 窄畫面（含並排模式）維持單欄原尺寸，允許捲動
-  if(c.W < 1100){ c.card.style.zoom = 1; return; }
+  if(c.W < 1100){ c.card.style.zoom = 1; fitRxOut(); return; }
   if(calcZ === null) calcZ = computeCalcZ(c);
   c.card.style.zoom = calcZ;
+  fitRxOut();
+}
+
+// 降血脂與 B 肝用藥：結果卡片很長，結果欄高度限制在畫面內、欄內捲動，左側輸入不必跟著捲
+function fitRxOut(){
+  const c = calcCtx();
+  if(!c) return;
+  const z = parseFloat(c.card.style.zoom) || 1;
+  c.d.querySelectorAll('.rx-panel .hub-out').forEach(o=>{
+    o.style.maxHeight = '';
+    if(c.W < 1100 || !o.offsetParent) return;
+    // 位置是螢幕像素，max-height 會再乘上倍率，所以要除回去
+    const top = o.getBoundingClientRect().top + c.d.defaultView.scrollY;
+    let h = (c.H - top) / z;
+    o.style.maxHeight = h + 'px';
+    // 再扣掉卡片與頁面下緣的留白，直到整頁不出現捲軸
+    const over = c.root.scrollHeight - c.H;
+    if(over > 0) h = (o.getBoundingClientRect().height - over) / z - 1;
+    o.style.maxHeight = Math.max(300, h) + 'px';
+  });
 }
 
 // 面板尺寸一變（視窗縮放、切換並排、手機轉向）就重算共用倍率；
@@ -645,7 +667,7 @@ function fitCalc(){
    窄螢幕或並排模式時，CSS 會讓兩欄自動疊回單欄。 */
 function splitCalcPanels(doc){
   // 附註放左欄、結果與對照表放右欄，兩欄高度較平均
-  const isOut = c=> /-(result|hint)$/.test(c.id) || c.matches('.ref-table, .rx-cards');
+  const isOut = c=> /-(result|hint)$/.test(c.id) || c.matches('.ref-table, .rx-cards, .rx-basis');
   doc.querySelectorAll('.tool-panel').forEach(p=>{
     if(p.classList.contains('hub-split') || p.querySelector(':scope > .quiz-intro')) return;
     const kids = [...p.children].filter(c=> !c.classList.contains('panel-head'));
