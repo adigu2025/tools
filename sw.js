@@ -6,7 +6,7 @@
    外部程式庫與字型（網址含版本號，不會變）：有快取就直接用。
    檢驗截圖辨識（Tesseract.js）從 jsDelivr 載入，用過一次後斷網也能辨識。
    工作台開啟後會把所有衛教與表單圖片預先存下，斷網時也能顯示與列印。 */
-const CACHE = 'tools-v5';
+const CACHE = 'tools-v6';
 const CORE = [
   './', 'index.html',
   'calc/', 'calc/index.html', 'calc/app.js', 'calc/styles.css', 'calc/hub.css', 'calc/qr.png',
@@ -58,8 +58,11 @@ async function cacheFirst(req){
 
 async function networkFirst(req){
   try{
-    // 沒有改版時伺服器只回 304，不會重新下載整個檔案
-    const res = await fetch(req, {cache:'no-cache'});
+    // 沒有改版時伺服器只回 304，不會重新下載整個檔案。
+    // 開啟網頁（navigate）的請求不能帶參數重建，否則會丟出錯誤而一直退回舊快取，所以改用網址重新發出請求
+    let res = await fetch(req.url, {cache:'no-cache', credentials:'same-origin'});
+    // 網頁被轉址時，重新發出的請求結果不能直接交給瀏覽器，改用原本的請求
+    if(res.redirected && req.mode === 'navigate') res = await fetch(req);
     if(res.ok) (await caches.open(CACHE)).put(req, res.clone());
     return res;
   }catch(err){
