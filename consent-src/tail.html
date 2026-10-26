@@ -32,7 +32,7 @@ function fitReport(){
     return [p.dataset.file, Math.round(f.getBoundingClientRect().top - prev.getBoundingClientRect().bottom)];
   });
 }
-// 輸出：工作台用 WebP（out/tools/），報價系統用 JPG（out/planner/）
+// 輸出：工作台用 WebP，存進 out/tools/
 async function renderAll(only){
   await document.fonts.ready;
   const res = [];
@@ -42,8 +42,6 @@ async function renderAll(only){
     const canvas = await html2canvas(el, {scale: 1414 / 794, backgroundColor:'#ffffff', useCORS:true, logging:false});
     const webp = await new Promise(r=> canvas.toBlob(r, 'image/webp', 0.9));
     await fetch('/__save?name=out/tools/' + name + '.webp', {method:'POST', body:webp});
-    const jpg = await new Promise(r=> canvas.toBlob(r, 'image/jpeg', 0.88));
-    await fetch('/__save?name=out/planner/' + name + '.jpg', {method:'POST', body:jpg});
     res.push([name, canvas.width, canvas.height]);
   }
   return res;
