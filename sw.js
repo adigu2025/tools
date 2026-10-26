@@ -2,17 +2,17 @@
    網頁、程式與樣式：先連網拿最新版，連不上才用快取，所以改版後不必手動清快取。
    連網時一律向伺服器確認是否有新版（cache: no-cache），不使用瀏覽器暫存；
    GitHub Pages 允許暫存 10 分鐘，不這樣做的話剛推上去的新版要等 10 分鐘才看得到。
-   圖片：先用快取立即顯示，同時在背景向網路拿新版更新快取（下次開啟就是新圖）。
+   圖片：與網頁相同，先向伺服器確認（沒改版只回 304），連不上才用快取；
+   以前先顯示快取再背景更新，同意書改版後會先看到舊圖，列印時容易印到舊版。
    外部程式庫與字型（網址含版本號，不會變）：有快取就直接用。
    檢驗截圖辨識（Tesseract.js）從 jsDelivr 載入，用過一次後斷網也能辨識。
    工作台開啟後會把所有衛教與表單圖片預先存下，斷網時也能顯示與列印。 */
-const CACHE = 'tools-v10';
+const CACHE = 'tools-v11';
 const CORE = [
   './', 'index.html',
   'calc/', 'calc/index.html', 'calc/app.js', 'calc/styles.css', 'calc/hub.css', 'calc/qr.png',
   'weight/', 'weight/index.html', 'weight/app.js', 'weight/report.js', 'weight/hub.css'
 ];
-const IMG = /\.(webp|png|jpe?g|svg)$/i;
 const CDN = /^(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
 
 self.addEventListener('install', e=>{
@@ -33,7 +33,6 @@ self.addEventListener('fetch', e=>{
   const url = new URL(req.url);
   if(CDN.test(url.hostname)) return e.respondWith(cacheFirst(req));
   if(url.origin !== location.origin) return;
-  if(IMG.test(url.pathname)) return e.respondWith(staleWhileRevalidate(e, req));
   e.respondWith(networkFirst(req));
 });
 
@@ -43,7 +42,7 @@ self.addEventListener('message', e=>{
   if(!d || d.type !== 'warm' || !Array.isArray(d.urls)) return;
   const urls = d.urls.filter(u=> { try{ return new URL(u).origin === location.origin; }catch(err){ return false; } });
   e.waitUntil(caches.open(CACHE).then(c=> Promise.all(urls.map(u=>
-    c.match(u).then(hit=> hit || c.add(u).catch(()=>{}))
+    c.match(u).then(hit=> hit || c.add(new Request(u, {cache:'no-cache'})).catch(()=>{}))
   ))));
 });
 
@@ -70,15 +69,4 @@ async function networkFirst(req){
     if(hit) return hit;
     throw err;
   }
-}
-
-async function staleWhileRevalidate(e, req){
-  const cache = await caches.open(CACHE);
-  const hit = await cache.match(req);
-  const update = fetch(req).then(res=>{ if(res.ok) cache.put(req, res.clone()); return res; });
-  if(hit){
-    e.waitUntil(update.catch(()=>{}));
-    return hit;
-  }
-  return update;
 }
