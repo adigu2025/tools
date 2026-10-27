@@ -366,12 +366,6 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .rpt-att-opt input{width:16px; height:16px; accent-color:var(--primary); margin:0;}
 .rpt-ov-bar .btn{padding:7px 16px; font-size:14.5px;}
 .rpt-overlay iframe{flex:1; width:100%; border:0; background:#E7E3DC;}
-/* Report（問卷列印共用） */
-.report-page{width:794px; min-height:1123px; padding:42px 55px;}
-.report-page + .report-page{page-break-before:always; break-before:page;}
-.rp-header{display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding-bottom:8px; margin-bottom:16px;}
-.rp-header .clinic{font-size:14px; color:var(--primary-dark); font-weight:700;}
-.rp-header .pagenum{font-size:12px; color:var(--muted); letter-spacing:.04em;}
 /* 檢驗數值輸入：分組小標、單位、偏高偏低標籤 */
 .lab-group + .lab-group{margin-top:6px;}
 .lab-group h3{margin:16px 0 8px;}
@@ -413,129 +407,6 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .bn-pill.current{background:var(--primary); color:#fff; font-weight:700;}
 main{padding-bottom:80px;}
 
-/* ── 減重門診評估問卷（列印單張）───────────── */
-/* 問卷版面較密，使用比報告稍窄的邊距，讓兩頁剛好各佔一張 A4 */
-.report-page.qs-page{padding:26px 44px 30px; position:relative; min-height:1123px; height:1123px; overflow:hidden;}
-.qs-foot{position:absolute; left:44px; right:44px; bottom:10px;
-  display:flex; justify-content:space-between; font-size:10.5px; color:var(--muted);
-  border-top:1px solid var(--border); padding-top:5px;}
-.qs-title{font-size:20px; font-weight:700; color:var(--navy); text-align:center; letter-spacing:.06em;}
-.qs-lead{font-size:12px; color:var(--muted); text-align:center; margin-top:3px;}
-.qs-basic{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 16px;
-  margin:8px 0 0; padding:6px 12px; border:1px solid var(--border); border-radius:8px; font-size:12.5px;}
-.qs-basic > span{display:inline-flex; align-items:baseline; gap:4px;}
-.qs-basic .lbl{color:var(--muted); margin-right:3px;}
-.qs-basic .line{border-bottom:1px solid var(--navy); display:inline-block; min-width:120px; height:15px;}
-.qs-basic .line.short{min-width:52px;}
-.qs-basic .line.tiny{min-width:28px;}
-.qs-basic .qs-sex{gap:10px; align-items:center;}
-.qs-basic .qs-sex .qs-opt{margin:0;}
-.qs-sec{font-size:14px; font-weight:700; color:#fff; background:var(--teal);
-  padding:3px 11px; border-radius:5px; margin:8px 0 4px; display:inline-block;}
-.qs-sec .note{font-weight:400; font-size:11.5px; opacity:.88; margin-left:6px;}
-.qs-cat{font-size:13px; font-weight:700; color:var(--navy);
-  margin:0 0 3px; padding-left:7px; border-left:3.5px solid var(--primary);}
-.qs-opt{display:flex; align-items:flex-start; gap:6px;
-  font-size:11.5px; line-height:1.4; margin-bottom:2px;}
-.qs-opt svg{flex-shrink:0; width:11.5px; height:11.5px; margin-top:2px;}
-.qs-opt .k{font-weight:700; color:var(--navy);}
-.qs-2col{display:grid; grid-template-columns:1fr 1fr; column-gap:20px; padding-left:21px;}
-.qs-3col{display:grid; grid-template-columns:1fr 1fr 1fr; column-gap:14px; padding-left:21px;}
-.qs-grid{display:grid; grid-template-columns:1fr 1fr; column-gap:18px; align-items:stretch;}
-.qs-grid-tight{margin-top:2px;}
-.qs-panel{border:1px solid var(--border); border-radius:9px; background:#FCFBF9; padding:6px 12px 8px;}
-.qs-panel .qs-q:first-child{margin-top:0;}
-.qs-blank{border-bottom:1px solid var(--border); display:inline-block; min-width:52px; height:14px; vertical-align:-2px;}
-.qs-q{font-size:12.5px; font-weight:700; color:var(--navy); margin:5px 0 2px; line-height:1.35;}
-.qs-q .num{display:inline-block; width:15px; height:15px; line-height:15px; text-align:center;
-  background:var(--primary); color:#fff; border-radius:50%; font-size:10.5px; margin-right:6px;}
-.qs-q .hint{font-weight:400; font-size:11px; color:var(--muted); margin-left:7px;}
-.qs-inline{display:flex; flex-wrap:wrap; gap:1px 14px; padding-left:21px;}
-.qs-inline .qs-opt{margin-bottom:1px;}
-.qs-fillrow{display:flex; flex-wrap:wrap; gap:3px 18px; padding-left:21px; font-size:12px;}
-.qs-target{background:var(--primary-pale); border:1px solid #EAD9BC; border-radius:7px;
-  padding:7px 12px; font-size:13px; font-weight:700; color:var(--navy);
-  display:flex; align-items:baseline; gap:10px;}
-.qs-target .fill{flex:1; border-bottom:1px solid var(--primary-dark); height:15px;}
-.qs-note{font-size:11px; color:var(--muted); line-height:1.4; margin-top:4px;}
-.qs-lines{display:grid; grid-template-columns:3fr 2fr; column-gap:18px; padding-left:21px; margin-top:3px; font-size:12px;}
-.qs-lines > div{display:flex; align-items:baseline; gap:7px;}
-.qs-lines .l{flex-shrink:0; color:var(--navy);}
-.qs-lines .ln{flex:1; border-bottom:1px solid var(--border); height:15px;}
-.qs-scale{display:flex; gap:5px; padding-left:21px; margin-top:4px;}
-.qs-scale span{flex:1; height:24px; line-height:22px; text-align:center; font-size:12px; font-weight:700; color:var(--navy);
-  border:1px solid var(--border); border-radius:50%; max-width:24px;}
-.qs-scale-cap{display:flex; justify-content:space-between; padding-left:21px; max-width:311px; font-size:10.5px; color:var(--muted); margin-top:2px;}
-.qs-cats{display:grid; grid-template-columns:1fr 1fr; gap:6px 18px;}
-.qs-cats.three{grid-template-columns:1fr 1fr 1fr; column-gap:12px;}
-.qs-catbox{border:1px solid var(--border); border-radius:8px; padding:5px 10px 4px; background:#FCFBF9;}
-.qs-phq{width:100%; border-collapse:collapse; font-size:11px; margin-top:2px;}
-.qs-phq th,.qs-phq td{border:1px solid var(--border); padding:1.6px 5px; text-align:center;}
-.qs-phq th{white-space:nowrap;}
-.qs-phq th{background:var(--primary-pale); color:var(--navy); font-weight:700;}
-.qs-phq td:first-child{text-align:left; width:64%;}
-.qs-phq svg{width:11px; height:11px;}
-.qs-staff{border:1.6px dashed var(--muted); border-radius:9px; padding:7px 13px 8px;
-  background:#FAF9F6; margin-top:8px;}
-.qs-staff-title{font-size:13px; font-weight:700; color:var(--navy); margin-bottom:4px;}
-.qs-sfrow{display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; font-size:12px; color:var(--muted);}
-.qs-sfrow + .qs-sfrow{margin-top:4px;}
-.qs-sf{display:inline-flex; align-items:baseline; gap:6px;}
-.qs-sf.grow{flex:1;}
-.qs-sf .l{flex-shrink:0; color:var(--navy); font-weight:700;}
-.qs-sf .ln{flex:1; border-bottom:1px solid var(--border); height:14px; display:inline-block;}
-.qs-sf .u{font-size:11px;}
-.qs-sf .qs-opt{margin:0 6px 0 0; color:var(--navy);}
-/* ── 健康紀錄表（列印單張，沿用問卷的頁面與標題樣式）──── */
-.qs-basic .line.mid{min-width:96px;}
-.hr-goals{display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-top:8px;}
-.hr-goals > div{border:1px solid var(--border); border-radius:8px; background:#FCFBF9; padding:6px 10px 5px;
-  display:grid; grid-template-columns:1fr auto; align-items:baseline; column-gap:4px;}
-.hr-goals .t{grid-column:1 / -1; font-size:11.5px; color:var(--muted);}
-.hr-goals .v{font-size:17px; font-weight:700; color:var(--navy); border-bottom:1px solid var(--border); min-height:24px; line-height:24px;}
-.hr-goals .u{font-size:11.5px; color:var(--muted);}
-.hr-goals .s{grid-column:1 / -1; font-size:10.5px; color:var(--primary-dark); margin-top:1px;}
-.hr-goals .me{background:var(--primary-pale); border-color:#EAD9BC;}
-.hr-us{border:1px solid var(--border); border-radius:8px; padding:6px 12px 8px;}
-.hr-us .row{display:flex; align-items:center; gap:4px 14px; flex-wrap:wrap; font-size:12px;}
-.hr-us .row + .row{margin-top:4px;}
-.hr-us .row .qs-opt{margin:0;}
-.hr-us .k{width:84px; flex-shrink:0; font-weight:700; color:var(--navy); font-size:12.5px;}
-.hr-us .k.sub{font-weight:400; color:var(--muted); font-size:12px; text-align:right; padding-right:4px;}
-.hr-us .row.line{margin-left:0;}
-.hr-us .ln{flex:1; border-bottom:1px solid var(--border); min-height:18px; font-size:11.5px; color:var(--navy);}
-.hr-tb{width:100%; border-collapse:collapse; table-layout:fixed; font-size:11.5px; color:var(--navy);}
-.hr-tb th,.hr-tb td{border:1px solid #D8D1C5; text-align:center; padding:2px 3px; overflow:hidden;}
-.hr-tb th{background:var(--primary-pale); font-weight:700; white-space:nowrap; font-size:11px;}
-.hr-tb tr.g th{background:var(--teal); color:#fff; border-color:#fff #D8D1C5 #D8D1C5;}
-.hr-tb tr.u td{font-size:10px; color:var(--muted); line-height:1.25; background:#FAF9F6; padding:2px 2px;}
-.hr-tb tr.u td:first-child{font-size:10.5px; color:var(--navy);}
-.hr-lab td{height:27px;}
-.hr-lab tr.u td{height:auto;}
-.hr-tb td.d{font-size:11px;}
-.hr-tb th.sm{font-size:9.5px; letter-spacing:-.2px;}
-.hr-ph{color:var(--muted); font-size:11px;}
-.hr-plan td{height:24px;}
-.hr-plan td.w{font-weight:700;}
-.hr-plan td.l{text-align:left; padding-left:8px;}
-.hr-plan svg{width:12px; height:12px; vertical-align:-1px;}
-.hr-plan-note{font-size:11px; color:var(--muted); margin-top:3px;}
-.hr-alert{margin-top:9px; border:1.4px solid #E3B4AF; background:#FFF8F6; border-radius:8px; padding:7px 13px 8px;}
-.hr-alert .h{font-size:13px; font-weight:700; color:#B3413B; margin-bottom:2px;}
-.hr-alert ul{margin:0; padding-left:18px; font-size:12px; line-height:1.55; color:var(--navy);}
-.hr-alert .tel{font-size:11.5px; color:var(--muted); margin-top:3px;}
-.hr-body td{height:28px;}
-.hr-body tr.u td{height:auto;}
-.hr-body td small{font-size:9.5px; color:var(--muted);}
-.hr-codes{display:flex; flex-wrap:wrap; align-items:center; gap:3px 10px; font-size:11.5px; color:var(--navy); margin-top:5px;}
-.hr-codes b{margin-right:2px;}
-.hr-codes i{font-style:normal; display:inline-block; width:15px; height:15px; line-height:15px; text-align:center;
-  border-radius:50%; background:var(--primary); color:#fff; font-size:10px; margin-right:4px;}
-.hr-chart{width:100%; height:auto; display:block; border:1px solid var(--border); border-radius:8px; background:#fff;}
-.hr-chart text{font-size:10px; fill:#8A8478;}
-.hr-notes{margin-top:9px;}
-.hr-notes .h{font-size:12.5px; font-weight:700; color:var(--navy);}
-.hr-notes .ln{border-bottom:1px solid var(--border); height:24px;}
 </style>
 <script>
 /* 被工作台（../）嵌入時，在第一次繪製前就載入工作台外觀，不會先閃出單獨開啟時的畫面；
@@ -1150,6 +1021,7 @@ if(window.IN_HUB){
   <button class="bn-arrow" onclick="stepScreen(1)" title="下一項">›</button>
 </nav>
 
+<script src="../forms/forms.js"></script>
 <script src="app.js"></script>
 <script src="report.js"></script>
 </body>

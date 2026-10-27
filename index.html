@@ -199,7 +199,8 @@ body.edu-max .edu-view img{box-shadow:none;}
 .form-view > img, .form-view > .fpage{margin:0; flex:none;}
 .form-view .fpage{position:relative; overflow:hidden; background:#fff; border-radius:3px;
   box-shadow:0 2px 6px rgba(31,30,29,.08), 0 12px 32px rgba(31,30,29,.10);}
-.form-view .fpage iframe{position:absolute; left:0; top:0; border:0; transform-origin:0 0; pointer-events:none; background:#fff;}
+/* 固定 A4 大小再整體縮放；不可沿用 .pane iframe 的 100%，否則先縮小一次再縮放一次，只看得到左上角 */
+.form-view .fpage iframe{position:absolute; left:0; top:0; width:794px; height:1123px; border:0; transform-origin:0 0; pointer-events:none; background:#fff;}
 body.edu-max #pane-print{grid-template-columns:1fr; padding:0; gap:0;}
 body.edu-max #pane-print .edu-view{background:var(--sunken);}
 body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0 12px 32px rgba(31,30,29,.10);}
@@ -395,8 +396,9 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
   <div class="qr-modal"><img id="qr-big" alt="木子澄安診所 LINE 官方帳號 QR Code"><p>掃描加入木子澄安診所 LINE</p></div>
 </div>
 
+<script src="forms/forms.js"></script>
 <script>
-const APP_REVISION = '2026-10-26';
+const APP_REVISION = '2026-10-27';
 
 /* 臨床計算（calc/）與減重報告（weight/）是同一個 repo 裡的兩個子頁，以 iframe 嵌入；
    外觀由子頁自己的 hub.css 負責（只在被嵌入時載入）。三者同網域，外殼才能注入樣式、讀取結果、執行清除。
@@ -819,16 +821,17 @@ let EDU = weightEdu([
   ['追蹤與監測時程','img/edu-follow-up-schedule.webp']
 ]).concat(LOCAL_EDU);
 
-// 列印表單：依用途分組。減重門診的四份讀減重系統；同意書由 consent-src/ 輸出，圖片放在工作台的 img/。
+// 列印表單：依用途分組。問卷與健康紀錄表由 forms/forms.js 產生空白表（與減重系統共用版面）；
+// 地中海飲食與腸泌素同意書是減重系統的圖片；檢查同意書由 consent-src/ 輸出，圖片放在工作台的 img/。
 const FORM_GROUPS = [
   {key:'weight',  label:'減重門診'},
   {key:'consent', label:'檢查與治療同意書'},
 ];
 const C = n=> Array.from({length:n.pages}, (_, i)=> `img/consent-${n.file}-${i + 1}.webp`);
 let FORMS = [
-  {group:'weight', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'scales'},
+  {group:'weight', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'html', html:()=> formScalesHtml()},
   {group:'weight', label:'地中海飲食衛教', note:'共 2 頁', pages:[W('img/diet-mediterranean-1.webp'), W('img/diet-mediterranean-2.webp')], kind:'img'},
-  {group:'weight', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'record'},
+  {group:'weight', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'html', html:()=> formHealthRecordHtml()},
   {group:'weight', label:'腸泌素針劑自費使用同意書', note:'共 1 頁', pages:[W('img/consent-glp1.webp')], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
@@ -865,18 +868,6 @@ function pullWeightData(win){
       const keep = EDU.findIndex(p=> eduKey(p) === cur);
       eduIdx = keep >= 0 ? keep : 0;
       renderRail();
-    }
-  }catch(err){}
-  try{
-    const tiles = win.eval('typeof PRINT_TILES !== "undefined" ? PRINT_TILES : null');
-    if(Array.isArray(tiles) && tiles.length){
-      const weightForms = tiles.map(t=>{
-        const pages = (t.assets ? t.assets() : []).map(W);
-        // 沒有圖片的表單（問卷、健康紀錄表）由減重頁自己產生，直接呼叫該表單的列印函式
-        return {group:'weight', label:t.label, note:t.note, pages, kind: pages.length ? 'img' : 'run', run: t.run};
-      });
-      FORMS = weightForms.concat(FORMS.filter(f=> f.group !== 'weight'));
-      renderForms();
     }
   }catch(err){}
 }
@@ -1063,18 +1054,13 @@ function renderForms(){
   rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> showForm(b.dataset.k)));
   showForm(formKey);
 }
-// 問卷與健康紀錄表沒有圖檔，由減重系統即時產生 HTML；預覽時每一頁放進一個 iframe，與列印是同一份內容
-const FORM_HTML = {'減重門診評估問卷':'buildBlankScalesHtml', '健康紀錄表':'buildHealthRecordHtml'};
+// 問卷與健康紀錄表沒有圖檔，由 forms/forms.js 即時產生 HTML；預覽時每一頁放進一個 iframe，與列印是同一份內容
 const PAGE_W = 794, PAGE_H = 1123;
 function formHtmlPages(t){
-  const w = frames.weight && frames.weight.contentWindow;
-  const fn = FORM_HTML[t.label];
-  if(!fn || !w || typeof w[fn] !== 'function') return null;
   const tmp = document.createElement('div');
-  tmp.innerHTML = w[fn]();
-  const style = w.document.querySelector('style');
-  const head = `<!DOCTYPE html><html><head><meta charset="UTF-8"><base href="${esc(w.location.href)}">` +
-    `<style>${style ? style.innerHTML : ''}\nhtml,body{margin:0;background:#fff;overflow:hidden;}</style></head><body>`;
+  tmp.innerHTML = t.html();
+  const head = `<!DOCTYPE html><html><head><meta charset="UTF-8">` +
+    `<style>${FORMS_CSS}\nhtml,body{margin:0;background:#fff;overflow:hidden;}</style></head><body>`;
   return [...tmp.querySelectorAll('.report-page')].map(pg=> head + pg.outerHTML + '</body></html>');
 }
 function showForm(key){
@@ -1086,22 +1072,15 @@ function showForm(key){
   const list = FORMS.filter(f=> f.group === formGroup);
   document.getElementById('form-title').textContent = t.label;
   document.getElementById('form-count').textContent = (list.indexOf(t) + 1) + '／' + list.length + '　' + t.note;
-  if(!t.pages.length){
+  if(t.kind === 'html'){
     const docs = formHtmlPages(t);
-    if(!docs || !docs.length){
-      // 減重系統還沒載入完成；載入後 pullWeightData 會重新呼叫 renderForms
-      formView.innerHTML = '<div class="msg">表單載入中……</div>';
-      applyFormZoom();
-      return;
-    }
     formView.innerHTML = docs.map((_, i)=>
       `<div class="fpage"><iframe title="${esc(t.label)} 第 ${i + 1} 頁" width="${PAGE_W}" height="${PAGE_H}" tabindex="-1"></iframe></div>`).join('');
-    const w = frames.weight.contentWindow;
     [...formView.querySelectorAll('iframe')].forEach((f, i)=>{
       const d = f.contentWindow.document;
       d.open(); d.write(docs[i]); d.close();
       // 內容超出一頁時與列印相同，等比例縮進 A4
-      try{ w.fitPrintPages(d); }catch(err){}
+      fitPrintPages(d);
     });
     applyFormZoom();
     formView.scrollTo(0, 0);
@@ -1208,19 +1187,11 @@ formView.addEventListener('wheel', e=>{
 }, {passive:false});
 window.addEventListener('resize', ()=>{ if(main.dataset.view === 'print') applyFormZoom(); });
 function printForm(t){
-  if(t.kind === 'run' && typeof t.run === 'function'){
-    try{ t.run(); }
-    catch(err){ toast('表單要等減重系統載入完成才能列印，請稍候再試。'); }
-    return;
-  }
-  if(t.kind === 'record'){
-    try{ frames.weight.contentWindow.printHealthRecord(); }
-    catch(err){ toast('紀錄表要等減重系統載入完成才能列印，請稍候再試。'); }
-    return;
-  }
-  if(t.kind === 'scales' || !t.pages.length){
-    try{ frames.weight.contentWindow.printBlankScales(); }
-    catch(err){ toast('問卷要等減重系統載入完成才能列印，請稍候再試。'); }
+  if(t.kind === 'html'){
+    // 每一頁本身就是 A4 大小（794×1123），不必再包一層 .pg
+    printHtml(t.html(), t.label, false, FORMS_CSS +
+      '\n.report-page{break-after:page; page-break-after:always;}' +
+      '\n.report-page:last-child{break-after:auto; page-break-after:auto;}');
     return;
   }
   printImages(t.pages.map(src=> ({src})), t.label);
@@ -1253,7 +1224,8 @@ async function printImages(pages, title){
 }
 
 // 用隱藏 iframe 列印，只跳出列印對話框。@page margin 為 0，瀏覽器不會加上網址與日期的頁首頁尾。
-function printHtml(body, title, landscape){
+// css：另外加上的樣式（列印 HTML 表單時傳入），有傳時列印前先把略超出一頁的內容縮進 A4
+function printHtml(body, title, landscape, css){
   const PW = landscape ? 297 : 210, PH = landscape ? 210 : 297;
   const old = document.getElementById('print-frame');
   if(old) old.remove();
@@ -1270,8 +1242,10 @@ function printHtml(body, title, landscape){
     .pg{width:${PW}mm;height:${PH}mm;display:flex;align-items:center;justify-content:center;
       overflow:hidden;break-after:page;page-break-after:always;}
     .pg:last-child{break-after:auto;page-break-after:auto;}
+    ${css || ''}
   </style></head><body>${body}</body></html>`);
   d.close();
+  if(css) fitPrintPages(d);
   const imgs = [...d.images].filter(i=> !i.complete).map(i=> new Promise(r=>{ i.onload = i.onerror = r; }));
   const prevTitle = document.title;
   Promise.race([Promise.all(imgs), new Promise(r=> setTimeout(r, 15000))]).then(()=> setTimeout(()=>{

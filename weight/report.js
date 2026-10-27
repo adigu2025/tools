@@ -354,30 +354,8 @@ function rYmd(t){ return t.getFullYear() + '-' + String(t.getMonth() + 1).padSta
 function rDateZh(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? `${m[1]} 年 ${+m[2]} 月 ${+m[3]} 日` : (s || ''); }
 
 // ---------- 判讀標準 ----------
-function rLabMeta(){
-  const m = rMale();
-  const lim = (a, b)=> (m ? a : b);
-  return [
-    {grp:'血糖與胰島素阻抗'},
-    {k:'ac',    zh:'空腹血糖',       en:'Glucose AC',  u:'mg/dL', ref:'70–99',  scale:[60, 160], cuts:[[100, 0], [126, 1], [Infinity, 2]]},
-    {k:'hba1c', zh:'糖化血色素',     en:'HbA1c',       u:'%',     ref:'< 5.7',  scale:[4, 9],    cuts:[[5.7, 0], [6.5, 1], [Infinity, 2]]},
-    {k:'homa',  zh:'胰島素阻抗指數', en:'HOMA-IR',     u:'',      ref:'無統一切點'},
-    {grp:'血脂'},
-    {k:'tcho',  zh:'總膽固醇',       en:'T-CHO',       u:'mg/dL', ref:'< 200',  scale:[120, 300], cuts:[[200, 0], [240, 1], [Infinity, 2]]},
-    {k:'tg',    zh:'三酸甘油酯',     en:'TG',          u:'mg/dL', ref:'< 150',  scale:[40, 400],  cuts:[[150, 0], [200, 1], [Infinity, 2]]},
-    {k:'hdl',   zh:'高密度膽固醇',   en:'HDL-C',       u:'mg/dL', ref:'≥ ' + lim(40, 50), scale:[20, 90], cuts:[[lim(40, 50), 1], [Infinity, 0]]},
-    {k:'ldl',   zh:'低密度膽固醇',   en:'LDL-C',       u:'mg/dL', ref:'< 130',  scale:[50, 220],  cuts:[[130, 0], [160, 1], [Infinity, 2]]},
-    {grp:'肝功能'},
-    {k:'alt',   zh:'丙胺酸轉胺酶',   en:'ALT（GPT）',  u:'U/L',   ref:'≤ 40',   scale:[0, 160],   cuts:[[40 + R_EPS, 0], [120 + R_EPS, 1], [Infinity, 2]]},
-    {k:'ast',   zh:'天門冬胺酸轉胺酶', en:'AST（GOT）', u:'U/L',   ref:'≤ 40',   scale:[0, 160],   cuts:[[40 + R_EPS, 0], [120 + R_EPS, 1], [Infinity, 2]]},
-    {grp:'腎功能與尿酸'},
-    {k:'cr',    zh:'肌酸酐',         en:'Creatinine',  u:'mg/dL', ref:'≤ ' + lim('1.3', '1.1'), scale:[.3, 2.5], cuts:[[lim(1.3, 1.1) + R_EPS, 0], [Infinity, 1]]},
-    {k:'egfr',  zh:'腎絲球過濾率',   en:'eGFR（mL/min/1.73m²）', u:'', ref:'≥ 60', scale:[0, 130], cuts:[[30, 2], [60, 1], [Infinity, 0]]},
-    {k:'ua',    zh:'尿酸',           en:'Uric Acid',   u:'mg/dL', ref:'≤ ' + lim('7.0', '6.0'), scale:[2, 11], cuts:[[lim(7, 6) + R_EPS, 0], [Infinity, 1]]},
-    {grp:'甲狀腺'},
-    {k:'tsh',   zh:'甲狀腺刺激素',   en:'TSH',         u:'μIU/mL', ref:'0.4–4.0', scale:[0, 8], cuts:[[.4, 1], [4 + R_EPS, 0], [Infinity, 1]]},
-  ];
-}
+// 判讀標準在 forms/forms.js（LAB_META），健康紀錄表也用同一份
+function rLabMeta(){ return LAB_META(rMale()); }
 // eGFR：檢驗單有數值就用檢驗值，沒有才依肌酸酐估算
 function rLabValue(k){
   const v = rN('lab-' + k);
