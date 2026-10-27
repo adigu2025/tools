@@ -6,7 +6,7 @@
 
 | 檔案 | 用途 |
 |---|---|
-| `p-gastro.html` 等 `p-*.html` | 每份同意書一個檔案：胃鏡、大腸鏡、膠囊、輕中度鎮靜、冷凝刀、甲狀腺穿刺 |
+| `p-gastro.html` 等 `p-*.html` | 每份同意書一個檔案：胃鏡、大腸鏡、膠囊、輕中度鎮靜、冷凝刀、甲狀腺穿刺、腸泌素針劑 |
 | `head.html`、`tail.html` | 共用樣式；頁首、頁尾與簽名欄（`.final[data-kind]`）由 `tail.html` 的程式填入 |
 | `pages.html` | 由上面檔案串接而成，實際打開輸出的頁面 |
 | `crop/` | 診所標誌與插圖（灰階），多數裁切自舊版同意書，裁切座標見 `crop.html` |
@@ -16,7 +16,7 @@
 
 ## 輸出步驟
 
-1. 改完 `p-*.html` 後重新串接：`cat head.html p-gastro.html p-colon.html p-capsule.html p-sedation.html p-het.html p-thyroid.html tail.html > pages.html`
+1. 改完 `p-*.html` 後重新串接：`cat head.html p-gastro.html p-colon.html p-capsule.html p-sedation.html p-het.html p-thyroid.html p-glp1.html tail.html > pages.html`
 2. 執行 `serve.ps1`（PowerShell），用瀏覽器打開 `http://localhost:8769/consent-src/pages.html`。
 3. 主控台執行 `fitReport()`，每頁數字都要大於 0（等於 0 代表內容壓到頁尾）。
 4. 執行 `await renderAll()`，WebP 存進 `out/tools/`。只輸出其中幾頁：`await renderAll(['consent-het-2'])`。

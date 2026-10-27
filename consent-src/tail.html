@@ -1,7 +1,7 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// 共用的頁首、頁尾與簽名欄由這裡填入，七份同意書格式一致
+// 共用的頁首、頁尾與簽名欄由這裡填入，八份同意書格式一致
 const VER = 'v. 2026/10';
 document.querySelectorAll('.head').forEach(h=>{
   h.innerHTML = '<div class="brand"><img src="crop/muzi-mark-bw.png" alt="木子澄安診所標誌"><div><b>木子澄安診所</b><small>MUZI CHENG AN CLINIC</small></div></div>'
@@ -15,10 +15,11 @@ const ROWS = {
   appt: [[L('預約日期：'), L('檢查時間：'), L('報到時間：')]],
   treat: [[L('預約日期：'), L('治療時間：'), L('報到時間：')]],
   exam: [[L('檢查日期：'), L('檢查時間：')]],
+  drug: [[L('藥品與劑量：'), L('數量：')]],
 };
 document.querySelectorAll('.final[data-kind]').forEach(b=>{
   const rows = (ROWS[b.dataset.kind] || []).concat([
-    [L('同意人簽名：'), L('關係：受檢人之')],
+    [L('同意人簽名：'), L(b.dataset.kind === 'drug' ? '關係：使用人之' : '關係：受檢人之')],
     [L('身分證字號：'), L('出生年月日：')],
     [L('說明醫師：'), '<div class="f"></div>'],
   ]);
