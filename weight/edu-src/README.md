@@ -1,6 +1,6 @@
 # 減重衛教單版面原始檔
 
-`weight/img/` 裡 13 張減重衛教圖（11 張衛教圖卡＋地中海飲食 2 頁）的版面原始檔。改文字或排版時改這裡，再輸出成 WebP 覆蓋 `weight/img/` 的同名檔案。
+工作台 `img/` 裡 13 張減重衛教圖（11 張衛教圖卡＋地中海飲食 2 頁）的版面原始檔。改文字或排版時改這裡，再輸出成 WebP 覆蓋工作台 `img/` 的同名檔案。
 
 ## 檔案
 
@@ -16,7 +16,7 @@
 2. 用瀏覽器打開 `http://localhost:8767/pages.html`。
 3. 在瀏覽器主控台執行 `await renderAll()`，13 張 WebP 會存進 `out/`。只輸出其中幾張：`await renderAll(['edu-medication-options'])`。
 4. 執行 `fitReport()` 確認每頁數字都大於 0（代表內容沒有壓到頁尾）。
-5. 把 `out/` 的檔案複製到 `weight/img/`，並更新 `weight/app.js` 的 `APP_REVISION`。
+5. 把 `out/` 的檔案複製到工作台的 `img/`，把 `sw.js` 的快取版號加一，並更新 `weight/app.js` 的 `W_REVISION`。
 
 ## 排版規則
 

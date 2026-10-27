@@ -236,7 +236,7 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 `;
 
 // ---------- 取值與判讀 ----------
-function rS(id){ const e = document.getElementById(id); return e ? String(e.value == null ? '' : e.value).trim() : ''; }
+function rS(id){ const e = WD.getElementById(id); return e ? String(e.value == null ? '' : e.value).trim() : ''; }
 function rN(id){ const v = parseFloat(rS(id)); return isNaN(v) ? null : v; }
 function rMale(){ return rS('p-gender') === 'M'; }
 // cuts：[[上限, 等級], …]，數值小於上限就取該等級；等級 0 正常、1 注意、2 異常
@@ -319,7 +319,7 @@ function rRich(text, max){
     if(!l) return;
     let m;
     if((m = l.match(/^【(.+?)】\s*(.*)$/))){
-      out.push(`<h4 class="ru keep">${esc(m[1])}</h4>`);
+      out.push(`<h4 class="ru keep">${wEsc(m[1])}</h4>`);
       if(m[2]) out.push(`<p class="ru">${rBr(m[2], max)}</p>`);
       return;
     }
@@ -455,12 +455,12 @@ function rFindings(d){
   ['ldl', 'tg', 'tcho'].forEach(k=>{ if(L[k].v != null) add(L[k].g, `<b>${L[k].zh} ${L[k].v} mg/dL</b>，偏高`); });
   if(L.hdl.v != null) add(L.hdl.g, `<b>HDL-C ${L.hdl.v} mg/dL</b>，低於${d.male ? '男' : '女'}性建議值 ${d.male ? 40 : 50}`);
   ['alt', 'ast'].forEach(k=>{ if(L[k].v != null) add(L[k].g, `<b>${k.toUpperCase()} ${L[k].v} U/L</b>，${L[k].g === 2 ? '超過正常上限 3 倍' : '高於正常上限'}`); });
-  if(d.gFatty >= 1) add(d.gFatty, `<b>腹部超音波：${esc(d.fatty)}</b>`);
+  if(d.gFatty >= 1) add(d.gFatty, `<b>腹部超音波：${wEsc(d.fatty)}</b>`);
   if(L.egfr.v != null) add(L.egfr.g, `<b>eGFR ${L.egfr.v}</b>${L.egfr.src === '估算' ? '（估算）' : ''}，腎功能下降，用藥與飲食需調整`);
   if(L.cr.v != null && L.egfr.g < 1) add(L.cr.g, `<b>肌酸酐 ${L.cr.v} mg/dL</b>，偏高`);
   if(L.ua.v != null) add(L.ua.g, `<b>尿酸 ${L.ua.v} mg/dL</b>，偏高`);
   if(L.tsh.v != null) add(L.tsh.g, `<b>TSH ${L.tsh.v} μIU/mL</b>，偏${L.tsh.v > 4 ? '高' : '低'}，需評估甲狀腺功能`);
-  if(d.gThyUs >= 1) add(1, `<b>甲狀腺超音波：${esc(d.thyUs)}</b>，使用腸泌素類藥物前需確認性質`);
+  if(d.gThyUs >= 1) add(1, `<b>甲狀腺超音波：${wEsc(d.thyUs)}</b>，使用腸泌素類藥物前需確認性質`);
   const B = d.body;
   if(B['t-fat'].v != null) add(B['t-fat'].g, `<b>體脂肪率 ${B['t-fat'].v}%</b>，超過${d.male ? '男' : '女'}性標準 ${d.male ? 25 : 30}%`);
   if(B['t-visceral'].v != null) add(B['t-visceral'].g, `<b>內臟脂肪等級 ${B['t-visceral'].v}</b>，${B['t-visceral'].g === 2 ? '過高' : '偏高'}`);
@@ -472,7 +472,7 @@ function rFindings(d){
     else add(d.gPhq, `<b>PHQ-9 ${d.phq.total} 分</b>，${d.phq.severity}憂鬱症狀`);
   }
   const {sc, meds} = rScreeningLists();
-  const listLine = (head, list)=> rBr(head + '：' + list.join('、'), 32).replace(esc(head) + '：', `<b>${esc(head)}</b>：`);
+  const listLine = (head, list)=> rBr(head + '：' + list.join('、'), 32).replace(wEsc(head) + '：', `<b>${wEsc(head)}</b>：`);
   if(sc.length) add(1, listLine('次發性肥胖待排除', sc));
   if(meds.length) add(1, listLine('可能影響體重的藥物', meds));
   return f.map((x, i)=> Object.assign(x, {i})).sort((a, b)=> b.g - a.g || a.i - b.i);
@@ -506,9 +506,9 @@ function rChSummary(d){
     {k:'血壓',     v: (d.sbp != null && d.dbp != null) ? `${d.sbp}/${d.dbp}<small> mmHg</small>` : val(null), g: d.gBp},
     Object.assign({k:'血糖'}, worst([labItem('hba1c', 'HbA1c', '%'), labItem('ac', 'AC', 'mg/dL')])),
     Object.assign({k:'血脂'}, worst([labItem('ldl', 'LDL'), labItem('tg', 'TG'), labItem('hdl', 'HDL'), labItem('tcho', 'TC')])),
-    Object.assign({k:'肝臟'}, worst([labItem('alt', 'ALT', 'U/L'), labItem('ast', 'AST', 'U/L'), {has: !!d.fatty, g: d.gFatty, html: esc(d.fatty)}])),
+    Object.assign({k:'肝臟'}, worst([labItem('alt', 'ALT', 'U/L'), labItem('ast', 'AST', 'U/L'), {has: !!d.fatty, g: d.gFatty, html: wEsc(d.fatty)}])),
     Object.assign({k:'腎臟'}, worst([labItem('egfr', 'eGFR'), labItem('cr', 'Cr', 'mg/dL')])),
-    Object.assign({k:'甲狀腺'}, worst([labItem('tsh', 'TSH'), {has: !!d.thyUs, g: d.gThyUs, html: esc(d.thyUs)}])),
+    Object.assign({k:'甲狀腺'}, worst([labItem('tsh', 'TSH'), {has: !!d.thyUs, g: d.gThyUs, html: wEsc(d.thyUs)}])),
     {k:'睡眠',     v: d.sb != null ? `${d.sb}<small> / 8 分</small>` : '<span class="na">未評估</span>', g: d.gSb},
     {k:'情緒',     v: d.phq ? `${d.phq.total}<small> / 27 分</small>` : '<span class="na">未評估</span>', g: d.gPhq},
   ];
@@ -590,7 +590,7 @@ function rChBody(d){
       if(d.bmi != null){
         const p = classifyExercisePhenotype(d.male ? 'M' : 'F', d.bmi, B['t-fat'].v == null ? NaN : B['t-fat'].v, B['t-smi'].v == null ? NaN : B['t-smi'].v, B['t-phaseangle'].v == null ? NaN : B['t-phaseangle'].v);
         const rx = EXERCISE_PRESCRIPTIONS[p];
-        pheno = `<div class="pheno"><span class="muted">身體組成分型</span><b>${esc(p)}</b></div>` + (rx ? `<p class="note-line" style="margin-top:2px">${rBr('訓練主軸：' + rx.focus, 42)}</p>` : '');
+        pheno = `<div class="pheno"><span class="muted">身體組成分型</span><b>${wEsc(p)}</b></div>` + (rx ? `<p class="note-line" style="margin-top:2px">${rBr('訓練主軸：' + rx.focus, 42)}</p>` : '');
       }
     }catch(e){}
     blocks.push(rBlock('身體組成分析', 'BODY COMPOSITION',
@@ -605,8 +605,8 @@ function rChBody(d){
     const cols = TRACK_COLS.body.filter(([k])=> k === 'date' || recent.some(r=> String(r[k] || '').trim()));
     const chart = trackChartSvg('body', 'weight', '體重變化（kg）', 516, 190);
     blocks.push(rBlock('歷次身體組成', 'TRENDS',
-      `<table class="rt track"><thead><tr>${cols.map(([, l])=> `<th>${esc(l)}</th>`).join('')}</tr></thead><tbody class="ru-host">` +
-      recent.map(r=> `<tr class="ru">${cols.map(([k])=> `<td>${String(r[k] || '').trim() ? esc(k === 'date' ? String(r[k]).trim().slice(2) : r[k]) : '<span class="na">—</span>'}</td>`).join('')}</tr>`).join('') +
+      `<table class="rt track"><thead><tr>${cols.map(([, l])=> `<th>${wEsc(l)}</th>`).join('')}</tr></thead><tbody class="ru-host">` +
+      recent.map(r=> `<tr class="ru">${cols.map(([k])=> `<td>${String(r[k] || '').trim() ? wEsc(k === 'date' ? String(r[k]).trim().slice(2) : r[k]) : '<span class="na">—</span>'}</td>`).join('')}</tr>`).join('') +
       `</tbody></table>` + (rowsB.length > recent.length ? `<p class="note-line tail">共 ${rowsB.length} 筆紀錄，列出最近 ${recent.length} 筆。</p>` : '') +
       (chart ? `<div class="chart tail">${chart}</div>` : ''), {split:true}));
   }
@@ -668,12 +668,12 @@ function rChLab(d){
     const cell = (k, v)=>{
       v = String(v || '').trim();
       if(!v) return '<td><span class="na">—</span></td>';
-      if(k === 'date') return `<td>${esc(v.slice(2))}</td>`;
+      if(k === 'date') return `<td>${wEsc(v.slice(2))}</td>`;
       const f = labFlag(k, v);
-      return `<td>${esc(v)}${f ? `<span class="arrow ${f}">${f === 'hi' ? '↑' : '↓'}</span>` : ''}</td>`;
+      return `<td>${wEsc(v)}${f ? `<span class="arrow ${f}">${f === 'hi' ? '↑' : '↓'}</span>` : ''}</td>`;
     };
     blocks.push(rBlock('歷次檢驗', 'TRENDS',
-      `<table class="rt track"><thead><tr>${cols.map(([, l])=> `<th>${esc(l)}</th>`).join('')}</tr></thead><tbody class="ru-host">` +
+      `<table class="rt track"><thead><tr>${cols.map(([, l])=> `<th>${wEsc(l)}</th>`).join('')}</tr></thead><tbody class="ru-host">` +
       recent.map(r=> `<tr class="ru">${cols.map(([k])=> cell(k, r[k])).join('')}</tr>`).join('') + `</tbody></table>` +
       (rowsL.length > recent.length ? `<p class="note-line tail">共 ${rowsL.length} 筆紀錄，列出最近 ${recent.length} 筆。</p>` : ''), {split:true}));
   }
@@ -684,7 +684,7 @@ function rChLab(d){
   blocks.push(rBlock('影像檢查', 'IMAGING',
     `<table class="rt"><colgroup><col style="width:26%"><col style="width:60%"><col style="width:14%"></colgroup>` +
     `<thead><tr><th>檢查</th><th>結果與所見</th><th class="c">判讀</th></tr></thead><tbody class="ru-host">` +
-    us.map(([zh, en, v, t, g])=> `<tr class="ru"><td>${zh}<span class="en">${en}</span></td><td>${v ? `<b>${esc(v)}</b>` : '<span class="na">未檢查</span>'}${t ? `<div class="small muted">${rLines(t, 24)}</div>` : ''}</td><td class="c">${rPill(v ? g : -1, v ? null : '未檢查')}</td></tr>`).join('') +
+    us.map(([zh, en, v, t, g])=> `<tr class="ru"><td>${zh}<span class="en">${en}</span></td><td>${v ? `<b>${wEsc(v)}</b>` : '<span class="na">未檢查</span>'}${t ? `<div class="small muted">${rLines(t, 24)}</div>` : ''}</td><td class="c">${rPill(v ? g : -1, v ? null : '未檢查')}</td></tr>`).join('') +
     `</tbody></table>`, {split:true}));
   return blocks;
 }
@@ -709,8 +709,8 @@ function rChHistory(d){
   const motiv = rS('motiv-score');
   blocks.push(rBlock('家族史、<br>生育計畫與動機', 'BACKGROUND', kv([
     ['家族史', rS('fam-note') ? rLines(rS('fam-note'), 27) : '<span class="muted">未記錄</span>'],
-    ['生育計畫', rS('preg-plan') ? esc(rS('preg-plan')) : '<span class="muted">未評估</span>'],
-    ['減重意願與準備度', motiv ? `<b>${esc(motiv)}</b> / 10` : '<span class="muted">未評估</span>'],
+    ['生育計畫', rS('preg-plan') ? wEsc(rS('preg-plan')) : '<span class="muted">未評估</span>'],
+    ['減重意願與準備度', motiv ? `<b>${wEsc(motiv)}</b> / 10` : '<span class="muted">未評估</span>'],
     ['社會支持', rS('motiv-support') ? rBr(rS('motiv-support'), 27) : '<span class="muted">未記錄</span>'],
   ].concat(rS('fam-motiv-note') ? [['備註', rLines(rS('fam-motiv-note'), 27)]] : [])), {split:true}));
 
@@ -718,7 +718,7 @@ function rChHistory(d){
     ? '<div class="empty">未填寫 STOP-BANG 問卷。</div>'
     : `<div class="scale-row"><div class="score">STOP-BANG 分數<b>${d.sb}<small style="font-size:13px; color:#9A9387"> / 8</small></b>${rPill(d.gSb, ['低風險', '中風險', '高風險'][d.gSb])}</div>` +
       rScale(d.sb, 9, [[3, 0, '0–2 低風險'], [5, 1, '3–4 中風險'], [9, 2, '5–8 高風險']], 340) + `</div>` +
-      `<div class="items">${d.sbItems.length ? '問卷勾選：<br>' + d.sbItems.map(t=> '・' + esc(t)).join('<br>') : '問卷各題皆未勾選。'}<br>另依資料自動計分：BMI ＞ 35、年齡 ＞ 50 歲、男性；頸圍未納入。</div>`;
+      `<div class="items">${d.sbItems.length ? '問卷勾選：<br>' + d.sbItems.map(t=> '・' + wEsc(t)).join('<br>') : '問卷各題皆未勾選。'}<br>另依資料自動計分：BMI ＞ 35、年齡 ＞ 50 歲、男性；頸圍未納入。</div>`;
   blocks.push(rBlock('睡眠評估', 'SLEEP APNEA SCREENING', sbHtml));
 
   const phqHtml = !d.phq
@@ -749,7 +749,7 @@ function rChPlan(d){
 
   const eduText = rS('tx-edu');
   blocks.push(rBlock('本次用藥建議', 'MEDICATION',
-    `<p style="margin-bottom:${eduText ? 12 : 0}px"><span class="pill g1" style="margin-right:12px">本次選擇</span><b style="color:#1F262A">${esc(txChoiceText())}</b></p>` +
+    `<p style="margin-bottom:${eduText ? 12 : 0}px"><span class="pill g1" style="margin-right:12px">本次選擇</span><b style="color:#1F262A">${wEsc(txChoiceText())}</b></p>` +
     (eduText ? `<div class="rich ru-host">${rRich(eduText, 39.5)}</div>` : ''), {split:true}));
 
   const c = typeof computeCalorie === 'function' ? computeCalorie() : null;
@@ -844,7 +844,7 @@ function buildReportModel(){
   ];
   const attachments = [];
   // 「附上原始報告」沒勾就只印到附錄
-  const attBox = document.getElementById('rpt-att');
+  const attBox = WD.getElementById('rpt-att');
   if(!attBox || attBox.checked) [['lab', '抽血報告'], ['tanita', 'TANITA 報告']].forEach(([kind, label])=>{
     (uploadedFiles[kind] || []).forEach(file=>{
       file.pages.forEach((src, i)=> attachments.push({title: `${label}：${file.name}`, sub: file.pages.length > 1 ? `第 ${i + 1}／${file.pages.length} 頁` : '', src}));
@@ -871,9 +871,9 @@ function rCoverHtml(m, logo){
   <div class="cv-info">
     <div class="cv-info-h"><b>個人資料</b><span>PERSONAL INFORMATION</span></div>
     <div class="cv-grid">
-      ${f('姓名', esc(m.name))}${f('出生日期', esc(birth || '--'), !birth)}
-      ${f('性別', gender, !sex)}${f('年齡', age ? esc(age) + ' 歲' : '-- 歲', !age)}
-      ${f('檢查日期', esc(m.date))}
+      ${f('姓名', wEsc(m.name))}${f('出生日期', wEsc(birth || '--'), !birth)}
+      ${f('性別', gender, !sex)}${f('年齡', age ? wEsc(age) + ' 歲' : '-- 歲', !age)}
+      ${f('檢查日期', wEsc(m.date))}
     </div>
   </div>
   <div class="cv-foot"><div>高雄市仁武區仁孝路282號<br>07-3739496 ・ LINE @muzichengan</div><div class="r">本報告僅供臨床參考，<br>檢查結果請與主治醫師討論。</div></div>
@@ -985,7 +985,7 @@ async function layoutReport(doc, m){
     const pg = doc.createElement('section');
     pg.className = 'rpt-page';
     pg.innerHTML = hd(chLabel) + '<div class="rpt-body"></div>' +
-      `<div class="rpt-ft"><span>木子澄安診所　${esc(m.name)}　檢查日期 ${esc(m.date)}<br>本報告僅供臨床評估參考，治療計畫請與醫師討論</span><span class="pg"></span></div>`;
+      `<div class="rpt-ft"><span>木子澄安診所　${wEsc(m.name)}　檢查日期 ${wEsc(m.date)}<br>本報告僅供臨床評估參考，治療計畫請與醫師討論</span><span class="pg"></span></div>`;
     pagesBox.appendChild(pg);
     pages.push(pg);
     body = pg.querySelector('.rpt-body');
@@ -1107,7 +1107,7 @@ async function layoutReport(doc, m){
     m.attachments.forEach((a, i)=>{
       newPage();
       if(i === 0) chapterStart.att = pages.length + 1;
-      body.innerHTML = `<div class="rb att"><h3 class="rb-h">${esc(a.title)}${a.sub ? `<i class="cont">${esc(a.sub)}</i>` : ''}</h3><img src="${a.src}" alt=""></div>`;
+      body.innerHTML = `<div class="rb att"><h3 class="rb-h">${wEsc(a.title)}${a.sub ? `<i class="cont">${wEsc(a.sub)}</i>` : ''}</h3><img src="${a.src}" alt=""></div>`;
       const img = body.querySelector('img');
       img.style.maxHeight = (avail() - (a.sub ? 74 : 56)) + 'px';
     });
@@ -1125,7 +1125,7 @@ async function layoutReport(doc, m){
 }
 
 function reportDocHtml(title, preview){
-  return `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><title>${esc(title)}</title>` +
+  return `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><title>${wEsc(title)}</title>` +
     `<base href="${location.href}">${RPT_FONTS}<style>${REPORT_CSS}</style></head>` +
     `<body${preview ? ' class="preview"' : ''}><div id="pages"></div><div id="stage"></div></body></html>`;
 }
@@ -1133,11 +1133,11 @@ function reportDocHtml(title, preview){
 // 列印：在隱藏的 iframe 裡排好版再叫出列印對話框（沿用 printIsolated 的清理流程）
 // 判讀標準（腰圍、HDL-C、體脂肪率、eGFR、BMR）依性別不同，沒選性別就不產生報告
 function rHasUploads(){ return ['lab', 'tanita'].some(k=> (uploadedFiles[k] || []).length); }
-function rAttOn(){ const box = document.getElementById('rpt-att'); return !box || box.checked; }
+function rAttOn(){ const box = WD.getElementById('rpt-att'); return !box || box.checked; }
 function rNeedGender(){
   if(rS('p-gender')) return false;
   alert('請先在「基本資料」選擇性別，報告的判讀標準依性別不同。');
-  const g = document.getElementById('p-gender');
+  const g = WD.getElementById('p-gender');
   if(g) g.focus();
   return true;
 }
@@ -1149,7 +1149,7 @@ function printReport(){
     html: reportDocHtml(getReportFilename(), false),
     prepare: doc=> layoutReport(doc, m)
   });
-  const pill = document.getElementById('status-pill');
+  const pill = WD.getElementById('status-pill');
   if(pill) pill.textContent = '報告已產生';
 }
 
@@ -1166,13 +1166,13 @@ async function previewReport(){
     (rHasUploads() ? `<label class="rpt-att-opt"><input type="checkbox" id="rpt-ov-att"${rAttOn() ? ' checked' : ''}> 附上原始報告</label>` : '') +
     `<button class="btn teal" id="rpt-ov-print">列印／輸出 PDF</button><button class="btn outline" id="rpt-ov-close">關閉</button></div>` +
     `<iframe id="rpt-ov-frame" title="報告預覽"></iframe>`;
-  document.body.appendChild(ov);
-  document.body.style.overflow = 'hidden';
+  WD.appendChild(ov);
+  WB.style.overflow = 'hidden';
   ov.querySelector('#rpt-ov-close').onclick = closeReportPreview;
   ov.querySelector('#rpt-ov-print').onclick = ()=> printReport();
   const ovAtt = ov.querySelector('#rpt-ov-att');
   if(ovAtt) ovAtt.onchange = ()=>{
-    const box = document.getElementById('rpt-att');
+    const box = WD.getElementById('rpt-att');
     if(box) box.checked = ovAtt.checked;
     previewReport();
   };
@@ -1185,19 +1185,19 @@ async function previewReport(){
   };
   try{
     const total = await layoutReport(doc, m);
-    document.getElementById('rpt-ov-info').textContent = `共 ${total} 頁　A4 直式`;
+    WD.getElementById('rpt-ov-info').textContent = `共 ${total} 頁　A4 直式`;
     fit();
     frame.contentWindow.addEventListener('resize', fit);
   }catch(e){
     console.error(e);
-    document.getElementById('rpt-ov-info').textContent = '排版失敗：' + e.message;
+    WD.getElementById('rpt-ov-info').textContent = '排版失敗：' + e.message;
   }
 }
 function closeReportPreview(){
-  const ov = document.getElementById('rpt-overlay');
+  const ov = WD.getElementById('rpt-overlay');
   if(ov) ov.remove();
-  document.body.style.overflow = '';
+  WB.style.overflow = '';
 }
-document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape' && document.getElementById('rpt-overlay')){ e.stopPropagation(); e.preventDefault(); closeReportPreview(); }
+WD.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && WD.getElementById('rpt-overlay')){ e.stopPropagation(); e.preventDefault(); closeReportPreview(); }
 }, true);

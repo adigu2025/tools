@@ -7,11 +7,11 @@
    外部程式庫與字型（網址含版本號，不會變）：有快取就直接用。
    檢驗截圖辨識（Tesseract.js）從 jsDelivr 載入，用過一次後斷網也能辨識。
    工作台開啟後會把所有衛教與表單圖片預先存下，斷網時也能顯示與列印。 */
-const CACHE = 'tools-v12';
+const CACHE = 'tools-v13';
 const CORE = [
   './', 'index.html',
   'calc/', 'calc/index.html', 'calc/app.js', 'calc/styles.css', 'calc/hub.css', 'calc/qr.png',
-  'weight/', 'weight/index.html', 'weight/app.js', 'weight/report.js', 'weight/hub.css',
+  'weight/', 'weight/index.html', 'weight/view.html', 'weight/app.js', 'weight/report.js',
   'forms/forms.js'
 ];
 const CDN = /^(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
