@@ -35,7 +35,9 @@ function ckDateZh(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); retur
 function ckSecName(s){ return String(s || '其他').replace(/檢查$/, '') || '其他'; }
 // 各檢驗分組的一句說明，放在表格下方
 const CK_SEC_NOTE = [
-  [/肝/,       'AST、ALT 反映肝細胞有沒有受損，脂肪肝、病毒性肝炎、飲酒與部分藥物都會讓數值上升。'],
+  [/肝炎/,     'B 肝表面抗原陽性代表帶原；表面抗體陽性代表有保護力；C 肝抗體陽性要再驗病毒量，確認是否仍有感染。'],
+  [/心血管/,   '脂蛋白(a) 主要由遺傳決定；ApoB 反映會造成動脈硬化的脂蛋白顆粒數；hs-CRP 反映血管的慢性發炎。'],
+  [/肝/,      'AST、ALT 反映肝細胞有沒有受損，脂肪肝、病毒性肝炎、飲酒與部分藥物都會讓數值上升。'],
   [/脂/,       'LDL-C 是主要的心血管風險指標；HDL-C 越高越好。是否需要用藥，要合併年齡、血壓、血糖與吸菸一起評估。'],
   [/糖/,       '糖化血色素反映過去 2 至 3 個月的平均血糖。HOMA-IR 由空腹血糖與胰島素算出，數值越高代表胰島素阻抗越明顯。'],
   [/腎/,       'eGFR 由肌酸酐、年齡與性別算出，60 以上且尿液正常，一般視為腎功能正常。'],
@@ -168,15 +170,52 @@ function ckChUs(d){
   return blocks;
 }
 
+function ckChMod(d){
+  const blocks = [];
+  const row = u=> `<div class="us-row ru"><div><b>${ckEsc(u.t)}</b>${u.d ? `<p>${rBr(u.d, 34)}</p>` : ''}</div>${ckPill(u.g)}</div>`;
+  const areas = [...new Set(d.mod.map(u=> u.area))];
+  areas.forEach(area=>{
+    const list = d.mod.filter(u=> u.area === area);
+    const note = list.map(u=> String(u.note || '').trim()).filter(Boolean).join('\n');
+    blocks.push(rBlock(area, '', `<div class="ru-host">${list.map(row).join('')}</div>` +
+      (note ? `<div class="memo tail" style="margin-top:8px"><div class="rich">${rRich(note, 36)}</div></div>` : ''), {split:true}));
+  });
+  return blocks;
+}
+
+function ckChCv(d){
+  const {prevent: pv, tw} = d.cv;
+  if(pv.na && tw.na) return [];
+  if((pv.miss || pv.range) && (tw.miss || tw.na)) return [];
+  const blocks = [];
+  const pct = v=> (Math.round(v * 1000) / 10).toFixed(1);
+  const why = x=> x.na ? x.na + '。' : x.miss ? `這次缺少${x.miss.join('、')}，無法計算。` : x.range ? '有數值超出模型的適用範圍，無法計算。' : '';
+  const big = (v, lbl)=> `<div><div class="fib-v">${pct(v)}<small style="font-size:15px; margin-left:2px">%</small></div><p class="note-line" style="margin-top:4px">${lbl}</p></div>`;
+  blocks.push(rBlock('PREVENT 心血管風險', '', why(pv) ? `<p>${rBr(why(pv), 40)}</p>` :
+    `<div class="big-row" style="gap:36px; align-items:flex-start">${big(pv.cvd10, '10 年總心血管疾病')}${big(pv.ascvd10, '10 年動脈硬化心血管疾病')}</div>` +
+    (pv.cvd30 != null ? `<table class="rt kv" style="margin-top:8px"><tr><th>30 年總心血管疾病</th><td>${pct(pv.cvd30)}%</td></tr><tr><th>30 年動脈硬化心血管疾病</th><td>${pct(pv.ascvd30)}%</td></tr></table>` : '') +
+    `<p class="note-line">${rBr('美國心臟學會 2023 年發表的模型，用年齡、膽固醇、血壓、血糖、腎功能、吸菸與用藥估計。總心血管疾病包含心肌梗塞、中風與心衰竭；動脈硬化心血管疾病指心肌梗塞與中風。', 40)}</p>`));
+  blocks.push(rBlock('TwCCCC 冠心病風險', '', why(tw) ? `<p>${rBr(why(tw), 40)}</p>` :
+    `<div class="big-row">${big(tw.risk, '10 年冠心病風險')}</div>` +
+    `<p class="note-line">${rBr(`以台灣竹山社區世代建立，2023 年台灣心臟學會指引採用，用年齡、性別、BMI、血壓、LDL、HDL 與吸菸計分（本次 ${tw.pts} 分），只預測冠心病。`, 40)}</p>`));
+  blocks.push(rCallout('兩個數字怎麼看', `<div class="li ru">${rBr('兩個模型預測的疾病與建立的族群不同，數字不能直接相比。', 40)}</div>` +
+    `<div class="li ru">${rBr('風險分數是估計值，用來決定血壓與血脂要控制得多積極，請和醫師一起討論。', 40)}</div>`, true));
+  return blocks;
+}
+
 function ckChPlan(d){
   const blocks = [];
-  const order = ['now', 'm3', 'm6', 'y1'];
+  const order = ['now', 'm3', 'm6', 'y1', 'long'];
   const groups = order.map(w=> ({w, list: d.advice.filter(a=> a.when === w)})).filter(g=> g.list.length);
   const yearly = {w:'y1', list:[{t:'明年同一時間再安排一次健檢，和這次的數值比較。'}]};
   if(!groups.some(g=> g.w === 'y1')) groups.push(yearly); else groups.find(g=> g.w === 'y1').list.push(yearly.list[0]);
   const html = groups.map(g=> `<div class="tl-row ru"><div><div class="tl-when">${CK_WHEN[g.w]}</div></div>` +
     `<div>${g.list.map(a=> `<div class="what">${rBr(a.t, 34)}</div>`).join('<div style="height:6px"></div>')}</div></div>`).join('');
   blocks.push(rBlock('建議與追蹤時程', '', `<div class="ru-host">${html}</div>`, {split:true}));
+  if(d.pub.length){
+    blocks.push(rBlock('可以使用的公費篩檢', '', `<div class="ru-host">${d.pub.map(x=> `<div class="us-row ru"><div><b>${ckEsc(x.t)}</b><p>${rBr(x.rule + (x.done ? '。' + x.done : ''), 34)}</p></div></div>`).join('')}</div>` +
+      `<p class="note-line tail">${rBr('依國民健康署公告整理。間隔從上次篩檢起算，實際資格以健保卡紀錄為準，可在門診或健保快易通 App 查詢。', 40)}</p>`, {split:true}));
+  }
   blocks.push(rCallout('提早就醫', `<div class="li ru">${rBr('胸痛、呼吸困難、單側肢體無力或說話不清楚，請立即就醫。', 40)}</div>` +
     `<div class="li ru">${rBr('解黑便、吐血、皮膚或眼白變黃，請盡快回診。', 40)}</div>`, true));
   return blocks;
@@ -192,6 +231,10 @@ function ckChAppendix(){
     ['eGFR', '估算腎絲球過濾率，本報告採用 CKD-EPI 公式。'],
     ['FIB-4', '肝纖維化指數＝年齡 × AST ÷（血小板 × √ALT），用來篩檢肝臟纖維化。'],
     ['TI-RADS', '美國放射學會的甲狀腺結節分級（TR1 至 TR5），依分級與大小決定是否穿刺或追蹤。'],
+    ['PREVENT', '美國心臟學會 2023 年發表的心血管風險模型，適用 30 至 79 歲、沒有心血管疾病的人。'],
+    ['TwCCCC', '以台灣竹山社區世代建立的冠心病風險計分，2023 年台灣心臟學會指引採用，適用 35 歲以上。'],
+    ['Lung-RADS', '美國放射學會的低劑量肺部電腦斷層分級（1 至 4X），依分級決定追蹤間隔。'],
+    ['大腸鏡間隔', '依 2020 年美國多學會大腸癌工作小組建議，由瘜肉的種類、數目與大小決定。'],
   ];
   return [`<div class="rb full gloss"><div class="rb-l"><div class="rb-no"></div><h3 class="rb-h">名詞與判讀說明</h3></div><div class="rb-r">` +
     `<table class="rt kv">${G.map(([k, v])=> `<tr><th>${k}</th><td>${rBr(v, 38)}</td></tr>`).join('')}</table></div></div>`];
@@ -206,7 +249,9 @@ function ckBuildModel(){
     {id:'body',    no:'02', zh:'身體測量',     lead:'BMI、腰圍、血壓與身體組成。',                     blocks: ckChBody(d)},
     {id:'lab',     no:'03', zh:'血液與尿液檢驗', lead:'依檢驗所的分組列出本次數值、參考區間與判讀。',  blocks: ckChLab(d)},
     {id:'us',      no:'04', zh:'超音波檢查',   lead:'腹部與甲狀腺超音波的發現。',                      blocks: ckChUs(d)},
-    {id:'plan',    no:'05', zh:'建議與追蹤',   lead:'依這次結果整理的建議，以及下次檢查的時間。',      blocks: ckChPlan(d)},
+    {id:'mod',     no:'05', zh:'加選檢查',     lead:'心電圖、頸動脈、幽門桿菌、糞便潛血、內視鏡與肺部電腦斷層的結果。', blocks: ckChMod(d)},
+    {id:'cv',      no:'06', zh:'心血管風險',   lead:'用國際與台灣兩個模型，估計未來發生心血管疾病的機率。', blocks: ckChCv(d)},
+    {id:'plan',    no:'07', zh:'建議與追蹤',   lead:'依這次結果整理的建議、下次檢查的時間，以及可以使用的公費篩檢。', blocks: ckChPlan(d)},
     {id:'appx',    no:'A',  zh:'附錄',         lead:'報告中用到的名詞與判讀標準。',                    blocks: ckChAppendix()},
   ].filter(c=> c.blocks.length);
   chapters.forEach((c, i)=>{ if(c.id !== 'appx') c.no = String(i + 1).padStart(2, '0'); });
@@ -546,6 +591,11 @@ function ckDraftComment(d){
     const head = (top.length ? top : mid).slice(0, 3).map(x=> plain(x.html).split('，')[0]);
     L.push(`這次健檢有 ${d.findings.length} 個項目需要注意，${top.length ? '最需要優先處理的是' : '主要是'}${head.join('、')}。`);
     if(top.length && mid.length) L.push(`另外${mid.slice(0, 3).map(x=> plain(x.html).split('，')[0]).join('、')}也建議一起追蹤。`);
+  }
+  const pv = d.cv.prevent, tw = d.cv.tw, pc = v=> (Math.round(v * 1000) / 10).toFixed(1) + '%';
+  if(pv.cvd10 != null || tw.risk != null){
+    L.push('【心血管風險】');
+    L.push([pv.cvd10 != null && `PREVENT 估計 10 年總心血管疾病風險 ${pc(pv.cvd10)}`, tw.risk != null && `TwCCCC 估計 10 年冠心病風險 ${pc(tw.risk)}`].filter(Boolean).join('，') + '。');
   }
   if(d.advice.length){
     L.push('【我的建議】');

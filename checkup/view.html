@@ -89,6 +89,18 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 .g0{color:#3F6E4D;} .g1{color:#8A5F1F;} .g2{color:#A8352F;} .gna{color:var(--k-faint); font-weight:400;}
 .k-empty{padding:18px; text-align:center; color:var(--k-muted); font-size:15px;}
 .k-note{font-size:13.5px; color:var(--k-muted); margin-top:8px;}
+.k-cvg{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;}
+.k-cvg > div{border:1px solid var(--k-line); border-radius:12px; padding:12px 14px;}
+.k-cvg h4{font-size:15px; margin:0 0 8px; color:var(--k-ink);}
+.k-cvg h4 small{font-weight:400; color:var(--k-muted); margin-left:6px;}
+.k-cvg table{width:100%; border-collapse:collapse; font-size:15px;}
+.k-cvg td{padding:4px 0; border-bottom:1px solid var(--k-line);}
+.k-cvg td.n{text-align:right; font-variant-numeric:tabular-nums; font-weight:600;}
+.k-pubt{width:100%; border-collapse:collapse; font-size:15px;}
+.k-pubt td{padding:7px 6px; border-bottom:1px solid var(--k-line); vertical-align:top;}
+.k-pubt td:first-child{font-weight:600; white-space:nowrap;}
+.k-pubt small{color:var(--k-muted);}
+.k-tbc{display:inline-block; font-size:12px; color:#8A5A12; background:#FBF0DC; border-radius:6px; padding:0 6px; margin-left:6px;}
 
 /* 判讀重點：輸入時即時更新 */
 .k-find > div{display:grid; grid-template-columns:56px 1fr; gap:10px; font-size:15px; padding:6px 0; border-bottom:1px solid var(--k-line);}
@@ -113,6 +125,9 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
     <a data-sec="hx"><span class="d"></span>病史與生活習慣</a>
     <a data-sec="lab"><span class="d"></span>檢驗數值</a>
     <a data-sec="us"><span class="d"></span>超音波</a>
+    <a data-sec="mod"><span class="d"></span>加選模組</a>
+    <a data-sec="cv"><span class="d"></span>心血管風險</a>
+    <a data-sec="pub"><span class="d"></span>公費提醒</a>
     <a data-sec="comment"><span class="d"></span>醫師評語</a>
     <div class="k-actions">
       <button class="k-btn gold" id="k-preview">預覽報告</button>
@@ -165,7 +180,11 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 
     <section class="k-card" id="k-sec-hx">
       <h2>病史與生活習慣<small>判讀與之後的心血管風險計算會用到</small></h2>
-      <div class="k-row"><b>吸菸</b><div class="k-opts" data-k="hx.smoke" data-opts="never:從不吸菸|former:已戒菸|current:目前吸菸"></div></div>
+      <div class="k-row"><b>吸菸</b><div>
+        <div class="k-opts" data-k="hx.smoke" data-opts="never:從不吸菸|former:已戒菸|current:目前吸菸"></div>
+        <div class="k-sub" data-show="hx.smoke:current"><label class="k-f"><span>吸菸量<i>包年</i></span><input type="number" step="0.5" data-k="hx.packyears"></label></div>
+        <div class="k-sub" data-show="hx.smoke:former"><label class="k-f"><span>吸菸量<i>包年</i></span><input type="number" step="0.5" data-k="hx.packyears"></label><label class="k-f"><span>戒菸幾年</span><input type="number" data-k="hx.quitYears"></label></div>
+      </div></div>
       <div class="k-row"><b>飲酒</b><div class="k-opts" data-k="hx.alcohol" data-opts="no:不喝或偶爾|weekly:每週數次|daily:幾乎每天"></div></div>
       <div class="k-row"><b>已知疾病</b><div class="k-opts" data-k="hx.dx" data-multi="1" data-opts="htn:高血壓|dm:糖尿病|lipid:高血脂|cvd:心臟病或中風|ckd:慢性腎臟病|hbv:B 型肝炎帶原|hcv:C 型肝炎|thy:甲狀腺疾病"></div></div>
       <div class="k-row"><b>目前用藥</b><div class="k-opts" data-k="hx.med" data-multi="1" data-opts="bp:降血壓藥|statin:降血脂藥|dm:降血糖藥|thy:甲狀腺藥物"></div></div>
@@ -200,6 +219,66 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <div class="k-sub" data-show="us.thy:other"><label class="k-f" style="flex:1"><span>其他發現</span><input type="text" data-k="us.thyOther"></label></div>
       <h3>補充說明</h3>
       <label class="k-f"><textarea data-k="us.note" style="min-height:60px"></textarea></label>
+    </section>
+
+    <section class="k-card" id="k-sec-mod">
+      <h2>加選模組<small>有做的才填；PDF 已有的檢驗值會自動帶入，這裡不必重填</small></h2>
+
+      <h3>① 心血管風險評估</h3>
+      <div class="k-grid">
+        <label class="k-f"><span>脂蛋白(a)<i>mg/dL</i></span><input type="number" step="0.1" data-k="mod.lpa"></label>
+        <label class="k-f"><span>ApoB<i>mg/dL</i></span><input type="number" step="0.1" data-k="mod.apob"></label>
+        <label class="k-f"><span>hs-CRP<i>mg/L</i></span><input type="number" step="0.01" data-k="mod.hscrp"></label>
+      </div>
+      <div class="k-row" style="margin-top:10px; border-top:1px solid var(--k-line)"><b>心電圖</b><div>
+        <div class="k-opts" data-k="mod.ecg" data-opts="normal:正常|abn:異常"></div>
+        <div class="k-sub" data-show="mod.ecg:abn"><label class="k-f" style="flex:1"><span>心電圖發現</span><input type="text" data-k="mod.ecgNote"></label></div>
+      </div></div>
+
+      <h3>② 頸動脈超音波</h3>
+      <div class="k-opts" data-k="mod.carotid" data-multi="1" data-excl="normal" data-opts="normal:正常|imt:內膜中層增厚|plaque:有斑塊|sten50:狹窄 50% 以上"></div>
+      <div class="k-sub"><label class="k-f"><span>最大 IMT<i>mm</i></span><input type="number" step="0.01" data-k="mod.imt"></label><label class="k-f" style="flex:1"><span>補充</span><input type="text" data-k="mod.carotidNote"></label></div>
+
+      <h3>③ B、C 型肝炎篩檢<small style="font-weight:400; color:var(--k-muted); letter-spacing:0">　PDF 沒有時才填</small></h3>
+      <div class="k-row"><b>B 肝表面抗原</b><div class="k-opts" data-k="mod.hbsag" data-opts="陰性:陰性|陽性:陽性"></div></div>
+      <div class="k-row"><b>B 肝表面抗體</b><div class="k-opts" data-k="mod.antihbs" data-opts="陽性:陽性（有保護力）|陰性:陰性"></div></div>
+      <div class="k-row"><b>C 肝抗體</b><div class="k-opts" data-k="mod.antihcv" data-opts="陰性:陰性|陽性:陽性"></div></div>
+
+      <h3>④ 幽門桿菌碳 13 呼氣檢查</h3>
+      <div class="k-opts" data-k="mod.ubt" data-opts="neg:陰性|pos:陽性"></div>
+      <div class="k-sub"><label class="k-f"><span>DOB 值<i>‰</i></span><input type="number" step="0.1" data-k="mod.ubtVal"></label></div>
+
+      <h3>⑤ 糞便潛血檢查</h3>
+      <div class="k-opts" data-k="mod.fit" data-opts="neg:陰性|pos:陽性"></div>
+
+      <h3>⑥ 胃鏡</h3>
+      <div class="k-opts" data-k="mod.egd" data-multi="1" data-excl="normal" data-opts="normal:正常|gerd:逆流性食道炎|gastritis:慢性胃炎|atrophy:萎縮性胃炎或腸上皮化生|ulcer:潰瘍|polyp:瘜肉|tumor:疑似腫瘤|other:其他"></div>
+      <label class="k-f" style="margin-top:10px"><span>胃鏡摘要</span><textarea data-k="mod.egdNote" style="min-height:60px"></textarea></label>
+      <h3>⑥ 大腸鏡</h3>
+      <div class="k-row"><b>病理</b><div class="k-opts" data-k="mod.cHist" data-opts="none:沒有瘜肉|hyper:增生性瘜肉|tubular:管狀腺瘤|advanced:絨毛狀或高度分化不良|ssl:無柄鋸齒狀病灶|ssldys:鋸齒狀病灶合併分化不良|cancer:癌"></div></div>
+      <div class="k-sub" data-show-not="mod.cHist:none">
+        <label class="k-f"><span>瘜肉數目</span><input type="number" data-k="mod.cNum"></label>
+        <label class="k-f"><span>最大<i>mm</i></span><input type="number" step="0.1" data-k="mod.cSize"></label>
+      </div>
+      <div class="k-row"><b>腸道清潔</b><div class="k-opts" data-k="mod.cPrep" data-opts="good:良好|poor:不佳"></div></div>
+      <div class="k-row"><b>分片切除</b><div class="k-opts" data-k="mod.cPiece" data-opts="yes:有 20 mm 以上分片切除"></div></div>
+      <label class="k-f"><span>大腸鏡摘要</span><textarea data-k="mod.colonNote" style="min-height:60px"></textarea></label>
+      <div class="k-calc" id="k-colon-next"></div>
+
+      <h3>⑧ 低劑量肺部電腦斷層</h3>
+      <div class="k-opts" data-k="mod.ldct" data-opts="1:Lung-RADS 1|2:Lung-RADS 2|3:Lung-RADS 3|4A:Lung-RADS 4A|4B:Lung-RADS 4B|4X:Lung-RADS 4X"></div>
+      <label class="k-f" style="margin-top:10px"><span>報告摘要</span><textarea data-k="mod.ldctNote" style="min-height:60px"></textarea></label>
+      <p class="k-note">⑦ 腫瘤標記由 PDF 帶入，結果在「檢驗數值」。</p>
+    </section>
+
+    <section class="k-card" id="k-sec-cv">
+      <h2>心血管風險<small>由檢驗、血壓、病史自動計算</small></h2>
+      <div id="k-cv"></div>
+    </section>
+
+    <section class="k-card" id="k-sec-pub">
+      <h2>公費篩檢提醒<small>依年齡、性別、家族史與吸菸史自動列出</small></h2>
+      <div id="k-pub"></div>
     </section>
 
     <section class="k-card" id="k-sec-comment">

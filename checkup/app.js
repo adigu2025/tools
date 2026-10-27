@@ -9,7 +9,7 @@ const CK_DRAFT = 'checkup_draft_v1';
    CK.manual：沒有 PDF 時手動輸入的檢驗列。PDF 轉出的頁面圖片只放記憶體（CK_PAGES），不存進暫存。 */
 let CK = ckBlank();
 const CK_PAGES = {};
-function ckBlank(){ return {info:{}, body:{}, hx:{}, us:{}, comment:'', reports:[], manual:null}; }
+function ckBlank(){ return {info:{}, body:{}, hx:{}, us:{}, mod:{}, comment:'', reports:[], manual:null}; }
 
 function ckGet(path){ return path.split('.').reduce((o, k)=> o == null ? undefined : o[k], CK); }
 function ckSet(path, v){
@@ -84,6 +84,17 @@ const CK_LAB = [
   ['ubact',  /^BACTERIA/,                '細菌',             '尿液',     '/HPF'],
   ['ucrys',  /^CRYSTAL/,                 '結晶體',           '尿液',     '/HPF'],
   ['ucast',  /^CAST/,                    '圓柱體',           '尿液',     '/LPF'],
+  ['lpa',    /^LP\(?A\)?/,               '脂蛋白(a)',        '心血管風險', 'mg/dL'],
+  ['apob',   /^APO-?B/,                  'ApoB',             '心血管風險', 'mg/dL'],
+  ['hscrp',  /^HS-?CRP|^CRP/,            'hs-CRP',           '心血管風險', 'mg/L'],
+  ['scc',    /^SCC/,                     'SCC',              '腫瘤標記', 'ng/mL'],
+  ['cyfra',  /CYFRA/,                    'Cyfra 21-1',       '腫瘤標記', 'ng/mL'],
+  ['ca724',  /^CA-?72-?4/,               'CA 72-4',          '腫瘤標記', 'U/mL'],
+  ['progrp', /PRO-?GRP/,                 'ProGRP',           '腫瘤標記', 'pg/mL'],
+  ['ebv',    /EB.*VCA|^EBV|^VCA/,        'EB 病毒抗體（VCA-IgA）', '腫瘤標記', ''],
+  ['ca125',  /^CA-?125/,                 'CA 125',           '腫瘤標記', 'U/mL'],
+  ['ca153',  /^CA-?15-?3/,               'CA 15-3',          '腫瘤標記', 'U/mL'],
+  ['ca199',  /^CA-?19-?9/,               'CA 19-9',          '腫瘤標記', 'U/mL'],
   ['bhcg',   /HCG/,                      'β-HCG',            '腫瘤標記', 'mIU/mL'],
   ['afp',    /^AFP/,                     'AFP',              '腫瘤標記', 'ng/mL'],
   ['cea',    /^CEA/,                     'CEA',              '腫瘤標記', 'ng/mL'],
@@ -280,7 +291,26 @@ function ckJudge(r, P){
       }
       return R(2, '升高，需要進一步檢查', 'tumor');
     }
-    case 'afp': case 'cea': case 'psa': case 'fpsa':
+    case 'lpa': {
+      if(v == null) break;
+      const cut = /nmol/i.test(r.unit || '') ? 125 : 50;
+      return v >= cut ? R(1, `達 ${cut} 以上，屬遺傳性的心血管風險因子`, 'lpa') : R(0);
+    }
+    case 'apob':
+      if(v == null) break;
+      return v >= 130 ? R(1, '達 130 以上', 'lipid') : R(0);
+    case 'hscrp': {
+      if(v == null) break;
+      const mgl = /mg\/dL/i.test(r.unit || '') ? v * 10 : v;
+      return mgl > 10 ? R(1, '超過 10 mg/L，多半是急性發炎或感染，建議身體恢復後複驗', 'crp10') : mgl >= 2 ? R(1, '達 2 mg/L 以上，屬心血管風險的加重因子', 'crp') : R(0);
+    }
+    case 'ebv':
+      return (isQual ? !(ckNeg(r.raw) || /\(-\)|陰/.test(r.raw)) : f === 'H') ? R(1, '陽性，建議耳鼻喉科檢查鼻咽', 'ebv') : R(0);
+    case 'antihbs': {
+      const pos = v != null ? v >= 10 : !(ckNeg(r.raw) || /\(-\)|陰|</.test(r.raw));
+      return pos ? R(0, '有保護力') : R(1, '沒有保護力，可考慮接種 B 型肝炎疫苗', 'hbvvac', '無抗體');
+    }
+    case 'afp': case 'cea': case 'psa': case 'fpsa': case 'scc': case 'cyfra': case 'ca724': case 'progrp': case 'ca125': case 'ca153': case 'ca199':
       return f === 'H' ? R(1, '高於參考值，單一數值不代表罹癌，需要和醫師討論', 'tumor') : R(0);
     case 'hbsag': return ckNeg(r.raw) || /\(-\)|陰|<|non/i.test(r.raw) ? R(0) : R(1, '陽性，代表 B 型肝炎帶原', 'hbv');
     case 'antihcv': return ckNeg(r.raw) || /\(-\)|陰|<|non/i.test(r.raw) ? R(0) : R(1, '陽性，需要再驗病毒量確認', 'hcv');
@@ -393,6 +423,218 @@ function ckFib4(rows, P){
   return {v, g, low, young: age < 35, d: g === 2 ? '高於 2.67，肝纖維化風險高' : g === 1 ? '介於中間值，需要進一步評估' : '低於切點，肝纖維化風險低', adv: g ? 'fib4' : ''};
 }
 
+/* ---------- 加選模組 ----------
+   PDF 沒有、但在「加選模組」手動填的檢驗值，補成檢驗列，判讀與報告表格照常處理。 */
+const CK_MOD_ROWS = [['lpa', '<50'], ['apob', '<130'], ['hscrp', '<2.0'], ['hbsag', '陰性'], ['antihbs', '陽性'], ['antihcv', '陰性']];
+function ckModRows(rows){
+  const m = CK.mod || {}, out = [];
+  CK_MOD_ROWS.forEach(([k, ref])=>{
+    const v = String(m[k] == null ? '' : m[k]).trim();
+    if(!v || rows.some(r=> r.key === k && String(r.raw || '').trim())) return;
+    const x = CK_LAB_BY[k];
+    out.push({key: k, code: '', zh: x[2], raw: v, ref, unit: /^[\d.]+$/.test(v) ? x[4] : '', sec: x[3], labFlag: '', manual: true});
+  });
+  return out;
+}
+
+/* 大腸鏡追蹤間隔：依 2020 美國多學會大腸癌工作小組（USMSTF）建議。
+   回傳 {t 間隔, g 燈號, when 建議分組, d 說明}；沒有填病理時回傳 null。 */
+function ckColonNext(){
+  const m = CK.mod || {}, h = m.cHist;
+  if(!h) return null;
+  const n = ckNum(m.cNum) || (h === 'none' ? 0 : 1), mm = ckNum(m.cSize) || 0;
+  const fam = (CK.hx.fam || []).includes('crc');
+  let t, g = 1, d = '';
+  if(h === 'cancer') return {t:'轉介外科與腫瘤科', g:2, when:'now', d:'病理為癌，需要進一步分期與治療'};
+  if(h === 'none'){ t = fam ? '5 年' : '10 年'; g = 0; d = fam ? '沒有瘜肉；一等親有大腸癌，間隔縮短為 5 年' : '沒有瘜肉'; }
+  else if(h === 'hyper'){ if(mm >= 10){ t = '3 至 5 年'; d = '增生性瘜肉達 10 mm 以上'; } else { t = '10 年'; g = 0; d = '小於 10 mm 的增生性瘜肉，屬低風險'; } }
+  else if(h === 'tubular'){
+    if(n > 10){ t = '1 年'; d = '腺瘤超過 10 顆'; }
+    else if(mm >= 10 || n >= 5){ t = '3 年'; d = mm >= 10 ? '腺瘤達 10 mm 以上' : '腺瘤 5 至 10 顆'; }
+    else if(n >= 3){ t = '3 至 5 年'; d = '腺瘤 3 至 4 顆，皆小於 10 mm'; }
+    else { t = '7 至 10 年'; d = '腺瘤 1 至 2 顆，皆小於 10 mm'; }
+  }
+  else if(h === 'advanced'){ t = '3 年'; d = '絨毛狀或高度分化不良腺瘤，屬進行性腺瘤'; }
+  else if(h === 'ssl' || h === 'ssldys'){
+    if(h === 'ssldys' || mm >= 10){ t = '3 年'; d = h === 'ssldys' ? '鋸齒狀病灶合併分化不良' : '鋸齒狀病灶達 10 mm 以上'; }
+    else if(n >= 5){ t = '3 年'; d = '鋸齒狀病灶 5 至 10 顆'; }
+    else if(n >= 3){ t = '3 至 5 年'; d = '鋸齒狀病灶 3 至 4 顆，皆小於 10 mm'; }
+    else { t = '5 至 10 年'; d = '鋸齒狀病灶 1 至 2 顆，皆小於 10 mm'; }
+  }
+  if(m.cPiece === 'yes'){ t = '6 個月'; g = 1; d = '20 mm 以上分片切除，需要確認切除部位沒有殘留'; }
+  else if(m.cPrep === 'poor' && !/^(1 年)$/.test(t)){ t = '1 年內'; g = 1; d = '腸道清潔不佳，可能有看不清楚的地方'; }
+  const when = t === '6 個月' ? 'm6' : /^1 年/.test(t) ? 'y1' : 'long';
+  return {t, g, when, d};
+}
+
+const CK_EGD = {
+  normal:{t:'正常', g:0}, gerd:{t:'逆流性食道炎', g:1, adv:'gerd'}, gastritis:{t:'慢性胃炎', g:0},
+  atrophy:{t:'萎縮性胃炎或腸上皮化生', g:1, adv:'atrophy'}, ulcer:{t:'潰瘍', g:2, adv:'ulcer'},
+  polyp:{t:'瘜肉', g:1, adv:'egdpolyp'}, tumor:{t:'疑似腫瘤', g:2, adv:'egdtumor'}, other:{t:'其他', g:1, adv:'egdother'}
+};
+// Lung-RADS v2022：分級、燈號、建議
+const CK_LUNG = {
+  '1':{g:0, d:'沒有結節，或結節有明確良性特徵', adv:'ldct12'}, '2':{g:0, d:'結節屬良性表現', adv:'ldct12'},
+  '3':{g:1, d:'可能良性，建議 6 個月後追蹤', adv:'ldct6'}, '4A':{g:2, d:'可疑，建議 3 個月後追蹤', adv:'ldct3'},
+  '4B':{g:2, d:'非常可疑，需要進一步檢查', adv:'ldct4b'}, '4X':{g:2, d:'非常可疑，需要進一步檢查', adv:'ldct4b'}
+};
+
+// 加選模組的判讀，每個發現一筆：{area, t, g, d, adv, note}
+function ckModJudge(){
+  const m = CK.mod || {}, out = [];
+  if(m.ecg === 'normal') out.push({area:'心電圖', t:'正常', g:0});
+  if(m.ecg === 'abn') out.push({area:'心電圖', t: m.ecgNote ? String(m.ecgNote) : '異常', g:1, adv:'ecg'});
+  const ca = m.carotid || [], imt = ckNum(m.imt);
+  if(ca.length || imt != null){
+    let g = 0, adv = '', t = [];
+    if(ca.includes('normal')) t.push('正常');
+    if(ca.includes('imt') || (imt != null && imt >= 1.0)){ g = Math.max(g, 1); adv = 'plaque'; t.push('內膜中層增厚'); }
+    if(ca.includes('plaque')){ g = Math.max(g, 1); adv = 'plaque'; t.push('有斑塊'); }
+    if(ca.includes('sten50')){ g = 2; adv = 'carotid50'; t.push('狹窄 50% 以上'); }
+    out.push({area:'頸動脈超音波', t: (t.join('、') || '已檢查') + (imt != null ? `（IMT ${imt} mm）` : ''), g, adv, note: m.carotidNote});
+  }
+  if(m.ubt === 'neg') out.push({area:'幽門桿菌', t:'碳 13 呼氣檢查陰性', g:0});
+  if(m.ubt === 'pos') out.push({area:'幽門桿菌', t:'碳 13 呼氣檢查陽性' + (ckNum(m.ubtVal) != null ? `（DOB ${ckNum(m.ubtVal)}‰）` : ''), g:1, d:'有幽門桿菌感染，建議除菌治療', adv:'hp'});
+  const colonDone = !!m.cHist;
+  if(m.fit === 'neg') out.push({area:'糞便潛血', t:'陰性', g:0});
+  if(m.fit === 'pos') out.push(colonDone ? {area:'糞便潛血', t:'陽性', g:1, d:'本次已完成大腸鏡，依大腸鏡結果追蹤'} : {area:'糞便潛血', t:'陽性', g:2, d:'需要安排大腸鏡檢查', adv:'fitpos'});
+  (m.egd || []).forEach(k=>{
+    const x = CK_EGD[k]; if(!x) return;
+    out.push({area:'胃鏡', t: x.t, g: x.g, adv: x.adv || ''});
+  });
+  if((m.egd || []).length && m.egdNote) out[out.length - 1].note = m.egdNote;
+  const cn = ckColonNext();
+  if(cn){
+    const hz = {none:'沒有瘜肉', hyper:'增生性瘜肉', tubular:'管狀腺瘤', advanced:'進行性腺瘤', ssl:'無柄鋸齒狀病灶', ssldys:'鋸齒狀病灶合併分化不良', cancer:'大腸癌'}[m.cHist];
+    const num = ckNum(m.cNum), mm = ckNum(m.cSize);
+    const t = hz + (m.cHist !== 'none' && (num || mm) ? `（${num ? num + ' 顆' : ''}${num && mm ? '，' : ''}${mm ? '最大 ' + mm + ' mm' : ''}）` : '');
+    out.push({area:'大腸鏡', t, g: cn.g, d: `${cn.d}；下次大腸鏡：${cn.t}`, adv:'colon', note: m.colonNote, colon: cn});
+  } else if(m.colonNote) out.push({area:'大腸鏡', t:'已檢查', g:0, note: m.colonNote});
+  if(m.ldct){
+    const x = CK_LUNG[m.ldct];
+    out.push({area:'低劑量肺部電腦斷層', t:'Lung-RADS ' + m.ldct, g: x.g, d: x.d, adv: x.adv, note: m.ldctNote});
+  }
+  return out;
+}
+
+/* ---------- 心血管風險 ----------
+   PREVENT（AHA 2023，Khan SS 等，Circulation 2024;149:430-449）：係數取自 preventr 套件（含 2026-10-14 勘誤後的 HbA1c 項順序），
+   以 preventr 範例驗證：女 50 歲、SBP 160 服降壓藥、TC 200、HDL 45、糖尿病、不吸菸、eGFR 90、BMI 35
+   → 10 年總心血管 14.7%、ASCVD 9.2%，30 年 53.0%、35.4%。
+   每組係數順序：age、(30 年才有 age²)、nonHDL、HDL、SBP<110、SBP≥110、DM、吸菸、BMI<30、BMI≥30、eGFR<60、eGFR≥60、
+   降壓藥、statin、降壓藥×SBP、statin×nonHDL、age×(nonHDL、HDL、SBP、DM、吸菸、BMI、eGFR)、(HbA1c 模型：HbA1c 無 DM、有 DM、缺值)、常數。 */
+const CK_PREVENT = {
+  b10:{
+    f_cvd:  [0.7939329,0.0305239,-0.1606857,-0.2394003,0.3600781,0.8667604,0.5360739,0,0,0.6045917,0.0433769,0.3151672,-0.1477655,-0.0663612,0.1197879,-0.0819715,0.0306769,-0.0946348,-0.27057,-0.078715,0,-0.1637806,-3.307728],
+    m_cvd:  [0.7688528,0.0736174,-0.0954431,-0.4347345,0.3362658,0.7692857,0.4386871,0,0,0.5378979,0.0164827,0.288879,-0.1337349,-0.0475924,0.150273,-0.0517874,0.0191169,-0.1049477,-0.2251948,-0.0895067,0,-0.1543702,-3.031168],
+    f_ascvd:[0.719883,0.1176967,-0.151185,-0.0835358,0.3592852,0.8348585,0.4831078,0,0,0.4864619,0.0397779,0.2265309,-0.0592374,-0.0395762,0.0844423,-0.0567839,0.0325692,-0.1035985,-0.2417542,-0.0791142,0,-0.1671492,-3.819975],
+    m_ascvd:[0.7099847,0.1658663,-0.1144285,-0.2837212,0.3239977,0.7189597,0.3956973,0,0,0.3690075,0.0203619,0.2036522,-0.0865581,-0.0322916,0.114563,-0.0300005,0.0232747,-0.0927024,-0.2018525,-0.0970527,0,-0.1217081,-3.500655]
+  },
+  b30:{
+    f_cvd:  [0.5503079,-0.0928369,0.0409794,-0.1663306,-0.1628654,0.3299505,0.6793894,0.3196112,0,0,0.1857101,0.0553528,0.2894,-0.075688,-0.056367,0.1071019,-0.0751438,0.0301786,-0.0998776,-0.3206166,-0.1607862,0,-0.1450788,-1.318827],
+    m_cvd:  [0.4627309,-0.0984281,0.0836088,-0.1029824,-0.2140352,0.2904325,0.5331276,0.2141914,0,0,0.1155556,0.0603775,0.232714,-0.0272112,-0.0384488,0.134192,-0.0511759,0.0165865,-0.1101437,-0.2585943,-0.1566406,0,-0.1166776,-1.148204],
+    f_ascvd:[0.4669202,-0.0893118,0.1256901,-0.1542255,-0.0018093,0.322949,0.6296707,0.268292,0,0,0.100106,0.0499663,0.1875292,0.0152476,-0.0276123,0.0736147,-0.0521962,0.0316918,-0.1046101,-0.2727793,-0.1530907,0,-0.1299149,-1.974074],
+    m_ascvd:[0.3994099,-0.0937484,0.1744643,-0.120203,-0.0665117,0.2753037,0.4790257,0.1782635,0,0,-0.0218789,0.0602553,0.1421182,0.0135996,-0.0218265,0.1013148,-0.0312619,0.020673,-0.0920935,-0.2159947,-0.1548811,0,-0.0712547,-1.736444]
+  },
+  a10:{
+    f_cvd:  [0.7858178,0.0194438,-0.1521964,-0.2296681,0.3465777,0.5366241,0.5411682,0,0,0.5931898,0.0472458,0.3158567,-0.1535174,-0.0687752,0.1054746,-0.0761119,0.0307469,-0.0905966,-0.2241857,-0.080186,0,-0.1667286,0.1338348,0.1622409,-0.0142496,-3.306162],
+    m_cvd:  [0.7699177,0.0605093,-0.0888525,-0.417713,0.3288657,0.4759471,0.4385663,0,0,0.5334616,0.0206431,0.2917524,-0.1383313,-0.0482622,0.1393796,-0.0463501,0.0205926,-0.1037717,-0.1737697,-0.0915839,0,-0.1637039,0.13159,0.1295185,-0.0128373,-3.040901],
+    f_ascvd:[0.7111831,0.106797,-0.1425745,-0.0736824,0.3480844,0.5112951,0.4880292,0,0,0.4754997,0.0438132,0.2259093,-0.0648872,-0.0437645,0.0697082,-0.0506382,0.0327475,-0.0996442,-0.1924338,-0.0803539,0,-0.1682586,0.1339055,0.1596461,0.0015678,-3.838746],
+    m_ascvd:[0.7064146,0.1532267,-0.1082166,-0.2675288,0.3173809,0.432604,0.3958842,0,0,0.3665014,0.0250243,0.2061158,-0.0899988,-0.0334959,0.1034168,-0.0255406,0.0247538,-0.0917441,-0.1499195,-0.098089,0,-0.1305231,0.1157161,0.1288303,-0.0010001,-3.51835]
+  },
+  a30:{
+    f_cvd:  [0.5343493,-0.0952314,0.0298124,-0.1578451,-0.1504488,0.3173368,0.4314738,0.3209399,0,0,0.1771435,0.0582828,0.2888947,-0.0795886,-0.0600438,0.0920598,-0.0696108,0.0308807,-0.0954051,-0.2763408,-0.1623944,0,-0.1430514,0.0940543,0.1116486,-0.0024798,-1.341059],
+    m_cvd:  [0.4519873,-0.101624,0.0700456,-0.0968005,-0.1923527,0.2827043,0.3417152,0.2105272,0,0,0.1113291,0.0640135,0.2334248,-0.0299421,-0.0393204,0.1228854,-0.0463737,0.0184599,-0.1085744,-0.2208049,-0.1577978,0,-0.1179375,0.0768169,0.0777295,0.0092204,-1.180767],
+    f_ascvd:[0.4555574,-0.0903501,0.1148321,-0.1458754,0.0089323,0.3139029,0.386281,0.2714309,0,0,0.0930987,0.0532216,0.1862181,0.0106964,-0.0329713,0.0583609,-0.0463273,0.0324717,-0.1004777,-0.2266944,-0.1541859,0,-0.1286005,0.0875827,0.1126417,0.0124356,-2.011533],
+    m_ascvd:[0.3883267,-0.0958114,0.1613374,-0.1144418,-0.0474338,0.2691281,0.2859773,0.1759553,0,0,-0.0242898,0.0644523,0.142874,0.0115062,-0.02333,0.0899664,-0.0275478,0.022573,-0.090802,-0.1771894,-0.1548847,0,-0.0732754,0.0591089,0.0821158,0.0179755,-1.777708]
+  }
+};
+// 心血管風險要用的輸入，全部從現有欄位取
+function ckCvInputs(rows, P, body){
+  const get = k=> { const r = rows.find(x=> x.key === k && String(x.raw || '').trim()); return r ? ckNum(r.raw) : null; };
+  const dx = CK.hx.dx || [], med = CK.hx.med || [];
+  const h = ckNum(CK.body.h), w = ckNum(CK.body.w);
+  return {
+    age: P.age, male: P.male, sexOk: P.male || P.female,
+    tc: get('tc'), hdl: get('hdl'), ldl: get('ldl'), a1c: get('a1c'), glu: get('glu'),
+    egfr: get('egfr') != null ? get('egfr') : get('mdrd'),
+    sbp: body.bp ? body.bp.s : null, bmi: h && w ? w / Math.pow(h / 100, 2) : null,
+    dm: dx.includes('dm') || med.includes('dm'), smoke: CK.hx.smoke === 'current',
+    bptx: med.includes('bp'), statin: med.includes('statin'), cvd: dx.includes('cvd'), smokeSet: !!CK.hx.smoke
+  };
+}
+function ckPrevent(I){
+  if(I.cvd) return {na:'已有心血管疾病，屬次級預防，不適用風險預測'};
+  const miss = [!I.sexOk && '性別', I.age == null && '年齡', I.tc == null && '總膽固醇', I.hdl == null && 'HDL', I.sbp == null && '收縮壓', I.egfr == null && 'eGFR', !I.smokeSet && '吸菸狀態'].filter(Boolean);
+  if(miss.length) return {miss};
+  const out = [[I.age, 30, 79, '年齡'], [I.sbp, 90, 180, '收縮壓'], [I.tc, 130, 320, '總膽固醇'], [I.hdl, 20, 100, 'HDL'], [I.egfr, 15, 140, 'eGFR']]
+    .filter(([v, lo, hi])=> v < lo || v > hi).map(([v, lo, hi, n])=> `${n} ${Math.round(v * 10) / 10}（適用 ${lo} 至 ${hi}）`);
+  if(out.length) return {range: out};
+  const useA1c = I.a1c != null && I.a1c >= 4.5 && I.a1c <= 15;
+  const bmi = I.bmi || 25;     // BMI 只影響心衰竭模型，總心血管與 ASCVD 的係數都是 0
+  const a = (I.age - 55) / 10, nh = (I.tc - I.hdl) * 0.02586 - 3.5, hd = (I.hdl * 0.02586 - 1.3) / 0.3;
+  const sl = (Math.min(I.sbp, 110) - 110) / 20, sg = (Math.max(I.sbp, 110) - 130) / 20;
+  const bl = (Math.min(bmi, 30) - 25) / 5, bg = (Math.max(bmi, 30) - 30) / 5;
+  const el = (Math.min(I.egfr, 60) - 60) / -15, eg = (Math.max(I.egfr, 60) - 90) / -15;
+  const dm = I.dm ? 1 : 0, sm = I.smoke ? 1 : 0, bp = I.bptx ? 1 : 0, st = I.statin ? 1 : 0;
+  const run = (yr, ev)=>{
+    const x = [a, nh, hd, sl, sg, dm, sm, bl, bg, el, eg, bp, st, bp * sg, st * nh, a * nh, a * hd, a * sg, a * dm, a * sm, a * bg, a * el];
+    if(yr === 30) x.splice(1, 0, a * a);
+    if(useA1c) x.push(dm ? 0 : I.a1c - 5.3, dm ? I.a1c - 5.3 : 0, 0);
+    x.push(1);
+    const c = CK_PREVENT[(useA1c ? 'a' : 'b') + yr][(I.male ? 'm_' : 'f_') + ev];
+    const s = x.reduce((t, v, i)=> t + v * c[i], 0);
+    return Math.exp(s) / (1 + Math.exp(s));
+  };
+  const r = {model: useA1c ? 'HbA1c' : '基本', cvd10: run(10, 'cvd'), ascvd10: run(10, 'ascvd')};
+  if(I.age <= 59){ r.cvd30 = run(30, 'cvd'); r.ascvd30 = run(30, 'ascvd'); }
+  return r;
+}
+/* TwCCCC：2023 台灣心臟學會慢性冠心症指引 Table 7（源自竹山社區世代，Chien KL 等，Int J Cardiol 2012;157:263-8），預測 10 年冠心病風險。
+   原表收縮壓欄另有一列「< 110 → 5 分」與第一列矛盾，本工具採 0 至 4 分，待對照原始論文確認。 */
+const CK_TW_RISK = [0, .001, .001, .001, .001, .002, .003, .003, .005, .006, .008, .011, .014, .019, .025, .033, .044, .058, .076, .099, .129, .168, .216, .276, .349];
+function ckTwcccc(I){
+  if(I.cvd) return {na:'已有心血管疾病，屬次級預防，不適用風險預測'};
+  if(I.age != null && I.age < 35) return {na:'TwCCCC 適用 35 歲以上'};
+  const miss = [!I.sexOk && '性別', I.age == null && '年齡', I.bmi == null && '身高體重', I.sbp == null && '收縮壓', I.ldl == null && 'LDL', I.hdl == null && 'HDL', !I.smokeSet && '吸菸狀態'].filter(Boolean);
+  if(miss.length) return {miss};
+  const p = {
+    age: Math.min(8, Math.max(0, Math.floor((I.age - 35) / 5))),
+    sex: I.male ? 3 : 0,
+    bmi: I.bmi < 22 ? 0 : I.bmi < 26 ? 1 : 2,
+    sbp: I.sbp < 110 ? 0 : I.sbp < 130 ? 1 : I.sbp < 150 ? 2 : I.sbp < 160 ? 3 : 4,
+    ldl: I.ldl < 90 ? 0 : I.ldl < 150 ? 1 : 2,
+    hdl: I.hdl < 30 ? 5 : I.hdl < 40 ? 4 : I.hdl < 60 ? 3 : I.hdl < 70 ? 2 : I.hdl < 80 ? 1 : 0,
+    smoke: I.smoke ? 2 : 0
+  };
+  const pts = Object.values(p).reduce((a, b)=> a + b, 0);
+  return {pts, parts: p, risk: CK_TW_RISK[Math.min(24, pts)]};
+}
+
+/* ---------- 公費篩檢 ----------
+   依國民健康署公告整理（2026 年 10 月）。只看年齡、性別、家族史與吸菸，不知道上次篩檢日期，所以寫成「符合資格」。
+   tbc：新制或來源說法不一，醫師端標示待確認。 */
+function ckPublic(P){
+  const age = P.age, out = [];
+  if(age == null) return out;
+  const fam = CK.hx.fam || [], m = CK.mod || {}, smoke = CK.hx.smoke;
+  const by = /^\d{4}/.test(CK.info.birth || '') ? +CK.info.birth.slice(0, 4) : null;
+  const add = (t, rule, done, tbc)=> out.push({t, rule, done: done || '', tbc: !!tbc});
+  if(age >= 30) add('成人預防保健', age >= 65 ? '65 歲以上每年 1 次' : age >= 40 ? '40 至 64 歲每 3 年 1 次' : '30 至 39 歲每 5 年 1 次');
+  if((age >= 45 && age <= 74) || (age >= 40 && age < 45 && fam.includes('crc')))
+    add('糞便潛血檢查', age < 45 ? '一等親有大腸癌，40 至 44 歲每 2 年 1 次' : '45 至 74 歲每 2 年 1 次', m.cHist ? '本次已做大腸鏡，依大腸鏡追蹤時程即可' : m.fit ? '本次已做' : '');
+  if(P.female && age >= 40 && age <= 74) add('乳房攝影', '40 至 74 歲女性每 2 年 1 次');
+  if(age >= 30 && (smoke === 'current' || smoke === 'former')) add('口腔黏膜檢查', '30 歲以上吸菸或嚼檳榔（含已戒）每 2 年 1 次');
+  if(age >= 45 && age <= 74) add('幽門桿菌糞便抗原檢查', '45 至 74 歲一生 1 次（2026 年起）', m.ubt ? '本次已做呼氣檢查' : '', true);
+  const hepDone = m.hbsag || m.antihcv || ckCurrentRows().some(r=> (r.key === 'hbsag' || r.key === 'antihcv') && String(r.raw || '').trim());
+  if(age <= 79 && ((by && by <= 1986) || (!by && age >= 40))) add('B、C 型肝炎篩檢', '民國 75 年以前出生、79 歲以下一生 1 次', hepDone ? '本次已驗' : '', true);
+  const py = ckNum(CK.hx.packyears), quit = ckNum(CK.hx.quitYears);
+  const famLung = fam.includes('lung') && ((P.female && age >= 40 && age <= 74) || (P.male && age >= 45 && age <= 74));
+  const heavy = age >= 50 && age <= 74 && py != null && py >= 20 && (smoke === 'current' || (smoke === 'former' && quit != null && quit < 15));
+  if(famLung || heavy) add('低劑量肺部電腦斷層', famLung ? '一等親有肺癌，每 2 年 1 次' : '吸菸 20 包年以上（戒菸未滿 15 年），每 2 年 1 次', m.ldct ? '本次已做' : '');
+  return out;
+}
+
 /* ---------- 建議事項 ----------
    when：now 盡快回診、m3 三個月內、m6 半年內、y1 一年後（下次健檢）。同一類只列一次。 */
 const CK_ADV = {
@@ -426,8 +668,28 @@ const CK_ADV = {
   nodfu:    {when:'y1', t:'甲狀腺結節建議 1 年後超音波追蹤，比較大小與特徵。'},
   fna:      {when:'now', t:'甲狀腺結節建議安排細針穿刺，確認細胞性質。'},
   usother:  {when:'m3', t:'超音波有其他發現，請回診討論後續追蹤。'},
+  lpa:      {when:'y1', t:'脂蛋白(a) 主要由遺傳決定，一生驗一次即可；數值高的人，其他危險因子要控制得更嚴格，也建議一等親檢查。'},
+  crp:      {when:'y1', t:'hs-CRP 偏高代表血管有慢性發炎，戒菸、減重與規律運動可以降低；會和其他危險因子一起評估。'},
+  crp10:    {when:'m3', t:'hs-CRP 明顯升高多半是急性發炎，感冒或受傷恢復 2 週後再驗一次才準確。'},
+  hbvvac:   {when:'m6', t:'B 型肝炎表面抗體陰性，代表沒有保護力，可以接種 B 型肝炎疫苗。'},
+  ebv:      {when:'m3', t:'EB 病毒抗體陽性和鼻咽癌有關，建議到耳鼻喉科做鼻咽內視鏡檢查。'},
+  ecg:      {when:'m3', t:'心電圖有異常發現，請回診討論是否需要心臟超音波或轉介心臟科。'},
+  plaque:   {when:'m3', t:'頸動脈有斑塊或內膜增厚，代表已有動脈硬化，血脂與血壓的控制目標要更嚴格。'},
+  carotid50:{when:'now', t:'頸動脈狹窄 50% 以上，建議轉介神經內科或心臟科評估。'},
+  hp:       {when:'m3', t:'幽門桿菌陽性建議除菌治療，可以降低胃癌與潰瘍的風險；療程結束 4 週以上、並停用胃藥 2 週後，再做呼氣檢查確認除菌成功。'},
+  fitpos:   {when:'now', t:'糞便潛血陽性，請安排大腸鏡檢查，不建議只重驗一次糞便。'},
+  gerd:     {when:'m3', t:'逆流性食道炎可以先調整生活習慣：睡前 3 小時不進食、減少咖啡與油炸食物、控制體重；症狀明顯時再用藥。'},
+  atrophy:  {when:'long', t:'萎縮性胃炎或腸上皮化生是胃癌的前驅變化，胃竇與胃體都有時建議每 3 年做一次胃鏡；有胃癌家族史，間隔再縮短。'},
+  ulcer:    {when:'now', t:'消化性潰瘍需要用藥治療，並確認幽門桿菌；胃潰瘍在治療 8 至 12 週後要再做胃鏡確認癒合。'},
+  egdpolyp: {when:'m3', t:'胃鏡瘜肉的追蹤依病理報告決定，請回診看病理結果。'},
+  egdtumor: {when:'now', t:'胃鏡有疑似腫瘤的病灶，請盡快回診看病理報告並安排後續治療。'},
+  egdother: {when:'m3', t:'胃鏡有其他發現，請回診討論後續追蹤。'},
+  ldct12:   {when:'y1', t:'低劑量肺部電腦斷層結果屬低風險，依 Lung-RADS 建議 12 個月後追蹤（公費篩檢為每 2 年 1 次）。'},
+  ldct6:    {when:'m6', t:'肺部結節屬 Lung-RADS 3，建議 6 個月後再做一次低劑量電腦斷層。'},
+  ldct3:    {when:'m3', t:'肺部結節屬 Lung-RADS 4A，建議 3 個月後追蹤低劑量電腦斷層，必要時安排正子攝影。'},
+  ldct4b:   {when:'now', t:'肺部結節屬 Lung-RADS 4B 以上，請轉介胸腔科，安排進一步影像或切片。'},
 };
-const CK_WHEN = {now:'盡快回診', m3:'3 個月內', m6:'半年內', y1:'下次健檢'};
+const CK_WHEN = {now:'盡快回診', m3:'3 個月內', m6:'半年內', y1:'下次健檢', long:'長期追蹤'};
 
 /* ---------- 彙整：本次檢驗、歷次、所有判讀 ---------- */
 function ckSortedReports(){ return [...CK.reports].sort((a, b)=> (b.date || '').localeCompare(a.date || '')); }
@@ -447,10 +709,15 @@ function ckPrev(key, code){
 }
 function ckCollect(){
   const P = ckPatient();
-  const rows = ckCurrentRows().map(r=> ({...r, j: ckJudge(r, P), flag: ckFlag(r)}));
+  const base = ckCurrentRows();
+  const rows = [...base, ...ckModRows(base)].map(r=> ({...r, j: ckJudge(r, P), flag: ckFlag(r)}));
   const body = ckBodyJudge(P);
   const us = ckUsJudge();
+  const mod = ckModJudge();
   const fib4 = ckFib4(rows, P);
+  const cvIn = ckCvInputs(rows, P, body);
+  const cv = {inp: cvIn, prevent: ckPrevent(cvIn), tw: ckTwcccc(cvIn)};
+  const pub = ckPublic(P);
   const findings = [];
   const add = (g, html, adv)=> { if(g >= 1) findings.push({g, html, adv}); };
   if(body.bmi) add(body.bmi.g, `<b>BMI ${body.bmi.v.toFixed(1)}</b>，屬${body.bmi.cat}`, body.bmi.adv);
@@ -466,14 +733,25 @@ function ckCollect(){
   if(body.fat) add(body.fat.g, `<b>體脂肪率 ${body.fat.v}%</b>，高於${P.male ? '男' : '女'}性標準 ${body.fat.cut}%`, 'weight');
   if(body.visceral) add(body.visceral.g, `<b>內臟脂肪等級 ${body.visceral.v}</b>，${body.visceral.g === 2 ? '過高' : '偏高'}`, 'weight');
   us.forEach(u=> add(u.g, `<b>${u.area}超音波：${ckEsc(u.t)}</b>${u.d ? '，' + u.d : ''}`, u.adv));
+  mod.forEach(u=> add(u.g, `<b>${u.area}：${ckEsc(u.t)}</b>${u.d ? '，' + u.d : ''}`, u.adv));
   findings.forEach((x, i)=> x.i = i);
   findings.sort((a, b)=> b.g - a.g || a.i - b.i);
   // 建議事項：異常與注意項目的建議，依時間分組，同類只列一次
   const advSeen = new Set(), advice = [];
-  findings.forEach(x=>{ if(x.adv && CK_ADV[x.adv] && !advSeen.has(x.adv)){ advSeen.add(x.adv); advice.push({key: x.adv, ...CK_ADV[x.adv]}); } });
-  us.forEach(u=>{ if(u.g < 1 && u.adv && CK_ADV[u.adv] && !advSeen.has(u.adv)){ advSeen.add(u.adv); advice.push({key: u.adv, ...CK_ADV[u.adv]}); } });
+  // B 肝帶原者表面抗體本來就是陰性，不建議打疫苗
+  if(rows.some(r=> r.key === 'hbsag' && r.j.g >= 1)) advSeen.add('hbvvac');
+  const push = key=>{ if(key && CK_ADV[key] && !advSeen.has(key)){ advSeen.add(key); advice.push({key, ...CK_ADV[key]}); } };
+  findings.forEach(x=> push(x.adv));
+  us.forEach(u=>{ if(u.g < 1) push(u.adv); });
+  mod.forEach(u=>{ if(u.g < 1 && u.adv !== 'colon') push(u.adv); });
+  // 大腸鏡間隔每個人不同，建議文字依結果產生
+  const colon = mod.find(u=> u.colon);
+  if(colon){
+    const c = colon.colon;
+    advice.push({key:'colon', when: c.when, t: c.when === 'now' ? '大腸鏡病理為癌，請盡快回診討論轉介與治療。' : `依這次大腸鏡結果（${c.d}），下次大腸鏡建議在 ${c.t}${/內$/.test(c.t) ? '' : '後'}。`});
+  }
   const reps = ckSortedReports();
-  return {P, rows, body, us, fib4, findings, advice, reports: reps, current: reps[0] || null};
+  return {P, rows, body, us, mod, fib4, cv, pub, findings, advice, reports: reps, current: reps[0] || null};
 }
 
 /* ---------- 畫面 ---------- */
@@ -522,6 +800,12 @@ function ckRenderFields(){
     const v = ckGet(path);
     el.hidden = !(Array.isArray(v) ? v.includes(val) : v === val);
   });
+  // data-show-not：有選擇、且不是指定值時才顯示
+  KD.querySelectorAll('[data-show-not]').forEach(el=>{
+    const [path, val] = el.dataset.showNot.split(':');
+    const v = ckGet(path);
+    el.hidden = !v || v === val;
+  });
   ckEl('k-row-preg').hidden = CK.info.sex !== 'F';
 }
 function ckGrow(t){ t.style.height = 'auto'; t.style.height = (t.scrollHeight + 3) + 'px'; }
@@ -569,6 +853,36 @@ function ckRenderFind(){
   if(d.fib4 && d.fib4.miss) box.insertAdjacentHTML('beforeend', `<div><span class="gna">提醒</span><span>FIB-4 無法計算：缺${d.fib4.miss.join('、')}。</span></div>`);
   const b = d.body.bmi;
   ckEl('k-bmi').innerHTML = b ? `BMI <b>${b.v.toFixed(1)}</b>　<span class="g${b.g}">${b.cat}</span>` : '';
+  const cn = ckColonNext();
+  ckEl('k-colon-next').innerHTML = cn ? `下次大腸鏡：<b>${ckEsc(cn.t)}</b>　<span class="g${cn.g}">${ckEsc(cn.d)}</span>` : '';
+  ckRenderCv(d);
+  ckRenderPub(d);
+}
+
+const ckPct = v=> (Math.round(v * 1000) / 10).toFixed(1) + '%';
+function ckRenderCv(d){
+  const {prevent: pv, tw, inp} = d.cv;
+  const why = x=> x.na ? x.na : x.miss ? `缺${x.miss.join('、')}，無法計算。` : x.range ? `超出模型適用範圍：${x.range.join('、')}。` : '';
+  const pvHtml = why(pv) ? `<p class="k-note">${ckEsc(why(pv))}</p>` :
+    `<table><tr><td>10 年總心血管疾病</td><td class="n">${ckPct(pv.cvd10)}</td></tr><tr><td>10 年動脈硬化心血管疾病</td><td class="n">${ckPct(pv.ascvd10)}</td></tr>` +
+    (pv.cvd30 != null ? `<tr><td>30 年總心血管疾病</td><td class="n">${ckPct(pv.cvd30)}</td></tr><tr><td>30 年動脈硬化心血管疾病</td><td class="n">${ckPct(pv.ascvd30)}</td></tr>` : '') +
+    `</table><p class="k-note">${pv.model === 'HbA1c' ? '使用含 HbA1c 的模型' : '沒有 HbA1c，使用基本模型'}。糖尿病${inp.dm ? '有' : '無'}、吸菸${inp.smoke ? '有' : '無'}、降壓藥${inp.bptx ? '有' : '無'}、降血脂藥${inp.statin ? '有' : '無'}（依病史欄位）。</p>`;
+  const P = tw.parts;
+  const twHtml = why(tw) ? `<p class="k-note">${ckEsc(why(tw))}</p>` :
+    `<table><tr><td>10 年冠心病風險</td><td class="n">${ckPct(tw.risk)}</td></tr><tr><td>總分</td><td class="n">${tw.pts} 分</td></tr></table>` +
+    `<p class="k-note">年齡 ${P.age}、性別 ${P.sex}、BMI ${P.bmi}、收縮壓 ${P.sbp}、LDL ${P.ldl}、HDL ${P.hdl}、吸菸 ${P.smoke}。` +
+    `<span class="k-tbc">待確認</span> 原表收縮壓另有一列「&lt; 110 → 5 分」與第一列矛盾，目前採 0 至 4 分。</p>`;
+  let warn = '';
+  if(!inp.dm && ((inp.a1c != null && inp.a1c >= 6.5) || (inp.glu != null && inp.glu >= 126)))
+    warn = '<p class="k-note" style="color:#A23B2A">血糖已達糖尿病診斷值，但病史沒有勾選糖尿病；計算時視為沒有糖尿病。</p>';
+  ckEl('k-cv').innerHTML = `<div class="k-cvg"><div><h4>PREVENT<small>美國心臟學會 2023</small></h4>${pvHtml}</div><div><h4>TwCCCC<small>台灣心臟學會 2023</small></h4>${twHtml}</div></div>${warn}`;
+}
+function ckRenderPub(d){
+  const box = ckEl('k-pub');
+  if(d.P.age == null){ box.innerHTML = '<div class="k-empty" style="display:block">請先填年齡。</div>'; return; }
+  box.innerHTML = d.pub.length ? `<table class="k-pubt">${d.pub.map(x=> `<tr><td>${x.t}${x.tbc ? '<span class="k-tbc">待確認</span>' : ''}</td><td>${x.rule}${x.done ? `<br><small>${ckEsc(x.done)}</small>` : ''}</td></tr>`).join('')}</table>` +
+    '<p class="k-note">只依年齡、性別、家族史與吸菸判斷，間隔從上次篩檢起算；病人實際資格以健保卡查詢紀錄為準。</p>'
+    : '<div class="k-empty" style="display:block">依目前資料，沒有符合資格的公費篩檢。</div>';
 }
 
 function ckRenderNav(){
@@ -579,6 +893,9 @@ function ckRenderNav(){
     hx: !!CK.hx.smoke,
     lab: ckCurrentRows().some(r=> String(r.raw || '').trim()),
     us: !!((CK.us.abd || []).length || (CK.us.thy || []).length),
+    mod: Object.values(CK.mod || {}).some(v=> Array.isArray(v) ? v.length : String(v || '').trim()),
+    cv: (()=>{ const c = ckCollect().cv; return c.prevent.cvd10 != null || c.tw.risk != null; })(),
+    pub: ckNum(CK.info.age) != null,
     comment: !!String(CK.comment || '').trim()
   };
   KD.querySelectorAll('.k-nav a[data-sec]').forEach(a=> a.classList.toggle('done', !!has[a.dataset.sec]));
