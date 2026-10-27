@@ -530,7 +530,7 @@
 </section>
 <!-- ───────── 腸泌素針劑 ───────── -->
 <section class="page" data-file="consent-glp1-1">
-  <header class="head"></header>
+  <header class="head" data-noinfo></header>
   <div class="title"><h1>腸泌素針劑自費使用同意書</h1><p>說明　第 1 頁</p></div>
 
   <h2><i>1</i>藥品說明</h2>
@@ -589,7 +589,7 @@
 </section>
 
 <section class="page" data-file="consent-glp1-2">
-  <header class="head"></header>
+  <header class="head" data-noinfo></header>
   <div class="title"><h1>居家保存、購買規範與同意</h1></div>
 
   <h2><i>6</i>居家保存</h2>
@@ -628,11 +628,11 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// 共用的頁首、頁尾與簽名欄由這裡填入，八份同意書格式一致
+// 共用的頁首、頁尾與簽名欄由這裡填入，八份同意書格式一致；頁首加 data-noinfo 就不顯示科別（腸泌素同意書）
 const VER = 'v. 2026/10';
 document.querySelectorAll('.head').forEach(h=>{
   h.innerHTML = '<div class="brand"><img src="crop/muzi-mark-bw.png" alt="木子澄安診所標誌"><div><b>木子澄安診所</b><small>MUZI CHENG AN CLINIC</small></div></div>'
-    + '<div class="info">消化內科｜肝膽胃腸科<br>高雄市仁武區仁孝路282號｜07-3739496</div>';
+    + '<div class="info">' + (h.hasAttribute('data-noinfo') ? '' : '消化內科｜肝膽胃腸科<br>') + '高雄市仁武區仁孝路282號｜07-3739496</div>';
 });
 document.querySelectorAll('.foot').forEach(f=>{
   f.innerHTML = '<span>' + f.dataset.name + '</span><span>' + f.dataset.pg + '　　' + VER + '</span>';
