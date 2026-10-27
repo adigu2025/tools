@@ -49,60 +49,6 @@
 
 main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
 
-/* ── 衛教閱讀模式：整頁不捲動，圖片完整顯示，標籤移到右側 ─────── */
-.w-body.edu-mode{overflow:hidden;}
-.w-body.edu-mode main{max-width:none; padding:12px 16px 12px;}
-.edu-shell{display:flex; gap:12px; height:calc(100vh - 76px - 24px);}
-/* 最大化：隱藏橫幅，檢視區佔滿整個視窗 */
-.w-body.edu-max .banner{display:none;}
-.w-body.edu-max main{padding:10px 14px;}
-.w-body.edu-max .edu-shell{height:calc(100vh - 20px);}
-.edu-stage{flex:1; min-width:0; position:relative;}
-.edu-toolbar{
-  position:absolute; top:10px; left:12px; right:12px; z-index:3;
-  display:flex; align-items:center; justify-content:space-between; gap:12px; pointer-events:none;
-}
-.edu-topic{
-  font-size:15.5px; font-weight:700; color:var(--navy);
-  background:rgba(255,255,255,.88); border:1px solid var(--border);
-  padding:5px 12px; border-radius:8px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:46%;
-}
-.edu-tools{
-  display:flex; align-items:center; gap:5px; flex-shrink:0; pointer-events:auto;
-  background:rgba(255,255,255,.88); border:1px solid var(--border);
-  padding:4px 6px; border-radius:10px;
-}
-.edu-btn{
-  border:1.4px solid var(--border); background:#fff; color:var(--navy);
-  height:30px; min-width:30px; padding:0 10px; border-radius:7px; cursor:pointer;
-  font-family:inherit; font-size:14px; line-height:1;
-  display:inline-flex; align-items:center; justify-content:center; gap:5px; transition:.15s;
-}
-.edu-btn:hover{border-color:var(--primary); color:var(--primary-dark);}
-.edu-btn svg{width:15px; height:15px;}
-.edu-zoom-val{min-width:78px; text-align:center; font-size:13.5px; color:var(--muted);}
-.edu-canvas{
-  height:100%; overflow:auto; background:#EDEAE4; position:relative;
-  border:1px solid var(--border); border-radius:12px; padding:10px;
-  display:flex; align-items:flex-start; justify-content:center;
-}
-.edu-canvas img{display:block; border-radius:6px; box-shadow:0 2px 12px rgba(21,40,49,.16); cursor:context-menu;}
-.edu-canvas img[data-loading]{opacity:0;}
-.edu-loading{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  color:var(--muted); font-size:14px; pointer-events:none;
-}
-.edu-rail{
-  width:180px; flex-shrink:0; overflow-y:auto; overscroll-behavior:contain;
-  display:flex; flex-direction:column; gap:5px; padding-right:3px;
-}
-.edu-tab{
-  padding:9px 12px; border-radius:9px; font-size:14px; line-height:1.35; cursor:pointer;
-  background:#F1EEE7; color:var(--muted); border:1px solid transparent; transition:.15s;
-}
-.edu-tab:hover{background:var(--primary-pale); color:var(--primary-dark);}
-.edu-tab.current{background:var(--primary); color:#fff; font-weight:700;}
 /* 列印準備中的提示。圖片改為外部檔案後，第一次列印需先下載，
    沒有提示會讓人以為按了沒反應 */
 .print-busy{
@@ -116,29 +62,18 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
   animation:pbpulse .9s ease-in-out infinite;
 }
 @keyframes pbpulse{0%,100%{opacity:.35}50%{opacity:1}}
-@media (max-width:860px){
-  .w-body.edu-mode{overflow:auto;}
-  .edu-shell{flex-direction:column; height:auto;}
-  .edu-canvas{height:62vh;}
-  .edu-rail{width:auto; flex-direction:row; flex-wrap:wrap; overflow:visible;}
-}
 
-/* ── Home screen ──────────────────────────── */
+/* ── 報告目錄 ──────────────────────────── */
 .screen{display:none;}
 .screen.active{display:block; animation:fadein .3s var(--ease);}
 @keyframes fadein{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
 
 .hero{text-align:center; padding:20px 10px 8px;}
-/* 首頁改為直向排列，讓改版日期固定落在左下角 */
-#screen-home.active{display:flex; flex-direction:column; min-height:calc(100vh - 150px);}
-.app-revision{margin-top:auto; padding-top:30px; text-align:left; font-size:12.5px; color:var(--muted); opacity:.75;}
 .hero-eyebrow{font-size:14.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--primary); font-weight:600; margin-bottom:10px;}
 .hero-title{font-size:32px; font-weight:300; color:var(--text); letter-spacing:.03em;}
 .hero-title strong{font-weight:700; color:var(--navy); display:block; margin-top:2px;}
-/* 三大功能區的標題排成一行，字級與字重維持不變 */
-#screen-workflow-hub .hero-title strong,
-#screen-print-single .hero-title strong,
-#screen-education .hero-title strong{display:inline; margin-top:0; margin-left:.12em;}
+/* 報告目錄的標題排成一行，字級與字重維持不變 */
+#screen-workflow-hub .hero-title strong{display:inline; margin-top:0; margin-left:.12em;}
 
 .cat-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:30px;}
 @media (max-width:820px){ .cat-grid{grid-template-columns:repeat(2,1fr);} }
@@ -149,12 +84,6 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
   transition:transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease);
 }
 .cat-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:var(--primary);}
-/* 鍵盤選取狀態：預設不選取，按方向鍵後才出現 */
-.cat-card.key-sel{
-  border-color:var(--primary); box-shadow:0 0 0 3px rgba(188,127,48,.22), var(--shadow-lg);
-  transform:translateY(-4px);
-}
-.cat-card.key-sel .cat-icon{transform:scale(1.08);}
 .cat-icon{
   width:54px; height:54px; border-radius:14px; background:var(--primary-pale); border:1.5px solid #EAD9BC;
   display:flex; align-items:center; justify-content:center; font-size:28px;
@@ -162,10 +91,6 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
 }
 .cat-card:hover .cat-icon{transform:scale(1.08);}
 .cat-label{font-size:16px; font-weight:600; color:var(--text); line-height:1.35;}
-/* 列印單張：四格等高並列，標題長短不一時仍對齊 */
-#print-grid .cat-card{min-height:168px; justify-content:center; padding:22px 14px 20px;}
-#print-grid .cat-label{font-size:15.5px;}
-@media (max-width:820px){ #print-grid{grid-template-columns:repeat(2,1fr) !important;} }
 .cat-desc{font-size:13px; color:var(--muted);}
 .cat-done{width:8px; height:8px; border-radius:50%; background:var(--green); display:none;}
 .cat-done.show{display:block;}
@@ -252,10 +177,6 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
 .btn.outline{background:#fff; color:var(--primary); border:1.5px solid var(--primary);}
 .btn.outline:hover{background:var(--primary-pale);}
 .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
-/* 列印單張：標題與列印鈕同列，降低卡片高度 */
-#screen-print-single .card{display:flex; align-items:center; justify-content:space-between; gap:18px;}
-#screen-print-single .card h2{margin-bottom:0;}
-#screen-print-single .btnrow{margin-top:0; flex-shrink:0;}
 
 .tag{display:inline-block; padding:7px 14px; margin:4px 6px 4px 0; border-radius:18px; background:#F1EEE7; border:1px solid var(--border); font-size:15px; cursor:pointer; color:var(--navy); transition:.15s;}
 .tag.selected{background:var(--primary); color:#fff; border-color:var(--primary);}
@@ -418,13 +339,12 @@ main{padding-bottom:80px;}
   --radius:16px !important;
 }
 .w-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif !important;}
-.banner,#screen-home,.app-revision{display:none !important;}
+.banner{display:none !important;}
 main{padding-top:22px !important;}
 #screen-workflow-hub .hero{padding-top:6px !important;}
 #screen-workflow-hub .hero-eyebrow{color:#6B5520 !important;}
 .cat-card{border-width:1px !important;}
-.cat-card:hover,.cat-card.key-sel{border-color:#E2C477 !important;}
-.cat-card.key-sel{box-shadow:0 0 0 3px rgba(226,196,119,.40) !important;}
+.cat-card:hover{border-color:#E2C477 !important;}
 .cat-icon{background:#F5F4EE !important; border:1px solid #E6E3DA !important; color:#1F1E1D;}
 .cat-card:hover .cat-icon{background:#F6EDD3 !important; border-color:#E2C477 !important; color:#4A4038;}
 .cat-label{font-size:17px !important;}
@@ -442,33 +362,14 @@ main{padding-top:22px !important;}
 
 <main>
 
-<!-- ══════════ HOME (TOP LEVEL) ══════════ -->
-<section class="screen active" id="screen-home">
-  <div class="hero">
-    <div class="hero-eyebrow">Comprehensive Weight Management</div>
-  </div>
-  <div class="cat-grid" id="top-area-grid" style="grid-template-columns:repeat(3,1fr)"></div>
-  <div class="app-revision" id="app-revision"></div>
-</section>
-
 <!-- ══════════ 製作報告 HUB ══════════ -->
-<section class="screen" id="screen-workflow-hub">
+<section class="screen active" id="screen-workflow-hub">
   <div class="hero">
     <div class="hero-eyebrow">Build Report</div>
     <div class="hero-title">製作<strong>報告</strong></div>
   </div>
   <div class="cat-grid" id="cat-grid"></div>
 </section>
-
-<!-- ══════════ 列印單張 ══════════ -->
-<section class="screen" id="screen-print-single">
-  <div class="hero">
-    <div class="hero-eyebrow">Print Blank Scales</div>
-    <div class="hero-title">列印<strong>單張</strong></div>
-  </div>
-  <div class="cat-grid" id="print-grid" style="grid-template-columns:repeat(4,1fr)"></div>
-</section>
-
 
 <!-- ══════════ 1 基本資料 ══════════ -->
 <section class="screen" id="screen-basic">
@@ -992,28 +893,6 @@ main{padding-top:22px !important;}
     </div>
     <div class="hint" style="margin-top:10px">紀錄只存在這台電腦的瀏覽器裡，清除瀏覽器資料或換電腦就會消失，請定期匯出備份。匯入時與本機紀錄合併，不會刪除既有紀錄。備份檔含病人個資，請存在診所電腦或加密隨身碟，不要用 LINE 或電子郵件傳送。<br><b id="records-backup"></b></div>
     <div id="records-list" style="margin-top:12px"></div>
-  </div>
-</section>
-
-<!-- ══════════ 衛教資料 ══════════ -->
-<section class="screen" id="screen-education">
-  <div class="edu-shell" id="edu-shell">
-    <div class="edu-stage">
-      <div class="edu-toolbar">
-        <div class="edu-topic" id="edu-topic"></div>
-        <div class="edu-tools">
-          <button class="edu-btn" onclick="eduZoomStep(-1)" title="縮小（按 - 鍵）" aria-label="縮小">－</button>
-          <span class="edu-zoom-val" id="edu-zoom-val">適合視窗</span>
-          <button class="edu-btn" onclick="eduZoomStep(1)" title="放大（按 + 鍵）" aria-label="放大">＋</button>
-          <button class="edu-btn" onclick="eduFit()" title="整頁顯示（按 0 鍵）">整頁</button>
-          <button class="edu-btn" id="edu-max-btn" onclick="eduToggleFullscreen()" title="最大化（按 F 鍵）" aria-label="最大化">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-          </button>
-        </div>
-      </div>
-      <div class="edu-canvas" id="edu-viewer"></div>
-    </div>
-    <nav class="edu-rail" id="edu-pills" aria-label="衛教主題"></nav>
   </div>
 </section>
 

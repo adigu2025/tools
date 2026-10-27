@@ -79,9 +79,18 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .hub-main{position:relative; height:calc(100dvh - var(--bar-h) - var(--foot-h)); display:grid;
   grid-template-columns:1fr; grid-template-areas:"main";}
 .pane{grid-area:main; min-height:0; min-width:0; visibility:hidden; pointer-events:none;}
-.pane iframe{width:100%; height:100%; border:0; display:block; background:var(--bg);}
-/* 子頁準備好之前先遮住（保留版面，量測字級才準），避免看到排版調整的過程 */
-.pane iframe.loading{opacity:0;}
+/* 臨床計算直接放在工作台裡（calc/view.html 裝進 #calc-host 的 shadow root）。
+   準備好之前先遮住（保留版面，量測字級才準），避免看到排版調整的過程 */
+#calc-host{display:block; height:100%; background:var(--bg);}
+#calc-host.loading{opacity:0;}
+/* 列印「已完成的評估」時只印臨床計算這一區（window.CALC_PRINT 加上 body.print-calc） */
+@media print{
+  body.print-calc .hub-bar, body.print-calc .hub-foot, body.print-calc .toast, body.print-calc .pane:not(#pane-calc){display:none !important;}
+  html:has(body.print-calc), body.print-calc{height:auto; background:#fff;}
+  body.print-calc .hub-main{display:block; height:auto;}
+  body.print-calc #pane-calc{visibility:visible; height:auto;}
+  body.print-calc #calc-host{height:auto;}
+}
 /* 製作報告：先選報告種類。減重報告直接放在工作台裡（weight/view.html 裝進 #weight-host 的 shadow root，
    樣式互不影響）；一直留在底下保有版面，只是不顯示 */
 #pane-weight{position:relative;}
@@ -290,7 +299,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 </header>
 
 <main class="hub-main" id="hub-main" data-view="calc" data-split="0" data-rep="home">
-  <section class="pane" id="pane-calc"></section>
+  <section class="pane" id="pane-calc"><div id="calc-host" class="loading"></div></section>
   <section class="pane" id="pane-weight">
     <div id="weight-host" class="loading"></div>
     <div class="rep-layer" id="rep-home">
@@ -400,61 +409,40 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
   <div class="qr-modal"><img id="qr-big" alt="木子澄安診所 LINE 官方帳號 QR Code"><p>掃描加入木子澄安診所 LINE</p></div>
 </div>
 
+<script src="mount.js"></script>
 <script src="forms/forms.js"></script>
 <script>
 const APP_REVISION = '2026-10-27';
 
-/* 臨床計算（calc/）仍以 iframe 嵌入，外觀由 calc/hub.css 負責（只在被嵌入時載入），也可以單獨開啟（tools/calc/）。
-   減重報告已直接放進工作台：畫面 weight/view.html 裝進 #weight-host 的 shadow root，程式 weight/app.js、report.js
-   以 WD（shadow root）與 WB（捲動區）操作畫面，見 mountWeight。舊網址 tools/weight/ 轉到這裡。
+/* 減重報告與臨床計算都直接放在工作台裡，不再用 iframe：
+   各自的畫面檔（weight/view.html、calc/view.html）由 mount.js 裝進 #weight-host、#calc-host 的 shadow root，
+   樣式與 id 關在裡面，和工作台互不影響。程式以 WD／WB（減重）、CD／CB（臨床計算）操作自己的畫面與捲動區。
+   舊網址 tools/weight/ 轉到這裡；tools/calc/ 是病人版，與工作台共用同一份畫面與程式。
    以 file:// 開啟時改讀線上版，只剩分頁切換與保留結果。 */
 const IS_FILE = location.protocol === 'file:';
 const BASE = IS_FILE ? 'https://adigu2025.github.io/tools/' : './';
-const TOOLS = {
-  calc:   { url: BASE + 'calc/',   title:'臨床計算' },
-};
 // 清除時只刪「目前填寫中」的暫存，減重系統已儲存的紀錄（obesity_records_v1）不動。
 const CLEAR_KEYS = {
   calc:   [['session','muzi-calc-state']],
   weight: [['local','obesity_draft_v1']]
 };
 
-/* 臨床計算的工作台外觀放在 calc/hub.css，子頁偵測到自己被嵌入時，在第一次繪製前就載入，
-   不會先閃出單獨開啟時的畫面。減重報告的外觀直接寫在 weight/view.html。 */
-
 /* 衛教圖卡順序：工作台裡把「針劑注射與保存」接在「藥物選擇」後面 */
 const EDU_AFTER = [['針劑注射與保存', '藥物選擇']];
 
 const main = document.getElementById('hub-main');
-const frames = {};
 const revs = {};
 
-/* 減重報告：讀入畫面放進 shadow root，再依序載入程式（app.js 一執行就要找得到畫面元素）。
-   WD、WB 是減重程式共用的全域變數。 */
+/* 減重報告。WD、WB 是減重程式共用的全域變數 */
 let WD = null, WB = null, weightReady = false;
-function loadScript(src){
-  return new Promise((ok, bad)=>{
-    const s = document.createElement('script');
-    s.src = src; s.onload = ok; s.onerror = ()=> bad(new Error(src + ' 載入失敗'));
-    document.body.appendChild(s);
-  });
-}
 async function mountWeight(){
   const host = document.getElementById('weight-host');
   try{
-    const res = await fetch(BASE + 'weight/view.html');
-    if(!res.ok) throw new Error('weight/view.html ' + res.status);
-    WD = host.attachShadow({mode:'open'});
-    WD.innerHTML = await res.text();
-    WB = WD.getElementById('w-body');
-    await loadScript(BASE + 'weight/app.js');
-    await loadScript(BASE + 'weight/report.js');
-  }catch(err){
-    console.error(err);
-    host.classList.remove('loading');
-    host.innerHTML = '<div class="msg" style="padding:40px;text-align:center">減重報告載入失敗，請重新整理頁面。</div>';
-    return;
-  }
+    await mountView(host, BASE + 'weight/view.html', {
+      onRoot: root=>{ WD = root; WB = root.getElementById('w-body'); },
+      scripts: [BASE + 'weight/app.js', BASE + 'weight/report.js']
+    });
+  }catch(err){ mountFailed(host, '減重報告', err); return; }
   weightReady = true;
   const upd = ()=> setTimeout(updateChips, 30);
   ['input','change','click'].forEach(t=> WD.addEventListener(t, upd, true));
@@ -466,17 +454,48 @@ async function mountWeight(){
   syncRep();
 }
 
-function makeFrame(key){
-  const f = document.createElement('iframe');
-  f.title = TOOLS[key].title;
-  f.src = TOOLS[key].url;
-  f.classList.add('loading');
-  // 子頁在 DOMContentLoaded 時會呼叫 hubFrameReady；load 是備援（本機 file:// 開啟時無法互通，也要掀開）
-  f.addEventListener('load', ()=>{ hookFrame(key, f); f.classList.remove('loading'); });
-  document.getElementById('pane-' + key).appendChild(f);
-  frames[key] = f;
+/* 臨床計算。CD、CB 是計算程式共用的全域變數；工作台外觀 calc/hub.css 只在這裡加上 */
+let CD = null, CB = null, calcReady = false;
+async function mountCalc(){
+  const host = document.getElementById('calc-host');
+  try{
+    await mountView(host, BASE + 'calc/view.html', {
+      css: [BASE + 'calc/hub.css'],
+      onRoot: root=>{ CD = root; CB = root.getElementById('c-body'); },
+      scripts: [BASE + 'calc/app.js']
+    });
+  }catch(err){ mountFailed(host, '臨床計算', err); return; }
+  calcReady = true;
+  const upd = ()=> setTimeout(updateChips, 30);
+  ['input','change','click'].forEach(t=> CD.addEventListener(t, upd, true));
+  const r = CD.getElementById('app-revision');
+  revs.calc = r ? r.textContent.replace(/^最後改版：/, '').trim() : '';
+  renderRevision();
+  splitCalcPanels();
+  // 倍率只在載入與視窗大小改變時計算一次，所有工具共用，切換時字級不跳動
+  calcZ = null;
+  fitCalc();
+  setTimeout(()=>{ calcZ = null; fitCalc(); }, 400);
+  // 切換到降血脂或 B 肝用藥時，結果欄才看得到；等面板淡入動畫（0.28 秒，會位移）結束再量
+  CD.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(fitRxOut, 320); }, true);
+  // 輸入過程不再改變倍率：少數狀態（例如欄位錯誤提示）超出畫面時，寧可短暫出現捲軸，也不讓全部字級跳動
+  updateChips();
+  host.classList.remove('loading');
+  if(main.dataset.view === 'calc') CB.focus({preventScroll:true});
 }
-
+function mountFailed(host, name, err){
+  console.error(err);
+  host.classList.remove('loading');
+  host.innerHTML = `<div class="msg" style="padding:40px;text-align:center">${name}載入失敗，請重新整理頁面。</div>`;
+}
+// 臨床計算「已完成的評估」的列印：只印臨床計算這一區（見樣式 body.print-calc）
+window.CALC_PRINT = ()=>{
+  document.body.classList.add('print-calc');
+  const done = ()=>{ document.body.classList.remove('print-calc'); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  window.print();
+  setTimeout(done, 1000);
+};
 /* ── 分頁切換 ── */
 function setView(v){
   // 最大化只用在衛教與列印表單，切到其他分頁時先結束，否則上方分頁列會一直隱藏
@@ -496,8 +515,8 @@ function setView(v){
   }
   // 頁面重新整理後回到同一個分頁
   store('hub-view', v);
-  // 切換分頁時把焦點留在工作台，方向鍵與快捷鍵才不會被隱藏中的工具吃掉
-  if(document.activeElement && document.activeElement.tagName === 'IFRAME') document.activeElement.blur();
+  // 臨床計算的 ESC、貼上截圖等操作要在焦點位於計算畫面內時才有作用
+  if(v === 'calc' && CB) CB.focus({preventScroll:true});
 }
 const FOOT_HINT = {
   calc:   '以上結果僅供臨床參考，實際診斷與治療須由醫師綜合判斷。數值只在本機計算，不會上傳。',
@@ -582,39 +601,6 @@ document.addEventListener('keydown', e=>{
   else if(k === 'Escape' && document.body.classList.contains('edu-max')){ e.preventDefault(); toggleMax(); }
 });
 
-/* ── 嵌入工具準備好之後：掛事件、讀資料，完成後才掀開 ── */
-window.hubFrameReady = win=>{
-  const key = Object.keys(frames).find(k=> frames[k].contentWindow === win);
-  if(key) hookFrame(key, frames[key]);
-};
-function hookFrame(key, f){
-  let doc, win;
-  try{ doc = f.contentDocument; win = f.contentWindow; if(!doc) return; }catch(err){ return; }
-  // DOMContentLoaded 與 load 都會呼叫，同一份頁面只處理一次
-  if(doc.hubHooked) return;
-  doc.hubHooked = true;
-  const upd = ()=> setTimeout(updateChips, 30);
-  ['input','change','click'].forEach(t=> doc.addEventListener(t, upd, true));
-  doc.addEventListener('keydown', onHubKey, true);
-  const r = doc.getElementById('app-revision');
-  revs[key] = r ? r.textContent.replace(/^最後改版：/, '').trim() : '';
-  renderRevision();
-  if(key === 'calc'){
-    splitCalcPanels(doc);
-    // 倍率只在載入與視窗大小改變時計算一次，所有工具共用，切換時字級不跳動
-    calcZ = null;
-    fitCalc();
-    setTimeout(()=>{ calcZ = null; fitCalc(); }, 400);
-    let rt = null;
-    win.addEventListener('resize', ()=>{ clearTimeout(rt); rt = setTimeout(()=>{ calcZ = null; fitCalc(); }, 120); });
-    // 切換到降血脂或 B 肝用藥時，結果欄才看得到；等面板淡入動畫（0.28 秒，會位移）結束再量
-    doc.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(fitRxOut, 320); }, true);
-    // 輸入過程不再改變倍率：少數狀態（例如欄位錯誤提示）超出畫面時，寧可短暫出現捲軸，也不讓全部字級跳動
-  }
-  updateChips();
-  f.classList.remove('loading');
-}
-
 /* 臨床計算自動縮放：所有工具共用同一個倍率，切換工具或分類時字級不會跳動。
    倍率取「每個工具都放得進畫面」的最大值：逐一量過每個工具（結果區全部展開的最壞情況），取最小者。
    量測在同一段同步程式內完成，畫面不會閃。
@@ -623,13 +609,12 @@ const CALC_SCROLL_OK = new Set(['panel-lipidrx', 'panel-hbvrx']);
 const CALC_MIN_Z = 0.8, CALC_MAX_Z = 1.45;
 let calcZ = null;
 
+// root 是臨床計算的捲動區（.c-body）：內容高度不超過它的高度，就表示不必捲動
 function calcCtx(){
-  const f = frames.calc;
-  let d;
-  try{ d = f.contentDocument; }catch(err){ return null; }
-  const card = d && d.querySelector('.card');
-  if(!card || !f.clientHeight || !f.clientWidth) return null;
-  return {f, d, card, root: d.documentElement, H: f.clientHeight, W: f.clientWidth};
+  if(!calcReady) return null;
+  const card = CD.querySelector('.card');
+  if(!card || !CB.clientHeight || !CB.clientWidth) return null;
+  return {d: CD, card, root: CB, H: CB.clientHeight, W: CB.clientWidth};
 }
 
 // 在目前顯示狀態下，找出不出現捲軸的最大倍率（上限 hi）
@@ -716,7 +701,7 @@ function fitRxOut(){
     o.style.maxHeight = '';
     if(c.W < 1100 || !o.offsetParent) return;
     // 位置是螢幕像素，max-height 會再乘上倍率，所以要除回去
-    const top = o.getBoundingClientRect().top + c.d.defaultView.scrollY;
+    const top = o.getBoundingClientRect().top - c.root.getBoundingClientRect().top + c.root.scrollTop;
     let h = (c.H - top) / z;
     o.style.maxHeight = h + 'px';
     // 再扣掉卡片與頁面下緣的留白，直到整頁不出現捲軸
@@ -727,7 +712,7 @@ function fitRxOut(){
 }
 
 // 面板尺寸一變（視窗縮放、切換並排、手機轉向）就重算共用倍率；
-// 不只依賴 iframe 內的 resize 事件，某些情況下它不會觸發
+// 不只依賴視窗的 resize 事件，切換並排等情況下它不會觸發
 {
   let t = null;
   const refit = ()=>{ clearTimeout(t); t = setTimeout(()=>{ calcZ = null; fitCalc(); }, 120); };
@@ -738,24 +723,25 @@ function fitRxOut(){
 /* 臨床計算的寬螢幕版面：每個工具分成左「輸入」、右「結果」兩欄，算完不必往下捲。
    只搬動既有元素的位置（id 與事件都不變），量表類工具題目多、結果在最後才出現，維持單欄。
    窄螢幕或並排模式時，CSS 會讓兩欄自動疊回單欄。 */
-function splitCalcPanels(doc){
+function splitCalcPanels(){
+  const doc = CD;
   // 附註放左欄、結果與對照表放右欄，兩欄高度較平均
   const isOut = c=> /-(result|hint)$/.test(c.id) || c.matches('.ref-table, .rx-cards, .rx-basis');
   doc.querySelectorAll('.tool-panel').forEach(p=>{
     if(p.classList.contains('hub-split') || p.querySelector(':scope > .quiz-intro')) return;
     const kids = [...p.children].filter(c=> !c.classList.contains('panel-head'));
     if(!kids.some(isOut)) return;
-    const L = doc.createElement('div'); L.className = 'hub-in';
-    const R = doc.createElement('div'); R.className = 'hub-out';
+    const L = document.createElement('div'); L.className = 'hub-in';
+    const R = document.createElement('div'); R.className = 'hub-out';
     kids.forEach(c=> (isOut(c) ? R : L).appendChild(c));
     p.append(L, R);
     p.classList.add('hub-split');
   });
   // 結果欄捲動時停在分頁列下方
   const tw = doc.querySelector('.tabs-wrap');
-  const setTop = ()=> doc.documentElement.style.setProperty('--hub-sticky', ((tw ? tw.offsetHeight : 0) + 14) + 'px');
+  const setTop = ()=> CB.style.setProperty('--hub-sticky', ((tw ? tw.offsetHeight : 0) + 14) + 'px');
   setTop();
-  doc.defaultView.addEventListener('resize', setTop);
+  window.addEventListener('resize', setTop);
 }
 function renderRevision(){
   const parts = ['最後改版：' + APP_REVISION];
@@ -769,7 +755,7 @@ function updateChips(){
   const cc = document.getElementById('chip-calc');
   const cw = document.getElementById('chip-weight');
   try{
-    const d = frames.calc.contentDocument;
+    const d = CD;
     const box = d && d.getElementById('bmi-result');
     const v = txt(d,'bmi-val');
     if(box && box.style.display !== 'none' && v && v !== '—'){
@@ -1296,8 +1282,8 @@ function printHtml(body, title, landscape, css){
 
 /* ── LINE QR ── */
 const qrOverlay = document.getElementById('qr-overlay');
-document.getElementById('qr-img').src = TOOLS.calc.url + 'qr.png';
-document.getElementById('qr-big').src = TOOLS.calc.url + 'qr.png';
+document.getElementById('qr-img').src = BASE + 'calc/qr.png';
+document.getElementById('qr-big').src = BASE + 'calc/qr.png';
 document.getElementById('qr-btn').addEventListener('click', ()=>{ qrOverlay.hidden = false; });
 qrOverlay.addEventListener('click', ()=>{ qrOverlay.hidden = true; });
 
@@ -1309,7 +1295,7 @@ function toast(msg){
 }
 
 renderRevision();
-makeFrame('calc');
+mountCalc();
 mountWeight();
 renderRail();
 renderForms();

@@ -33,106 +33,10 @@ setTimeout(()=>{
 }, 4000);
 
 // ============================================================
-// HOME / NAVIGATION
+// NAVIGATION（工作台裡只有製作報告：報告目錄與各分頁）
 // ============================================================
-const TOP_AREAS = [
-  {id:'education',     icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M12 6.5C10.5 5 8.5 4.5 6 4.5H3v14h3c2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2h3v-14h-3c-2.5 0-4.5.5-6 2z"/><path d="M12 6.5v14"/></svg>', label:'衛教資料', desc:'肥胖與代謝衛教內容'},
-  {id:'print-single',  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>', label:'列印單張', desc:'問卷與衛教單張'},
-  {id:'workflow-hub',  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2 2 0 0 1 2.8 2.8L12.6 14 9 15l1-3.6z"/></svg>', label:'製作報告', desc:'完整評估與報告輸出'},
-];
-
-// 最後改版日期：每次改版請一併更新，會顯示於首頁左下角
+// 最後改版日期：每次改版請一併更新，顯示於工作台底部
 const W_REVISION = '2026-10-27';
-function renderAppRevision(){
-  const el = WD.getElementById('app-revision');
-  if(el) el.textContent = '最後改版：' + W_REVISION;
-}
-renderAppRevision();
-// 列印單張的四個項目。四格等寬並列，整格可點，
-// 與首頁三大功能區共用同一套鍵盤選取邏輯。
-const PRINT_TILES = [
-  {label:'減重門診評估問卷',       note:'共 2 頁', assets:()=>[],                 icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h4"/></svg>', run:()=>printBlankScales()},
-  {label:'地中海飲食衛教',         note:'共 2 頁', assets:()=>EDU_MED_DIET_PAGES, icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M3 20h18"/><path d="M9.5 12a4 4 0 0 1 5-5.5"/></svg>', run:()=>printEducation()},
-  {label:'健康紀錄表',             note:'共 2 頁', assets:()=>[],                  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h3"/></svg>', run:()=>printHealthRecord()},
-  {label:'腸泌素針劑自費使用同意書', note:'共 1 頁', assets:()=>[CONSENT_PDF_PAGE],  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7"/><path d="M14 3v5h5"/><path d="M18.5 13.5a1.8 1.8 0 0 1 2.5 2.5L17 20l-3 .7.7-3z"/></svg>', run:()=>printConsent()},
-];
-// 進入列印單張時先把四張表單的圖片抓下來，
-// 這樣真的要列印時圖片已在快取中，按下去就會立刻跳出對話框
-const printPreloaded = new Set();
-function preloadPrintAssets(){
-  PRINT_TILES.forEach(t=>{
-    (t.assets ? t.assets() : []).forEach(src=>{
-      if(!src || printPreloaded.has(src)) return;
-      printPreloaded.add(src);
-      const im = new Image();
-      im.src = src;
-    });
-  });
-}
-
-function renderPrintGrid(){
-  const box = WD.getElementById('print-grid');
-  if(!box) return;
-  box.innerHTML = '';
-  PRINT_TILES.forEach((t,i)=>{
-    const el = document.createElement('div');
-    el.className = 'cat-card' + (gridSelScreen === 'print-single' && i === gridSelIdx ? ' key-sel' : '');
-    el.onclick = ()=> t.run();
-    el.oncontextmenu = e=> showTileMenu(e, t);
-    el.innerHTML = `<div class="cat-icon">${t.icon}</div>` +
-      `<div class="cat-label">${wEsc(t.label)}</div>` +
-      `<div class="cat-desc">${wEsc(t.note)}</div>`;
-    box.appendChild(el);
-  });
-}
-function openTopArea(a){
-  if(a.id === 'workflow-hub') showWorkflowHub();
-  else showLeaf(a.id, 'top');
-}
-function renderTopAreaGrid(){
-  const box = WD.getElementById('top-area-grid');
-  box.innerHTML = '';
-  TOP_AREAS.forEach((a,i)=>{
-    const el = document.createElement('div');
-    el.className = 'cat-card' + (gridSelScreen === 'home' && i === gridSelIdx ? ' key-sel' : '');
-    el.onclick = ()=> openTopArea(a);
-    el.innerHTML = `<div class="cat-icon">${a.icon}</div><div class="cat-label">${a.label}</div><div class="cat-desc">${a.desc}</div>`;
-    box.appendChild(el);
-  });
-}
-
-// 首頁與列印單張共用的方格鍵盤操作。gridSelIdx 為 -1 代表尚未選取，
-// 首次按方向鍵才會選到第一格，避免一進畫面就有東西被框起來。
-const GRID_SCREENS = {
-  'home':         { items: ()=>TOP_AREAS,    open: a=>openTopArea(a), render: ()=>renderTopAreaGrid() },
-  'print-single': { items: ()=>PRINT_TILES,  open: t=>t.run(),        render: ()=>renderPrintGrid()  }
-};
-let gridSelIdx = -1;
-let gridSelScreen = null;   // 選取屬於哪個畫面，不直接讀 currentScreen（載入順序問題）
-function gridMove(delta){
-  const g = GRID_SCREENS[currentScreen];
-  if(!g) return;
-  const n = g.items().length;
-  if(gridSelScreen !== currentScreen){ gridSelScreen = currentScreen; gridSelIdx = -1; }
-  gridSelIdx = (gridSelIdx < 0) ? (delta > 0 ? 0 : n - 1) : (gridSelIdx + delta + n) % n;
-  g.render();
-}
-function gridEnter(){
-  const g = GRID_SCREENS[currentScreen];
-  if(!g || gridSelIdx < 0) return false;
-  g.open(g.items()[gridSelIdx]);
-  return true;
-}
-function gridReset(){
-  if(gridSelIdx === -1 && gridSelScreen === null) return;
-  const prev = gridSelScreen;
-  gridSelIdx = -1;
-  gridSelScreen = null;
-  const g = GRID_SCREENS[prev] || GRID_SCREENS[currentScreen];
-  if(g) g.render();
-}
-renderTopAreaGrid();
-
 const CATEGORIES = [
   {id:'basic',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>', label:'基本資料',      desc:'個人資料／身高體重血壓'},
   {id:'history', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/></svg>', label:'評估問卷',      desc:'病史／生活型態／量表'},
@@ -159,19 +63,10 @@ function renderCatGrid(){
 renderCatGrid();
 
 const SCREEN_ORDER = ['home', ...CATEGORIES.map(c=>c.id)];
-let currentScreen = 'home';
-let currentParent = null;
+let currentScreen = 'workflow-hub';
+let currentParent = 'top';
 
 function renderBottomNav(){
-  // 切換畫面時清除方格選取並重繪，讓選取外框不會殘留在上一個畫面
-  gridSelIdx = -1;
-  gridSelScreen = null;
-  renderPrintGrid();
-  renderTopAreaGrid();
-  if(currentScreen === 'print-single') preloadPrintAssets();
-  // 衛教頁採整頁閱讀模式：關閉頁面捲動並放寬主容器邊距
-  WB.classList.toggle('edu-mode', currentScreen === 'education');
-  if(currentScreen === 'education') setTimeout(applyEduZoom, 0);
   const nav = WD.getElementById('bottom-nav');
   const inWorkflow = CATEGORIES.some(c=>c.id===currentScreen);
   if(!inWorkflow){ nav.style.display = 'none'; return; }
@@ -202,8 +97,7 @@ function showWorkflowHub(){
 function showLeaf(id, parent){
   WD.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   WD.getElementById('screen-'+id).classList.add('active');
-  const area = TOP_AREAS.find(a=>a.id===id);
-  WD.getElementById('banner-sub').textContent = area ? area.label : '減重治療全面評估系統';
+  WD.getElementById('banner-sub').textContent = '減重治療全面評估系統';
   WD.getElementById('banner-back').classList.add('show');
   currentScreen = id;
   currentParent = parent;
@@ -245,7 +139,7 @@ function stepScreen(delta){
   const id = SCREEN_ORDER[next];
   id === 'home' ? showWorkflowHub() : showScreen(id);
 }
-renderBottomNav();
+showWorkflowHub();
 
 // 今天的日期（本機時區）。不用 toISOString，那是國際標準時間，台灣早上 8 點前會變成前一天
 function todayLocal(){
@@ -1794,10 +1688,6 @@ function printBlankScales(){
   printIsolated(tmp.innerHTML, '減重門診評估問卷');
 }
 
-const EDU_MED_DIET_PAGES = [
-  'img/diet-mediterranean-1.webp',
-  'img/diet-mediterranean-2.webp'
-];
 const EDU_PDF_PAGES = [
   {label:'臨床評估', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M5 3v6a4 4 0 0 0 8 0V3"/><path d="M3.5 3H5M13 3h1.5"/><path d="M9 13v2a5 5 0 0 0 9 3"/><circle cx="19" cy="16" r="2.5"/></svg>', src:'img/edu-clinical-assessment.webp'},
   {label:'肥胖與代謝症候群', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M12 4v17M8.5 21h7M4 7l8-2 8 2"/><path d="M4 7l-2 5a2.5 2.5 0 0 0 5 0z"/><path d="M20 7l-2 5a2.5 2.5 0 0 0 5 0z" transform="translate(-1 0)"/></svg>', src:'img/edu-obesity-metabolic-syndrome.webp'},
@@ -1811,130 +1701,8 @@ const EDU_PDF_PAGES = [
   {label:'針劑注射與保存', printSplit:2, icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M17.5 3.5l3 3"/><path d="M19 8l-3-3L5.5 15.5 4 20l4.5-1.5z"/><path d="M13 7l4 4"/></svg>', src:'img/edu-glp1-injection-storage.webp'},
   {label:'追蹤與監測時程', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>', src:'img/edu-follow-up-schedule.webp'}
 ];
-const CONSENT_PDF_PAGE = 'img/consent-glp1.webp';
 
-let eduActiveIdx = 0;
-function renderEduGallery(){
-  renderEduViewer();
-  renderEduPills();
-}
-// 衛教檢視器：預設整頁顯示，不需捲動；需要看細節時再用 ＋／－ 放大。
-// wEduZoom 為 'fit' 或倍率數值，切換主題時沿用，不會跳回預設。
-let wEduZoom = 'fit';
-const EDU_ZOOM_STEPS = [0.3, 0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.25, 1.5, 2, 2.5, 3];
-
-function renderEduViewer(){
-  const box = WD.getElementById('edu-viewer');
-  if(!box) return;
-  const item = EDU_PDF_PAGES[eduActiveIdx];
-  if(!item){ box.innerHTML = ''; return; }
-  const topic = WD.getElementById('edu-topic');
-  if(topic) topic.textContent = item.label;
-  box.innerHTML = `<img src="${item.src}" alt="${wEsc(item.label)}" data-loading="1">` +
-    `<div class="edu-loading">載入中…</div>`;
-  const img = box.querySelector('img');
-  if(!img) return;
-  img.addEventListener('contextmenu', showEduMenu);
-  const ready = ()=>{
-    img.removeAttribute('data-loading');
-    const tip = box.querySelector('.edu-loading');
-    if(tip) tip.remove();
-    applyEduZoom();
-  };
-  if(img.complete && img.naturalWidth) ready();
-  else{
-    img.addEventListener('load', ready, {once:true});
-    img.addEventListener('error', ()=>{
-      const tip = box.querySelector('.edu-loading');
-      if(tip) tip.textContent = '圖片載入失敗，請確認 img 資料夾與 index.html 放在一起';
-    }, {once:true});
-  }
-}
-
-// 目前實際顯示倍率，供 ＋／－ 從整頁模式接續調整
-function eduCurrentScale(){
-  const box = WD.getElementById('edu-viewer');
-  const img = box && box.querySelector('img');
-  if(!img || !img.naturalWidth) return 1;
-  return img.getBoundingClientRect().width / img.naturalWidth;
-}
-function applyEduZoom(){
-  const box = WD.getElementById('edu-viewer');
-  const img = box && box.querySelector('img');
-  if(!img || !img.naturalWidth) return;
-  const label = WD.getElementById('edu-zoom-val');
-  if(wEduZoom === 'fit'){
-    const availW = box.clientWidth - 20, availH = box.clientHeight - 20;
-    const scale = Math.min(availW / img.naturalWidth, availH / img.naturalHeight);
-    img.style.width = Math.max(120, Math.floor(img.naturalWidth * scale)) + 'px';
-    if(label) label.textContent = '整頁 ' + Math.round(scale * 100) + '%';
-  } else {
-    img.style.width = Math.round(img.naturalWidth * wEduZoom) + 'px';
-    if(label) label.textContent = Math.round(wEduZoom * 100) + '%';
-  }
-  img.style.height = 'auto';
-  img.style.maxWidth = 'none';
-}
-function eduZoomStep(dir){
-  const cur = (wEduZoom === 'fit') ? eduCurrentScale() : wEduZoom;
-  let next;
-  if(dir > 0) next = EDU_ZOOM_STEPS.find(z => z > cur + 0.01);
-  else next = [...EDU_ZOOM_STEPS].reverse().find(z => z < cur - 0.01);
-  if(next === undefined) return;
-  wEduZoom = next;
-  applyEduZoom();
-}
-function eduFit(){ wEduZoom = 'fit'; applyEduZoom(); }
-// 改用頁面內最大化：隱藏橫幅讓檢視區佔滿視窗。
-// 不使用瀏覽器全螢幕 API，因為那會跳出「xxx 已進入全螢幕，按 ESC 退出」的
-// 系統提示，該提示由瀏覽器產生，網頁無法修改或關閉。
-function eduToggleFullscreen(){
-  const on = WB.classList.toggle('edu-max');
-  const btn = WD.getElementById('edu-max-btn');
-  if(btn) btn.title = on ? '結束最大化（按 F 或 ESC 鍵）' : '最大化（按 F 鍵）';
-  setTimeout(applyEduZoom, 0);
-}
-// 視窗或全螢幕狀態改變時，整頁模式需重新計算；手動倍率則維持不變
-window.addEventListener('resize', ()=>{ if(currentScreen === 'education') applyEduZoom(); });
-function renderEduPills(){
-  const box = WD.getElementById('edu-pills');
-  if(!box) return;
-  box.innerHTML = '';
-  EDU_PDF_PAGES.forEach((p,i)=>{
-    const tab = document.createElement('div');
-    tab.className = 'edu-tab' + (i === eduActiveIdx ? ' current' : '');
-    tab.textContent = p.label;
-    tab.onclick = ()=> selectEduPage(i);
-    box.appendChild(tab);
-  });
-  const cur = box.querySelector('.edu-tab.current');
-  if(cur && cur.scrollIntoView) cur.scrollIntoView({block:'nearest'});
-}
-function selectEduPage(i){
-  eduActiveIdx = i;
-  renderEduViewer();
-  renderEduPills();
-  const box = WD.getElementById('edu-viewer');
-  if(box) box.scrollTop = 0;
-  preloadEduNeighbours();
-}
-
-// 圖片改為外部檔案後採隨選載入，僅先預抓前後各一張，
-// 讓左右鍵換頁沒有等待感，又不會一次拉滿所有圖
-const eduPreloaded = new Set();
-function preloadEduNeighbours(){
-  const n = EDU_PDF_PAGES.length;
-  [(eduActiveIdx + 1) % n, (eduActiveIdx - 1 + n) % n].forEach(i=>{
-    const src = EDU_PDF_PAGES[i] && EDU_PDF_PAGES[i].src;
-    if(!src || eduPreloaded.has(src)) return;
-    eduPreloaded.add(src);
-    const im = new Image();
-    im.src = src;
-  });
-}
-renderEduGallery();
-
-// 鍵盤快捷鍵：衛教主題頁 ←→ 換頁、ESC 回選單；製作報告各分頁 ←→ 換頁。
+// 鍵盤快捷鍵：製作報告各分頁 ←→ 換頁、ESC 回報告目錄。
 // 焦點在輸入欄位（input/textarea/select）時不攔截，避免影響文字編輯。
 WD.addEventListener('keydown', (e)=>{
   const t = e.target;
@@ -1948,35 +1716,7 @@ WD.addEventListener('keydown', (e)=>{
     t.blur();
   }
   else if(tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
-  // 首頁與列印單張：方向鍵移動、Enter 執行、ESC 取消選取或返回
-  if(GRID_SCREENS[currentScreen]){
-    if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ e.preventDefault(); gridMove(1); }
-    else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ e.preventDefault(); gridMove(-1); }
-    else if(e.key === 'Enter' || e.key === ' '){ if(gridEnter()) e.preventDefault(); }
-    else if(e.key === 'Escape'){
-      e.preventDefault();
-      if(gridSelIdx >= 0) gridReset();
-      else if(currentScreen !== 'home') goBack();
-    }
-    return;
-  }
-  if(currentScreen === 'education'){
-    // 右與下都切下一張，左與上都切上一張
-    if(e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ e.preventDefault(); selectEduPage((eduActiveIdx - 1 + EDU_PDF_PAGES.length) % EDU_PDF_PAGES.length); }
-    else if(e.key === 'ArrowRight' || e.key === 'ArrowDown'){ e.preventDefault(); selectEduPage((eduActiveIdx + 1) % EDU_PDF_PAGES.length); }
-    else if(e.key === '+' || e.key === '='){ e.preventDefault(); eduZoomStep(1); }
-    else if(e.key === '-' || e.key === '_'){ e.preventDefault(); eduZoomStep(-1); }
-    else if(e.key === '0'){ e.preventDefault(); eduFit(); }
-    else if(e.key === 'f' || e.key === 'F'){ e.preventDefault(); eduToggleFullscreen(); }
-    else if(e.key === 'Escape'){
-      e.preventDefault();
-      if(WB.classList.contains('edu-max')) eduToggleFullscreen();
-      else goBack();
-    }
-    return;
-  }
-  // 列印單張與製作報告（含各分頁）同樣以 ESC 返回上一層，連按即回主畫面
-  if(currentScreen === 'print-single' || currentScreen === 'workflow-hub'){
+  if(currentScreen === 'workflow-hub'){
     if(e.key === 'Escape'){ e.preventDefault(); goBack(); }
     return;
   }
@@ -1986,144 +1726,6 @@ WD.addEventListener('keydown', (e)=>{
     else if(e.key === 'Escape'){ e.preventDefault(); goBack(); }
   }
 });
-
-function printImagePages(srcs, title){
-  const list = Array.isArray(srcs) ? srcs : [srcs];
-  const pages = list.map(src => `<div class="report-page" style="padding:0;"><img src="${src}" style="width:100%; display:block;"></div>`).join('');
-  printIsolated(pages, title);
-}
-
-/* ─── 複製圖片／另存圖片 ──────────────────────────────────────────
-   另存：直接下載原始圖檔。複製：fetch 取得原始圖檔 bytes 後寫入剪貼簿。
-   兩者都不經過 canvas——本機以 file:// 開啟時，canvas 讀取跨「檔案」
-   的圖片像素會被瀏覽器視為 tainted 而擋下（上面 printSplitImage 也是
-   為此才改用 CSS 位移裁切），fetch 同一份檔案則不受此限制。 */
-function fileExt(src){ return (src.split('.').pop() || 'jpg').toLowerCase(); }
-function showMiniToast(msg){
-  const t = document.createElement('div');
-  t.textContent = msg; t.className = 'no-print';
-  t.style.cssText = 'position:fixed; left:50%; bottom:32px; transform:translateX(-50%); background:var(--text); color:var(--surface); padding:10px 18px; border-radius:8px; font-size:14px; z-index:9999; box-shadow:var(--shadow-lg); opacity:0; transition:opacity .2s;';
-  WD.appendChild(t);
-  requestAnimationFrame(()=>{ t.style.opacity = '1'; });
-  setTimeout(()=>{ t.style.opacity = '0'; setTimeout(()=>t.remove(), 200); }, 1800);
-}
-// 網站上的圖片是 WebP（檔案較小），另存與複製時轉成一般常用的格式：另存為 JPG、複製為 PNG（剪貼簿只收 PNG）
-async function convertImage(src, type){
-  const blob = await (await fetch(src)).blob();
-  const bmp = await createImageBitmap(blob);
-  const c = document.createElement('canvas');
-  c.width = bmp.width; c.height = bmp.height;
-  const x = c.getContext('2d');
-  x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
-  x.drawImage(bmp, 0, 0);
-  return new Promise((ok, bad)=> c.toBlob(b=> b ? ok(b) : bad(new Error('轉檔失敗')), type, 0.92));
-}
-async function saveImageAs(src, baseName){
-  let url = src, ext = fileExt(src), tmp = null;
-  try{ tmp = URL.createObjectURL(await convertImage(src, 'image/jpeg')); url = tmp; ext = 'jpg'; }catch(e){}
-  const a = document.createElement('a');
-  a.href = url; a.download = baseName + '.' + ext;
-  document.body.appendChild(a); a.click(); a.remove();
-  if(tmp) setTimeout(()=> URL.revokeObjectURL(tmp), 2000);
-}
-async function copyImageToClipboard(src){
-  if(!navigator.clipboard || !window.ClipboardItem){ alert('此瀏覽器不支援複製圖片'); return; }
-  try{
-    const blob = await convertImage(src, 'image/png');
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    showMiniToast('已複製圖片到剪貼簿');
-  }catch(err){ alert('複製失敗：' + err.message); }
-}
-
-// 共用右鍵選單：衛教頁面與列印單張的圖片卡片都用這個顯示列印／複製／另存
-function closeCtxMenu(){
-  const old = WD.getElementById('wt-ctxmenu');
-  if(old) old.remove();
-}
-function showCtxMenu(e, actions){
-  e.preventDefault();
-  closeCtxMenu();
-  const menu = document.createElement('div');
-  menu.id = 'wt-ctxmenu';
-  menu.className = 'no-print';
-  menu.style.cssText = 'position:fixed; z-index:9999; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow-lg); padding:6px; min-width:200px;';
-  actions.forEach(a=>{
-    if(a.sep){
-      const s = document.createElement('div');
-      s.style.cssText = 'height:1px; background:var(--border); margin:5px 8px;';
-      menu.appendChild(s); return;
-    }
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.style.cssText = 'display:block; width:100%; padding:9px 14px; border:none; background:none; text-align:left; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text); border-radius:7px; white-space:nowrap;';
-    btn.textContent = a.label;
-    btn.onmouseenter = ()=>{ btn.style.background = 'var(--primary-pale)'; };
-    btn.onmouseleave = ()=>{ btn.style.background = 'none'; };
-    btn.onclick = ()=>{ closeCtxMenu(); a.fn(); };
-    menu.appendChild(btn);
-  });
-  WD.appendChild(menu);
-  const r = menu.getBoundingClientRect();
-  menu.style.left = Math.max(8, Math.min(e.clientX, window.innerWidth  - r.width  - 8)) + 'px';
-  menu.style.top  = Math.max(8, Math.min(e.clientY, window.innerHeight - r.height - 8)) + 'px';
-}
-WD.addEventListener('click', closeCtxMenu);
-WD.addEventListener('scroll', closeCtxMenu, true);
-
-// 衛教頁面按滑鼠右鍵：列印／複製／另存目前這一頁
-function showEduMenu(e){
-  const item = EDU_PDF_PAGES[eduActiveIdx];
-  if(!item) return;
-  showCtxMenu(e, [
-    {label:'列印這一頁衛教', fn:printEduPage},
-    {sep:true},
-    {label:'複製這一頁衛教圖片', fn:()=>copyImageToClipboard(item.src)},
-    {label:'另存這一頁衛教為圖片', fn:()=>saveImageAs(item.src, item.label)}
-  ]);
-}
-
-// 列印單張的卡片按滑鼠右鍵：列印／複製／另存（無圖片資產的問卷卡片不接此事件）
-function showTileMenu(e, t){
-  const assets = t.assets ? t.assets() : [];
-  if(!assets.length) return;
-  const n = assets.length;
-  const actions = [{label: n>1 ? `列印這一份（${n} 頁）` : '列印', fn:t.run}, {sep:true}];
-  if(n>1) assets.forEach((src,i)=>actions.push({label:'複製第 '+(i+1)+' 頁的圖片', fn:()=>copyImageToClipboard(src)}));
-  else actions.push({label:'複製圖片', fn:()=>copyImageToClipboard(assets[0])});
-  actions.push({sep:true});
-  if(n>1) assets.forEach((src,i)=>actions.push({label:'另存第 '+(i+1)+' 頁為圖片', fn:()=>saveImageAs(src, t.label+'_第'+(i+1)+'頁')}));
-  else actions.push({label:'另存圖片', fn:()=>saveImageAs(assets[0], t.label)});
-  showCtxMenu(e, actions);
-}
-
-// 兩頁並列的衛教圖在螢幕上維持並列，列印時拆回單頁、各佔一張 A4。
-// 以 CSS 位移裁切而非 canvas，避免本機以 file:// 開啟時讀取圖片像素受限。
-function printSplitImage(src, parts, title){
-  const pages = [];
-  for(let k = 0; k < parts; k++){
-    pages.push(
-      `<div class="report-page" style="padding:0; overflow:hidden;">` +
-        `<div style="width:100%; overflow:hidden;">` +
-          `<img src="${src}" style="width:${parts * 100}%; display:block; margin-left:-${k * 100}%;">` +
-        `</div>` +
-      `</div>`);
-  }
-  printIsolated(pages.join(''), title);
-}
-
-function printEduPage(){
-  const item = EDU_PDF_PAGES[eduActiveIdx];
-  if(!item) return;
-  if(item.printSplit > 1) printSplitImage(item.src, item.printSplit, item.label);
-  else printImagePages([item.src], item.label);
-}
-function printEducation(){
-  printImagePages(EDU_MED_DIET_PAGES, '地中海飲食衛教');
-}
-
-function printConsent(){
-  printImagePages(CONSENT_PDF_PAGE, '腸泌素針劑自費使用同意書');
-}
 
 // 健康紀錄表：版面在 forms/forms.js（與工作台共用），這裡把目前畫面的資料帶進去；空白時就是可手寫的空白表
 function hrVal(id){ const el = WD.getElementById(id); return el ? (el.value || '').trim() : ''; }

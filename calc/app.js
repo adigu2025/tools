@@ -1,7 +1,7 @@
 (function(){
   "use strict";
 
-  var $ = function(id){ return document.getElementById(id); };
+  var $ = function(id){ return CD.getElementById(id); };
 
   // 各工具最近一次的結果文字，供「複製結果」使用
   var COPY = {};
@@ -20,8 +20,8 @@
   /* ======================================================
      Tabs + hash routing
      ====================================================== */
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
-  var groupBtns = Array.prototype.slice.call(document.querySelectorAll('.group-btn'));
+  var tabs = Array.prototype.slice.call(CD.querySelectorAll('.tab'));
+  var groupBtns = Array.prototype.slice.call(CD.querySelectorAll('.group-btn'));
   var TOOL_GROUP = {};
   tabs.forEach(function(t){
     TOOL_GROUP[t.dataset.tool] = t.closest('.tabs').dataset.group;
@@ -47,7 +47,7 @@
       b.setAttribute('aria-selected', on ? 'true' : 'false');
       b.tabIndex = on ? 0 : -1;
     });
-    document.querySelectorAll('.tabs').forEach(function(row){
+    CD.querySelectorAll('.tabs').forEach(function(row){
       row.hidden = row.dataset.group !== group;
     });
     $('staff-notice').hidden = group !== 'calc';
@@ -61,7 +61,7 @@
   }
 
   function firstToolOf(group){
-    var first = document.querySelector('.tabs[data-group="' + group + '"] .tab');
+    var first = CD.querySelector('.tabs[data-group="' + group + '"] .tab');
     return first ? first.dataset.tool : null;
   }
 
@@ -104,7 +104,7 @@
     openBtn.addEventListener('click', openQr);
     closeBtn.addEventListener('click', closeQr);
     overlay.addEventListener('click', function(e){ if (e.target === overlay) closeQr(); });
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) closeQr(); });
+    CD.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) closeQr(); });
   })();
   var TOOLS = tabs.map(function(t){ return t.dataset.tool; });
 
@@ -121,7 +121,7 @@
         t.scrollIntoView({ block:'nearest', inline:'nearest' });
       }
     });
-    document.querySelectorAll('.tool-panel').forEach(function(p){
+    CD.querySelectorAll('.tool-panel').forEach(function(p){
       var on = p.id === 'panel-' + tool;
       p.classList.toggle('active', on);
       p.hidden = !on;
@@ -207,7 +207,7 @@
     var res = $(tool + '-result');
     if (hint) hint.style.display = hasResult ? 'none' : 'block';
     if (res) res.style.display = hasResult ? 'block' : 'none';
-    var btn = document.querySelector('[data-copy="' + tool + '"]');
+    var btn = CD.querySelector('[data-copy="' + tool + '"]');
     if (btn) { btn.disabled = !hasResult; btn.classList.remove('done'); btn.textContent = '複製結果'; }
     if (!hasResult) COPY[tool] = '';
     renderSummary();
@@ -240,7 +240,7 @@
   /* ======================================================
      Copy result
      ====================================================== */
-  document.querySelectorAll('[data-copy]').forEach(function(btn){
+  CD.querySelectorAll('[data-copy]').forEach(function(btn){
     btn.addEventListener('click', function(){
       var tool = btn.dataset.copy;
       if (!COPY[tool]) return;
@@ -277,7 +277,7 @@
   /* ======================================================
      Reset
      ====================================================== */
-  document.querySelectorAll('[data-reset]').forEach(function(btn){
+  CD.querySelectorAll('[data-reset]').forEach(function(btn){
     btn.addEventListener('click', function(){
       var tool = btn.dataset.reset;
       if (RESETTERS[tool]) { RESETTERS[tool](); return; }
@@ -689,7 +689,7 @@
     'lx-dm','lx-ckd','lx-cac','lx-htn','lx-smoke','lx-fhx','lx-meno','lx-bpHigh','lx-fgHigh','lx-tgMed','lx-life3','lx-intol','lx-event1y','lx-pcskPre'];
 
   function lipidrxShow(ok){
-    var btn = document.querySelector('[data-copy="lipidrx"]');
+    var btn = CD.querySelector('[data-copy="lipidrx"]');
     if (btn) { btn.disabled = !ok; btn.classList.remove('done'); btn.textContent = '複製結果'; }
     if (!ok) COPY.lipidrx = '';
     renderSummary();
@@ -853,7 +853,7 @@
   var HB_RESTRICT = 'Fofnir、Hepwin、Sebivo、Ricovir、Hepuri、Virclean、Teno B、Tenof、Viread、Livepro、Lamidine、Hepar-Pro、Hepato-Ease、Barazer、Becavir';
 
   function hbvrxShow(ok){
-    var btn = document.querySelector('[data-copy="hbvrx"]');
+    var btn = CD.querySelector('[data-copy="hbvrx"]');
     if (btn) { btn.disabled = !ok; btn.classList.remove('done'); btn.textContent = '複製結果'; }
     if (!ok) COPY.hbvrx = '';
     renderSummary();
@@ -1213,7 +1213,7 @@
   };
 
   function ocrRun(tool, file){
-    var box = document.querySelector('.rx-ocr[data-ocr="' + tool + '"]');
+    var box = CD.querySelector('.rx-ocr[data-ocr="' + tool + '"]');
     if (!box || !file || !/^image\//.test(file.type) || ocrBusy) return;
     var msg = box.querySelector('.rx-ocr-msg');
     function say(cls, html){ box.className = 'rx-ocr ' + cls; msg.innerHTML = html; }
@@ -1246,7 +1246,7 @@
     }).then(function(){ ocrBusy = false; ocrProgress = null; });
   }
 
-  document.querySelectorAll('.rx-ocr').forEach(function(box){
+  CD.querySelectorAll('.rx-ocr').forEach(function(box){
     var tool = box.dataset.ocr, panel = $('panel-' + tool);
     var input = panel.querySelector('input[type=file]');
     panel.querySelector('[data-ocr-pick]').addEventListener('click', function(){ input.click(); });
@@ -1280,12 +1280,12 @@
   });
 
   // Ctrl+V 貼上截圖：只在降血脂或 B 肝面板開啟時接手
-  document.addEventListener('paste', function(e){
+  CD.addEventListener('paste', function(e){
     var items = (e.clipboardData && e.clipboardData.items) || [];
     var file = null;
     for (var i = 0; i < items.length; i++) if (items[i].kind === 'file' && /^image\//.test(items[i].type)) { file = items[i].getAsFile(); break; }
     if (!file) return;
-    var panel = document.querySelector('.rx-panel.active');
+    var panel = CD.querySelector('.rx-panel.active');
     if (!panel) return;
     e.preventDefault();
     ocrRun(panel.querySelector('.rx-ocr').dataset.ocr, file);
@@ -1318,10 +1318,10 @@
         detail:'嚴重腹瀉，脫水風險高。常見原因包括急性腸胃炎、食物中毒、腸躁症發作、發炎性腸病。\n建議：積極補充口服電解質液；若合併發燒、血便、脫水症狀，或持續超過 24 小時，需立即就醫。' }
   };
 
-  document.querySelectorAll('.bristol-card').forEach(function(card){
+  CD.querySelectorAll('.bristol-card').forEach(function(card){
     card.addEventListener('click', function(){
       var type = card.dataset.type;
-      document.querySelectorAll('.bristol-card').forEach(function(c){
+      CD.querySelectorAll('.bristol-card').forEach(function(c){
         c.setAttribute('aria-pressed', c === card ? 'true' : 'false');
       });
 
@@ -1582,7 +1582,7 @@
   function buildAssessments(){
     ASSESS.forEach(function(spec){
       // 分頁按鈕
-      var row = document.getElementById('tabs-' + spec.group);
+      var row = CD.getElementById('tabs-' + spec.group);
       var tab = document.createElement('button');
       tab.className = 'tab';
       tab.type = 'button';
@@ -1616,15 +1616,15 @@
         '<div id="' + spec.id + '-body"></div>' +
         '<div class="assess-result" id="' + spec.id + '-result" aria-live="polite"></div>';
       // 面板要排在彙整區之前，彙整區永遠留在最後
-      var main = document.querySelector('main.body');
+      var main = CD.querySelector('main.body');
       main.insertBefore(panel, $('summary-zone'));
 
       RESETTERS[spec.id] = function(){ startModule(spec); };
       startModule(spec);
     });
     // 寫在 HTML 的靜態分頁（Bristol）依 data-after 移到指定評估的後面
-    document.querySelectorAll('.tab[data-after]').forEach(function(t){
-      var ref = document.getElementById('tab-' + t.dataset.after);
+    CD.querySelectorAll('.tab[data-after]').forEach(function(t){
+      var ref = CD.getElementById('tab-' + t.dataset.after);
       if (ref) ref.parentNode.insertBefore(t, ref.nextSibling);
     });
   }
@@ -1965,7 +1965,8 @@
       setTimeout(function(){ btn.classList.remove('done'); btn.textContent = '複製全部'; }, 1800);
     });
   });
-  $('summary-print').addEventListener('click', function(){ window.print(); });
+  // 在工作台裡由工作台負責列印（只印臨床計算這一區）；病人版直接列印整頁
+  $('summary-print').addEventListener('click', function(){ (window.CALC_PRINT || window.print)(); });
 
   /* ======================================================
      暫存作答：只存在本機分頁，關閉分頁即消失，逾時自動作廢
@@ -1978,7 +1979,7 @@
     if (!ready) return;
     try {
       var fields = {};
-      document.querySelectorAll('main.body input, main.body select').forEach(function(el){
+      CD.querySelectorAll('main.body input, main.body select').forEach(function(el){
         if (el.id && el.value !== '') fields[el.id] = el.value;
       });
       sessionStorage.setItem(STORE_KEY, JSON.stringify({
@@ -2004,7 +2005,7 @@
       if (el) el.value = data.fields[id];
     });
     // 重新觸發各工具的計算，讓畫面與還原的數值一致
-    document.querySelectorAll('main.body input, main.body select').forEach(function(el){
+    CD.querySelectorAll('main.body input, main.body select').forEach(function(el){
       if (el.value !== '') {
         el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles:true }));
       }
@@ -2037,7 +2038,7 @@
      最後改版日期（顯示於主畫面左下角）
      每次改版請一併更新這個常數
      ====================================================== */
-  var APP_REVISION = '2026-10-22';
+  var APP_REVISION = '2026-10-27';
   (function renderAppRevision(){
     var el = $('app-revision');
     if (el) el.textContent = '最後改版：' + APP_REVISION;
@@ -2049,16 +2050,12 @@
   // 一律停在 BMI，除非網址明確指定 ?tool=xxx（醫師自己加的書籤才會有）
   switchTool(toolFromQuery() || firstToolOf(DEFAULT_GROUP), { scrollTab:false });
 
-  // 單獨開啟時也註冊離線快取（在工作台裡由外殼負責）
-  if (!window.IN_HUB && 'serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('../sw.js', { scope:'../' }).catch(function(){});
-  }
   stripHash();
   restoreState();
   ready = true;
   renderSummary();
 
   // 作答過程隨時暫存，重新整理不會白填
-  document.addEventListener('input', saveState);
-  document.addEventListener('change', saveState);
+  CD.addEventListener('input', saveState);
+  CD.addEventListener('change', saveState);
 })();
