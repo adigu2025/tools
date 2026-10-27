@@ -104,6 +104,10 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .hub-main:not([data-rep="weight"]) #weight-host{visibility:hidden;}
 .rep-layer{position:absolute; inset:0; overflow:auto; padding:18px; background:var(--bg); display:none;}
 .hub-main[data-rep="home"] #rep-home, .hub-main[data-rep="checkup"] #rep-checkup{display:block;}
+/* 健檢報告：checkup/view.html 裝進 #checkup-host 的 shadow root，捲動在裡面處理 */
+#rep-checkup{padding:0; overflow:hidden;}
+#checkup-host{display:block; height:100%;}
+#checkup-host.loading{opacity:0;}
 .rep-wrap{max-width:1100px; margin:0 auto;}
 .rep-head{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; padding:10px 4px 18px;}
 .rep-head h1{font-family:var(--serif); font-size:26px; margin:0; letter-spacing:.03em;}
@@ -317,20 +321,16 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
             <b>減重報告</b>
             <small>基本資料、病史、身體組成、檢驗、生活型態到治療計畫，填完產生 PDF 報告。</small>
           </button>
-          <button class="rep-card card soon" data-rep="checkup">
+          <button class="rep-card card" data-rep="checkup">
             <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 11h6M9 15h4"/></svg></span>
-            <b>體檢報告</b>
-            <small>成人健檢結果整理與說明。</small>
-            <span class="tag">準備中</span>
+            <b>健檢報告</b>
+            <small>上傳優品檢驗報告 PDF，加上身體測量與超音波，產生含判讀與追蹤建議的 PDF 報告。</small>
           </button>
         </div>
       </div>
     </div>
     <div class="rep-layer" id="rep-checkup">
-      <div class="rep-wrap">
-        <div class="rep-head"><h1>體檢報告</h1></div>
-        <div class="card rep-empty"><b>內容準備中</b>欄位與報告格式確定後加入這裡。</div>
-      </div>
+      <div id="checkup-host" class="loading"></div>
     </div>
   </section>
 
@@ -430,7 +430,8 @@ const BASE = IS_FILE ? 'https://adigu2025.github.io/tools/' : './';
 // 清除時只刪「目前填寫中」的暫存，減重系統已儲存的紀錄（obesity_records_v1）不動。
 const CLEAR_KEYS = {
   calc:   [['session','muzi-calc-state']],
-  weight: [['local','obesity_draft_v1']]
+  weight: [['local','obesity_draft_v1']],
+  checkup: [['local','checkup_draft_v1']]
 };
 
 /* 衛教圖卡順序：工作台裡把「針劑注射與保存」接在「藥物選擇」後面 */
@@ -456,6 +457,24 @@ async function mountWeight(){
   renderRevision();
   pullWeightData();
   updateChips();
+  host.classList.remove('loading');
+  syncRep();
+}
+
+/* 健檢報告。KD、KB 是健檢程式共用的全域變數。
+   報告排版借用減重報告的樣式與函式（REPORT_CSS、rLogo 等），所以等減重報告載入後才載入 */
+let KD = null, KB = null;
+async function mountCheckup(){
+  const host = document.getElementById('checkup-host');
+  if(!weightReady){ mountFailed(host, '健檢報告（需要先載入減重報告）', new Error('weight not ready')); return; }
+  try{
+    await mountView(host, BASE + 'checkup/view.html', {
+      onRoot: root=>{ KD = root; KB = root.getElementById('k-body'); },
+      scripts: [BASE + 'checkup/app.js', BASE + 'checkup/report.js']
+    });
+  }catch(err){ mountFailed(host, '健檢報告', err); return; }
+  revs.checkup = CK_REVISION;
+  renderRevision();
   host.classList.remove('loading');
   syncRep();
 }
@@ -528,7 +547,7 @@ const FOOT_HINT = {
   calc:   '以上結果僅供臨床參考，實際診斷與治療須由醫師綜合判斷。數值只在本機計算，不會上傳。',
   report: '選擇要製作的報告。',
   weight: '減重報告會自動暫存草稿；按「減重報告目錄」回到十個分項，按「製作報告」回到報告種類。',
-  checkup: '體檢報告內容準備中。',
+  checkup: '健檢報告會自動暫存草稿（不含 PDF 圖片）；上傳的 PDF 只在這台電腦讀取，不會上傳。',
   edu:    '← → 換張　＋ － 縮放　0 整頁　W 寬度　F 最大化　放大後可按住圖片拖曳',
   print:  '按「列印」會直接跳出列印對話框，紙張為 A4。'
 };
@@ -552,6 +571,7 @@ function syncRep(){
   document.getElementById('foot-hint').textContent = FOOT_HINT[hint] || FOOT_HINT.calc;
   // 減重報告的方向鍵與 ESC 快捷鍵要在焦點位於報告畫面內時才有作用
   if(v === 'weight' && r === 'weight' && WB) WB.focus({preventScroll:true});
+  if(v === 'weight' && r === 'checkup' && KB) KB.focus({preventScroll:true});
 }
 document.querySelectorAll('[data-rep]').forEach(b=> b.addEventListener('click', ()=> setRep(b.dataset.rep)));
 document.getElementById('btn-rep-back').addEventListener('click', ()=> setRep('home'));
@@ -753,6 +773,7 @@ function renderRevision(){
   const parts = ['最後改版：' + APP_REVISION];
   if(revs.calc) parts.push('計算 ' + revs.calc);
   if(revs.weight) parts.push('減重 ' + revs.weight);
+  if(revs.checkup) parts.push('健檢 ' + revs.checkup);
   document.getElementById('app-revision').textContent = parts.join('　');
 }
 
@@ -1302,7 +1323,7 @@ function toast(msg){
 
 renderRevision();
 mountCalc();
-mountWeight();
+mountWeight().then(mountCheckup);
 renderRail();
 renderForms();
 const lastRep = recall('hub-rep', 'home');

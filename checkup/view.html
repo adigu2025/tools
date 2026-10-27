@@ -1,0 +1,215 @@
+<!-- 健檢報告畫面：工作台（../index.html）把這個檔案放進 #checkup-host 的 shadow root，
+     樣式與 id 都關在裡面。程式在 app.js、report.js，用 KD（這個 shadow root）找元素、KB（.k-body，捲動區）處理捲動。
+     報告排版沿用減重報告的樣式與共用函式（REPORT_CSS、rLogo、rBlock 等），所以工作台要先載入減重報告。 -->
+<style>
+:host{display:block; position:relative; height:100%; overflow:hidden;
+  --k-bg:#F5F4EE; --k-card:#FFFFFF; --k-line:#E6E3DA; --k-line2:#D6D2C6; --k-ink:#1F1E1D; --k-ink2:#3A3935; --k-muted:#6F6B63; --k-faint:#9C978C;
+  --k-sel:#625B57; --k-teal:#3E6A7C; --k-gold:#BC7F30; --k-gold-pale:#FBF4E8; --k-red:#B3413B; --k-red-pale:#F7E6E4; --k-green:#4C7A5A;
+  --k-serif:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif;}
+*,*::before,*::after{box-sizing:border-box; margin:0; padding:0;}
+.k-body{position:absolute; inset:0; overflow:auto; outline:none; background:var(--k-bg); color:var(--k-ink);
+  font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; font-size:16px; line-height:1.6;}
+.k-wrap{max-width:1180px; margin:0 auto; padding:18px 18px 80px; display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:start;}
+@media (max-width:900px){ .k-wrap{grid-template-columns:1fr;} .k-nav{position:static !important;} .k-nav a{display:none;} }
+
+/* 左側目錄 */
+.k-nav{position:sticky; top:18px; display:flex; flex-direction:column; gap:2px;}
+.k-nav h1{font-family:var(--k-serif); font-size:24px; letter-spacing:.06em; margin:2px 10px 12px;}
+.k-nav a{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; color:var(--k-ink2); text-decoration:none; font-size:15px; cursor:pointer;}
+.k-nav a:hover{background:#EFEDE6;}
+.k-nav a .d{width:8px; height:8px; border-radius:50%; background:var(--k-line2); flex:none;}
+.k-nav a.done .d{background:var(--k-green);}
+.k-nav .k-actions{margin-top:14px; display:flex; flex-direction:column; gap:8px; padding:0 4px;}
+.k-rev{margin:16px 10px 0; font-size:12px; color:var(--k-faint);}
+
+/* 卡片 */
+.k-main{display:flex; flex-direction:column; gap:16px; min-width:0;}
+.k-card{background:var(--k-card); border:1px solid var(--k-line); border-radius:14px; padding:20px 22px 22px;}
+.k-card > h2{font-family:var(--k-serif); font-size:21px; letter-spacing:.04em; display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 12px; margin-bottom:14px;}
+.k-card > h2 small{font-family:"Noto Sans TC",sans-serif; font-size:13.5px; font-weight:400; color:var(--k-muted); letter-spacing:0;}
+.k-card h3{font-size:15px; color:var(--k-teal); letter-spacing:.12em; margin:18px 0 8px;}
+
+/* 欄位 */
+.k-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px 16px;}
+.k-f{display:flex; flex-direction:column; gap:4px;}
+.k-f > span{font-size:13.5px; color:var(--k-muted);}
+.k-f > span i{font-style:normal; color:var(--k-faint); margin-left:4px;}
+input[type=text], input[type=number], input[type=date], textarea{font:inherit; font-size:17px; color:var(--k-ink); background:#fff;
+  border:1.5px solid var(--k-line2); border-radius:10px; padding:8px 11px; width:100%; min-height:44px;}
+input:focus, textarea:focus{outline:none; border-color:var(--k-teal); box-shadow:0 0 0 3px rgba(62,106,124,.15);}
+input.has-val, textarea.has-val{background:#FBFAF6;}
+input[type=number]::-webkit-inner-spin-button{display:none;}
+textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
+.k-calc{font-size:15px; color:var(--k-ink2); padding:10px 0 0;}
+.k-calc b{font-size:19px; color:var(--k-ink);}
+
+/* 選項按鈕：不預選，選取時深灰底白字 */
+.k-opts{display:flex; flex-wrap:wrap; gap:8px;}
+.k-opt{font:inherit; font-size:15.5px; padding:8px 14px; border-radius:10px; border:1.5px solid var(--k-line2); background:#fff; color:var(--k-ink2); cursor:pointer; min-height:42px;}
+.k-opt:hover{border-color:var(--k-sel);}
+.k-opt[aria-pressed="true"]{background:var(--k-sel); border-color:var(--k-sel); color:#fff; font-weight:700;}
+.k-row{display:grid; grid-template-columns:150px 1fr; gap:10px 16px; align-items:start; padding:10px 0; border-top:1px solid var(--k-line);}
+.k-row:first-of-type{border-top:0;}
+.k-row[hidden]{display:none;}
+.k-row > b{font-size:15px; padding-top:9px; color:var(--k-ink2);}
+@media (max-width:600px){ .k-row{grid-template-columns:1fr;} .k-row > b{padding-top:0;} }
+.k-sub{display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:10px; align-items:end;}
+.k-sub[hidden]{display:none;}
+.k-sub .k-f{min-width:150px;}
+
+/* 按鈕 */
+.k-btn{font:inherit; font-size:15px; padding:9px 16px; border-radius:10px; border:1.5px solid var(--k-sel); background:var(--k-sel); color:#fff; cursor:pointer; font-weight:700; min-height:42px;}
+.k-btn.ghost{background:#fff; color:var(--k-ink2); border-color:var(--k-line2); font-weight:500;}
+.k-btn.gold{background:var(--k-gold); border-color:var(--k-gold);}
+
+/* 上傳 */
+.k-drop{border:2px dashed var(--k-line2); border-radius:14px; padding:26px; text-align:center; color:var(--k-muted); cursor:pointer; background:#FBFAF6;}
+.k-drop b{display:block; font-size:17px; color:var(--k-ink); margin-bottom:4px;}
+.k-drop.over{border-color:var(--k-teal); background:#EAF1F3;}
+.k-files{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
+.k-file{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:10px 14px; border:1px solid var(--k-line); border-radius:10px;}
+.k-file .tag{font-size:12.5px; padding:2px 10px; border-radius:999px; background:#EFEDE6; color:var(--k-ink2); white-space:nowrap;}
+.k-file .tag.cur{background:var(--k-teal); color:#fff;}
+.k-file .meta{font-size:14px; color:var(--k-muted);}
+.k-file .meta b{color:var(--k-ink); font-size:15px; margin-right:8px;}
+.k-file .del{font:inherit; font-size:13.5px; color:var(--k-red); background:none; border:0; cursor:pointer;}
+.k-warn{margin-top:10px; padding:10px 14px; border-radius:10px; background:var(--k-red-pale); color:#7A2B26; font-size:14.5px;}
+.k-warn.soft{background:var(--k-gold-pale); color:#6B4A16;}
+.k-warn[hidden]{display:none;}
+
+/* 檢驗表 */
+.k-lab{width:100%; border-collapse:collapse; font-size:15px;}
+.k-lab th{font-size:12.5px; color:var(--k-muted); font-weight:500; text-align:left; padding:6px 8px; border-bottom:1.5px solid var(--k-line2);}
+.k-lab td{padding:4px 8px; border-bottom:1px solid var(--k-line); vertical-align:middle;}
+.k-lab tr.sec td{font-size:13px; font-weight:700; color:var(--k-teal); letter-spacing:.12em; padding-top:14px;}
+.k-lab td.nm small{display:block; font-size:12px; color:var(--k-faint);}
+.k-lab td.v input{min-height:36px; padding:4px 8px; font-size:16px; width:110px;}
+.k-lab td.ref, .k-lab td.prev{font-size:13.5px; color:var(--k-muted); white-space:nowrap;}
+.k-lab td.g{white-space:nowrap; font-size:13.5px; font-weight:700;}
+.g0{color:#3F6E4D;} .g1{color:#8A5F1F;} .g2{color:#A8352F;} .gna{color:var(--k-faint); font-weight:400;}
+.k-empty{padding:18px; text-align:center; color:var(--k-muted); font-size:15px;}
+.k-note{font-size:13.5px; color:var(--k-muted); margin-top:8px;}
+
+/* 判讀重點：輸入時即時更新 */
+.k-find > div{display:grid; grid-template-columns:56px 1fr; gap:10px; font-size:15px; padding:6px 0; border-bottom:1px solid var(--k-line);}
+
+/* 報告預覽 */
+.k-ov{position:absolute; inset:0; z-index:50; background:#E7E3DC; display:flex; flex-direction:column;}
+.k-ov-bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 16px; background:#fff; border-bottom:1px solid var(--k-line);}
+.k-ov-bar b{font-family:var(--k-serif); font-size:18px;}
+.k-ov-bar span{font-size:14px; color:var(--k-muted);}
+.k-ov-bar .warn{color:var(--k-red); font-weight:700;}
+.k-ov iframe{flex:1; border:0; width:100%;}
+.k-ov label{font-size:14.5px; display:flex; align-items:center; gap:6px;}
+</style>
+
+<div class="k-body" id="k-body" tabindex="-1">
+<div class="k-wrap">
+  <nav class="k-nav" id="k-nav">
+    <h1>健檢報告</h1>
+    <a data-sec="upload"><span class="d"></span>上傳檢驗報告</a>
+    <a data-sec="info"><span class="d"></span>基本資料</a>
+    <a data-sec="body"><span class="d"></span>身體測量</a>
+    <a data-sec="hx"><span class="d"></span>病史與生活習慣</a>
+    <a data-sec="lab"><span class="d"></span>檢驗數值</a>
+    <a data-sec="us"><span class="d"></span>超音波</a>
+    <a data-sec="comment"><span class="d"></span>醫師評語</a>
+    <div class="k-actions">
+      <button class="k-btn gold" id="k-preview">預覽報告</button>
+      <button class="k-btn" id="k-print">列印／輸出 PDF</button>
+    </div>
+    <div class="k-rev" id="k-rev"></div>
+  </nav>
+
+  <main class="k-main">
+    <section class="k-card" id="k-sec-upload">
+      <h2>上傳檢驗報告<small>優品醫事檢驗所的 PDF，可以一次放入多份（今年加往年），日期最新的一份當作本次</small></h2>
+      <div class="k-drop" id="k-drop"><b>把 PDF 拖到這裡，或點一下選擇檔案</b>檔案只在這台電腦讀取，不會上傳</div>
+      <input type="file" id="k-file" accept="application/pdf" multiple hidden>
+      <div class="k-files" id="k-files"></div>
+      <div class="k-warn" id="k-warn-id" hidden></div>
+      <div class="k-warn soft" id="k-warn-unv" hidden></div>
+    </section>
+
+    <section class="k-card" id="k-sec-info">
+      <h2>基本資料<small>上傳 PDF 後自動帶入，可以修改</small></h2>
+      <div class="k-grid">
+        <label class="k-f"><span>姓名</span><input type="text" data-k="info.name"></label>
+        <label class="k-f"><span>病歷號</span><input type="text" data-k="info.chart"></label>
+        <label class="k-f"><span>出生日期</span><input type="date" data-k="info.birth"></label>
+        <label class="k-f"><span>年齡<i>歲</i></span><input type="number" data-k="info.age"></label>
+        <label class="k-f"><span>檢查日期</span><input type="date" data-k="info.date"></label>
+      </div>
+      <div class="k-row" style="margin-top:12px; border-top:1px solid var(--k-line)"><b>性別</b><div class="k-opts" data-k="info.sex" data-opts="M:男|F:女"></div></div>
+    </section>
+
+    <section class="k-card" id="k-sec-body">
+      <h2>身體測量<small>身高體重、腰圍、血壓與 TANITA 身體組成</small></h2>
+      <div class="k-grid">
+        <label class="k-f"><span>身高<i>cm</i></span><input type="number" step="0.1" data-k="body.h"></label>
+        <label class="k-f"><span>體重<i>kg</i></span><input type="number" step="0.1" data-k="body.w"></label>
+        <label class="k-f"><span>腰圍<i>cm</i></span><input type="number" step="0.1" data-k="body.waist"></label>
+        <label class="k-f"><span>收縮壓<i>mmHg</i></span><input type="number" data-k="body.sbp"></label>
+        <label class="k-f"><span>舒張壓<i>mmHg</i></span><input type="number" data-k="body.dbp"></label>
+        <label class="k-f"><span>脈搏<i>次／分</i></span><input type="number" data-k="body.hr"></label>
+      </div>
+      <div class="k-calc" id="k-bmi"></div>
+      <h3>TANITA 身體組成</h3>
+      <div class="k-grid">
+        <label class="k-f"><span>體脂肪率<i>%</i></span><input type="number" step="0.1" data-k="body.fat"></label>
+        <label class="k-f"><span>內臟脂肪等級</span><input type="number" step="0.5" data-k="body.visceral"></label>
+        <label class="k-f"><span>肌肉量<i>kg</i></span><input type="number" step="0.1" data-k="body.muscle"></label>
+        <label class="k-f"><span>基礎代謝<i>kcal</i></span><input type="number" data-k="body.bmr"></label>
+      </div>
+    </section>
+
+    <section class="k-card" id="k-sec-hx">
+      <h2>病史與生活習慣<small>判讀與之後的心血管風險計算會用到</small></h2>
+      <div class="k-row"><b>吸菸</b><div class="k-opts" data-k="hx.smoke" data-opts="never:從不吸菸|former:已戒菸|current:目前吸菸"></div></div>
+      <div class="k-row"><b>飲酒</b><div class="k-opts" data-k="hx.alcohol" data-opts="no:不喝或偶爾|weekly:每週數次|daily:幾乎每天"></div></div>
+      <div class="k-row"><b>已知疾病</b><div class="k-opts" data-k="hx.dx" data-multi="1" data-opts="htn:高血壓|dm:糖尿病|lipid:高血脂|cvd:心臟病或中風|ckd:慢性腎臟病|hbv:B 型肝炎帶原|hcv:C 型肝炎|thy:甲狀腺疾病"></div></div>
+      <div class="k-row"><b>目前用藥</b><div class="k-opts" data-k="hx.med" data-multi="1" data-opts="bp:降血壓藥|statin:降血脂藥|dm:降血糖藥|thy:甲狀腺藥物"></div></div>
+      <div class="k-row"><b>家族史</b><div class="k-opts" data-k="hx.fam" data-multi="1" data-opts="ecvd:早發心血管疾病|dm:糖尿病|gastric:胃癌|crc:大腸癌|liver:肝癌|lung:肺癌|breast:乳癌"></div></div>
+      <div class="k-row" id="k-row-preg" hidden><b>懷孕</b><div class="k-opts" data-k="hx.preg" data-opts="no:沒有懷孕|maybe:不確定|yes:已確認懷孕"></div></div>
+      <div class="k-row"><b>其他</b><label class="k-f"><textarea data-k="hx.note" style="min-height:60px"></textarea></label></div>
+    </section>
+
+    <section class="k-card" id="k-sec-lab">
+      <h2>檢驗數值<small>由 PDF 帶入，數值可以直接修改</small></h2>
+      <div id="k-lab-box"></div>
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+        <button class="k-btn ghost" id="k-lab-manual">沒有 PDF：手動輸入常用項目</button>
+      </div>
+      <h3>判讀重點</h3>
+      <div class="k-find" id="k-find"></div>
+    </section>
+
+    <section class="k-card" id="k-sec-us">
+      <h2>超音波</h2>
+      <h3>腹部超音波</h3>
+      <div class="k-opts" data-k="us.abd" data-multi="1" data-excl="normal" data-opts="normal:正常|fatty1:輕度脂肪肝|fatty2:中度脂肪肝|fatty3:重度脂肪肝|gbstone:膽結石|gbpolyp:膽囊瘜肉|lcyst:肝囊腫|hemangioma:肝血管瘤|kstone:腎結石|kcyst:腎囊腫|other:其他"></div>
+      <div class="k-sub" data-show="us.abd:gbpolyp"><label class="k-f"><span>膽囊瘜肉最大<i>mm</i></span><input type="number" step="0.1" data-k="us.gbpolyp"></label></div>
+      <div class="k-sub" data-show="us.abd:hemangioma"><label class="k-f"><span>肝血管瘤最大<i>cm</i></span><input type="number" step="0.1" data-k="us.hemangioma"></label></div>
+      <div class="k-sub" data-show="us.abd:other"><label class="k-f" style="flex:1"><span>其他發現</span><input type="text" data-k="us.abdOther"></label></div>
+      <h3>甲狀腺超音波</h3>
+      <div class="k-opts" data-k="us.thy" data-multi="1" data-excl="normal" data-opts="normal:正常|nodule:結節|cyst:單純囊腫|goiter:甲狀腺腫大|other:其他"></div>
+      <div class="k-sub" data-show="us.thy:nodule">
+        <div class="k-f"><span>TI-RADS 分級（最需注意的那一顆）</span><div class="k-opts" data-k="us.tirads" data-opts="1:TR1|2:TR2|3:TR3|4:TR4|5:TR5"></div></div>
+        <label class="k-f"><span>最大徑<i>cm</i></span><input type="number" step="0.1" data-k="us.nodSize"></label>
+      </div>
+      <div class="k-sub" data-show="us.thy:other"><label class="k-f" style="flex:1"><span>其他發現</span><input type="text" data-k="us.thyOther"></label></div>
+      <h3>補充說明</h3>
+      <label class="k-f"><textarea data-k="us.note" style="min-height:60px"></textarea></label>
+    </section>
+
+    <section class="k-card" id="k-sec-comment">
+      <h2>醫師評語<small>按「產生草稿」依判讀結果寫一份，再自行修改</small></h2>
+      <label class="k-f"><textarea data-k="comment"></textarea></label>
+      <div style="margin-top:10px; display:flex; gap:10px">
+        <button class="k-btn ghost" id="k-draft">產生草稿</button>
+      </div>
+      <p class="k-note">文字框可用【小標】、• 項目、※ 附註三種格式，報告會照格式排版。</p>
+    </section>
+  </main>
+</div>
+</div>
