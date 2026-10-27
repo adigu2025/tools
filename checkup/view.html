@@ -132,6 +132,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
     <div class="k-actions">
       <button class="k-btn gold" id="k-preview">預覽報告</button>
       <button class="k-btn" id="k-print">列印／輸出 PDF</button>
+      <button class="k-btn ghost" id="k-line">LINE 摘要圖</button>
     </div>
     <div class="k-rev" id="k-rev"></div>
   </nav>
@@ -204,7 +205,10 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
     </section>
 
     <section class="k-card" id="k-sec-us">
-      <h2>超音波</h2>
+      <h2>超音波<small>可以直接貼上報告工具產生的英文報告，自動勾選</small></h2>
+      <label class="k-f"><span>貼上英文報告（腹部、甲狀腺可一起貼）</span><textarea id="k-us-paste" style="min-height:60px"></textarea></label>
+      <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" id="k-us-import">帶入</button></div>
+      <div class="k-find" id="k-us-msg" style="margin-top:8px"></div>
       <h3>腹部超音波</h3>
       <div class="k-opts" data-k="us.abd" data-multi="1" data-excl="normal" data-opts="normal:正常|fatty1:輕度脂肪肝|fatty2:中度脂肪肝|fatty3:重度脂肪肝|gbstone:膽結石|gbpolyp:膽囊瘜肉|lcyst:肝囊腫|hemangioma:肝血管瘤|kstone:腎結石|kcyst:腎囊腫|other:其他"></div>
       <div class="k-sub" data-show="us.abd:gbpolyp"><label class="k-f"><span>膽囊瘜肉最大<i>mm</i></span><input type="number" step="0.1" data-k="us.gbpolyp"></label></div>

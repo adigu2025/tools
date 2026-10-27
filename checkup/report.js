@@ -110,8 +110,57 @@ function ckChBody(d){
   return blocks;
 }
 
+/* ---------- 歷年趨勢 ----------
+   上傳兩份以上報告時，常用項目畫成小折線圖；虛線是判讀切點（取 ckBarDef 第一個分界），最後一點依本次判讀上色。 */
+const CK_TREND = [['ldl', 'LDL-C'], ['tc', '總膽固醇'], ['tg', '三酸甘油脂'], ['hdl', 'HDL-C'], ['a1c', '糖化血色素'], ['glu', '飯前血糖'],
+  ['alt', 'ALT'], ['ast', 'AST'], ['egfr', 'eGFR'], ['ua', '尿酸'], ['hgb', '血色素'], ['plt', '血小板']];
+const CK_G_COLOR = ['#5E8A63', '#C08A2E', '#B4543A'];
+function ckTrendSeries(d){
+  if(d.reports.length < 2) return [];
+  const old = [...d.reports].reverse();
+  return CK_TREND.map(([k, label])=>{
+    const pts = old.map(rp=>{ const r = rp.rows.find(x=> x.key === k); const v = r ? ckNum(r.raw) : null; return v == null ? null : {date: rp.date || '', v}; }).filter(Boolean);
+    if(pts.length < 2) return null;
+    const cur = d.rows.find(r=> r.key === k);
+    const bd = ckBarDef(k, d.P, cur);
+    return {k, label, unit: (CK_LAB_BY[k] || [])[4] || '', pts, g: cur ? cur.j.g : 0, cut: k === 'egfr' ? 60 : bd ? bd.cuts[0][0] : null};
+  }).filter(Boolean);
+}
+function ckTrendSvg(s, W){
+  const H = 118, L = 8, R = 8, top = 22, bot = 24;
+  const vals = s.pts.map(p=> p.v).concat(s.cut != null && isFinite(s.cut) ? [s.cut] : []);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = (hi - lo) * .18 || Math.abs(hi) * .1 || 1; lo -= pad; hi += pad;
+  const n = s.pts.length;
+  const x = i=> n === 1 ? W / 2 : L + 14 + i * (W - L - R - 28) / (n - 1);
+  const y = v=> top + (hi - v) / (hi - lo) * (H - top - bot);
+  const fmt = v=> String(Math.round(v * 100) / 100);
+  let g = '';
+  if(s.cut != null && isFinite(s.cut)) g += `<line x1="${L}" x2="${W - R}" y1="${y(s.cut).toFixed(1)}" y2="${y(s.cut).toFixed(1)}" stroke="#BC7F30" stroke-width="1" stroke-dasharray="3 3"/>`;
+  g += `<polyline fill="none" stroke="#3E6A7C" stroke-width="1.8" points="${s.pts.map((p, i)=> x(i).toFixed(1) + ',' + y(p.v).toFixed(1)).join(' ')}"/>`;
+  s.pts.forEach((p, i)=>{
+    const last = i === n - 1, c = last ? CK_G_COLOR[Math.max(0, s.g)] : '#3E6A7C';
+    g += `<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="${last ? 4 : 3}" fill="${last ? c : '#fff'}" stroke="${c}" stroke-width="1.6"/>` +
+      `<text x="${x(i).toFixed(1)}" y="${(y(p.v) - 8).toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="${last ? 700 : 400}" fill="#1F262A">${fmt(p.v)}</text>` +
+      `<text x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="9.5" fill="#8A8378">${ckEsc(p.date.slice(0, 7).replace('-', '/'))}</text>`;
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block; overflow:visible">${g}</svg>`;
+}
+function ckTrendBlock(d){
+  const S = ckTrendSeries(d);
+  if(!S.length) return null;
+  const W = 206, rows = [];
+  for(let i = 0; i < S.length; i += 3) rows.push(S.slice(i, i + 3));
+  const tile = s=> `<div style="width:${W}px"><div style="font-size:12px; color:#1F262A; font-weight:700">${ckEsc(s.label)}<span style="font-weight:400; color:#8A8378; margin-left:4px">${ckEsc(s.unit)}</span></div>${ckTrendSvg(s, W)}</div>`;
+  return `<div class="rb full" data-split="1"><div class="rb-l"><div class="rb-no"></div><h3 class="rb-h">歷年變化</h3></div><div class="rb-r"><div class="ru-host">` +
+    rows.map(r=> `<div class="ru" style="display:flex; gap:24px; padding:4px 0 10px">${r.map(tile).join('')}</div>`).join('') +
+    `</div><p class="note-line tail">${rBr('每張圖由左到右是歷次檢查，最右邊是這次；虛線是判讀的切點。', 52)}</p></div></div>`;
+}
+
 function ckChLab(d){
   const blocks = [];
+  const tb = ckTrendBlock(d);
+  if(tb) blocks.push(tb);
   const hasPrev = d.reports.length > 1;
   const prevDate = hasPrev ? d.reports[1].date : '';
   const secs = [];
@@ -604,4 +653,124 @@ function ckDraftComment(d){
   L.push('※ 有任何不清楚的地方，歡迎帶著這份報告回診，我們一起看。');
   // 中文與英文、數字之間留一個半形空格
   return L.join('\n').replace(/([一-鿿])([A-Za-z0-9β])/g, '$1 $2').replace(/([A-Za-z0-9%])([一-鿿])/g, '$1 $2');
+}
+
+// ---------- LINE 一頁摘要圖 ----------
+/* 直接畫在 canvas（1080 寬），不靠截圖套件。只放需要注意的項目、接下來要做的事與心血管風險；
+   姓名中間遮成○，不放病歷號與出生日期，傳 LINE 時不暴露完整個資。 */
+function ckMaskName(n){
+  const s = [...String(n || '')];
+  if(s.length <= 1) return s.join('');
+  if(s.length === 2) return s[0] + '○';
+  return s[0] + '○'.repeat(s.length - 2) + s[s.length - 1];
+}
+function ckLineDraw(cv, d){
+  const W = 1080, P = 64, F = '"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
+  const ctx = cv.getContext('2d');
+  const C = {teal:'#3E6A7C', gold:'#BC7F30', navy:'#152831', ink:'#1F262A', mute:'#6F6A62', line:'#E4DED3', bg:'#FBF9F5'};
+  const plain = h=> String(h).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+  // 斷行：中文逐字、英數字整段不拆
+  const wrap = (t, size, weight, maxW)=>{
+    ctx.font = `${weight} ${size}px ${F}`;
+    const toks = String(t).match(/[A-Za-z0-9.%/()\-+≥≤<>]+|\s+|./gu) || [];
+    const lines = []; let cur = '';
+    toks.forEach(tk=>{
+      if(ctx.measureText(cur + tk).width > maxW && cur.trim()){ lines.push(cur.trimEnd()); cur = tk.trimStart(); }
+      else cur += tk;
+    });
+    if(cur.trim()) lines.push(cur.trimEnd());
+    return lines;
+  };
+  const draw = dry=>{
+    let y = 0;
+    const text = (t, x, size, weight, color, maxW, lh)=>{
+      const ls = wrap(t, size, weight, maxW);
+      if(!dry){ ctx.font = `${weight} ${size}px ${F}`; ctx.fillStyle = color; ctx.textBaseline = 'top'; ls.forEach((l, i)=> ctx.fillText(l, x, y + i * lh)); }
+      return ls.length * lh;
+    };
+    const pill = (label, color, x, yy)=>{
+      ctx.font = `700 26px ${F}`;
+      const w = ctx.measureText(label).width + 28;
+      if(!dry){ ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(x, yy, w, 42, 21); ctx.fill(); ctx.fillStyle = '#fff'; ctx.textBaseline = 'middle'; ctx.fillText(label, x + 14, yy + 22); }
+      return w;
+    };
+    const head = t=>{
+      y += 40;
+      if(!dry){ ctx.fillStyle = C.gold; ctx.fillRect(P, y + 6, 8, 36); }
+      y += text(t, P + 24, 36, 700, C.navy, W - 2 * P, 50) + 14;
+    };
+    // 頁首
+    if(!dry){ ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, cv.height); ctx.fillStyle = C.teal; ctx.fillRect(0, 0, W, 210); }
+    y = 56;
+    text('木子澄安診所', P, 30, 500, '#D7E3E8', 600, 40); y += 44;
+    text('健康檢查摘要', P, 58, 700, '#fff', 700, 70);
+    y = 250;
+    const nm = ckMaskName(CK.info.name);
+    y += text(`${nm ? nm + '　您好，' : ''}這是您 ${ckDateZh(CK.info.date || ckToday())}健檢的重點整理。`, P, 32, 500, C.ink, W - 2 * P, 48);
+    // 需要注意的項目
+    head('需要注意的項目');
+    const f = d.findings.slice(0, 8);
+    if(!f.length) y += text('這次的檢驗與檢查結果都在正常範圍內。', P, 30, 400, C.ink, W - 2 * P, 46);
+    f.forEach(x=>{
+      const pw = pill(x.g === 2 ? '異常' : '注意', x.g === 2 ? CK_G_COLOR[2] : CK_G_COLOR[1], P, y + 2);
+      const h = text(plain(x.html), P + pw + 18, 30, 400, C.ink, W - 2 * P - pw - 18, 46);
+      y += Math.max(h, 46) + 14;
+    });
+    if(d.findings.length > 8) y += text(`另有 ${d.findings.length - 8} 項，詳見完整報告。`, P, 26, 400, C.mute, W - 2 * P, 40);
+    // 接下來要做的事
+    const groups = ['now', 'm3', 'm6', 'y1', 'long'].map(w=> ({w, list: d.advice.filter(a=> a.when === w)})).filter(g=> g.list.length);
+    if(groups.length){
+      head('接下來要做的事');
+      groups.forEach(g=>{
+        y += text(CK_WHEN[g.w], P, 28, 700, C.teal, W - 2 * P, 42) + 4;
+        g.list.slice(0, 4).forEach(a=>{
+          if(!dry){ ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(P + 8, y + 22, 5, 0, Math.PI * 2); ctx.fill(); }
+          y += text(a.t, P + 28, 28, 400, C.ink, W - 2 * P - 28, 44) + 8;
+        });
+        y += 10;
+      });
+    }
+    // 心血管風險
+    const pv = d.cv.prevent, tw = d.cv.tw, pc = v=> (Math.round(v * 1000) / 10).toFixed(1) + '%';
+    if(pv.cvd10 != null || tw.risk != null){
+      head('心血管風險（10 年）');
+      if(pv.cvd10 != null) y += text(`PREVENT 總心血管疾病 ${pc(pv.cvd10)}`, P, 30, 400, C.ink, W - 2 * P, 46);
+      if(tw.risk != null) y += text(`TwCCCC 冠心病 ${pc(tw.risk)}`, P, 30, 400, C.ink, W - 2 * P, 46);
+      y += text('兩個模型預測的疾病不同，數字不能直接相比。', P, 24, 400, C.mute, W - 2 * P, 38);
+    }
+    // 頁尾
+    y += 44;
+    if(!dry){ ctx.fillStyle = C.line; ctx.fillRect(P, y, W - 2 * P, 2); }
+    y += 28;
+    y += text('完整報告請看紙本，有任何不清楚的地方，歡迎回診一起討論。', P, 26, 400, C.mute, W - 2 * P, 40);
+    y += text('木子澄安診所　高雄市仁武區仁孝路282號　07-3739496　LINE @muzichengan', P, 24, 400, C.mute, W - 2 * P, 38);
+    return y + 56;
+  };
+  cv.width = W; cv.height = 10;
+  const H = Math.ceil(draw(true));
+  cv.width = W; cv.height = H;
+  draw(false);
+}
+function ckLineFilename(){ return (CK.info.name ? CK.info.name + '_' : '') + '健檢摘要_' + String(CK.info.date || ckToday()).replace(/-/g, '') + '.png'; }
+async function ckLinePreview(){
+  if(ckNeedSex()) return;
+  ckClosePreview();
+  const d = ckCollect();
+  const cv = document.createElement('canvas');
+  try{ await document.fonts.load(`700 40px "Noto Sans TC"`); }catch(e){}
+  ckLineDraw(cv, d);
+  const url = cv.toDataURL('image/png');
+  const ov = document.createElement('div');
+  ov.className = 'k-ov'; ov.id = 'k-ov';
+  ov.innerHTML = `<div class="k-ov-bar"><b>LINE 摘要圖</b><span>1080 × ${cv.height}　姓名已遮蔽，不含病歷號</span><span style="flex:1"></span>` +
+    `<button class="k-btn" id="k-ln-copy">複製圖片</button><button class="k-btn ghost" id="k-ln-dl">下載 PNG</button><button class="k-btn ghost" id="k-ov-close">關閉</button></div>` +
+    `<div style="flex:1; overflow:auto; padding:20px; text-align:center"><img src="${url}" alt="LINE 摘要圖" style="width:min(540px, 100%); box-shadow:0 2px 12px rgba(0,0,0,.12)"></div>`;
+  KD.appendChild(ov);
+  ov.querySelector('#k-ov-close').onclick = ckClosePreview;
+  ov.querySelector('#k-ln-dl').onclick = ()=>{ const a = document.createElement('a'); a.href = url; a.download = ckLineFilename(); a.click(); };
+  const cp = ov.querySelector('#k-ln-copy');
+  cp.onclick = ()=> cv.toBlob(async b=>{
+    try{ await navigator.clipboard.write([new ClipboardItem({'image/png': b})]); cp.textContent = '已複製，可直接貼到 LINE'; }
+    catch(e){ cp.textContent = '這個瀏覽器不能複製圖片，請改用下載'; }
+  }, 'image/png');
 }

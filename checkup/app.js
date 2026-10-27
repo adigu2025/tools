@@ -410,6 +410,96 @@ function ckUsJudge(){
   return out;
 }
 
+/* ---------- 貼上報告工具（adigu2025.github.io/report/）的英文超音波報告 ----------
+   以報告標題切開腹部與甲狀腺，FINDINGS 的固定片語轉成勾選；大小是醫師自由輸入的備註，抓得到才帶入。
+   回傳 {abd, thy, msg}；abd、thy 為 null 表示這次沒貼該部位。 */
+function ckSizeOf(s, unit){
+  // 「1.2 x 0.8 x 0.9 cm」取最大值；unit 是想要的單位（mm 或 cm）
+  const m = /((?:\d+(?:\.\d+)?\s*[x×*]\s*)*\d+(?:\.\d+)?)\s*(mm|cm)\b/i.exec(s || '');
+  if(!m) return null;
+  const v = Math.max(...m[1].split(/[x×*]/i).map(parseFloat));
+  const u = m[2].toLowerCase();
+  return u === unit ? v : u === 'cm' ? Math.round(v * 100) / 10 : Math.round(v) / 10;
+}
+function ckParseUsText(text){
+  const T = String(text || '').replace(/\r/g, '');
+  const msg = [];
+  const part = re=>{ const m = re.exec(T); if(!m) return null; const rest = T.slice(m.index + m[0].length); const end = rest.search(/(ABDOMINAL|THYROID) ULTRASOUND REPORT/i); return end < 0 ? rest : rest.slice(0, end); };
+  const sec = (s, re)=>{ const m = re.exec(s); return m ? m[1] : ''; };
+  let abd = null, thy = null;
+  const A = part(/ABDOMINAL ULTRASOUND REPORT/i) || (/LIVER:|GALLBLADDER/i.test(T) && !/THYROID/i.test(T) ? T : null);
+  if(A != null){
+    const liver = sec(A, /LIVER:([^\n]*)/i), gb = sec(A, /GALLBLADDER[^:\n]*:([^\n]*)/i), kid = sec(A, /KIDNEYS:([^\n]*)/i);
+    const imp = sec(A, /IMPRESSION:\s*\n?([^\n]*)/i);
+    const list = [], u = {};
+    if(/severe fatty liver/i.test(liver)) list.push('fatty3');
+    else if(/moderate fatty liver/i.test(liver)) list.push('fatty2');
+    else if(/mild fatty liver/i.test(liver)) list.push('fatty1');
+    if(/gallbladder stone|cholelithiasis/i.test(gb + imp)) list.push('gbstone');
+    if(/gallbladder polyp/i.test(gb)){
+      list.push('gbpolyp');
+      // 片語本身有「less than 5mm」「5–9mm」「≥10mm」，先拿掉再找醫師寫的大小
+      const seg = gb.split(';').filter(x=> /polyp/i.test(x)).join(';').replace(/less than 5mm|5[–-]9mm|≥10mm/gi, '');
+      const mm = ckSizeOf(seg, 'mm');
+      if(mm != null) u.gbpolyp = String(mm);
+      else if(/≥10mm/i.test(gb)) u.gbpolyp = '10';
+      else msg.push('膽囊瘜肉沒有寫大小，請補上');
+    }
+    if(/hepatic cyst|simple cyst/i.test(liver)) list.push('lcyst');
+    if(/hemangioma/i.test(liver)){
+      list.push('hemangioma');
+      const cm = ckSizeOf(liver.split(';').filter(x=> /hemangioma/i.test(x)).join(';'), 'cm');
+      if(cm != null) u.hemangioma = String(cm);
+    }
+    if(/renal stone|nephrolith/i.test(kid)) list.push('kstone');
+    if(/renal cyst/i.test(kid)) list.push('kcyst');
+    // 印象裡沒有對應選項的項目，放進「其他」
+    const known = /fatty liver|cholelithiasis|gallbladder polyp|hepatic cyst|hemangioma|renal (stone|cyst)|no significant|unremarkable/i;
+    const other = imp.replace(/\.$/, '').split(/\.\s+|;\s*/).map(x=> x.trim()).filter(x=> x && !known.test(x));
+    if(other.length){ list.push('other'); u.abdOther = other.join('；'); msg.push('有沒對應到選項的發現，已放進「其他」，請改成中文'); }
+    abd = {list: list.length ? list : ['normal'], u};
+  }
+  const Th = part(/THYROID ULTRASOUND REPORT/i);
+  if(Th != null){
+    const gland = sec(Th, /THYROID GLAND:([^\n]*)/i);
+    const list = [], u = {};
+    const nods = [...Th.matchAll(/Nodule \d+:[^\n]*?size ([^;]*);[^\n]*?\(TR(\d)/gi)].map(m=> ({cm: ckSizeOf(m[1], 'cm'), tr: +m[2]}));
+    if(nods.length){
+      // 先挑處置最積極的（穿刺 > 追蹤 > 不需處理），再比分級與大小；TR4 0.9 cm 不如 TR3 1.8 cm 需要追蹤
+      const act = n=>{ const lim = {3:[2.5, 1.5], 4:[1.5, 1.0], 5:[1.0, .5]}[n.tr]; return !lim || n.cm == null ? 0 : n.cm >= lim[0] ? 2 : n.cm >= lim[1] ? 1 : 0; };
+      nods.sort((a, b)=> act(b) - act(a) || b.tr - a.tr || (b.cm || 0) - (a.cm || 0));
+      list.push('nodule');
+      u.tirads = String(nods[0].tr);
+      if(nods[0].cm != null) u.nodSize = String(nods[0].cm); else msg.push('甲狀腺結節沒有寫大小，請補上');
+      if(nods.length > 1){
+        u.noteAdd = `甲狀腺共 ${nods.length} 顆結節，以上為最需要處理的一顆；其餘：` + nods.slice(1).map(n=> `TR${n.tr}${n.cm != null ? ' ' + n.cm + ' cm' : ''}`).join('、') + '。';
+      }
+    }
+    if(/cystic lesion within the thyroid/i.test(Th)) list.push('cyst');
+    if(/goiter|enlarged/i.test(gland)) list.push('goiter');
+    thy = {list: list.length ? list : ['normal'], u};
+  }
+  return {abd, thy, msg};
+}
+function ckImportUs(text){
+  const r = ckParseUsText(text);
+  if(!r.abd && !r.thy) return {ok: false, msg: ['看不出是腹部或甲狀腺超音波報告，請貼上報告工具產生的完整英文報告（含 FINDINGS 與 IMPRESSION）']};
+  const U = CK.us;
+  const done = [];
+  if(r.abd){
+    U.abd = r.abd.list;
+    ['gbpolyp', 'hemangioma', 'abdOther'].forEach(k=>{ if(r.abd.u[k] != null) U[k] = r.abd.u[k]; });
+    done.push('腹部：' + r.abd.list.map(k=> CK_ABD[k].t).join('、'));
+  }
+  if(r.thy){
+    U.thy = r.thy.list;
+    ['tirads', 'nodSize'].forEach(k=>{ if(r.thy.u[k] != null) U[k] = r.thy.u[k]; });
+    if(r.thy.u.noteAdd && !String(U.note || '').includes(r.thy.u.noteAdd)) U.note = (U.note ? U.note + '\n' : '') + r.thy.u.noteAdd;
+    done.push('甲狀腺：' + r.thy.list.map(k=> CK_THY[k].t).join('、') + (U.tirads ? `（TR${U.tirads}${U.nodSize ? ' ' + U.nodSize + ' cm' : ''}）` : ''));
+  }
+  return {ok: true, done, msg: r.msg};
+}
+
 // FIB-4 = 年齡 × AST ÷（血小板 × √ALT），血小板單位 10⁹/L（＝ 10³/uL）
 function ckFib4(rows, P){
   const get = k=> { const r = rows.find(x=> x.key === k); return r ? ckNum(r.raw) : null; };
@@ -1017,6 +1107,15 @@ async function ckAddFiles(files){
     CK.comment = ckDraftComment(ckCollect());
     ckRenderFields(); ckSave(); ckRenderNav();
   });
+  ckEl('k-us-import').addEventListener('click', ()=>{
+    const ta = ckEl('k-us-paste'), box = ckEl('k-us-msg');
+    if(((CK.us.abd || []).length || (CK.us.thy || []).length) && !confirm('會取代目前超音波的勾選，確定嗎？')) return;
+    const r = ckImportUs(ta.value);
+    box.innerHTML = (r.done || []).map(t=> `<div><span class="g0">已帶入</span><span>${ckEsc(t)}</span></div>`).join('') +
+      r.msg.map(t=> `<div><span class="${r.ok ? 'g1' : 'g2'}">${r.ok ? '請確認' : '無法帶入'}</span><span>${ckEsc(t)}</span></div>`).join('');
+    if(r.ok){ ta.value = ''; ckChanged(); }
+  });
+  ckEl('k-line').addEventListener('click', ()=> ckLinePreview());
   ckEl('k-preview').addEventListener('click', ()=> ckPreview());
   ckEl('k-print').addEventListener('click', ()=> ckPrint());
 
