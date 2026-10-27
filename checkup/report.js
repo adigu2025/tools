@@ -100,13 +100,31 @@ function ckChBody(d){
   if(b.bp) kv.push(['血壓', `${b.bp.s}/${b.bp.d} mmHg　${ckPill(b.bp.g)}`, '台灣 2022 高血壓指引：居家血壓 130/80 以上為高血壓']);
   if(ckNum(B.hr) != null) kv.push(['脈搏', `${ckEsc(B.hr)} 次／分`, '']);
   if(kv.length) blocks.push(rBlock('腰圍與血壓', '', `<table class="rt kv">${kv.map(([k, v, n])=> `<tr><th>${k}</th><td>${v}${n ? `<br><span class="muted small">${n}</span>` : ''}</td></tr>`).join('')}</table>`));
-  const tk = [];
-  if(b.fat) tk.push(['體脂肪率', `${b.fat.v}%　${ckPill(b.fat.g)}`, `${d.P.male ? '男' : '女'}性標準：小於 ${b.fat.cut}%`]);
-  if(b.visceral) tk.push(['內臟脂肪等級', `${b.visceral.v}　${ckPill(b.visceral.g)}`, '9.5 以下為標準，10 至 14.5 偏高，15 以上過高']);
-  if(ckNum(B.muscle) != null) tk.push(['肌肉量', `${ckEsc(B.muscle)} kg`, '']);
-  if(ckNum(B.bmr) != null) tk.push(['基礎代謝', `${ckEsc(B.bmr)} kcal`, '']);
-  if(tk.length) blocks.push(rBlock('身體組成', '', `<table class="rt kv">${tk.map(([k, v, n])=> `<tr><th>${k}</th><td>${v}${n ? `<br><span class="muted small">${n}</span>` : ''}</td></tr>`).join('')}</table>` +
-    `<p class="note-line">以 TANITA 身體組成分析儀量測。</p>`));
+  // 身體組成：項目、判讀標準與長條分區和減重報告一致
+  const m = d.P.male, I = Infinity, E = 1e-9;
+  const comp = [
+    ['體脂肪率', 'Body Fat', b.fat, '%', m ? '< 25%' : '< 30%', [5, 50], [[m ? 25 : 30, 0], [I, 2]]],
+    ['體脂肪量', 'Fat Mass', ckNum(B.fatmass) != null ? {v: ckNum(B.fatmass)} : null, 'kg', '', null, null],
+    ['肌肉量', 'Muscle Mass', ckNum(B.muscle) != null ? {v: ckNum(B.muscle)} : null, 'kg', '', null, null],
+    ['內臟脂肪等級', 'Visceral Fat', b.visceral, '', '1 至 9', [1, 25], [[10, 0], [15, 1], [I, 2]]],
+    ['身體水分率', 'Body Water', b.water, '%', m ? '50 至 65%' : '45 至 60%', [35, 75], m ? [[50, 1], [65 + E, 0], [I, 1]] : [[45, 1], [60 + E, 0], [I, 1]]],
+    ['四肢骨骼肌指數', 'SMI', b.smi, 'kg/m²', m ? '≥ 7.0' : '≥ 5.7', [4, 11], [[m ? 7 : 5.7, 1], [I, 0]]],
+    ['相位角', 'Phase Angle', b.phase, '°', '≥ 4.5°', [2, 9], [[4.5, 1], [I, 0]]],
+    ['身體年齡', 'Body Age', b.bodyage, '歲', d.P.age != null ? `實際 ${d.P.age} 歲` : '', null, null],
+    ['基礎代謝量', 'BMR', ckNum(B.bmr) != null ? {v: ckNum(B.bmr)} : null, 'kcal', '', null, null],
+  ].filter(r=> r[2]);
+  if(comp.length){
+    const trs = comp.map(([zh, en, x, u, ref, sc, cuts])=> `<tr class="ru"><td class="nm">${zh}<span class="en">${en}</span></td>` +
+      `<td class="n">${x.v}${u ? `<span class="u">${u}</span>` : ''}</td><td class="ref">${ref}</td>` +
+      `<td>${sc ? rBar(x.v, sc, cuts, 118) : ''}</td><td class="g">${x.g != null ? ckPill(x.g) : ''}</td></tr>`).join('');
+    const ph = b.pheno && b.pheno.hasComp ? `<div class="pheno"><span class="muted">身體組成分型</span><b>${ckEsc(b.pheno.t)}</b></div>` +
+      (b.pheno.focus ? `<p class="note-line" style="margin-top:2px">${rBr('訓練主軸：' + b.pheno.focus, 40)}</p>` : '') +
+      (b.pheno.partial ? `<p class="note-line">${rBr('這次沒有 SMI 或相位角，分型只依 BMI 與體脂肪判斷。', 40)}</p>` : '') : '';
+    blocks.push(rBlock('身體組成分析', '',
+      `<table class="rt"><colgroup><col style="width:30%"><col style="width:17%"><col style="width:17%"><col style="width:24%"><col style="width:12%"></colgroup>` +
+      `<thead><tr><th>項目</th><th>結果</th><th>參考值</th><th>位置</th><th class="c">判讀</th></tr></thead><tbody class="ru-host">${trs}</tbody></table>` +
+      ph + `<p class="note-line tail">${rBr('以 TANITA 身體組成分析儀量測。SMI 切點依亞洲肌少症工作小組（AWGS 2019）。', 40)}</p>`, {split:true}));
+  }
   return blocks;
 }
 
@@ -222,12 +240,18 @@ function ckChUs(d){
 function ckChMod(d){
   const blocks = [];
   const row = u=> `<div class="us-row ru"><div><b>${ckEsc(u.t)}</b>${u.d ? `<p>${rBr(u.d, 34)}</p>` : ''}</div>${ckPill(u.g)}</div>`;
-  const areas = [...new Set(d.mod.map(u=> u.area))];
+  const info = d.mod.info || {};
+  const areas = [...new Set(d.mod.map(u=> u.area).concat(Object.keys(info)))];
   areas.forEach(area=>{
     const list = d.mod.filter(u=> u.area === area);
-    const note = list.map(u=> String(u.note || '').trim()).filter(Boolean).join('\n');
-    blocks.push(rBlock(area, '', `<div class="ru-host">${list.map(row).join('')}</div>` +
-      (note ? `<div class="memo tail" style="margin-top:8px"><div class="rich">${rRich(note, 36)}</div></div>` : ''), {split:true}));
+    const I = info[area] || {};
+    let note = list.map(u=> String(u.note || '').trim()).concat([String(I.note || '').trim()]).filter(Boolean).join('\n');
+    // 單一區塊不能跨頁，摘要太長就截斷，全文看附件
+    if(note.length > 600) note = note.slice(0, 600) + '……（全文見原始報告與附件）';
+    const proc = I.proc ? `<p class="note-line tail" style="margin-top:8px">${rBr('處置：' + I.proc, 40)}</p>` : '';
+    const label = /病理/.test(area) ? '病理報告' : '摘要';
+    blocks.push(rBlock(area, '', `<div class="ru-host">${list.map(row).join('')}</div>` + proc +
+      (note ? `<div class="memo tail" style="margin-top:8px"><div class="muted small" style="margin-bottom:2px">${label}</div><div class="rich">${rRich(note, 36)}</div></div>` : ''), {split:true}));
   });
   return blocks;
 }
@@ -256,8 +280,6 @@ function ckChPlan(d){
   const blocks = [];
   const order = ['now', 'm3', 'm6', 'y1', 'long'];
   const groups = order.map(w=> ({w, list: d.advice.filter(a=> a.when === w)})).filter(g=> g.list.length);
-  const yearly = {w:'y1', list:[{t:'明年同一時間再安排一次健檢，和這次的數值比較。'}]};
-  if(!groups.some(g=> g.w === 'y1')) groups.push(yearly); else groups.find(g=> g.w === 'y1').list.push(yearly.list[0]);
   const html = groups.map(g=> `<div class="tl-row ru"><div><div class="tl-when">${CK_WHEN[g.w]}</div></div>` +
     `<div>${g.list.map(a=> `<div class="what">${rBr(a.t, 34)}</div>`).join('<div style="height:6px"></div>')}</div></div>`).join('');
   blocks.push(rBlock('建議與追蹤時程', '', `<div class="ru-host">${html}</div>`, {split:true}));
@@ -276,6 +298,8 @@ function ckChAppendix(){
     ['參考區間', '檢驗所依檢驗方法與性別訂定；部分項目另依臨床指引判讀，例如糖化血色素與 LDL-C。'],
     ['HbA1c', '糖化血色素，反映 2 至 3 個月平均血糖。5.7 至 6.4 為糖尿病前期，6.5 以上達糖尿病診斷值。'],
     ['HOMA-IR', '胰島素阻抗指數＝空腹血糖 × 胰島素 ÷ 405，數值越高表示身體對胰島素越不敏感。'],
+    ['SMI', '四肢骨骼肌量 ÷ 身高²。依亞洲肌少症工作小組（AWGS 2019），男性低於 7.0、女性低於 5.7 kg/m² 為偏低。'],
+    ['相位角', '生物電阻抗量測的細胞完整性指標，偏低時常和肌肉品質或營養狀態不佳有關，本報告以 4.5° 為參考。'],
     ['Non-HDL-C', '非高密度膽固醇＝總膽固醇減 HDL-C，包含所有會造成動脈硬化的膽固醇。'],
     ['eGFR', '估算腎絲球過濾率，本報告採用 CKD-EPI 公式。'],
     ['FIB-4', '肝纖維化指數＝年齡 × AST ÷（血小板 × √ALT），用來篩檢肝臟纖維化。'],
@@ -298,21 +322,30 @@ function ckBuildModel(){
     {id:'body',    no:'02', zh:'身體測量',     lead:'BMI、腰圍、血壓與身體組成。',                     blocks: ckChBody(d)},
     {id:'lab',     no:'03', zh:'血液與尿液檢驗', lead:'依檢驗所的分組列出本次數值、參考區間與判讀。',  blocks: ckChLab(d)},
     {id:'us',      no:'04', zh:'超音波檢查',   lead:'腹部與甲狀腺超音波的發現。',                      blocks: ckChUs(d)},
-    {id:'mod',     no:'05', zh:'加選檢查',     lead:'心電圖、頸動脈、幽門桿菌、糞便潛血、內視鏡與肺部電腦斷層的結果。', blocks: ckChMod(d)},
+    {id:'mod',     no:'05', zh:'加選檢查',     lead:'心電圖、頸動脈、幽門桿菌、糞便潛血、胃腸鏡與病理、肺部電腦斷層的結果。', blocks: ckChMod(d)},
     {id:'cv',      no:'06', zh:'心血管風險',   lead:'用國際與台灣兩個模型，估計未來發生心血管疾病的機率。', blocks: ckChCv(d)},
     {id:'plan',    no:'07', zh:'建議與追蹤',   lead:'依這次結果整理的建議、下次檢查的時間，以及可以使用的公費篩檢。', blocks: ckChPlan(d)},
     {id:'appx',    no:'A',  zh:'附錄',         lead:'報告中用到的名詞與判讀標準。',                    blocks: ckChAppendix()},
   ].filter(c=> c.blocks.length);
   chapters.forEach((c, i)=>{ if(c.id !== 'appx') c.no = String(i + 1).padStart(2, '0'); });
   const attachments = [];
-  if(ckAttOn() && d.current && CK_PAGES[d.current.id]){
-    const pg = CK_PAGES[d.current.id];
-    pg.forEach((src, i)=> attachments.push({title: `檢驗報告：${d.current.date || ''}`, sub: pg.length > 1 ? `第 ${i + 1}／${pg.length} 頁` : '', src}));
+  if(ckAttOn()){
+    if(d.current && CK_PAGES[d.current.id]){
+      const pg = CK_PAGES[d.current.id];
+      pg.forEach((src, i)=> attachments.push({title: `檢驗報告：${d.current.date || ''}`, sub: pg.length > 1 ? `第 ${i + 1}／${pg.length} 頁` : '', src}));
+    }
+    // 其他附件依報告章節順序排列
+    Object.keys(CK_ATT_KIND).forEach(kind=>{
+      CK.att.filter(a=> a.kind === kind && CK_PAGES[a.id]).forEach(a=>{
+        const pg = CK_PAGES[a.id];
+        pg.forEach((src, i)=> attachments.push({title: CK_ATT_KIND[kind], sub: pg.length > 1 ? `第 ${i + 1}／${pg.length} 頁` : '', src}));
+      });
+    });
   }
   return {d, name, date, chapters, attachments};
 }
-let ckAttach = true;
-function ckAttOn(){ return ckAttach; }
+let ckWithAtt = true;
+function ckAttOn(){ return ckWithAtt; }
 
 // ---------- 封面與目錄 ----------
 function ckCoverHtml(m, logo){
@@ -342,7 +375,7 @@ function ckCoverHtml(m, logo){
 }
 function ckTocHtml(m){
   const rows = m.chapters.map(c=> `<div class="toc" data-toc="${c.id}"><span class="no">${c.no}</span><span class="t">${c.zh}</span><span class="p"></span></div>`).join('') +
-    (m.attachments.length ? `<div class="toc" data-toc="att"><span class="no">B</span><span class="t">原始檢驗報告</span><span class="p"></span></div>` : '');
+    (m.attachments.length ? `<div class="toc" data-toc="att"><span class="no">B</span><span class="t">原始報告與附件</span><span class="p"></span></div>` : '');
   return `<div class="toc-head"><h2>目錄</h2><div class="lead">這份報告依下列順序整理，每一章開頭先說明這一章看什麼。</div></div>${rows}
   <div class="rb callout howto"><div class="co-l">閱讀方式</div><div class="co-r">
     <div class="lg">
@@ -521,7 +554,7 @@ async function ckLayout(doc, m){
   });
 
   if(m.attachments.length){
-    chLabel = '原始檢驗報告<b>B</b>';
+    chLabel = '原始報告與附件<b>B</b>';
     m.attachments.forEach((a, i)=>{
       newPage();
       if(i === 0) chapterStart.att = pages.length + 1;
@@ -568,14 +601,14 @@ async function ckPreview(){
   ov.innerHTML = `<div class="k-ov-bar"><b>報告預覽</b><span id="k-ov-info">排版中…</span>` +
     (cur && cur.unverified ? '<span class="warn">檢驗報告尚未審核</span>' : '') +
     `<span style="flex:1"></span>` +
-    (cur && CK_PAGES[cur.id] ? `<label><input type="checkbox" id="k-ov-att"${ckAttach ? ' checked' : ''}> 附上原始檢驗報告</label>` : '') +
+    ((cur && CK_PAGES[cur.id]) || CK.att.some(a=> CK_PAGES[a.id]) ? `<label><input type="checkbox" id="k-ov-att"${ckWithAtt ? ' checked' : ''}> 附上原始報告與附件</label>` : '') +
     `<button class="k-btn" id="k-ov-print">列印／輸出 PDF</button><button class="k-btn ghost" id="k-ov-close">關閉</button></div>` +
     `<iframe id="k-ov-frame" title="報告預覽"></iframe>`;
   KD.appendChild(ov);
   ov.querySelector('#k-ov-close').onclick = ckClosePreview;
   ov.querySelector('#k-ov-print').onclick = ()=> ckPrint();
   const att = ov.querySelector('#k-ov-att');
-  if(att) att.onchange = ()=>{ ckAttach = att.checked; ckPreview(); };
+  if(att) att.onchange = ()=>{ ckWithAtt = att.checked; ckPreview(); };
   const frame = ov.querySelector('#k-ov-frame');
   const doc = frame.contentWindow.document;
   doc.open(); doc.write(ckDocHtml(ckFilename(), true)); doc.close();
@@ -648,7 +681,7 @@ function ckDraftComment(d){
   }
   if(d.advice.length){
     L.push('【我的建議】');
-    d.advice.slice(0, 5).forEach(a=> L.push('• ' + a.t));
+    d.advice.filter(a=> a.key !== 'yearly').slice(0, 5).forEach(a=> L.push('• ' + a.t));
   }
   L.push('※ 有任何不清楚的地方，歡迎帶著這份報告回診，我們一起看。');
   // 中文與英文、數字之間留一個半形空格
@@ -718,7 +751,7 @@ function ckLineDraw(cv, d){
     });
     if(d.findings.length > 8) y += text(`另有 ${d.findings.length - 8} 項，詳見完整報告。`, P, 26, 400, C.mute, W - 2 * P, 40);
     // 接下來要做的事
-    const groups = ['now', 'm3', 'm6', 'y1', 'long'].map(w=> ({w, list: d.advice.filter(a=> a.when === w)})).filter(g=> g.list.length);
+    const groups = ['now', 'm3', 'm6', 'y1', 'long'].map(w=> ({w, list: d.advice.filter(a=> a.when === w && a.key !== 'yearly')})).filter(g=> g.list.length);
     if(groups.length){
       head('接下來要做的事');
       groups.forEach(g=>{
