@@ -60,6 +60,9 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .na{color:#8A847A; font-weight:400;}
 .empty{font-size:12.5px; color:#77716A;}
 .note-line{font-size:12px; color:#5F5A53; margin-top:10px; line-height:1.75;}
+.nw{white-space:nowrap;}
+/* 心血管章旁列的 10 年數字：列距收窄，整章盡量排在同一頁 */
+.rt.kv.cvkv th,.rt.kv.cvkv td{padding-top:5px; padding-bottom:5px;}
 .mark{font-weight:700; color:#1F262A; background:linear-gradient(transparent 60%, #EFE1C2 60%);}
 
 /* 提示框：米色（一般）與淡紅（就醫），左側襯線標籤 */
@@ -912,18 +915,20 @@ function rChCv(d){
     blocks.push(rBlock('PREVENT 心血管風險', '', `<p>${rBr(why(pv), 40)}</p>`));
     return blocks;
   }
-  const kv = rows=> `<table class="rt kv" style="margin-top:8px">${rows.map(([k, v])=> `<tr class="ru"><th style="width:46%">${k}</th><td>${v}</td></tr>`).join('')}</table>`;
+  const kv = rows=> `<table class="rt kv cvkv" style="margin-top:8px">${rows.map(([k, v])=> `<tr class="ru"><th style="width:46%">${k}</th><td>${v}</td></tr>`).join('')}</table>`;
   const side = [];
   if(other) side.push([`${other} 年總心血管疾病`, pct(pv['cvd' + other])], [`${other} 年動脈硬化心血管疾病`, pct(pv['ascvd' + other])]);
   if(tw && tw.risk != null) side.push(['TwCCCC 10 年冠心病', `${pct(tw.risk)}（台灣模型，本次 ${tw.pts} 分）`]);
   blocks.push(rBlock('PREVENT 心血管風險', '',
     `<div class="big-row" style="gap:36px; align-items:flex-start">${big(pv['cvd' + H], H + ' 年總心血管疾病')}${big(pv['ascvd' + H], H + ' 年動脈硬化心血管疾病')}</div>` +
     (side.length ? kv(side) : '') +
-    `<p class="note-line">${rBr(`美國心臟學會 2023 年發表的模型（本次用${pv.model}模型），用年齡、膽固醇、血壓、血糖、腎功能、吸菸與用藥估計。總心血管疾病包含心肌梗塞、中風與心衰竭；動脈硬化心血管疾病指心肌梗塞與中風。`, 40)}</p>`));
+    // 兩行寫完，整章才排得進同一頁
+    `<p class="note-line">${rBr(`美國心臟學會 2023 年的${pv.model}模型，用年齡、膽固醇、血壓、血糖、腎功能、吸菸與用藥估計。`, 44)}<br>` +
+    `${rBr('總心血管疾病含心肌梗塞、中風與心衰竭；動脈硬化心血管疾病指心肌梗塞與中風。', 44)}</p>`));
 
   blocks.push(rBlock('心衰竭風險', '', pv.hfNa ? `<p>${rBr(pv.hfNa + '，無法計算。', 40)}</p>` :
     `<div class="big-row" style="gap:36px; align-items:flex-start">${big(pv['hf' + H], H + ' 年心衰竭')}${other ? big(pv['hf' + other], other + ' 年心衰竭') : ''}</div>` +
-    `<p class="note-line">${rBr('PREVENT 的心衰竭方程式除了血壓、血糖與腎功能，也把 BMI 納入計算，是三個方程式中唯一用到 BMI 的一個。', 40)}</p>`));
+    `<p class="note-line">${rBr('心衰竭方程式也把 BMI 納入計算，是 PREVENT 三個方程式中唯一用到 BMI 的一個。', 40)}</p>`));
 
   if(target && ok(target.pv)){
     const T = target.pv;
@@ -931,14 +936,14 @@ function rChCv(d){
     // 只寫有代入目標的項目，順序固定為血壓、血糖、血脂
     const metab = [[/^收縮壓/, '血壓'], [/^HbA1c/, '血糖'], [/膽固醇|^LDL/, '血脂']].filter(([re])=> target.chg.some(c=> re.test(c))).map(([, t])=> t);
     const lead = metab.length ? `因為${metab.join('、')}改善，所以總心血管和動脈硬化心血管疾病（ASCVD）風險跟著下降。` : '這次血壓、血糖、血脂已在目標內，總心血管和動脈硬化心血管疾病（ASCVD）估計值不變。';
-    const hfNote = target.chg.some(c=> /^目標體重/.test(c)) && pv['hf' + H] != null ? '心衰竭方程式另外代入目標體重的 BMI。' : '';
     blocks.push(rBlock('控制到目標時的估計', '',
       `<table class="rt"><colgroup><col style="width:46%"><col style="width:27%"><col style="width:27%"></colgroup>` +
       `<thead><tr><th>${H} 年風險</th><th>目前</th><th>達到目標</th></tr></thead><tbody class="ru-host">` +
       row('總心血管疾病', 'cvd' + H) + row('動脈硬化心血管疾病', 'ascvd' + H) + row('心衰竭', 'hf' + H) + `</tbody></table>` +
-      `<p class="note-line">${rBr(`代入的目標：${target.chg.join('、')}。用藥與糖尿病診斷維持不變。` +
-        (target.chg.some(c=> /LDL|膽固醇/.test(c)) ? '血脂目標依心血管風險訂定，比檢驗表的一般參考值（LDL < 130）嚴格。' : ''), 40)}</p>` +
-      `<p class="note-line">${rBr(lead + hfNote, 40)}</p>`));
+      // 依 YT 指定：「用藥……嚴格。」與「因為……下降。」各自排一行，不自動斷行；併成一段，整章才排得進同一頁
+      `<p class="note-line">${rBr(`代入的目標：${target.chg.join('、')}。`, 44)}<br><span class="nw">${esc('用藥與糖尿病診斷維持不變。' +
+        (target.chg.some(c=> /LDL|膽固醇/.test(c)) ? '血脂目標依心血管風險訂定，比檢驗表的一般參考值（LDL < 130）嚴格。' : ''))}</span>` +
+      `<br><span class="nw">${esc(lead)}</span></p>`));
   }
 
   if(prev){
@@ -956,8 +961,9 @@ function rChCv(d){
       (pOk ? '' : `<p class="note-line">${rBr('上次' + why(P), 40)}</p>`)));
   }
 
-  blocks.push(rCallout('這些數字怎麼看', `<div class="li ru">${rBr('這是估計值，用來決定血壓、血糖、血脂要控制到什麼目標，不代表一定會或不會發生。', 40)}</div>` +
-    `<div class="li ru">${rBr('目標情境假設各項數值達標，實際變化因人而異，請和醫師一起討論。', 40)}</div>`, true));
+  blocks.push(rCallout('這些數字怎麼看', `<div class="li ru"><span class="nw">這是估計值，用來決定血壓、血糖、血脂要控制到什麼目標，不代表一定會發生。</span></div>` +
+    `<div class="li ru">${rBr('目標情境假設各項數值達標，實際變化因人而異，請和醫師一起討論。', 40)}</div>`, true)
+    .replace('class="rb callout', 'class="rb keep-prev callout'));   // 不讓這一框單獨落在下一頁
   return blocks;
 }
 
@@ -1110,6 +1116,12 @@ async function layoutReport(doc, m){
     const dy = Math.round((a.top + a.bottom - c.top - c.bottom) / 2);
     if(dy > 0) r.style.paddingTop = dy + 'px';
   });
+  // 指定排在同一行的句子（.nw）比欄寬還寬時，等比縮小字級到剛好放得下
+  stage.querySelectorAll('.nw').forEach(s=>{
+    const p = s.parentElement, cs = doc.defaultView.getComputedStyle(p);
+    const room = p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    if(s.offsetWidth > room) s.style.fontSize = (parseFloat(doc.defaultView.getComputedStyle(s).fontSize) * room / s.offsetWidth - .05).toFixed(2) + 'px';
+  });
   stage.querySelectorAll('.tier').forEach(t=>{
     const hh = t.querySelector('h5'), p = t.querySelector(':scope > p');
     if(!hh || !p) return;
@@ -1207,6 +1219,16 @@ async function layoutReport(doc, m){
   };
   const place = (blk, lead)=>{
     if(tryPut([...lead, blk])) return;
+    // keep-prev 的提示框放不下時，連同前一段一起換頁，避免下一頁只剩這一框（前一段之前還有內容才搬，不留下空頁）
+    if(blk.classList.contains('keep-prev')){
+      const prev = body.lastElementChild;
+      if(prev && prev.classList.contains('rb') && prev.previousElementSibling){
+        prev.remove();
+        newPage();
+        if(tryPut([prev, blk])) return;
+        body.appendChild(prev);
+      }
+    }
     const splittable = blk.dataset.split === '1' && blk.querySelector('.ru-host') && blk.querySelectorAll('.ru-host > .ru').length > 1;
     // 量這一段完整的高度
     const probe = doc.createElement('div');
