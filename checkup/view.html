@@ -228,9 +228,18 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
         <div class="k-sub" data-show="hx.smoke:former"><label class="k-f"><span>吸菸量<i>包年</i></span><input type="number" step="0.5" data-k="hx.packyears"></label><label class="k-f"><span>戒菸幾年</span><input type="number" data-k="hx.quitYears"></label></div>
       </div></div>
       <div class="k-row"><b>飲酒</b><div class="k-opts" data-k="hx.alcohol" data-opts="no:不喝或偶爾|weekly:每週數次|daily:幾乎每天"></div></div>
-      <div class="k-row"><b>已知疾病</b><div class="k-opts" data-k="hx.dx" data-multi="1" data-opts="htn:高血壓|dm:糖尿病|lipid:高血脂|cvd:心臟病或中風|ckd:慢性腎臟病|hbv:B 型肝炎帶原|hcv:C 型肝炎|thy:甲狀腺疾病"></div></div>
-      <div class="k-row"><b>目前用藥</b><div class="k-opts" data-k="hx.med" data-multi="1" data-opts="bp:降血壓藥|statin:降血脂藥|dm:降血糖藥|thy:甲狀腺藥物"></div></div>
-      <div class="k-row"><b>家族史</b><div class="k-opts" data-k="hx.fam" data-multi="1" data-opts="ecvd:早發心血管疾病|dm:糖尿病|gastric:胃癌|crc:大腸癌|liver:肝癌|lung:肺癌|breast:乳癌"></div></div>
+      <div class="k-row"><b>已知疾病</b><div>
+        <div class="k-opts" data-k="hx.dx" data-multi="1" data-excl="none" data-opts="none:無|htn:高血壓|dm:糖尿病|lipid:高血脂|cvd:心臟病或中風|ckd:慢性腎臟病|hbv:B 型肝炎帶原|hcv:C 型肝炎|thy:甲狀腺疾病|other:其他"></div>
+        <div class="k-sub" data-show="hx.dx:other"><label class="k-f" style="flex:1"><span>其他疾病</span><input type="text" data-k="hx.dxOther"></label></div>
+      </div></div>
+      <div class="k-row"><b>目前用藥</b><div>
+        <div class="k-opts" data-k="hx.med" data-multi="1" data-excl="none" data-opts="none:無|bp:降血壓藥|statin:降血脂藥|dm:降血糖藥|thy:甲狀腺藥物|other:其他"></div>
+        <div class="k-sub" data-show="hx.med:other"><label class="k-f" style="flex:1"><span>其他用藥</span><input type="text" data-k="hx.medOther"></label></div>
+      </div></div>
+      <div class="k-row"><b>家族史</b><div>
+        <div class="k-opts" data-k="hx.fam" data-multi="1" data-excl="none" data-opts="none:無|ecvd:早發心血管疾病|dm:糖尿病|gastric:胃癌|crc:大腸癌|liver:肝癌|lung:肺癌|breast:乳癌|other:其他"></div>
+        <div class="k-sub" data-show="hx.fam:other"><label class="k-f" style="flex:1"><span>其他家族史</span><input type="text" data-k="hx.famOther"></label></div>
+      </div></div>
       <div class="k-row" id="k-row-preg" hidden><b>懷孕</b><div class="k-opts" data-k="hx.preg" data-opts="no:沒有懷孕|maybe:不確定|yes:已確認懷孕"></div></div>
       <div class="k-row"><b>其他</b><label class="k-f"><textarea data-k="hx.note" style="min-height:60px"></textarea></label></div>
     </section>
