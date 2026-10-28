@@ -481,7 +481,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
     <div class="chk-grid">
       <div class="chk-row"><input type="checkbox" id="sc-thyroid"><label for="sc-thyroid">甲狀腺功能低下</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-cushing"><label for="sc-cushing">庫欣氏症候群</label></div>
-      <div class="chk-row"><input type="checkbox" id="sc-pcos"><label for="sc-pcos">多囊性卵巢症候群（PCOS）</label></div>
+      <div class="chk-row f-only"><input type="checkbox" id="sc-pcos"><label for="sc-pcos">多囊性卵巢症候群（PCOS）</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-hypothal"><label for="sc-hypothal">下視丘病灶</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-gh"><label for="sc-gh">生長激素缺乏症</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-hypogonad"><label for="sc-hypogonad">性腺功能低下症</label></div>
@@ -496,13 +496,30 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       <div class="chk-row"><input type="checkbox" id="med-insulin"><label for="med-insulin">胰島素</label></div>
       <div class="chk-row"><input type="checkbox" id="med-bb"><label for="med-bb">乙型阻斷劑（降血壓藥）</label></div>
       <div class="chk-row"><input type="checkbox" id="med-antiepileptic"><label for="med-antiepileptic">抗癲癇藥物</label></div>
-      <div class="chk-row"><input type="checkbox" id="med-hormone"><label for="med-hormone">荷爾蒙避孕藥</label></div>
+      <div class="chk-row f-only"><input type="checkbox" id="med-hormone"><label for="med-hormone">荷爾蒙避孕藥</label></div>
       <div class="chk-row"><input type="checkbox" id="med-antihistamine"><label for="med-antihistamine">抗組織胺藥物</label></div>
       <div class="chk-row"><input type="checkbox" id="med-chemo"><label for="med-chemo">化療藥物</label></div>
       <div class="chk-row chk-other"><input type="checkbox" id="med-other"><label for="med-other">其他</label><input type="text" id="med-other-text" class="other-text" aria-label="其他藥物性因素" hidden></div>
     </div>
     <div class="field" style="margin-top:10px"><label>藥物是否可調整／備註</label><textarea id="med-note" style="min-height:50px"></textarea></div>
     </div>
+  </div>
+
+  <div class="card">
+    <h2>心血管風險評估資料<small>用來計算 PREVENT 心血管與心衰竭風險；吸菸狀態沒有選就不計算</small></h2>
+    <div class="field">
+      <label>吸菸</label>
+      <select id="cv-smoke" class="as-buttons">
+        <option value="">未評估</option><option value="never">從未吸菸</option><option value="former">已戒菸</option><option value="current">目前吸菸</option>
+      </select>
+    </div>
+    <div class="chk-grid" style="margin-top:6px">
+      <div class="chk-row"><input type="checkbox" id="cv-dm"><label for="cv-dm">已診斷糖尿病</label></div>
+      <div class="chk-row"><input type="checkbox" id="cv-bptx"><label for="cv-bptx">目前使用降血壓藥</label></div>
+      <div class="chk-row"><input type="checkbox" id="cv-statin"><label for="cv-statin">目前使用降血脂藥</label></div>
+      <div class="chk-row"><input type="checkbox" id="cv-cvd"><label for="cv-cvd">已有心血管疾病（心肌梗塞、冠心病、中風、心衰竭）</label></div>
+    </div>
+    <div class="hint" style="margin-top:6px">藥物性因素勾了胰島素，會一併視為糖尿病；勾了乙型阻斷劑，會一併視為使用降血壓藥。</div>
   </div>
 
   <div class="card">
@@ -550,6 +567,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
     <h3>家族史</h3>
     <div id="family-history-tags" class="tag-box"></div>
     <div class="field" style="margin-top:10px"><label>家族史內容（點選上方項目自動帶入，可直接編輯）</label><textarea id="fam-note"></textarea></div>
+    <div id="w-preg-box">
     <h3>生育計畫</h3>
     <div class="field">
         <select id="preg-plan" class="as-buttons">
@@ -557,6 +575,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
           <option value="計畫懷孕中">計畫懷孕中</option><option value="懷孕中">懷孕中</option><option value="哺乳中">哺乳中</option>
         </select>
       </div>
+    </div>
     <h3>減重動機評估 ／ 社會支持</h3>
     <div class="grid">
       <div class="field"><label>減重意願與準備度（1 至 10 分）</label><input id="motiv-score" type="number" min="1" max="10"></div>

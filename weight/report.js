@@ -384,6 +384,12 @@ function rBodyMeta(){
 }
 
 // ---------- 評估資料整理（報告各章共用） ----------
+// FIB-4 說明，健檢報告共用（切點與判讀在 lab/lab.js 的 ckFib4）
+function rFib4Note(F){
+  return `FIB-4 是用年齡、肝指數（AST、ALT）和血小板估計肝臟纖維化程度的分數，不能取代影像或切片檢查。` +
+    `低於 ${F.low} 表示晚期纖維化的可能性低，高於 2.67 表示可能性高${F.low === 2 ? '（65 歲以上低切點改用 2.0）' : ''}。` +
+    (F.young ? '35 歲以下準確度較差，這個數值僅供參考。' : '');
+}
 function rCollect(){
   const male = rMale();
   const h = rN('b-height'), w = rN('b-weight');
@@ -432,17 +438,20 @@ function rCollect(){
   // 血液常規、尿液、BUN、free T4（app.js 的 wLabRows，判讀規則在 lab/lab.js）與 FIB-4
   d.extra = typeof wLabRows === 'function' ? wLabRows() : [];
   d.fib4 = typeof wFib4 === 'function' ? wFib4() : null;
+  d.cv = typeof wCv === 'function' ? wCv() : null;
   return d;
 }
 
 function rScreeningLists(){
   const sc = [];
+  // PCOS、荷爾蒙避孕藥只和女性有關，男性就算之前勾過也不列
+  const fOnly = id=> rMale() && (id === 'sc-pcos' || id === 'med-hormone');
   [['sc-thyroid','甲狀腺功能低下'],['sc-cushing','庫欣氏症候群'],['sc-pcos','多囊性卵巢症候群'],['sc-hypothal','下視丘病灶'],
-   ['sc-gh','生長激素缺乏症'],['sc-hypogonad','性腺功能低下症'],['sc-genetic','遺傳性肥胖症候群']].forEach(([id, t])=>{ if(chk(id)) sc.push(t); });
+   ['sc-gh','生長激素缺乏症'],['sc-hypogonad','性腺功能低下症'],['sc-genetic','遺傳性肥胖症候群']].forEach(([id, t])=>{ if(chk(id) && !fOnly(id)) sc.push(t); });
   if(chk('sc-other')) sc.push(otherLabel('sc-other-text'));
   const meds = [];
   [['med-steroid','類固醇'],['med-psych','抗精神病藥／抗憂鬱藥'],['med-insulin','胰島素'],['med-bb','乙型阻斷劑'],
-   ['med-antiepileptic','抗癲癇藥物'],['med-hormone','荷爾蒙避孕藥'],['med-antihistamine','抗組織胺藥物'],['med-chemo','化療藥物']].forEach(([id, t])=>{ if(chk(id)) meds.push(t); });
+   ['med-antiepileptic','抗癲癇藥物'],['med-hormone','荷爾蒙避孕藥'],['med-antihistamine','抗組織胺藥物'],['med-chemo','化療藥物']].forEach(([id, t])=>{ if(chk(id) && !fOnly(id)) meds.push(t); });
   if(chk('med-other')) meds.push(otherLabel('med-other-text'));
   return {sc, meds};
 }
@@ -679,13 +688,13 @@ function rChLab(d){
       `<thead><tr><th>項目</th><th>結果</th><th>參考區間</th><th class="c">判讀</th></tr></thead><tbody class="ru-host">${trs}</tbody></table>` +
       `<p class="note-line tail">${rBr('紅血球與血色素看有沒有貧血，白血球與發炎、感染有關，血小板和凝血功能有關。尿液的糖、蛋白、潛血有陽性反應時，建議在非生理期複驗一次。', 44)}</p>`, {split:true}));
   }
-  // 算得出來才放：減重門診不一定有驗血小板，缺項時不必在報告上多一段「無法計算」
+  // 算得出來才放：AST、ALT、血小板缺任何一項就不放
   if(d.fib4 && d.fib4.v != null){
     const F = d.fib4;
     const inner = `<div class="big-row"><div class="fib-v">${F.v.toFixed(2)}</div><div style="padding-bottom:3px">${rPill(F.g)}</div></div>` +
       rBar(F.v, [0, 4], [[F.low, 0], [2.67, 1], [Infinity, 2]], 516) +
-      `<p class="note-line">${rBr(`由年齡、AST、ALT 與血小板算出，用來估計肝臟纖維化的風險。低於 ${F.low} 表示風險低，高於 2.67 表示風險高，介於中間需要進一步評估。脂肪肝合併肥胖時，這個數值可以幫助決定是否需要做肝臟彈性檢查。`, 40)}` +
-      (F.young ? `<br>${rBr('35 歲以下的人，FIB-4 的準確度較低，僅供參考。', 40)}` : '') + `</p>`;
+      `<p class="note-line">${rBr(`這次數值${F.d}。`, 40)}<br>${rBr(rFib4Note(F), 40)}<br>` +
+      `${rBr('脂肪肝會隨體重下降逐步改善，但每個人的變化幅度不同，追蹤抽血時我會再算一次。', 40)}</p>`;
     blocks.push(rBlock('肝纖維化指數 FIB-4', 'FIB-4 INDEX', inner));
   }
 
@@ -744,7 +753,7 @@ function rChLab(d){
 function rChHistory(d){
   const blocks = [];
   const {sc, meds} = rScreeningLists();
-  const kv = (rows)=> `<table class="rt kv"><tbody class="ru-host">${rows.map(([k, v])=> `<tr class="ru"><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>`;
+  const kv = (rows)=> `<table class="rt kv"><tbody class="ru-host">${rows.filter(Boolean).map(([k, v])=> `<tr class="ru"><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>`;
   const withNote = (list, noteId, none)=> (list.length ? rBr(list.join('、'), 27) : `<span class="muted">${none}</span>`) + (rS(noteId) ? `<div class="small muted">${rLines(rS(noteId), 29)}</div>` : '');
   blocks.push(rBlock('次發性肥胖<br>與藥物因素', 'SECONDARY CAUSES', kv([
     ['次發性肥胖篩檢', withNote(sc, 'sc-note', '未發現')],
@@ -759,9 +768,10 @@ function rChHistory(d){
   blocks.push(rBlock('飲食與活動習慣', 'LIFESTYLE', life.length ? `<div class="rich ru-host">${life.join('')}</div>` : '<div class="empty">未記錄。</div>', {split:true}));
 
   const motiv = rS('motiv-score');
-  blocks.push(rBlock('家族史、<br>生育計畫與動機', 'BACKGROUND', kv([
+  // 男性不列生育計畫
+  blocks.push(rBlock(d.male ? '家族史與動機' : '家族史、<br>生育計畫與動機', 'BACKGROUND', kv([
     ['家族史', rS('fam-note') ? rLines(rS('fam-note'), 27) : '<span class="muted">未記錄</span>'],
-    ['生育計畫', rS('preg-plan') ? wEsc(rS('preg-plan')) : '<span class="muted">未評估</span>'],
+    !d.male && ['生育計畫', rS('preg-plan') ? wEsc(rS('preg-plan')) : '<span class="muted">未評估</span>'],
     ['減重意願與準備度', motiv ? `<b>${wEsc(motiv)}</b> / 10` : '<span class="muted">未評估</span>'],
     ['社會支持', rS('motiv-support') ? rBr(rS('motiv-support'), 27) : '<span class="muted">未記錄</span>'],
   ].concat(rS('fam-motiv-note') ? [['備註', rLines(rS('fam-motiv-note'), 27)]] : [])), {split:true}));
@@ -833,13 +843,15 @@ function rChFollow(d){
   const blocks = [];
   const base = rS('p-date') || todayLocal();
   const md = s=> s.slice(5);
+  // 有選藥物才排 1 至 2 週的副作用回診；只選生活型態介入或沒選，不排
+  const onMed = getTxChoices().some(k=> k !== 'lifestyle');
   const plan = [
-    ['1 至 2 週', ['開始用藥後', `約 ${md(rAddDays(base, 7))} 至 ${md(rAddDays(base, 14))}`], '副作用與劑量', '噁心、便祕等腸胃狀況是否可以忍受，<br>決定能不能調升劑量。'],
+    onMed && ['1 至 2 週', ['開始用藥後', `約 ${md(rAddDays(base, 7))} 至 ${md(rAddDays(base, 14))}`], '副作用與劑量', '噁心、便祕等腸胃狀況是否可以忍受，<br>決定能不能調升劑量。'],
     ['1 個月', [`約 ${rAddMonths(base, 1)}`], '體重與身體組成', '體重、腰圍、體脂與肌肉量，<br>一起檢視這個月的飲食與運動。'],
     ['3 個月', [`約 ${rAddMonths(base, 3)}`], '療效評估與抽血', '確認減重是否達到原本體重的 5%；<br>抽血看血糖、血脂、肝腎功能。'],
     ['6 個月', [`約 ${rAddMonths(base, 6)}`], '腹部超音波', '看脂肪肝改善多少，<br>追蹤血壓、血糖、血脂等共病指標。'],
-    ['長期', ['每 3 至 6 個月'], '規律回診', '目標是「不復胖」。<br>停藥前後尤其要留意體重變化。'],
-  ];
+    ['長期', ['每 3 至 6 個月'], '規律回診', onMed ? '目標是「不復胖」。<br>停藥前後尤其要留意體重變化。' : '目標是「不復胖」。<br>體重回升時提早回診，一起調整計畫。'],
+  ].filter(Boolean);
   blocks.push(rBlock('回診與<br>追蹤時程', 'FOLLOW-UP SCHEDULE',
     `<div class="ru-host">${plan.map(([w, sub, h, t])=> `<div class="tl-row ru"><div><div class="tl-when">${w}</div>${sub.map(x=> `<div class="tl-sub">${x}</div>`).join('')}</div><div><h4>${h}</h4><div class="what">${t}</div></div></div>`).join('')}</div>` +
     `<p class="note-line tail">日期由檢查日期推算，實際回診以預約為準。${rS('track-note') ? '<br>' + rLines(rS('track-note'), 42) : ''}</p>`, {split:true}));
@@ -851,10 +863,12 @@ function rChFollow(d){
     blocks.push(rBlock('心理支持<br>與復胖預防', 'SUPPORT',
       `<div class="rich ru-host">${psy.map(t=> `<div class="li ru">${rBr(t, 35)}</div>`).join('')}${rRich(rS('psy-note'))}</div>`, {split:true}));
   }
-  blocks.push(rCallout('提早就醫', ['上腹痛延伸到背部、持續嘔吐無法進食，或出現黃疸，請立即就醫。',
-      '嚴重腹瀉、頭暈、尿量明顯減少，可能是脫水，請盡快回診。',
-      '計畫懷孕、已懷孕或開始哺乳，請先停藥並回診討論。',
-      '任何疑問，歡迎來電木子澄安診所 07-3739496，或於回診時與醫師討論。'].map(t=> `<div class="li ru">${rBr(t, 34)}</div>`).join(''), true));
+  // 腸胃副作用與脫水是用藥的警示；沒用藥時只留快速減重可能引起的膽結石。懷孕、哺乳只提醒女性
+  blocks.push(rCallout('提早就醫', [onMed ? '上腹痛延伸到背部、持續嘔吐無法進食，或出現黃疸，請立即就醫。' :
+        '上腹痛延伸到背部，或出現黃疸，請立即就醫；體重下降快的時候，膽結石的機會會增加。',
+      onMed && '嚴重腹瀉、頭暈、尿量明顯減少，可能是脫水，請盡快回診。',
+      !d.male && (onMed ? '計畫懷孕、已懷孕或開始哺乳，請先停藥並回診討論。' : '計畫懷孕、已懷孕或開始哺乳，請回診討論減重計畫。'),
+      '任何疑問，歡迎來電木子澄安診所 07-3739496，或於回診時與醫師討論。'].filter(Boolean).map(t=> `<div class="li ru">${rBr(t, 34)}</div>`).join(''), true));
   return blocks;
 }
 
@@ -879,6 +893,74 @@ function rChAppendix(){
 }
 
 // ---------- 整份報告的內容模型 ----------
+/* 心血管風險（計算在 lab/lab.js，取值在 app.js 的 wCv）。
+   30 至 59 歲主要看 30 年風險，10 年放旁邊；60 至 79 歲只有 10 年 */
+function rChCv(d){
+  const cv = d.cv;
+  // 沒有抽血血脂就不放這一章（還沒做檢驗的初診）
+  if(!cv || (cv.I.tc == null && cv.I.hdl == null)) return [];
+  const {pv, tw, target, prev} = cv;
+  const blocks = [];
+  const pct = v=> v == null ? '' : (Math.round(v * 1000) / 10).toFixed(1) + '%';
+  const why = x=> x.na ? x.na + '。' : x.miss ? `這次缺少${x.miss.join('、')}，無法計算。` : x.range ? `不適用：${x.range.join('、')}。` : '';
+  const ok = x=> x && !why(x);
+  const y30 = ok(pv) && pv.cvd30 != null;
+  const H = y30 ? '30' : '10', other = y30 ? '10' : '';
+  const big = (v, lbl)=> `<div><div class="fib-v">${(Math.round(v * 1000) / 10).toFixed(1)}<small style="font-size:15px; margin-left:2px">%</small></div><p class="note-line" style="margin-top:4px">${lbl}</p></div>`;
+
+  if(!ok(pv)){
+    blocks.push(rBlock('PREVENT 心血管風險', '', `<p>${rBr(why(pv), 40)}</p>`));
+    return blocks;
+  }
+  const kv = rows=> `<table class="rt kv" style="margin-top:8px">${rows.map(([k, v])=> `<tr class="ru"><th style="width:46%">${k}</th><td>${v}</td></tr>`).join('')}</table>`;
+  const side = [];
+  if(other) side.push([`${other} 年總心血管疾病`, pct(pv['cvd' + other])], [`${other} 年動脈硬化心血管疾病`, pct(pv['ascvd' + other])]);
+  if(tw && tw.risk != null) side.push(['TwCCCC 10 年冠心病', `${pct(tw.risk)}（台灣模型，本次 ${tw.pts} 分）`]);
+  blocks.push(rBlock('PREVENT 心血管風險', '',
+    `<div class="big-row" style="gap:36px; align-items:flex-start">${big(pv['cvd' + H], H + ' 年總心血管疾病')}${big(pv['ascvd' + H], H + ' 年動脈硬化心血管疾病')}</div>` +
+    (side.length ? kv(side) : '') +
+    `<p class="note-line">${rBr(`美國心臟學會 2023 年發表的模型（本次用${pv.model}模型），用年齡、膽固醇、血壓、血糖、腎功能、吸菸與用藥估計。總心血管疾病包含心肌梗塞、中風與心衰竭；動脈硬化心血管疾病指心肌梗塞與中風。`, 40)}</p>`));
+
+  blocks.push(rBlock('心衰竭風險', '', pv.hfNa ? `<p>${rBr(pv.hfNa + '，無法計算。', 40)}</p>` :
+    `<div class="big-row" style="gap:36px; align-items:flex-start">${big(pv['hf' + H], H + ' 年心衰竭')}${other ? big(pv['hf' + other], other + ' 年心衰竭') : ''}</div>` +
+    `<p class="note-line">${rBr('PREVENT 的心衰竭方程式除了血壓、血糖與腎功能，也把 BMI 納入計算，是三個方程式中唯一用到 BMI 的一個。', 40)}</p>`));
+
+  if(target && ok(target.pv)){
+    const T = target.pv;
+    const row = (lbl, k)=> pv[k] == null ? '' : `<tr class="ru"><td>${lbl}</td><td class="n">${pct(pv[k])}</td><td class="n">${T[k] == null ? '無法計算' : pct(T[k])}</td></tr>`;
+    // 只寫有代入目標的項目，順序固定為血壓、血糖、血脂
+    const metab = [[/^收縮壓/, '血壓'], [/^HbA1c/, '血糖'], [/膽固醇|^LDL/, '血脂']].filter(([re])=> target.chg.some(c=> re.test(c))).map(([, t])=> t);
+    const lead = metab.length ? `因為${metab.join('、')}改善，所以總心血管和動脈硬化心血管疾病（ASCVD）風險跟著下降。` : '這次血壓、血糖、血脂已在目標內，總心血管和動脈硬化心血管疾病（ASCVD）估計值不變。';
+    const hfNote = target.chg.some(c=> /^目標體重/.test(c)) && pv['hf' + H] != null ? '心衰竭方程式另外代入目標體重的 BMI。' : '';
+    blocks.push(rBlock('控制到目標時的估計', '',
+      `<table class="rt"><colgroup><col style="width:46%"><col style="width:27%"><col style="width:27%"></colgroup>` +
+      `<thead><tr><th>${H} 年風險</th><th>目前</th><th>達到目標</th></tr></thead><tbody class="ru-host">` +
+      row('總心血管疾病', 'cvd' + H) + row('動脈硬化心血管疾病', 'ascvd' + H) + row('心衰竭', 'hf' + H) + `</tbody></table>` +
+      `<p class="note-line">${rBr(`代入的目標：${target.chg.join('、')}。用藥與糖尿病診斷維持不變。` +
+        (target.chg.some(c=> /LDL|膽固醇/.test(c)) ? '血脂目標依心血管風險訂定，比檢驗表的一般參考值（LDL < 130）嚴格。' : ''), 40)}</p>` +
+      `<p class="note-line">${rBr(lead + hfNote, 40)}</p>`));
+  }
+
+  if(prev){
+    const P = prev.pv, pOk = ok(P);
+    const cell = (o, k)=> o && o[k] != null ? pct(o[k]) : '無法計算';
+    const num = (v, u)=> v == null ? '未測量' : `${v}<span class="u">${u}</span>`;
+    const tr = (lbl, a, b)=> `<tr class="ru"><td>${lbl}</td><td class="n">${a}</td><td class="n">${b}</td></tr>`;
+    blocks.push(rBlock('和上次比較', '',
+      `<table class="rt"><colgroup><col style="width:46%"><col style="width:27%"><col style="width:27%"></colgroup>` +
+      `<thead><tr><th>項目</th><th>上次 ${esc(prev.date)}</th><th>這次 ${esc(cv.date || '')}</th></tr></thead><tbody class="ru-host">` +
+      tr('體重', num(prev.w, '公斤'), num(cv.w, '公斤')) + tr('腰圍', num(prev.waist, '公分'), num(cv.waist, '公分')) +
+      tr(`${H} 年總心血管疾病`, cell(pOk && P, 'cvd' + H), cell(pv, 'cvd' + H)) +
+      tr(`${H} 年動脈硬化心血管疾病`, cell(pOk && P, 'ascvd' + H), cell(pv, 'ascvd' + H)) +
+      tr(`${H} 年心衰竭`, cell(pOk && P, 'hf' + H), cell(pv, 'hf' + H)) + `</tbody></table>` +
+      (pOk ? '' : `<p class="note-line">${rBr('上次' + why(P), 40)}</p>`)));
+  }
+
+  blocks.push(rCallout('這些數字怎麼看', `<div class="li ru">${rBr('這是估計值，用來決定血壓、血糖、血脂要控制到什麼目標，不代表一定會或不會發生。', 40)}</div>` +
+    `<div class="li ru">${rBr('目標情境假設各項數值達標，實際變化因人而異，請和醫師一起討論。', 40)}</div>`, true));
+  return blocks;
+}
+
 function buildReportModel(){
   try{ calcBMI(true); }catch(e){}
   try{ applyMsAuto(); calcMetabolic(); }catch(e){}
@@ -894,6 +976,12 @@ function buildReportModel(){
     {id:'follow',  no:'06', zh:'追蹤計畫',         en:'FOLLOW-UP',            lead:'回診時程與需要提早回診的狀況。',                      blocks: rChFollow(d)},
     {id:'appx',    no:'A',  zh:'附錄',             en:'APPENDIX',             lead:'報告中用到的名詞與判讀標準。',                  blocks: rChAppendix()},
   ];
+  // 心血管風險有內容才放，接在檢驗章後面，章號依序重排
+  const cvBlocks = rChCv(d);
+  if(cvBlocks.length){
+    chapters.splice(3, 0, {id:'cv', no:'', zh:'心血管風險', en:'CARDIOVASCULAR RISK', lead:'用血壓、血脂、血糖、腎功能與 BMI 估計未來發生心血管疾病與心衰竭的機率。', blocks: cvBlocks});
+    chapters.forEach((c, i)=>{ if(c.id !== 'appx') c.no = String(i + 1).padStart(2, '0'); });
+  }
   const attachments = [];
   // 「附上原始報告」沒勾就只印到附錄
   const attBox = WD.getElementById('rpt-att');

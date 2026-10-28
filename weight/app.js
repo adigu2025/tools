@@ -1017,6 +1017,67 @@ function wFib4(){
     .filter(([, v])=> String(v || '').trim()).map(([key, raw])=> ({key, raw}));
   return ckFib4(rows, wPatient());
 }
+
+/* 心血管風險：公式在 lab/lab.js（ckPrevent、ckTwcccc），這裡只負責從減重欄位取值。
+   吃 collectState() 格式的資料，回診時才能拿存檔的上一次紀錄用同一套重算 */
+function wCvInputs(st){
+  const n = k=> { const v = parseFloat(st[k]); return isNaN(v) ? null : v; };
+  const bd = new Date(birthOf(st)), rd = new Date(st['p-date'] || todayLocal());
+  let age = null;
+  if(!isNaN(bd) && !isNaN(rd)){
+    age = rd.getFullYear() - bd.getFullYear();
+    const m = rd.getMonth() - bd.getMonth();
+    if(m < 0 || (m === 0 && rd.getDate() < bd.getDate())) age--;
+  }
+  const h = n('b-height'), w = n('b-weight'), sex = st['p-gender'];
+  return {
+    age, male: sex === 'M', sexOk: sex === 'M' || sex === 'F',
+    tc: n('lab-tcho'), hdl: n('lab-hdl'), ldl: n('lab-ldl'), a1c: n('lab-hba1c'), glu: n('lab-ac'), egfr: n('lab-egfr'),
+    sbp: n('b-sbp'), bmi: h && w ? w / Math.pow(h / 100, 2) : null,
+    dm: !!(st['cv-dm'] || st['med-insulin']), smoke: st['cv-smoke'] === 'current', smokeSet: !!st['cv-smoke'],
+    bptx: !!(st['cv-bptx'] || st['med-bb']), statin: !!st['cv-statin'], cvd: !!st['cv-cvd']
+  };
+}
+// 目標情境：同一個模型，收縮壓 120、LDL 100（沒有 LDL 就用非 HDL 膽固醇 130）、HbA1c 回到目標、目標體重的 BMI。
+// 用藥與糖尿病診斷維持不變；只改比目前好的項目
+function wCvTarget(I, st){
+  const T = Object.assign({}, I), chg = [];
+  if(I.sbp != null && I.sbp > 120){ T.sbp = 120; chg.push('收縮壓 120'); }
+  if(I.tc != null && I.hdl != null){
+    const cut = I.ldl != null ? I.ldl - 100 : I.tc - I.hdl - 130;
+    if(cut > 0){ T.tc = Math.max(130, I.tc - cut); chg.push(I.ldl != null ? 'LDL 100' : '非 HDL 膽固醇 130'); }
+  }
+  if(I.a1c != null){
+    const goal = I.dm ? 7 : 5.6;
+    if(I.a1c > goal){ T.a1c = goal; chg.push('HbA1c ' + goal.toFixed(1)); }
+  }
+  const tw = parseFloat(st['b-target-weight']), h = parseFloat(st['b-height']);
+  if(tw > 0 && h > 0 && I.bmi != null){
+    const b = tw / Math.pow(h / 100, 2);
+    if(b < I.bmi){ T.bmi = b; chg.push('目標體重 ' + tw + ' 公斤（BMI ' + b.toFixed(1) + '）'); }
+  }
+  return {T, chg};
+}
+// 上一次的紀錄：同姓名、同生日（兩邊都有病歷號時也要相同），檢查日期在這次之前的最近一筆。只讀已儲存的紀錄
+function wPrevState(st){
+  const name = (st['p-name'] || '').trim(), birth = birthOf(st), date = st['p-date'] || '', chart = (st['p-chart'] || '').trim();
+  if(!name || !date) return null;
+  return loadRecords().map(r=> r.state || {})
+    .filter(s=> (s['p-name'] || '').trim() === name && birthOf(s) === birth && (s['p-date'] || '') && s['p-date'] < date &&
+      !(chart && (s['p-chart'] || '').trim() && s['p-chart'].trim() !== chart))
+    .sort((a, b)=> a['p-date'] < b['p-date'] ? 1 : -1)[0] || null;
+}
+function wCv(){
+  const st = collectState(), I = wCvInputs(st);
+  const pv = ckPrevent(I), tw = ckTwcccc(I);
+  const ok = x=> !x.na && !x.miss && !x.range;
+  const tg = wCvTarget(I, st);
+  const target = ok(pv) && tg.chg.length ? {pv: ckPrevent(tg.T), chg: tg.chg} : null;
+  const ps = wPrevState(st);
+  const num = v=> { v = parseFloat(v); return isNaN(v) ? null : v; };
+  const prev = ps ? {date: ps['p-date'], pv: ckPrevent(wCvInputs(ps)), w: num(ps['b-weight']), waist: num(ps['b-waist'])} : null;
+  return {I, pv, tw, target, prev, date: st['p-date'], w: num(st['b-weight']), waist: num(st['b-waist'])};
+}
 const W_GCLS = ['g0', 'g1', 'g2'], W_GTXT = ['正常', '注意', '異常'];
 function renderLabRows(){
   const box = WD.getElementById('w-labrows');
@@ -1464,11 +1525,28 @@ const MED_EDU = {
   'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在4天（96小時）內盡快補打；\n超過4天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
 };
 // 依複選結果合併衛教內容；沒有選任何項目時清空
-function genMedEdu(){
+// 男性不帶懷孕、哺乳的提醒，甲狀腺髓質癌與胰臟炎照常提醒
+function medEduText(male){
   const parts = getTxChoices().map(k=> MED_EDU[TX_OPTIONS.find(o=> o.key === k).edu] || '').filter(Boolean);
+  const t = parts.join('\n\n');
+  return male ? t.replace(/若懷孕、哺乳中，或有/g, '若有') : t;
+}
+function genMedEdu(){
   const ta = WD.getElementById('tx-edu');
-  ta.value = parts.join('\n\n');
+  ta.value = medEduText(WD.getElementById('p-gender').value === 'M');
   if(typeof autoGrow === 'function') autoGrow(ta);
+}
+// 性別改了：衛教文字還是另一個性別的預設版本（醫師沒改過）就重新帶入
+WD.getElementById('p-gender').addEventListener('change', ()=>{
+  const ta = WD.getElementById('tx-edu'), male = WD.getElementById('p-gender').value === 'M';
+  if(ta.value && ta.value === medEduText(!male)) genMedEdu();
+  wSexUi();
+});
+// 男性隱藏只和女性有關的欄位：生育計畫、PCOS、荷爾蒙避孕藥。已勾的值不清掉，報告端男性不列
+function wSexUi(){
+  const male = WD.getElementById('p-gender').value === 'M';
+  WD.querySelectorAll('.f-only, #w-preg-box').forEach(e=> e.style.display = male ? 'none' : '');
+  WD.querySelectorAll('#comorbid-list .tag').forEach(t=>{ if(/PCOS/.test(t.textContent)) t.style.display = male ? 'none' : ''; });
 }
 
 // ============================================================
@@ -2126,7 +2204,7 @@ function collectState(){
     't-fat','t-fatmass','t-muscle','t-visceral','t-water','t-bmr','t-bodyage','t-smi','t-phaseangle',
     'us-fatty','us-text','us-thyroid','us-thyroid-text',
     'lab-ac','lab-hba1c','lab-homa','lab-tcho','lab-ldl','lab-hdl','lab-tg','lab-ast','lab-alt','lab-cr','lab-egfr','lab-ua','lab-tsh',
-    'lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart',
+    'lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke',
     'tx-choice','tx-choices','tx-edu','fam-other-text','cm-other-text','cm-note','ms-hba1c',
     'cal-activity','cal-goal','ex-text','edu-text','psy-note','doc-comment','stopbang-manual','phq9-manual',
     'body-note','metabolic-note','lab-note','sleep-note','track-note'];
@@ -2135,7 +2213,7 @@ function collectState(){
   ['sc-thyroid','sc-cushing','sc-pcos','sc-hypothal','sc-gh','sc-hypogonad','sc-genetic','sc-other',
    'med-steroid','med-psych','med-insulin','med-bb','med-antiepileptic','med-hormone','med-antihistamine','med-chemo','med-other',
    'ms-waist','ms-glucose','ms-bp','ms-tg','ms-hdl',
-   'psy-refer','psy-support',
+   'psy-refer','psy-support','cv-dm','cv-bptx','cv-statin','cv-cvd',
    ...STOPBANG_ITEMS.map(it=>it.id)]
    .forEach(id=> state[id] = WD.getElementById(id).checked);
   state._track = trackData;
@@ -2224,9 +2302,12 @@ function applyState(state){
   renderSrcTags();
   updateEgfrHint();
   // 這幾格是後來才加的，舊紀錄沒有：載入時清空，免得留著上一位病人的數值
-  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
+  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
+  ['cv-dm','cv-bptx','cv-statin','cv-cvd'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).checked = false; });
+  refreshChoiceButtons();
   renderLabRows();
   renderNav();
+  wSexUi();
 }
 // ============================================================
 // 病人紀錄：多筆儲存、草稿自動暫存、離開提醒
@@ -2624,3 +2705,5 @@ function syncTagOtherInputs(){
 
 // 開頁時先畫一次左側目錄的綠點
 renderNav();
+// 依目前性別顯示或隱藏只和女性有關的欄位
+wSexUi();

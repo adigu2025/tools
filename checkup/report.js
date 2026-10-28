@@ -212,14 +212,12 @@ function ckChLab(d){
       `<div class="rb-r"><table class="rt">${colg}${head}<tbody class="ru-host">${body}</tbody></table>` +
       (note ? `<p class="note-line tail">${rBr(note[1], 52)}</p>` : '') + `</div></div>`);
   });
-  if(d.fib4){
+  // AST、ALT、血小板缺任何一項就不放（醫師端畫面另有缺項提醒）
+  if(d.fib4 && d.fib4.v != null){
     const F = d.fib4;
-    const inner = F.v != null
-      ? `<div class="big-row"><div class="fib-v">${F.v.toFixed(2)}</div><div style="padding-bottom:3px">${ckPill(F.g)}</div></div>` +
-        rBar(F.v, [0, 4], [[F.low, 0], [2.67, 1], [Infinity, 2]], 516) +
-        `<p class="note-line">${rBr(`由年齡、AST、ALT 與血小板算出，用來估計肝臟纖維化的風險。低於 ${F.low} 表示風險低，高於 2.67 表示風險高，介於中間需要進一步檢查。`, 40)}` +
-        (F.young ? `<br>${rBr('35 歲以下的人，FIB-4 的準確度較低，僅供參考。', 40)}` : '') + `</p>`
-      : `<p>這次缺少${F.miss.join('、')}，無法計算。</p>`;
+    const inner = `<div class="big-row"><div class="fib-v">${F.v.toFixed(2)}</div><div style="padding-bottom:3px">${ckPill(F.g)}</div></div>` +
+      rBar(F.v, [0, 4], [[F.low, 0], [2.67, 1], [Infinity, 2]], 516) +
+      `<p class="note-line">${rBr(`這次數值${F.d}。`, 40)}<br>${rBr(rFib4Note(F), 40)}</p>`;
     blocks.push(rBlock('肝纖維化指數 FIB-4', '', inner));
   }
   return blocks;
@@ -287,8 +285,9 @@ function ckChPlan(d){
     blocks.push(rBlock('可以使用的公費篩檢', '', `<div class="ru-host">${d.pub.map(x=> `<div class="us-row ru"><div><b>${ckEsc(x.t)}</b><p>${rBr(x.rule + (x.done ? '。' + x.done : ''), 34)}</p></div></div>`).join('')}</div>` +
       `<p class="note-line tail">${rBr('依國民健康署公告整理。間隔從上次篩檢起算，實際資格以健保卡紀錄為準，可在門診或健保快易通 App 查詢。', 40)}</p>`, {split:true}));
   }
-  blocks.push(rCallout('提早就醫', `<div class="li ru">${rBr('胸痛、呼吸困難、單側肢體無力或說話不清楚，請立即就醫。', 40)}</div>` +
-    `<div class="li ru">${rBr('解黑便、吐血、皮膚或眼白變黃，請盡快回診。', 40)}</div>`, true));
+  // 文字在健檢畫面「追蹤時程」下方，醫師可改；全部刪掉就不印這一框
+  const warn = ckWarnText().split('\n').map(t=> t.trim()).filter(Boolean);
+  if(warn.length) blocks.push(rCallout('提早就醫', warn.map(t=> `<div class="li ru">${rBr(t, 40)}</div>`).join(''), true));
   return blocks;
 }
 
