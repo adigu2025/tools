@@ -376,9 +376,10 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <!-- ══════════ 1 基本資料 ══════════ -->
 <section class="screen" id="screen-basic">
   <div class="card">
-    <h2>基本資料</h2>
+    <h2>基本資料<small>上傳抽血 PDF 後自動帶入，可以修改；已經填過的欄位不會被覆蓋</small></h2>
     <div class="grid">
       <div class="field"><label>姓名</label><input id="p-name" placeholder=""></div>
+      <div class="field"><label>病歷號</label><input id="p-chart" type="text"></div>
       <div class="field"><label>性別</label><select id="p-gender"><option value="" selected></option><option value="M">男</option><option value="F">女</option></select></div>
       <div class="field"><label>出生年月日</label>
         <div style="display:flex; gap:4px; align-items:center">
@@ -390,7 +391,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
           <input id="p-birth" type="hidden">
         </div>
       </div>
-      <div class="field"><label>評估日期</label><input id="p-date" type="date"></div>
+      <div class="field"><label>檢查日期</label><input id="p-date" type="date"></div>
       <div class="field"><label>年齡（自動計算）</label><input id="p-age" readonly style="background:#F4F2EE"></div>
     </div>
   </div>

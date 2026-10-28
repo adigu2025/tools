@@ -842,7 +842,7 @@ function rChFollow(d){
   ];
   blocks.push(rBlock('回診與<br>追蹤時程', 'FOLLOW-UP SCHEDULE',
     `<div class="ru-host">${plan.map(([w, sub, h, t])=> `<div class="tl-row ru"><div><div class="tl-when">${w}</div>${sub.map(x=> `<div class="tl-sub">${x}</div>`).join('')}</div><div><h4>${h}</h4><div class="what">${t}</div></div></div>`).join('')}</div>` +
-    `<p class="note-line tail">日期由評估日期推算，實際回診以預約為準。${rS('track-note') ? '<br>' + rLines(rS('track-note'), 42) : ''}</p>`, {split:true}));
+    `<p class="note-line tail">日期由檢查日期推算，實際回診以預約為準。${rS('track-note') ? '<br>' + rLines(rS('track-note'), 42) : ''}</p>`, {split:true}));
 
   const psy = [];
   if(chk('psy-refer')) psy.push('建議轉介身心科或心理諮商');
@@ -907,7 +907,7 @@ function buildReportModel(){
 
 function rCoverHtml(m, logo){
   const sex = rS('p-gender'), gender = sex === 'M' ? '男' : sex === 'F' ? '女' : '--';
-  const birth = rS('p-birth'), age = rS('p-age');
+  const birth = rS('p-birth'), age = rS('p-age'), chart = rS('p-chart');
   const f = (k, v, na)=> `<div class="cv-f"><span class="k">${k}</span><span class="v${na ? ' na' : ''}">${v}</span></div>`;
   return `<section class="rpt-page cover">
   <img class="cv-wm" src="${logo.wm}" alt="">
@@ -923,9 +923,9 @@ function rCoverHtml(m, logo){
   <div class="cv-info">
     <div class="cv-info-h"><b>個人資料</b><span>PERSONAL INFORMATION</span></div>
     <div class="cv-grid">
-      ${f('姓名', wEsc(m.name))}${f('出生日期', wEsc(birth || '--'), !birth)}
+      ${f('姓名', wEsc(m.name))}${f('病歷號', wEsc(chart || '--'), !chart)}
       ${f('性別', gender, !sex)}${f('年齡', age ? wEsc(age) + ' 歲' : '-- 歲', !age)}
-      ${f('檢查日期', wEsc(m.date))}
+      ${f('出生日期', wEsc(birth || '--'), !birth)}${f('檢查日期', wEsc(m.date))}
     </div>
   </div>
   <div class="cv-foot"><div>高雄市仁武區仁孝路282號<br>07-3739496 ・ LINE @muzichengan</div><div class="r">本報告僅供臨床參考，<br>檢查結果請與主治醫師討論。</div></div>

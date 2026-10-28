@@ -789,7 +789,7 @@ async function handleFiles(kind, files, listId){
       // 抽血報告：用健檢報告的擷取（lab/lab.js），同時拿到頁面圖片、原始文字和逐列的檢驗值
       if(kind === 'lab'){
         const {rep, pages, text} = await ckParsePdf(file);
-        Object.assign(entry, {pages, text, rows: rep.rows, date: rep.date || ''});
+        Object.assign(entry, {pages, text, rows: rep.rows, date: rep.date || '', name: rep.name, chart: rep.chart, sex: rep.sex, birth: rep.birth});
         uploadedFiles[kind].push(entry);
         continue;
       }
@@ -925,8 +925,10 @@ function fillCurrentLabFieldsFromUpload(){
     if(allText === null) return;
     fields = extractFieldsFromText(allText, LAB_CURRENT_EXTRACT_DICT, LAB_EXTRACT_GAP, LAB_EXTRACT_WIDE_GAP);
   }
+  const info = cur ? wFillInfoFromLab(cur) : [];
+  const infoMsg = info.length ? `基本資料已帶入${info.join('、')}。` : '';
   const keys = Object.keys(fields);
-  if(keys.length === 0){ alert('未能自動辨識出可用數值，請於上方欄位手動輸入。'); return; }
+  if(keys.length === 0){ alert(infoMsg + '未能自動辨識出可用數值，請於上方欄位手動輸入。'); return; }
   keys.forEach(k=>{
     const el = WD.getElementById('lab-'+k);
     if(el){ el.value = fields[k]; flashField(el); markUploaded(el); }
@@ -937,9 +939,9 @@ function fillCurrentLabFieldsFromUpload(){
   renderLabRows();
   try{ applyMsAuto(); calcMetabolic(); }catch(e){}
   scheduleDraftSave();
-  alert(cur
+  alert(infoMsg + (cur
     ? `已依抽血報告 PDF 的欄位帶入 ${keys.length} 項數值${cur.rows.length > keys.length ? `，血液常規與尿液共 ${wLabRows().length} 項列在「血液常規與尿液判讀」` : ''}，欄位旁標示「上傳」。請核對數值是否正確，如有誤請直接於欄位內修改。`
-    : `已自動帶入 ${keys.length} 項數值到下方欄位（${keys.join('、')}），欄位旁標示「上傳」。擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`);
+    : `已自動帶入 ${keys.length} 項數值到下方欄位（${keys.join('、')}），欄位旁標示「上傳」。擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`));
 }
 
 // ============================================================
@@ -956,6 +958,34 @@ const W_EXTRA_MANUAL = ['bun', 'ft4', 'wbc', 'hgb', 'plt'];
 function wCurrentLabUpload(){
   return uploadedFiles.lab.filter(f=> f.rows && f.rows.length)
     .sort((a, b)=> String(b.date || '').localeCompare(String(a.date || '')))[0] || null;
+}
+// 檢查日期一開頁預設是今天；自己改過就不再用 PDF 的收件日期覆蓋
+let pDateTouched = false;
+WD.getElementById('p-date').addEventListener('input', e=>{ if(e.isTrusted) pDateTouched = true; });
+// 基本資料：和健檢報告一樣，從抽血 PDF 帶入姓名、病歷號、性別、出生日期、檢查日期（年齡由生日與檢查日期算出）。
+// 已經填過的欄位不覆蓋；回傳帶入了哪些欄位
+function wFillInfoFromLab(cur){
+  const done = [];
+  const put = (id, v, label)=>{
+    const el = WD.getElementById(id);
+    if(!el || !v || String(el.value || '').trim()) return false;
+    el.value = v; flashField(el); markUploaded(el); done.push(label);
+    return true;
+  };
+  put('p-name', cur.name, '姓名');
+  put('p-chart', cur.chart, '病歷號');
+  if(put('p-gender', cur.sex, '性別')) WD.getElementById('p-gender').dispatchEvent(new Event('change', {bubbles: true}));
+  const b = /^(\d{4})-(\d{2})-(\d{2})$/.exec(cur.birth || '');
+  if(b && !WD.getElementById('p-birth').value){
+    ['y', 'm', 'd'].forEach((k, i)=>{ const el = WD.getElementById('p-birth-' + k); el.value = b[i + 1]; flashField(el); });
+    markUploaded(WD.getElementById('p-birth-y'));
+    done.push('出生日期');
+  }
+  const dt = WD.getElementById('p-date');
+  if(cur.date && !pDateTouched && dt.value !== cur.date){ dt.value = cur.date; flashField(dt); markUploaded(dt); done.push('檢查日期'); }
+  updateBirthHidden();
+  if(WD.getElementById('p-age').value) done.push('年齡');
+  return done;
 }
 function wPatient(){
   const sex = WD.getElementById('p-gender').value;
@@ -1913,7 +1943,7 @@ const COMPLETENESS_RULES = [
      if(!WD.getElementById('p-name').value.trim()) miss.push('姓名');
      if(!WD.getElementById('p-gender').value) miss.push('性別');
      if(!WD.getElementById('p-birth').value) miss.push('出生年月日');
-     if(!WD.getElementById('p-date').value) miss.push('評估日期');
+     if(!WD.getElementById('p-date').value) miss.push('檢查日期');
      return miss;
    }},
   {screen:'basic',   label:'身高體重血壓', parent:'workflow-hub', check:()=>{
@@ -2096,7 +2126,7 @@ function collectState(){
     't-fat','t-fatmass','t-muscle','t-visceral','t-water','t-bmr','t-bodyage','t-smi','t-phaseangle',
     'us-fatty','us-text','us-thyroid','us-thyroid-text',
     'lab-ac','lab-hba1c','lab-homa','lab-tcho','lab-ldl','lab-hdl','lab-tg','lab-ast','lab-alt','lab-cr','lab-egfr','lab-ua','lab-tsh',
-    'lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows',
+    'lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart',
     'tx-choice','tx-choices','tx-edu','fam-other-text','cm-other-text','cm-note','ms-hba1c',
     'cal-activity','cal-goal','ex-text','edu-text','psy-note','doc-comment','stopbang-manual','phq9-manual',
     'body-note','metabolic-note','lab-note','sleep-note','track-note'];
@@ -2194,7 +2224,7 @@ function applyState(state){
   renderSrcTags();
   updateEgfrHint();
   // 這幾格是後來才加的，舊紀錄沒有：載入時清空，免得留著上一位病人的數值
-  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
+  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
   renderLabRows();
   renderNav();
 }
@@ -2247,7 +2277,7 @@ function saveRecord(){
   const legacyKey = name + '||' + (st['p-date'] || '');
   const idx = list.findIndex(r => r.key === key || (r.key === legacyKey && birthOf(r.state || {}) === birth));
   if(idx >= 0){
-    if(!confirm('已有同姓名、同生日與同評估日期的紀錄：\n' + recordLabel(st) + '\n\n要覆蓋更新嗎？')) return;
+    if(!confirm('已有同姓名、同生日與同檢查日期的紀錄：\n' + recordLabel(st) + '\n\n要覆蓋更新嗎？')) return;
     list[idx] = {key, label: recordLabel(st), savedAt: new Date().toISOString(), state: st};
   } else {
     list.unshift({key, label: recordLabel(st), savedAt: new Date().toISOString(), state: st});
@@ -2295,7 +2325,7 @@ function renderRecords(){
       '<td style="white-space:nowrap"><button class="btn outline" style="padding:5px 13px; font-size:14px" onclick="loadRecord(\'' + k + '\')">載入</button> ' +
       '<button class="btn outline" style="padding:5px 13px; font-size:14px; color:var(--red); border-color:var(--red)" onclick="deleteRecord(\'' + k + '\')">刪除</button></td></tr>';
   }).join('');
-  box.innerHTML = '<div class="tt-wrap"><table class="dtable"><tr><th>病人｜評估日期</th><th>儲存時間</th><th>操作</th></tr>' + rows + '</table></div>';
+  box.innerHTML = '<div class="tt-wrap"><table class="dtable"><tr><th>病人｜檢查日期</th><th>儲存時間</th><th>操作</th></tr>' + rows + '</table></div>';
 }
 
 // ── 備份：紀錄只存在這台電腦的瀏覽器裡，清除瀏覽器資料或換電腦就會消失，定期匯出成檔案保存 ──
