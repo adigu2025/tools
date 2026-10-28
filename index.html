@@ -302,7 +302,6 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
   </div>
   <div class="hub-actions">
     <button class="btn" id="btn-rep-back" hidden>‹ 製作報告</button>
-    <button class="btn" id="btn-report-home" hidden>減重報告目錄</button>
     <button class="btn" id="btn-split" aria-pressed="false" hidden title="衛教旁邊同時顯示臨床計算">並排計算</button>
     <button class="btn clear" id="btn-clear" title="換下一位病人時使用">全部清除</button>
   </div>
@@ -447,7 +446,7 @@ async function mountWeight(){
   try{
     await mountView(host, BASE + 'weight/view.html', {
       onRoot: root=>{ WD = root; WB = root.getElementById('w-body'); },
-      scripts: [BASE + 'weight/app.js', BASE + 'weight/report.js']
+      scripts: [BASE + 'lab/lab.js', BASE + 'weight/app.js', BASE + 'weight/report.js']
     });
   }catch(err){ mountFailed(host, '減重報告', err); return; }
   weightReady = true;
@@ -546,7 +545,7 @@ function setView(v){
 const FOOT_HINT = {
   calc:   '以上結果僅供臨床參考，實際診斷與治療須由醫師綜合判斷。數值只在本機計算，不會上傳。',
   report: '選擇要製作的報告。',
-  weight: '減重報告會自動暫存草稿；按「減重報告目錄」回到十個分項，按「製作報告」回到報告種類。',
+  weight: '減重報告會自動暫存草稿；上傳的檔案只在這台電腦讀取，不會上傳。按 Esc 回到報告種類。',
   checkup: '健檢報告會自動暫存草稿（不含 PDF 圖片）；上傳的檔案只在這台電腦讀取，不會上傳。按 Esc 回到報告種類。',
   edu:    '← → 換張　＋ － 縮放　0 整頁　W 寬度　F 最大化　放大後可按住圖片拖曳',
   print:  '按「列印」會直接跳出列印對話框，紙張為 A4。'
@@ -566,7 +565,6 @@ function setRep(r){
 function syncRep(){
   const v = main.dataset.view, r = main.dataset.rep;
   document.getElementById('btn-rep-back').hidden = !(v === 'weight' && r !== 'home');
-  document.getElementById('btn-report-home').hidden = !(v === 'weight' && r === 'weight');
   const hint = v === 'weight' ? (r === 'home' ? 'report' : r) : v;
   document.getElementById('foot-hint').textContent = FOOT_HINT[hint] || FOOT_HINT.calc;
   // 減重報告的方向鍵與 ESC 快捷鍵要在焦點位於報告畫面內時才有作用
@@ -583,9 +581,6 @@ document.getElementById('btn-split').addEventListener('click', e=>{
   const on = main.dataset.split !== '1';
   main.dataset.split = on ? '1' : '0';
   e.currentTarget.setAttribute('aria-pressed', String(on));
-});
-document.getElementById('btn-report-home').addEventListener('click', ()=>{
-  if(weightReady) showWorkflowHub();
 });
 
 function onHubKey(e){

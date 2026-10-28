@@ -233,6 +233,9 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .rb.att{display:block; border:0; padding:0; margin:0;}
 .att .rb-h{margin-bottom:12px;}
 .att img{display:block; max-width:100%; margin:0 auto; border:1px solid #E4DED3; object-fit:contain;}
+/* FIB-4 大數字（樣式與健檢報告相同） */
+.big-row{display:flex; align-items:flex-end; gap:14px; margin-bottom:6px;}
+.fib-v{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:34px; font-weight:700; color:#1F262A; line-height:1;}
 `;
 
 // ---------- 取值與判讀 ----------
@@ -426,6 +429,9 @@ function rCollect(){
   const phq = calcPhq9();
   d.phq = phq;
   d.gPhq = !phq ? -1 : (phq.item9 >= 1 || phq.total >= 10) ? 2 : phq.total >= 5 ? 1 : 0;
+  // 血液常規、尿液、BUN、free T4（app.js 的 wLabRows，判讀規則在 lab/lab.js）與 FIB-4
+  d.extra = typeof wLabRows === 'function' ? wLabRows() : [];
+  d.fib4 = typeof wFib4 === 'function' ? wFib4() : null;
   return d;
 }
 
@@ -460,6 +466,9 @@ function rFindings(d){
   if(L.cr.v != null && L.egfr.g < 1) add(L.cr.g, `<b>肌酸酐 ${L.cr.v} mg/dL</b>，偏高`);
   if(L.ua.v != null) add(L.ua.g, `<b>尿酸 ${L.ua.v} mg/dL</b>，偏高`);
   if(L.tsh.v != null) add(L.tsh.g, `<b>TSH ${L.tsh.v} μIU/mL</b>，偏${L.tsh.v > 4 ? '高' : '低'}，需評估甲狀腺功能`);
+  // 血液常規、尿液、BUN、free T4 與 FIB-4（判讀與健檢報告相同）
+  d.extra.forEach(r=>{ if(r.j.g >= 1) add(r.j.g, `<b>${wEsc(r.zh || r.code)} ${wEsc(r.raw)}${r.unit ? ' ' + wEsc(r.unit) : ''}</b>，${wEsc(r.j.d || '與參考值不同')}`); });
+  if(d.fib4 && d.fib4.v != null) add(d.fib4.g, `<b>FIB-4 ${d.fib4.v.toFixed(2)}</b>，${d.fib4.d}`);
   if(d.gThyUs >= 1) add(1, `<b>甲狀腺超音波：${wEsc(d.thyUs)}</b>，使用腸泌素類藥物前需確認性質`);
   const B = d.body;
   if(B['t-fat'].v != null) add(B['t-fat'].g, `<b>體脂肪率 ${B['t-fat'].v}%</b>，超過${d.male ? '男' : '女'}性標準 ${d.male ? 25 : 30}%`);
@@ -616,7 +625,7 @@ function rChBody(d){
 function rChLab(d){
   const blocks = [];
   const meta = rLabMeta();
-  const anyLab = meta.some(x=> x.k && d.lab[x.k].v != null);
+  const anyLab = meta.some(x=> x.k && d.lab[x.k].v != null) || d.extra.some(e=> e.key === 'bun' || e.key === 'ft4');
   if(anyLab){
     let trs = '';
     meta.forEach(x=>{
@@ -627,6 +636,12 @@ function rChLab(d){
         `${r.v}${flag ? `<span class="arrow ${flag}">${flag === 'hi' ? '↑' : '↓'}</span>` : ''}<span class="u">${x.u}</span>${rSrc(r.src)}`;
       trs += `<tr class="ru"><td>${x.zh}<span class="en">${x.en}</span></td><td class="n">${v}</td><td class="ref">${x.ref}</td>` +
         `<td>${rBar(r.v, x.scale, x.cuts)}</td><td class="c">${x.cuts ? rPill(r.v == null ? -1 : r.g) : ''}</td></tr>`;
+      // BUN、free T4 不在共用的 LAB_META（健康紀錄表也用那份），接在同組最後；判讀用 lab/lab.js
+      const ex = x.k === 'ua' ? 'bun' : x.k === 'tsh' ? 'ft4' : '';
+      const er = ex && d.extra.find(e=> e.key === ex);
+      if(er) trs += `<tr class="ru"><td>${wEsc(er.zh)}<span class="en">${ex === 'bun' ? 'BUN' : 'free T4'}</span></td>` +
+        `<td class="n">${wEsc(er.raw)}${er.flag === 'H' ? '<span class="arrow hi">↑</span>' : er.flag === 'L' ? '<span class="arrow lo">↓</span>' : ''}<span class="u">${wEsc(er.unit)}</span></td>` +
+        `<td class="ref">${wEsc(er.ref)}</td><td></td><td class="c">${rPill(er.j.g, er.j.pill)}</td></tr>`;
     });
     blocks.push(rBlock('血液檢驗', 'LABORATORY',
       `<table class="rt"><colgroup><col style="width:28%"><col style="width:19%"><col style="width:15%"><col style="width:25%"><col style="width:13%"></colgroup>` +
@@ -635,6 +650,43 @@ function rChLab(d){
       (rS('lab-note') ? `<p class="note-line tail">${rLines('備註：' + rS('lab-note'), 42)}</p>` : ''), {split:true}));
   } else {
     blocks.push(rBlock('血液檢驗', 'LABORATORY', '<div class="empty">本次未提供抽血檢驗數值。</div>'));
+  }
+
+  // 血液常規與尿液：逐列判讀與健檢報告相同（lab/lab.js 的 ckJudge）。
+  // 尿液和健檢報告一樣只列有異常的項目與酸鹼度、比重，其餘合併成一行
+  const cbcUa = d.extra.filter(r=> r.key !== 'bun' && r.key !== 'ft4');
+  if(cbcUa.length){
+    let trs = '';
+    const tr = r=>{
+      const ar = r.flag === 'H' ? '<span class="arrow hi">↑</span>' : r.flag === 'L' ? '<span class="arrow lo">↓</span>' : '';
+      return `<tr class="ru"><td>${wEsc(r.zh || r.code)}${r.code ? `<span class="en">${wEsc(r.code)}</span>` : ''}</td>` +
+        `<td class="n">${wEsc(r.raw)}${ar}${r.unit ? `<span class="u">${wEsc(r.unit)}</span>` : ''}</td>` +
+        `<td class="ref">${wEsc(String(r.ref || '').replace(/\s*[（(]見(報告)?說明[)）]/g, ''))}</td>` +
+        `<td class="c">${rPill(r.j.g, r.j.pill)}</td></tr>`;
+    };
+    const groups = [];
+    cbcUa.forEach(r=>{ let g = groups.find(x=> x.name === r.grp); if(!g){ g = {name: r.grp, rows: []}; groups.push(g); } g.rows.push(r); });
+    groups.forEach(g=>{
+      trs += `<tr class="grp ru keep"><td colspan="4">${wEsc(g.name === '尿液' ? '尿液檢查' : g.name)}</td></tr>`;
+      const isUrine = g.name === '尿液';
+      const show = isUrine ? g.rows.filter(r=> r.j.g >= 1 || /^(uph|usg)$/.test(r.key)) : g.rows;
+      trs += show.map(tr).join('');
+      const rest = isUrine ? g.rows.filter(r=> !show.includes(r)) : [];
+      if(rest.length) trs += `<tr class="ru"><td colspan="4">${rBr(rest.map(r=> r.zh || r.code).join('、') + `，共 ${rest.length} 項皆正常。`, 32)}</td></tr>`;
+    });
+    blocks.push(rBlock('血液常規與尿液', 'CBC & URINALYSIS',
+      `<table class="rt"><colgroup><col style="width:34%"><col style="width:24%"><col style="width:26%"><col style="width:16%"></colgroup>` +
+      `<thead><tr><th>項目</th><th>結果</th><th>參考區間</th><th class="c">判讀</th></tr></thead><tbody class="ru-host">${trs}</tbody></table>` +
+      `<p class="note-line tail">${rBr('紅血球與血色素看有沒有貧血，白血球與發炎、感染有關，血小板和凝血功能有關。尿液的糖、蛋白、潛血有陽性反應時，建議在非生理期複驗一次。', 44)}</p>`, {split:true}));
+  }
+  // 算得出來才放：減重門診不一定有驗血小板，缺項時不必在報告上多一段「無法計算」
+  if(d.fib4 && d.fib4.v != null){
+    const F = d.fib4;
+    const inner = `<div class="big-row"><div class="fib-v">${F.v.toFixed(2)}</div><div style="padding-bottom:3px">${rPill(F.g)}</div></div>` +
+      rBar(F.v, [0, 4], [[F.low, 0], [2.67, 1], [Infinity, 2]], 516) +
+      `<p class="note-line">${rBr(`由年齡、AST、ALT 與血小板算出，用來估計肝臟纖維化的風險。低於 ${F.low} 表示風險低，高於 2.67 表示風險高，介於中間需要進一步評估。脂肪肝合併肥胖時，這個數值可以幫助決定是否需要做肝臟彈性檢查。`, 40)}` +
+      (F.young ? `<br>${rBr('35 歲以下的人，FIB-4 的準確度較低，僅供參考。', 40)}` : '') + `</p>`;
+    blocks.push(rBlock('肝纖維化指數 FIB-4', 'FIB-4 INDEX', inner));
   }
 
   if(d.msAny){

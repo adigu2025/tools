@@ -33,113 +33,63 @@ setTimeout(()=>{
 }, 4000);
 
 // ============================================================
-// NAVIGATION（工作台裡只有製作報告：報告目錄與各分頁）
+// NAVIGATION（版面與健檢報告一致：一頁捲到底，左側目錄點了捲到該區）
 // ============================================================
 // 最後改版日期：每次改版請一併更新，顯示於工作台底部
 const W_REVISION = '2026-10-28';
-const CATEGORIES = [
-  {id:'basic',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>', label:'基本資料',      desc:'個人資料／身高體重血壓'},
-  {id:'history', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/></svg>', label:'評估問卷',      desc:'病史／生活型態／量表'},
-  {id:'body',    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M12 4v17M8.5 21h7M4 7l8-2 8 2"/><path d="M4 7l-2 5a2.5 2.5 0 0 0 5 0z"/><path d="M20 7l-2 5a2.5 2.5 0 0 0 5 0z" transform="translate(-1 0)"/></svg>', label:'身體組成',      desc:'上傳 TANITA 報告'},
-  {id:'lab',     icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 2.5v14a3.5 3.5 0 0 0 7 0v-14"/><path d="M7.5 2.5h10M9 12h7"/></svg>', label:'抽血檢驗',      desc:'上傳抽血報告'},
-  {id:'image',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="2.5" y="4" width="19" height="14" rx="2"/><path d="M8 21h8M12 18v3"/><path d="M6 12.5h2l1.5-3 2 5 1.5-2.5h3"/></svg>', label:'影像檢查',      desc:'腹部／甲狀腺超音波'},
-  {id:'treat',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M8.5 8.5l7 7"/></svg>', label:'共病與治療',    desc:'分層流程／藥物'},
-  {id:'calorie', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M12 3s5 4.2 5 9a5 5 0 0 1-10 0c0-2 1-3.4 1-3.4S9.5 11 11 11c0-3 1-5.5 1-8z"/></svg>', label:'熱量與運動',    desc:'BMR/TDEE'},
-  {id:'diet',    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M3 20h18"/><path d="M9.5 12a4 4 0 0 1 5-5.5"/></svg>', label:'飲食衛教',      desc:'衛教主題'},
-  {id:'track',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>', label:'追蹤與支持',    desc:'監測時程'},
-  {id:'report',  icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>', label:'報告輸出',      desc:'預覽／列印'},
-];
-function renderCatGrid(){
-  const box = WD.getElementById('cat-grid');
-  box.innerHTML = '';
-  CATEGORIES.forEach(c=>{
-    const el = document.createElement('div');
-    el.className = 'cat-card';
-    el.onclick = ()=> showScreen(c.id);
-    el.innerHTML = `<div class="cat-icon">${c.icon}</div><div class="cat-label">${c.label}</div><div class="cat-desc">${c.desc}</div>`;
-    box.appendChild(el);
-  });
-}
-renderCatGrid();
+const W_SECS = ['upload', 'basic', 'body', 'history', 'lab', 'image', 'treat', 'calorie', 'diet', 'track', 'report'];
+let currentScreen = 'upload';
 
-const SCREEN_ORDER = ['home', ...CATEGORIES.map(c=>c.id)];
-let currentScreen = 'workflow-hub';
-let currentParent = 'top';
-
-function renderBottomNav(){
-  const nav = WD.getElementById('bottom-nav');
-  const inWorkflow = CATEGORIES.some(c=>c.id===currentScreen);
-  if(!inWorkflow){ nav.style.display = 'none'; return; }
-  nav.style.display = 'flex';
-  const box = WD.getElementById('bn-pills');
-  box.innerHTML = '';
-  SCREEN_ORDER.forEach(id=>{
-    if(id === 'home') return;
-    const label = CATEGORIES.find(c=>c.id===id).label;
-    const pill = document.createElement('span');
-    pill.className = 'bn-pill' + (id === currentScreen ? ' current' : '');
-    pill.textContent = label;
-    pill.onclick = ()=> showScreen(id);
-    box.appendChild(pill);
-  });
-}
-
-function showWorkflowHub(){
-  WD.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  WD.getElementById('screen-workflow-hub').classList.add('active');
-  WD.getElementById('banner-sub').textContent = '製作報告';
-  WD.getElementById('banner-back').classList.add('show');
-  currentScreen = 'workflow-hub';
-  currentParent = 'top';
-  renderBottomNav();
-  WB.scrollTo(0,0);
-}
-function showLeaf(id, parent){
-  WD.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  WD.getElementById('screen-'+id).classList.add('active');
-  WD.getElementById('banner-sub').textContent = '減重治療全面評估系統';
-  WD.getElementById('banner-back').classList.add('show');
+// 捲到某一區。舊程式（資料完成度的「前往」、載入紀錄後）仍呼叫 showScreen／showLeaf，所以保留這兩個名稱
+function showScreen(id){
+  const s = WD.getElementById('screen-' + id);
+  if(!s) return;
   currentScreen = id;
-  currentParent = parent;
-  renderBottomNav();
-  WB.scrollTo(0,0);
+  WB.scrollTo({top: Math.max(0, s.offsetTop - 16), behavior: 'smooth'});
   if(id === 'report'){
     // 評語是空的就先依檢查結果產生一份草稿
     try{ if(!WD.getElementById('doc-comment').value.trim()) genDocComment(true); }catch(e){}
     try{ renderCompleteness(); }catch(e){}
   }
   if(id === 'track' || id === 'body' || id === 'lab'){ try{ renderTrackChart('body'); renderTrackChart('lab'); }catch(e){} }
-}
-function showScreen(id){
-  WD.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  WD.getElementById('screen-'+id).classList.add('active');
-  const cat = CATEGORIES.find(c=>c.id===id);
-  WD.getElementById('banner-sub').textContent = cat ? cat.label : '減重治療全面評估系統';
-  WD.getElementById('banner-back').classList.add('show');
-  currentScreen = id;
-  currentParent = 'workflow-hub';
-  renderBottomNav();
-  WB.scrollTo(0,0);
   setTimeout(()=>{ if(typeof refreshInputComfort === 'function') refreshInputComfort(); }, 0);
 }
-function goHome(){
-  // 工作台裡只負責製作報告：不顯示首頁，按返回或 ESC 都回到報告目錄
-  showWorkflowHub();
+function showLeaf(id){ showScreen(id); }
+function showWorkflowHub(){ WB.scrollTo(0, 0); }
+function goHome(){ showWorkflowHub(); }
+function goBack(){ showWorkflowHub(); }
+
+// 左側目錄的綠點：該區有填資料就亮
+function wFilled(ids){ return ids.some(id=>{ const el = WD.getElementById(id); return el && String(el.value || '').trim() !== ''; }); }
+function renderNav(){
+  const anyChk = sel=> !!WD.querySelector(sel + ' input[type=checkbox]:checked, ' + sel + ' input[type=radio]:checked, ' + sel + ' .tag.selected');
+  const has = {
+    upload:  (uploadedFiles.lab.length + uploadedFiles.tanita.length) > 0,
+    basic:   wFilled(['p-name']) && !!WD.getElementById('p-gender').value && wFilled(['b-height', 'b-weight']),
+    body:    wFilled(['t-fat', 't-muscle', 't-visceral', 't-bmr']),
+    history: anyChk('#screen-history') || wFilled(['diet-habit-text', 'activity-habit-text', 'sleep-note', 'fam-note']),
+    lab:     wFilled(['lab-ac', 'lab-hba1c', 'lab-tcho', 'lab-tg', 'lab-alt', 'lab-cr', 'lab-wbc', 'lab-hgb']) || wLabRows().length > 0,
+    image:   wFilled(['us-fatty', 'us-thyroid', 'us-text', 'us-thyroid-text']),
+    treat:   wFilled(['tx-edu', 'cm-note']),
+    calorie: wFilled(['cal-activity', 'ex-text']),
+    diet:    anyChk('#screen-diet'),
+    track:   wFilled(['track-note', 'psy-note']) || anyChk('#screen-track'),
+    report:  wFilled(['doc-comment'])
+  };
+  WD.querySelectorAll('.w-nav a[data-sec]').forEach(a=> a.classList.toggle('done', !!has[a.dataset.sec]));
 }
-function goBack(){
-  if(currentParent === 'workflow-hub'){ showWorkflowHub(); }
-  else { goHome(); }
-}
-function stepScreen(delta){
-  const idx = SCREEN_ORDER.indexOf(currentScreen);
-  if(idx < 0) return;
-  let next = idx + delta;
-  if(next < 0) next = SCREEN_ORDER.length - 1;
-  if(next >= SCREEN_ORDER.length) next = 0;
-  const id = SCREEN_ORDER[next];
-  id === 'home' ? showWorkflowHub() : showScreen(id);
-}
-showWorkflowHub();
+let navTimer = null;
+function scheduleNav(){ clearTimeout(navTimer); navTimer = setTimeout(()=>{ try{ renderNav(); }catch(e){} }, 120); }
+WD.querySelectorAll('.w-nav a[data-sec]').forEach(a=> a.addEventListener('click', ()=> showScreen(a.dataset.sec)));
+['input', 'change', 'click'].forEach(t=> WD.addEventListener(t, scheduleNav, true));
+// 捲動時記下目前在哪一區（快捷鍵與資料完成度用）
+WB.addEventListener('scroll', ()=>{
+  const y = WB.scrollTop + 80;
+  let cur = W_SECS[0];
+  W_SECS.forEach(id=>{ const s = WD.getElementById('screen-' + id); if(s && s.offsetTop <= y) cur = id; });
+  currentScreen = cur;
+}, {passive: true});
+WD.getElementById('w-rev').textContent = '最後改版 ' + W_REVISION;
 
 // 今天的日期（本機時區）。不用 toISOString，那是國際標準時間，台灣早上 8 點前會變成前一天
 function todayLocal(){
@@ -836,6 +786,13 @@ async function handleFiles(kind, files, listId){
       continue;
     }
     try{
+      // 抽血報告：用健檢報告的擷取（lab/lab.js），同時拿到頁面圖片、原始文字和逐列的檢驗值
+      if(kind === 'lab'){
+        const {rep, pages, text} = await ckParsePdf(file);
+        Object.assign(entry, {pages, text, rows: rep.rows, date: rep.date || ''});
+        uploadedFiles[kind].push(entry);
+        continue;
+      }
       const buf = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({data:buf}).promise;
       for(let i=1;i<=pdf.numPages;i++){
@@ -857,6 +814,12 @@ async function handleFiles(kind, files, listId){
     uploadedFiles[kind].push(entry);
   }
   renderFileList(kind, listId);
+  // 和健檢報告一樣，上傳後讀得到文字就直接帶入欄位（按鈕仍保留，可重新帶入）
+  if([...files].some(f=> f.type === 'application/pdf') && uploadedFiles[kind].some(f=> f.text && f.text.trim())){
+    if(kind === 'lab') fillCurrentLabFieldsFromUpload();
+    else fillCurrentBodyFieldsFromUpload();
+  }
+  try{ renderNav(); }catch(e){}
 }
 function renderFileList(kind, listId){
   const list = WD.getElementById(listId);
@@ -946,10 +909,22 @@ const LAB_CURRENT_EXTRACT_DICT = {
 };
 EXTRACT_DICT.lab = LAB_CURRENT_EXTRACT_DICT;
 const LAB_EXTRACT_GAP = 18, LAB_EXTRACT_WIDE_GAP = 45;
+// 優品的抽血 PDF 依欄位位置讀出每一列（lab/lab.js 的 ckParsePdf，與健檢報告同一套），比關鍵字比對準；
+// 讀不到列的 PDF（其他檢驗所、格式不同）才退回關鍵字比對。
 function fillCurrentLabFieldsFromUpload(){
-  const allText = getUploadedPdfText('lab');
-  if(allText === null) return;
-  const fields = extractFieldsFromText(allText, LAB_CURRENT_EXTRACT_DICT, LAB_EXTRACT_GAP, LAB_EXTRACT_WIDE_GAP);
+  const cur = wCurrentLabUpload();
+  let fields = {};
+  if(cur){
+    cur.rows.forEach(r=>{
+      const k = W_LAB_KEYMAP[r.key], v = ckNum(r.raw);
+      if(k && v != null && !(k in fields)) fields[k] = String(v);
+    });
+    WD.getElementById('lab-rows').value = JSON.stringify(cur.rows.filter(r=> W_EXTRA_KEYS.includes(r.key)));
+  } else {
+    const allText = getUploadedPdfText('lab');
+    if(allText === null) return;
+    fields = extractFieldsFromText(allText, LAB_CURRENT_EXTRACT_DICT, LAB_EXTRACT_GAP, LAB_EXTRACT_WIDE_GAP);
+  }
   const keys = Object.keys(fields);
   if(keys.length === 0){ alert('未能自動辨識出可用數值，請於上方欄位手動輸入。'); return; }
   keys.forEach(k=>{
@@ -959,9 +934,92 @@ function fillCurrentLabFieldsFromUpload(){
   if('hba1c' in fields){ syncHba1c('lab-hba1c'); flashField(WD.getElementById('ms-hba1c')); }
   updateLabFlags();
   updateEgfrHint();
+  renderLabRows();
   try{ applyMsAuto(); calcMetabolic(); }catch(e){}
-  alert(`已自動帶入 ${keys.length} 項數值到下方欄位（${keys.join('、')}），欄位旁標示「上傳」。擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`);
+  scheduleDraftSave();
+  alert(cur
+    ? `已依抽血報告 PDF 的欄位帶入 ${keys.length} 項數值${cur.rows.length > keys.length ? `，血液常規與尿液共 ${wLabRows().length} 項列在「血液常規與尿液判讀」` : ''}，欄位旁標示「上傳」。請核對數值是否正確，如有誤請直接於欄位內修改。`
+    : `已自動帶入 ${keys.length} 項數值到下方欄位（${keys.join('、')}），欄位旁標示「上傳」。擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`);
 }
+
+// ============================================================
+// 血液常規、尿液、BUN、free T4（健檢基礎套組的項目）：判讀用 lab/lab.js 的 ckJudge，與健檢報告共用，不另外寫一套
+// ============================================================
+// 共用檢驗代碼 → 減重報告的欄位（lab-xxx）
+const W_LAB_KEYMAP = {glu:'ac', a1c:'hba1c', homa:'homa', tc:'tcho', tg:'tg', hdl:'hdl', ldl:'ldl', alt:'alt', ast:'ast',
+  cr:'cr', egfr:'egfr', ua:'ua', tsh:'tsh', bun:'bun', ft4:'ft4', wbc:'wbc', hgb:'hgb', plt:'plt'};
+// 另外逐列判讀的項目，依這個順序分組顯示
+const W_EXTRA_KEYS = ['bun', 'ft4', ...CK_LAB.filter(x=> x[3] === '血液常規' || x[3] === '尿液').map(x=> x[0])];
+// 有手動欄位的項目（沒有 PDF 時也能輸入）
+const W_EXTRA_MANUAL = ['bun', 'ft4', 'wbc', 'hgb', 'plt'];
+// 本次的抽血報告：讀得到列的 PDF 裡，收件日期最新的一份
+function wCurrentLabUpload(){
+  return uploadedFiles.lab.filter(f=> f.rows && f.rows.length)
+    .sort((a, b)=> String(b.date || '').localeCompare(String(a.date || '')))[0] || null;
+}
+function wPatient(){
+  const sex = WD.getElementById('p-gender').value;
+  const age = parseFloat(WD.getElementById('p-age').value);
+  return {male: sex === 'M', female: sex === 'F', age: isNaN(age) ? null : age, preg: WD.getElementById('preg-plan').value === '懷孕中' ? 'yes' : ''};
+}
+// PDF 讀到的列為主；上方手動欄位有值時以欄位為準（改過的數值、或沒有 PDF 時手動輸入）
+function wLabRows(){
+  let rows = [];
+  try{ rows = JSON.parse(WD.getElementById('lab-rows').value || '[]'); }catch(e){}
+  rows = rows.filter(r=> W_EXTRA_KEYS.includes(r.key));
+  const sexIdx = WD.getElementById('p-gender').value === 'F' ? 1 : 0;
+  W_EXTRA_MANUAL.forEach(k=>{
+    const v = (WD.getElementById('lab-' + k).value || '').trim();
+    const r = rows.find(x=> x.key === k);
+    if(r){ if(v && ckNum(v) !== ckNum(r.raw)){ r.raw = v; r.labFlag = ''; } return; }
+    if(!v) return;
+    const x = CK_LAB_BY[k], rf = CK_MANUAL_REF[k];
+    rows.push({key: k, code: '', zh: x[2], raw: v, ref: Array.isArray(rf) ? rf[sexIdx] : (rf || ''), unit: x[4], sec: x[3], labFlag: ''});
+  });
+  const P = wPatient();
+  return rows.sort((a, b)=> W_EXTRA_KEYS.indexOf(a.key) - W_EXTRA_KEYS.indexOf(b.key))
+    .map(r=> Object.assign({}, r, {grp: CK_LAB_BY[r.key][3], flag: ckFlag(r), j: ckJudge(r, P)}));
+}
+// FIB-4：AST、ALT 用上方欄位，血小板用血液常規
+function wFib4(){
+  const plt = wLabRows().find(r=> r.key === 'plt');
+  const rows = [['ast', WD.getElementById('lab-ast').value], ['alt', WD.getElementById('lab-alt').value], ['plt', plt ? plt.raw : '']]
+    .filter(([, v])=> String(v || '').trim()).map(([key, raw])=> ({key, raw}));
+  return ckFib4(rows, wPatient());
+}
+const W_GCLS = ['g0', 'g1', 'g2'], W_GTXT = ['正常', '注意', '異常'];
+function renderLabRows(){
+  const box = WD.getElementById('w-labrows');
+  if(!box) return;
+  const rows = wLabRows();
+  // 手動欄位旁也標偏高偏低（判讀與下方表格同一套）
+  W_EXTRA_MANUAL.forEach(k=>{
+    const input = WD.getElementById('lab-' + k), label = input && input.parentNode.querySelector('label');
+    if(!label) return;
+    let tag = label.querySelector('.lab-flag');
+    if(!tag){ tag = document.createElement('span'); label.appendChild(tag); }
+    const r = rows.find(x=> x.key === k), f = r && String(input.value || '').trim() ? r.flag : '';
+    tag.className = 'lab-flag' + (f === 'H' ? ' hi' : f === 'L' ? ' lo' : '');
+    tag.textContent = f === 'H' ? '偏高' : f === 'L' ? '偏低' : '';
+    input.classList.toggle('lab-abn', !!f);
+  });
+  if(!rows.length){ box.innerHTML = '<div class="w-lab-empty">尚未有血液常規或尿液數值。上傳優品的抽血 PDF 會自動列出，或在上面三格手動輸入。</div>'; return; }
+  let grp = '', html = '<table class="w-lab"><thead><tr><th>項目</th><th>本次</th><th>參考區間</th><th>判讀</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    if(r.grp !== grp){ grp = r.grp; html += `<tr class="sec"><td colspan="4">${wEsc(grp)}</td></tr>`; }
+    const ar = r.flag === 'H' ? ' ↑' : r.flag === 'L' ? ' ↓' : '';
+    const g = r.j.g;
+    html += `<tr><td>${wEsc(r.zh || r.code)}${r.code ? ` <small style="color:var(--muted)">${wEsc(r.code)}</small>` : ''}</td>` +
+      `<td>${wEsc(r.raw)}${ar} <small style="color:var(--muted)">${wEsc(r.unit || '')}</small></td><td class="ref">${wEsc(r.ref || '')}</td>` +
+      `<td class="g ${g >= 0 ? W_GCLS[g] : ''}">${g >= 0 ? (r.j.pill || W_GTXT[g]) : ''}${r.j.d ? `<small style="font-weight:400; margin-left:6px">${wEsc(r.j.d)}</small>` : ''}</td></tr>`;
+  });
+  const F = wFib4();
+  if(F && F.v != null) html += `<tr class="sec"><td colspan="4">肝纖維化指數</td></tr><tr><td>FIB-4</td><td>${F.v.toFixed(2)}</td><td class="ref">&lt; ${F.low}</td><td class="g ${W_GCLS[F.g]}">${W_GTXT[F.g]}<small style="font-weight:400; margin-left:6px">${wEsc(F.d)}</small></td></tr>`;
+  box.innerHTML = html + '</tbody></table>';
+}
+WD.addEventListener('input', e=>{ if(e.target && /^(lab-|p-birth|p-date)/.test(e.target.id || '')) renderLabRows(); }, true);
+WD.addEventListener('change', e=>{ if(e.target && (e.target.id === 'p-gender' || e.target.id === 'preg-plan')) renderLabRows(); }, true);
+renderLabRows();
 
 // MC-980格式報表的欄位名稱是印在底圖上的圖片，PDF文字層內沒有「體脂肪率」「肌肉量」等文字，
 // 只有純數字，因此關鍵字比對必然抓不到。這裡改用「詳細測量結果」表格固定的欄位順序作為判讀依據，
@@ -1702,13 +1760,13 @@ const EDU_PDF_PAGES = [
   {label:'追蹤與監測時程', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>', src:'img/edu-follow-up-schedule.webp'}
 ];
 
-// 鍵盤快捷鍵：製作報告各分頁 ←→ 換頁、ESC 回報告目錄。
+// 鍵盤：焦點在選項上時方向鍵改成上下捲動頁面（版面已改成一頁捲到底，不再左右換頁）。
 // 焦點在輸入欄位（input/textarea/select）時不攔截，避免影響文字編輯。
 WD.addEventListener('keydown', (e)=>{
   const t = e.target;
   const tag = t && t.tagName ? t.tagName.toLowerCase() : '';
   // 點過的選項（單選鈕、勾選框）會留住焦點，瀏覽器預設方向鍵會在同組選項間跳動。
-  // 這裡改成：焦點在選項上時方向鍵不改選項，左右照樣換頁、上下捲動頁面。
+  // 這裡改成：焦點在選項上時方向鍵不改選項，上下捲動頁面。
   const isChoice = tag === 'input' && (t.type === 'radio' || t.type === 'checkbox');
   if(isChoice && /^Arrow/.test(e.key)){
     e.preventDefault();
@@ -1716,15 +1774,13 @@ WD.addEventListener('keydown', (e)=>{
     t.blur();
   }
   else if(tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
-  if(currentScreen === 'workflow-hub'){
-    if(e.key === 'Escape'){ e.preventDefault(); goBack(); }
-    return;
-  }
-  if(CATEGORIES.some(c=>c.id===currentScreen)){
-    if(e.key === 'ArrowLeft'){ e.preventDefault(); stepScreen(-1); }
-    else if(e.key === 'ArrowRight'){ e.preventDefault(); stepScreen(1); }
-    else if(e.key === 'Escape'){ e.preventDefault(); goBack(); }
-  }
+});
+// Esc：和健檢報告一樣，焦點在欄位上時先離開欄位，再按一次回到報告種類（預覽開著時由預覽自己處理）
+WD.addEventListener('keydown', e=>{
+  if(e.key !== 'Escape' || e.defaultPrevented) return;
+  const t = e.target;
+  if(t && t.matches && t.matches('input, textarea, select')){ e.preventDefault(); t.blur(); WB.focus({preventScroll: true}); return; }
+  if(typeof setRep === 'function'){ e.preventDefault(); setRep('home'); }
 });
 
 // 健康紀錄表：版面在 forms/forms.js（與工作台共用），這裡把目前畫面的資料帶進去；空白時就是可手寫的空白表
@@ -2040,6 +2096,7 @@ function collectState(){
     't-fat','t-fatmass','t-muscle','t-visceral','t-water','t-bmr','t-bodyage','t-smi','t-phaseangle',
     'us-fatty','us-text','us-thyroid','us-thyroid-text',
     'lab-ac','lab-hba1c','lab-homa','lab-tcho','lab-ldl','lab-hdl','lab-tg','lab-ast','lab-alt','lab-cr','lab-egfr','lab-ua','lab-tsh',
+    'lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows',
     'tx-choice','tx-choices','tx-edu','fam-other-text','cm-other-text','cm-note','ms-hba1c',
     'cal-activity','cal-goal','ex-text','edu-text','psy-note','doc-comment','stopbang-manual','phq9-manual',
     'body-note','metabolic-note','lab-note','sleep-note','track-note'];
@@ -2136,6 +2193,10 @@ function applyState(state){
   if(!('_src' in state)) Object.keys(FIELD_SRC).forEach(k=> delete FIELD_SRC[k]);
   renderSrcTags();
   updateEgfrHint();
+  // 這幾格是後來才加的，舊紀錄沒有：載入時清空，免得留著上一位病人的數值
+  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
+  renderLabRows();
+  renderNav();
 }
 // ============================================================
 // 病人紀錄：多筆儲存、草稿自動暫存、離開提醒
@@ -2376,29 +2437,8 @@ function markFilled(el){
 ['input','change'].forEach(ev=> WD.addEventListener(ev, e=> markFilled(e.target), true));
 function refreshInputComfort(){
   WD.querySelectorAll('.field input, .field select').forEach(markFilled);
-  WD.querySelectorAll('.screen.active textarea').forEach(autoGrow);
+  WD.querySelectorAll('.screen textarea').forEach(autoGrow);
 }
-// 6. 每個分項最下方加「上一項／下一項」，填完直接往下走，不必找底部的分頁列
-function renderStepNavs(){
-  CATEGORIES.forEach((c, i)=>{
-    const sec = WD.getElementById('screen-' + c.id);
-    if(!sec || sec.querySelector(':scope > .step-nav')) return;
-    const prev = CATEGORIES[i - 1], next = CATEGORIES[i + 1];
-    const nav = document.createElement('div');
-    nav.className = 'step-nav no-print';
-    nav.innerHTML =
-      (prev ? `<button type="button" class="prev">‹ ${wEsc(prev.label)}</button>` : '') +
-      (next ? `<button type="button" class="next">下一項 <small>${wEsc(next.label)}</small> ›</button>` : '');
-    if(prev) nav.querySelector('.prev').onclick = ()=> showScreen(prev.id);
-    if(next) nav.querySelector('.next').onclick = ()=> showScreen(next.id);
-    sec.appendChild(nav);
-  });
-}
-renderStepNavs();
-// 切換分項時，新出現的多行文字框依內容調整高度
-WD.addEventListener('click', e=>{
-  if(e.target && e.target.closest && e.target.closest('.cat-card, .bn-pill, .bn-arrow, .step-nav button')) setTimeout(refreshInputComfort, 30);
-}, true);
 
 // ============================================================
 // 單選按鈕列：把 class="as-buttons" 的下拉選單換成一排按鈕。
@@ -2547,17 +2587,10 @@ function syncTagOtherInputs(){
       b2.textContent = '捨棄';
       b2.onclick = ()=>{ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} bar.remove(); };
       bar.appendChild(b1); bar.appendChild(b2);
-      WB.insertBefore(bar, WB.querySelector("main"));
+      WB.insertBefore(bar, WB.querySelector('.w-wrap'));
     }
   }catch(e){}
 })();
 
-// 在工作台裡直接從報告目錄開始；工作台的分頁已叫「製作報告」，這裡的標題改成「減重報告」
-{
-  const hero = WD.querySelector('#screen-workflow-hub .hero');
-  if(hero){
-    hero.querySelector('.hero-eyebrow').textContent = 'Weight Report';
-    hero.querySelector('.hero-title').innerHTML = '減重<strong>報告</strong>';
-  }
-  showWorkflowHub();
-}
+// 開頁時先畫一次左側目錄的綠點
+renderNav();
