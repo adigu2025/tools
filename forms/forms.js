@@ -285,7 +285,7 @@ function formScalesHtml(d){
       <div><span class="l">其他藥物或保健食品</span><span class="ln"></span></div>
       <div><span class="l">藥物過敏</span><span class="ln"></span></div>
     </div>
-    <div class="qs-q"><span class="num">4</span>睡眠時是否有下列狀況？<span class="hint">符合者請勾選，可複選</span></div>
+    <div class="qs-q"><span class="num">4</span>睡眠與血壓：是否有下列狀況？<span class="hint">符合者請勾選，可複選</span></div>
     <div class="qs-2col">${STOPBANG_ITEMS.map(it=> qsOpt(it.label)).join('')}</div>
 
     <div class="qs-sec">三、家族史與生活背景</div>
@@ -334,11 +334,16 @@ function formScalesHtml(d){
       <div class="qs-staff-title">以下由醫療人員填寫</div>
       <div class="qs-sfrow">
         ${qsStaffLine('身高', 'cm')}${qsStaffLine('體重', 'kg')}${qsStaffLine('BMI', '')}
-        ${qsStaffLine('腰圍', 'cm')}${qsStaffLine('頸圍', 'cm')}${qsStaffLine('血壓', 'mmHg', 64)}
+        ${qsStaffLine('腰圍', 'cm')}${qsStaffLine('頸圍', 'cm')}
       </div>
       <div class="qs-sfrow">
-        ${qsStaffLine('STOP-BANG', '／8 分', 34)}${qsStaffLine('PHQ-9', '／27 分', 34)}
+        ${qsStaffLine('血壓', 'mmHg', 64)}${qsStaffLine('心跳', '次／分', 34)}
+        ${qsStaffLine('PHQ-9', '／27 分', 34)}
         <span class="qs-sf">${qsOpt('第 9 題有作答，已評估自殺風險')}</span>
+      </div>
+      <div class="qs-sfrow">
+        <span class="qs-sf"><span class="l">STOP-BANG 客觀項目</span>${qsOpt('BMI ＞ 35')}${qsOpt('年齡 ＞ 50 歲')}${qsOpt('頸圍 ＞ 40 cm')}${qsOpt('男性')}</span>
+        ${qsStaffLine('STOP-BANG 總分', '／8 分', 34)}
       </div>
       <div class="qs-sfrow">
         <span class="qs-sf"><span class="l">次發性肥胖</span>${qsOpt('未發現')}${qsOpt('疑似')}<span class="ln" style="min-width:150px"></span></span>
@@ -648,7 +653,7 @@ const FORMS_CSS = `
 .qs-cats.three{grid-template-columns:1fr 1fr 1fr; column-gap:12px;}
 .qs-catbox{border:1px solid var(--border); border-radius:8px; padding:5px 10px 4px; background:#FCFBF9;}
 .qs-phq{width:100%; border-collapse:collapse; font-size:11px; margin-top:2px;}
-.qs-phq th,.qs-phq td{border:1px solid var(--border); padding:1.6px 5px; text-align:center;}
+.qs-phq th,.qs-phq td{border:1px solid var(--border); padding:1.3px 5px; text-align:center;}
 .qs-phq th{white-space:nowrap;}
 .qs-phq th{background:var(--primary-pale); color:var(--navy); font-weight:700;}
 .qs-phq td:first-child{text-align:left; width:64%;}
@@ -657,7 +662,7 @@ const FORMS_CSS = `
   background:#FAF9F6; margin-top:8px;}
 .qs-staff-title{font-size:13px; font-weight:700; color:var(--navy); margin-bottom:4px;}
 .qs-sfrow{display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; font-size:12px; color:var(--muted);}
-.qs-sfrow + .qs-sfrow{margin-top:4px;}
+.qs-sfrow + .qs-sfrow{margin-top:3px;}
 .qs-sf{display:inline-flex; align-items:baseline; gap:6px;}
 .qs-sf.grow{flex:1;}
 .qs-sf .l{flex-shrink:0; color:var(--navy); font-weight:700;}
