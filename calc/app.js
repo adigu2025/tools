@@ -2289,7 +2289,7 @@
      最後改版日期（顯示於主畫面左下角）
      每次改版請一併更新這個常數
      ====================================================== */
-  var APP_REVISION = '2026-10-28';
+  var APP_REVISION = '2026-10-29';
   (function renderAppRevision(){
     var el = $('app-revision');
     if (el) el.textContent = '最後改版：' + APP_REVISION;

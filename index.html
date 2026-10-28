@@ -7,6 +7,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<script>
+/* 開頁就同時下載三個工具的畫面與程式，不必等前一個裝好才開始抓下一個（健檢報告要等減重報告裝好才執行，但檔案可以先下載） */
+(function(){
+  var base = location.protocol === 'file:' ? 'https://adigu2025.github.io/tools/' : './';
+  [['calc/view.html','fetch'],['weight/view.html','fetch'],['checkup/view.html','fetch'],['calc/hub.css','fetch'],
+   ['lab/lab.js','script'],['weight/app.js','script'],['weight/report.js','script'],
+   ['checkup/app.js','script'],['checkup/report.js','script'],['calc/app.js','script']].forEach(function(p){
+    var l = document.createElement('link');
+    l.rel = 'preload'; l.href = base + p[0]; l.as = p[1];
+    if(p[1] === 'fetch') l.crossOrigin = 'anonymous';
+    document.head.appendChild(l);
+  });
+})();
+</script>
 <style>
 /* 配色：暖白底、墨色文字、陶土色點綴。狀態色（綠／橘／紅）留給各工具的判讀結果使用，介面本身不搶色。 */
 :root{
@@ -417,7 +431,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 <script src="mount.js"></script>
 <script src="forms/forms.js"></script>
 <script>
-const APP_REVISION = '2026-10-28';
+const APP_REVISION = '2026-10-29';
 
 /* 減重報告與臨床計算都直接放在工作台裡，不再用 iframe：
    各自的畫面檔（weight/view.html、calc/view.html）由 mount.js 裝進 #weight-host、#calc-host 的 shadow root，
@@ -521,6 +535,8 @@ window.CALC_PRINT = ()=>{
   setTimeout(done, 1000);
 };
 /* ── 分頁切換 ── */
+// 分頁還沒打開時先把圖片網址放在 data-src，不佔開頁的頻寬；setView 打開分頁時才換成 src
+function imgSrcAttr(view, src){ return (main.dataset.view === view ? 'src' : 'data-src') + `="${src}"`; }
 function setView(v){
   // 最大化只用在衛教與列印表單，切到其他分頁時先結束，否則上方分頁列會一直隱藏
   if(document.body.classList.contains('edu-max') && v !== 'edu' && v !== 'print') toggleMax();
@@ -528,6 +544,8 @@ function setView(v){
   document.querySelectorAll('.hub-tab').forEach(b=> b.setAttribute('aria-selected', String(b.dataset.view === v)));
   document.getElementById('btn-split').hidden = (v !== 'edu');
   document.body.dataset.view = v;
+  // 衛教與表單的圖片在分頁第一次打開時才下載
+  document.querySelectorAll('#pane-' + v + ' img[data-src]').forEach(im=>{ im.src = im.dataset.src; im.removeAttribute('data-src'); });
   syncRep();
   if(v === 'edu'){
     document.getElementById('edu-view').focus({preventScroll:true});
@@ -824,6 +842,7 @@ document.getElementById('cm-ok').addEventListener('click', ()=>{
   // 減重報告直接放在工作台裡，最乾淨的清除方式是刪掉暫存後重新載入整頁（臨床計算也一併重來）。
   // 先停掉減重的自動暫存計時器並標記為未修改，才不會在重新載入前又寫回草稿、或跳出「離開網頁」提醒。
   if(weightReady){ try{ clearTimeout(draftTimer); isDirty = false; }catch(err){} }
+  try{ clearTimeout(ckSaveTimer); }catch(err){}
   window.HUB_RELOADING = true;
   Object.values(CLEAR_KEYS).flat().forEach(([kind, k])=>{
     try{ (kind === 'session' ? sessionStorage : localStorage).removeItem(k); }catch(err){}
@@ -965,7 +984,8 @@ function showEdu(i, page){
   document.querySelectorAll('#edu-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(+b.dataset.i === eduIdx)));
   store('hub-edu-key', eduKey(p));
   const src = p.pages[eduPage].src;
-  eduView.innerHTML = `<img alt="${esc(p.label)}" src="${src}" draggable="false">`;
+  const shown = main.dataset.view === 'edu';
+  eduView.innerHTML = `<img alt="${esc(p.label)}" ${imgSrcAttr('edu', src)} draggable="false">`;
   const img = eduView.querySelector('img');
   img.style.visibility = 'hidden';
   const ready = ()=>{ img.style.visibility = ''; applyZoom(); eduView.scrollTo(0, 0); };
@@ -974,7 +994,7 @@ function showEdu(i, page){
   img.addEventListener('error', ()=>{ eduView.innerHTML = '<div class="msg">圖片載入失敗，請確認網路連線。</div>'; });
   // 預先載入下一頁
   const nxt = p.pages[eduPage + 1] || (inGroup[pos % inGroup.length] || p).pages[0];
-  if(nxt){ const pre = new Image(); pre.src = nxt.src; }
+  if(nxt && shown){ const pre = new Image(); pre.src = nxt.src; }
 }
 // 上下張：先翻完同一份的各頁，再到同一分類的下一份（到底回第一份）
 function stepEdu(d){
@@ -1134,7 +1154,7 @@ function showForm(key){
     formView.scrollTo(0, 0);
     return;
   }
-  formView.innerHTML = t.pages.map((src, i)=> `<img alt="${esc(t.label)} 第 ${i + 1} 頁" src="${src}" draggable="false">`).join('');
+  formView.innerHTML = t.pages.map((src, i)=> `<img alt="${esc(t.label)} 第 ${i + 1} 頁" ${imgSrcAttr('print', src)} draggable="false">`).join('');
   const imgs = [...formView.querySelectorAll('img')];
   imgs.forEach(im=> im.style.visibility = 'hidden');
   let left = imgs.length;

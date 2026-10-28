@@ -19,15 +19,17 @@ async function mountView(host, viewUrl, opts){
     root.appendChild(s);
   }
   if(opts.onRoot) opts.onRoot(root);
-  for(const src of opts.scripts || []) await loadScript(src);
+  await loadScripts(opts.scripts || []);
   return root;
 }
-function loadScript(src){
-  return new Promise((ok, bad)=>{
+// 一次全部放進頁面：同時下載，但 async = false 讓瀏覽器照放入的順序執行
+function loadScripts(list){
+  return Promise.all(list.map(src=> new Promise((ok, bad)=>{
     const s = document.createElement('script');
     s.src = src;
+    s.async = false;
     s.onload = ok;
     s.onerror = ()=> bad(new Error(src + ' 載入失敗'));
     document.body.appendChild(s);
-  });
+  })));
 }

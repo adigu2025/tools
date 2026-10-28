@@ -36,7 +36,7 @@ setTimeout(()=>{
 // NAVIGATION（版面與健檢報告一致：一頁捲到底，左側目錄點了捲到該區）
 // ============================================================
 // 最後改版日期：每次改版請一併更新，顯示於工作台底部
-const W_REVISION = '2026-10-28';
+const W_REVISION = '2026-10-29';
 const W_SECS = ['upload', 'basic', 'body', 'history', 'lab', 'image', 'treat', 'calorie', 'diet', 'track', 'report'];
 let currentScreen = 'upload';
 
@@ -940,9 +940,6 @@ function fillCurrentLabFieldsFromUpload(){
   renderLabRows();
   try{ applyMsAuto(); calcMetabolic(); }catch(e){}
   scheduleDraftSave();
-  alert(infoMsg + (cur
-    ? `已依抽血報告 PDF 的欄位帶入 ${keys.length} 項數值${cur.rows.length > keys.length ? `，血液常規與尿液共 ${wLabRows().length} 項列在「血液常規與尿液判讀」` : ''}，欄位旁標示「上傳」。請核對數值是否正確，如有誤請直接於欄位內修改。`
-    : `已自動帶入 ${keys.length} 項數值到下方欄位（${keys.join('、')}），欄位旁標示「上傳」。擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。`));
 }
 
 // ============================================================
@@ -1236,40 +1233,22 @@ function tanitaPick(list){
     .sort((a, b)=> (b.d || '').localeCompare(a.d || '') || b.i - a.i)[0].x;
 }
 
-// 帶入規則：欄位空白、或目前的值本來就是上傳帶入的，才寫入；自己輸入或改過的值不覆蓋，列在提示裡
+// 帶入規則：欄位空白、或目前的值本來就是上傳帶入的，才寫入；自己輸入或改過的值不覆蓋
 function fillCurrentBodyFieldsFromUpload(){
   if(getUploadedPdfText('tanita') === null) return;
   const files = uploadedFiles.tanita.filter(f=> f.text && f.text.trim());
   const src = tanitaPick(files);
-  const {f: fields, bad, notes} = tanitaParse(src.text, src.lines || '', WD.getElementById('b-height').value, FIELD_SRC['b-height'] !== 'upload');
+  const {f: fields} = tanitaParse(src.text, src.lines || '', WD.getElementById('b-height').value, FIELD_SRC['b-height'] !== 'upload');
   if(!Object.keys(fields).length){ alert('未能自動辨識出可用數值，此PDF可能無文字層或欄位名稱為圖片，請於下方欄位手動輸入。'); return; }
-  const done = [], kept = [];
+  // 帶入後不跳提示：帶入的欄位會閃一下並標「上傳」，自己改過的欄位維持不動
   Object.keys(fields).forEach(k=>{
     const el = WD.getElementById(k === 'weight' ? 'b-weight' : k === 'height' ? 'b-height' : 't-' + k);
     if(!el) return;
-    const cur = el.value.trim();
-    if(cur && FIELD_SRC[el.id] !== 'upload'){
-      if(parseFloat(cur) !== parseFloat(fields[k])) kept.push(`${TANITA_NAMES[k]}（欄位 ${cur}，報告 ${fields[k]}）`);
-      return;
-    }
+    if(el.value.trim() && FIELD_SRC[el.id] !== 'upload') return;
     el.value = fields[k]; flashField(el); markUploaded(el);
     if(k === 'weight' || k === 'height') el.dispatchEvent(new Event('input', {bubbles:true}));
-    done.push(k);
   });
   try{ calcBMI(true); calcBody(); validateAllFields(); }catch(e){}
-  const basic = done.filter(k=> k === 'weight' || k === 'height').map(k=> TANITA_NAMES[k]);
-  const lines = [];
-  lines.push(done.length
-    ? `已自動帶入 ${done.length} 項數值（${done.map(k=> TANITA_NAMES[k]).join('、')}），欄位旁標示「上傳」。` + (basic.length ? `${basic.join('、')}已寫入「基本資料」。` : '')
-    : '沒有帶入新的數值。');
-  if(files.length > 1) lines.push(`有 ${files.length} 份 TANITA 報告，採用的是 ${src.name}${tanitaDate(src.text) ? `（${tanitaDate(src.text)}）` : ''}。`);
-  if(kept.length) lines.push(`以下欄位已有自己輸入的數值，沒有覆蓋：${kept.join('、')}。要改用報告的數值，請直接修改欄位。`);
-  if(bad.length) lines.push(`以下數值超出合理範圍，沒有採用，請對照原始報告手動輸入：${bad.join('、')}。`);
-  if(!('phaseangle' in fields)) lines.push('相位角 Phase Angle 仍需手動輸入。');
-  lines.push('姓名不從 TANITA 帶入，維持從抽血報告帶入。');
-  lines.push('擷取結果為關鍵字比對，非 AI 判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。');
-  if(notes.length) lines.push('※ ' + notes.join('。\n※ ') + '。');
-  alert(lines.join('\n\n'));
 }
 
 function extractFromUploads(kind){

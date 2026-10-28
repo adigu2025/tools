@@ -1,7 +1,7 @@
 /* 健檢報告：輸入畫面與判讀整合。檢驗項目、優品 PDF 擷取與單項判讀規則在 ../lab/lab.js（與減重報告共用）；報告排版在 report.js。
    畫面在 view.html（裝進 #checkup-host 的 shadow root），一律用 KD 找元素、KB 處理捲動，不可直接用 document。
    所有全域名稱都以 ck／CK 開頭，避免和同一頁的減重報告、臨床計算撞名。 */
-const CK_REVISION = '2026-10-28';
+const CK_REVISION = '2026-10-29';
 const CK_DRAFT = 'checkup_draft_v1';
 
 /* ---------- 資料 ----------
@@ -10,6 +10,19 @@ const CK_DRAFT = 'checkup_draft_v1';
 let CK = ckBlank();
 const CK_PAGES = {};
 function ckBlank(){ return {info:{}, body:{}, hx:{}, us:{}, mod:{}, att:[], fu:{}, fuAdd:[], comment:'', reports:[], manual:null, warn:null}; }
+
+/* 舊存檔的家族史有各別癌症按鈕，現在合併成「癌症」＋自由輸入 */
+const CK_OLD_FAM_CANCER = {gastric:'胃癌', crc:'大腸癌', liver:'肝癌', lung:'肺癌', breast:'乳癌'};
+function ckMigrate(){
+  const hx = CK.hx = CK.hx || {}, fam = Array.isArray(hx.fam) ? hx.fam : [];
+  const old = fam.filter(k=> CK_OLD_FAM_CANCER[k]);
+  if(!old.length) return;
+  hx.fam = fam.filter(k=> !CK_OLD_FAM_CANCER[k]);
+  if(!hx.fam.includes('cancer')) hx.fam.push('cancer');
+  hx.famCancer = [hx.famCancer, old.map(k=> CK_OLD_FAM_CANCER[k]).join('、')].filter(Boolean).join('、');
+}
+// 家族史有沒有某種癌症：勾了「癌症」且文字裡有對應字眼
+function ckFamCancer(re){ return (CK.hx.fam || []).includes('cancer') && re.test(CK.hx.famCancer || ''); }
 
 function ckGet(path){ return path.split('.').reduce((o, k)=> o == null ? undefined : o[k], CK); }
 // 報告「提早就醫」：CK.warn 沒改過（null）就用預設文字；醫師改過就照改過的存檔與列印
@@ -364,28 +377,19 @@ function ckImportTanita(flat, lineText, fname){
   const date = tanitaDate(flat);
   if(date && CK.tanitaDate && date < CK.tanitaDate)
     return {done: [], msg: [`${fname} 的量測日期 ${date} 比已帶入的 TANITA（${CK.tanitaDate}）舊，只附在報告後面，數值沒有帶入`]};
-  const {f, bad, notes} = tanitaParse(flat, lineText, CK.body.h, !(CK.bodySrc && CK.bodySrc.h));
-  if(!Object.keys(f).length) return {done: [], msg: ['讀不到 TANITA 數值，已附在報告後面，請手動輸入'].concat(bad.length ? [`超出合理範圍、沒有採用：${bad.join('、')}`] : [])};
+  const {f} = tanitaParse(flat, lineText, CK.body.h, !(CK.bodySrc && CK.bodySrc.h));
+  if(!Object.keys(f).length) return {done: [], msg: ['讀不到 TANITA 數值，已附在報告後面，請手動輸入']};
+  // 帶入成功不顯示提示（和減重報告一致）：帶入的欄位標「上傳」，自己改過的欄位不覆蓋
   CK.bodySrc = CK.bodySrc || {};
-  const got = [], kept = [];
   Object.keys(f).forEach(src=>{
     const k = CK_TANITA_KEY[src];
     if(!k) return;
-    const cur = String(CK.body[k] == null ? '' : CK.body[k]).trim();
-    if(cur && !CK.bodySrc[k]){
-      if(parseFloat(cur) !== parseFloat(f[src])) kept.push(`${TANITA_NAMES[src]}（欄位 ${cur}，報告 ${f[src]}）`);
-      return;
-    }
+    if(String(CK.body[k] == null ? '' : CK.body[k]).trim() && !CK.bodySrc[k]) return;
     CK.body[k] = String(f[src]);
     CK.bodySrc[k] = 'upload';
-    got.push(TANITA_NAMES[src]);
   });
   if(date) CK.tanitaDate = date;
-  const msg = ['擷取結果是關鍵字比對，請核對數值；欄位旁標示「上傳」，改過就會消失', '姓名不從 TANITA 帶入，維持從抽血報告帶入'];
-  if(kept.length) msg.push(`以下欄位已有自己輸入的數值，沒有覆蓋：${kept.join('、')}。要改用報告的數值，請直接修改欄位`);
-  if(bad.length) msg.push(`以下數值超出合理範圍，沒有採用，請對照原始報告手動輸入：${bad.join('、')}`);
-  msg.push(...notes);
-  return {done: got.length ? [`TANITA：${got.join('、')}`] : [], msg};
+  return {done: [], msg: []};
 }
 
 /* 報告工具的英文胃鏡（ESOPHAGOGASTRODUODENOSCOPY）與大腸鏡（COLONOSCOPY）報告：
@@ -531,7 +535,7 @@ function ckColonNext(){
   const m = CK.mod || {}, h = m.cHist;
   if(!h) return null;
   const n = ckNum(m.cNum) || (h === 'none' ? 0 : 1), mm = ckNum(m.cSize) || 0;
-  const fam = (CK.hx.fam || []).includes('crc');
+  const fam = ckFamCancer(/大腸|結腸|直腸/);
   let t, g = 1, d = '';
   if(h === 'cancer') return {t:'轉介外科與腫瘤科', g:2, when:'now', d:'病理為癌，需要進一步分期與治療'};
   if(h === 'none'){ t = fam ? '5 年' : '10 年'; g = 0; d = fam ? '沒有瘜肉；一等親有大腸癌，間隔縮短為 5 年' : '沒有瘜肉'; }
@@ -679,11 +683,11 @@ function ckCvInputs(rows, P, body){
 function ckPublic(P){
   const age = P.age, out = [];
   if(age == null) return out;
-  const fam = CK.hx.fam || [], m = CK.mod || {}, smoke = CK.hx.smoke;
+  const m = CK.mod || {}, smoke = CK.hx.smoke;
   const by = /^\d{4}/.test(CK.info.birth || '') ? +CK.info.birth.slice(0, 4) : null;
   const add = (t, rule, done, tbc)=> out.push({t, rule, done: done || '', tbc: !!tbc});
   if(age >= 30) add('成人預防保健', age >= 65 ? '65 歲以上每年 1 次' : age >= 40 ? '40 至 64 歲每 3 年 1 次' : '30 至 39 歲每 5 年 1 次');
-  if((age >= 45 && age <= 74) || (age >= 40 && age < 45 && fam.includes('crc')))
+  if((age >= 45 && age <= 74) || (age >= 40 && age < 45 && ckFamCancer(/大腸|結腸|直腸/)))
     add('糞便潛血檢查', age < 45 ? '一等親有大腸癌，40 至 44 歲每 2 年 1 次' : '45 至 74 歲每 2 年 1 次', (m.cHist || (m.cDx || []).length) ? '本次已做大腸鏡，依大腸鏡追蹤時程即可' : m.fit ? '本次已做' : '');
   if(P.female && age >= 40 && age <= 74) add('乳房攝影', '40 至 74 歲女性每 2 年 1 次');
   if(age >= 30 && (smoke === 'current' || smoke === 'former')) add('口腔黏膜檢查', '30 歲以上吸菸或嚼檳榔（含已戒）每 2 年 1 次');
@@ -691,7 +695,7 @@ function ckPublic(P){
   const hepDone = m.hbsag || m.antihcv || ckCurrentRows().some(r=> (r.key === 'hbsag' || r.key === 'antihcv') && String(r.raw || '').trim());
   if(age <= 79 && ((by && by <= 1986) || (!by && age >= 40))) add('B、C 型肝炎篩檢', '民國 75 年以前出生、79 歲以下一生 1 次', hepDone ? '本次已驗' : '', true);
   const py = ckNum(CK.hx.packyears), quit = ckNum(CK.hx.quitYears);
-  const famLung = fam.includes('lung') && ((P.female && age >= 40 && age <= 74) || (P.male && age >= 45 && age <= 74));
+  const famLung = ckFamCancer(/肺/) && ((P.female && age >= 40 && age <= 74) || (P.male && age >= 45 && age <= 74));
   const heavy = age >= 50 && age <= 74 && py != null && py >= 20 && (smoke === 'current' || (smoke === 'former' && quit != null && quit < 15));
   if(famLung || heavy) add('低劑量肺部電腦斷層', famLung ? '一等親有肺癌，每 2 年 1 次' : '吸菸 20 包年以上（戒菸未滿 15 年），每 2 年 1 次', m.ldct ? '本次已做' : '');
   return out;
@@ -1046,8 +1050,14 @@ function ckRenderAll(){ ckRenderFields(); ckRenderFiles(); ckRenderLab(); ckRend
 let ckSaveTimer = null;
 function ckSave(){
   clearTimeout(ckSaveTimer);
-  ckSaveTimer = setTimeout(()=>{ try{ localStorage.setItem(CK_DRAFT, JSON.stringify(CK)); }catch(e){} }, 400);
+  ckSaveTimer = setTimeout(ckSaveNow, 400);
 }
+function ckSaveNow(){
+  clearTimeout(ckSaveTimer); ckSaveTimer = null;
+  try{ localStorage.setItem(CK_DRAFT, JSON.stringify(CK)); }catch(e){}
+}
+// 打完字 0.4 秒內就關頁，還沒存的立刻存；工作台「全部清除」重新載入時不存，免得清掉的資料又寫回去
+window.addEventListener('pagehide', ()=>{ if(ckSaveTimer && !window.HUB_RELOADING) ckSaveNow(); });
 /* ---------- 備份 ----------
    一位病人一個檔：姓名_健檢_檢查日期_備份.json。app 標記為 muzi-checkup，
    和減重的備份（muzi-weight、多筆紀錄）互不相認，匯錯檔會被擋下來；原始報告圖片一起帶著 */
@@ -1087,6 +1097,7 @@ async function ckImport(input){
   CK = Object.assign(ckBlank(), data.ck);
   Object.keys(CK_PAGES).forEach(k=> delete CK_PAGES[k]);
   Object.assign(CK_PAGES, data.pages || {});
+  ckMigrate();
   ckSave();
   ckRenderAll();
   alert('已匯入' + (CK.info.name ? ' ' + CK.info.name + ' ' : '') + '的健檢資料。');
@@ -1135,7 +1146,7 @@ async function ckAddFiles(files){
 
 /* ---------- 啟動 ---------- */
 (function ckInit(){
-  try{ const s = JSON.parse(localStorage.getItem(CK_DRAFT)); if(s && typeof s === 'object') CK = Object.assign(ckBlank(), s); }catch(e){}
+  try{ const s = JSON.parse(localStorage.getItem(CK_DRAFT)); if(s && typeof s === 'object'){ CK = Object.assign(ckBlank(), s); ckMigrate(); } }catch(e){}
   ckInitOpts();
   ckInitAtt();
   KD.addEventListener('keydown', ckOnEsc);
