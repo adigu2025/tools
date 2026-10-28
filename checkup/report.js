@@ -390,7 +390,7 @@ function ckTocHtml(m){
 }
 
 // ---------- 排版：把內容放進固定高度的 A4 頁（照 layoutReport 改寫） ----------
-async function ckLayout(doc, m){
+async function ckLayout(doc, m, retry){
   const pagesBox = doc.getElementById('pages');
   const stage = doc.getElementById('stage');
   const hd = r=> `<div class="rpt-hd"><span>木子澄安診所　健康檢查報告</span><span class="r">${r}</span></div>`;
@@ -510,16 +510,36 @@ async function ckLayout(doc, m){
       tailBox(shell).appendChild(t);
       if(fits()) return;
       t.remove();
+      // 附註不單獨換頁：本頁還有兩列以上時，帶最後一列一起到下一頁
+      const last = shost && shost.querySelectorAll(':scope > .ru').length > 1 ? shost.lastElementChild : null;
+      if(last) last.remove();
       newPage();
-      shell = doc.createElement('div');
-      shell.className = 'rb';
-      shell.innerHTML = '<div class="rb-l"></div><div class="rb-r"></div>';
-      body.appendChild(shell);
+      if(last){
+        shell = contClone(blk);
+        shost = shell.querySelector('.ru-host');
+        body.appendChild(shell);
+        shost.appendChild(last);
+      } else {
+        shell = doc.createElement('div');
+        shell.className = 'rb';
+        shell.innerHTML = '<div class="rb-l"></div><div class="rb-r"></div>';
+        body.appendChild(shell);
+      }
       tailBox(shell).appendChild(t);
     });
   };
   const place = (blk, lead)=>{
     if(tryPut([...lead, blk])) return;
+    // 提示框放不下時連同前一段一起換頁，避免下一頁只剩這一框（同減重報告的 keep-prev）
+    if(blk.classList.contains('callout')){
+      const prev = body.lastElementChild;
+      if(prev && prev.classList.contains('rb') && prev.previousElementSibling){
+        prev.remove();
+        newPage();
+        if(tryPut([prev, blk])) return;
+        body.appendChild(prev);
+      }
+    }
     const splittable = blk.dataset.split === '1' && blk.querySelector('.ru-host') && blk.querySelectorAll('.ru-host > .ru').length > 1;
     const probe = doc.createElement('div');
     probe.style.cssText = 'position:absolute; left:-10000px; top:0; width:' + body.clientWidth + 'px;';
@@ -570,6 +590,11 @@ async function ckLayout(doc, m){
     const el = row.querySelector('.p');
     if(el) el.textContent = p ? String(p).padStart(2, '0') : '—';
   });
+  // 字型晚到時，排版當下量到的高度比實際小，最後一列會壓到頁尾：字型到位後整份重排一次
+  if(!retry && pages.some(pg=>{ const b = pg.querySelector('.rpt-body'); return b && b.scrollHeight > b.clientHeight + .5; })){
+    if(doc.fonts && doc.fonts.ready) await doc.fonts.ready;
+    return ckLayout(doc, m, true);
+  }
   stage.remove();
   return total;
 }
@@ -682,7 +707,6 @@ function ckDraftComment(d){
     L.push('【我的建議】');
     d.advice.filter(a=> a.key !== 'yearly').slice(0, 5).forEach(a=> L.push('• ' + a.t));
   }
-  L.push('※ 有任何不清楚的地方，歡迎帶著這份報告回診，我們一起看。');
   // 中文與英文、數字之間留一個半形空格
   return L.join('\n').replace(/([一-鿿])([A-Za-z0-9β])/g, '$1 $2').replace(/([A-Za-z0-9%])([一-鿿])/g, '$1 $2');
 }

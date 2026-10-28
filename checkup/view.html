@@ -9,7 +9,7 @@
 *,*::before,*::after{box-sizing:border-box; margin:0; padding:0;}
 .k-body{position:absolute; inset:0; overflow:auto; outline:none; background:var(--k-bg); color:var(--k-ink);
   font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; font-size:16px; line-height:1.6;}
-.k-wrap{max-width:1180px; margin:0 auto; padding:18px 18px 80px; display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:start;}
+.k-wrap{max-width:1320px; margin:0 auto; padding:18px 18px 80px; display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:start;}
 @media (max-width:900px){ .k-wrap{grid-template-columns:1fr;} .k-nav{position:static !important;} .k-nav a{display:none;} }
 
 /* 左側目錄 */
@@ -155,6 +155,9 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <button class="k-btn gold" id="k-preview">預覽報告</button>
       <button class="k-btn" id="k-print">列印／輸出 PDF</button>
       <button class="k-btn ghost" id="k-line">LINE 摘要圖</button>
+      <button class="k-btn ghost" id="k-export">匯出備份</button>
+      <button class="k-btn ghost" id="k-import">匯入備份</button>
+      <input type="file" id="k-import-file" accept=".json,application/json" hidden>
     </div>
     <div class="k-rev" id="k-rev"></div>
   </nav>

@@ -1547,7 +1547,30 @@ function wSexUi(){
   const male = WD.getElementById('p-gender').value === 'M';
   WD.querySelectorAll('.f-only, #w-preg-box').forEach(e=> e.style.display = male ? 'none' : '');
   WD.querySelectorAll('#comorbid-list .tag').forEach(t=>{ if(/PCOS/.test(t.textContent)) t.style.display = male ? 'none' : ''; });
+  wWarnSync();
 }
+
+// 報告「提早就醫」：wWarn 為 null 就用依用藥與性別產生的預設文字；醫師改過就照改過的存檔與列印，全部刪空就不印
+let wWarn = null;
+// 腸胃副作用與脫水是用藥的警示；沒用藥時只留快速減重可能引起的膽結石。懷孕、哺乳只提醒女性
+function wWarnDefault(){
+  const onMed = getTxChoices().some(k=> k !== 'lifestyle');
+  const male = WD.getElementById('p-gender').value === 'M';
+  return [onMed ? '上腹痛延伸到背部、持續嘔吐無法進食，或出現黃疸，請立即就醫。' :
+      '上腹痛延伸到背部，或出現黃疸，請立即就醫；體重下降快的時候，膽結石的機會會增加。',
+    onMed && '嚴重腹瀉、頭暈、尿量明顯減少，可能是脫水，請盡快回診。',
+    !male && (onMed ? '計畫懷孕、已懷孕或開始哺乳，請先停藥並回診討論。' : '計畫懷孕、已懷孕或開始哺乳，請回診討論減重計畫。'),
+    '任何疑問，歡迎來電木子澄安診所 07-3739496，或於回診時與醫師討論。'].filter(Boolean).join('\n');
+}
+function wWarnText(){ return wWarn == null ? wWarnDefault() : wWarn; }
+function wWarnSync(){
+  const ta = WD.getElementById('warn-text');
+  if(!ta) return;
+  ta.value = wWarnText();
+  if(typeof autoGrow === 'function') autoGrow(ta);
+}
+WD.getElementById('warn-text').addEventListener('input', e=>{ wWarn = e.target.value; scheduleDraftSave(); });
+WD.getElementById('warn-reset').addEventListener('click', ()=>{ wWarn = null; wWarnSync(); scheduleDraftSave(); });
 
 // ============================================================
 // 飲食衛教
@@ -1768,8 +1791,7 @@ function genDocComment(silent){
     s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重並評估是否調整劑量`);
     s.push('- 一個療程（用完一盒藥物）測量身體組成');
   }else{
-    s.push(`- 一週後（${rAddDays(base, 7)}）檢視飲食與運動執行狀況`);
-    s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重與身體組成`);
+    s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重與身體組成，檢視飲食與運動執行狀況`);
   }
   s.push(`- 三個月後（${rAddMonths(base, 3)}）評估療效並複查抽血`);
 
@@ -2077,8 +2099,8 @@ WD.addEventListener('change', (e)=>{
 }, true);
 function getReportFilename(){
   const name = WD.getElementById('p-name').value.trim();
-  // 另存 PDF 的預設檔名：患者姓名＋當日日期，例如「王小明_20261021」
-  return (name ? name + '_' : '減重評估報告_') + todayLocal().replace(/-/g, '');
+  // 另存 PDF 的預設檔名：姓名_減重_西元日期，例如「王小明_減重_20261021」
+  return (name ? name + '_' : '') + '減重_' + (rS('p-date') || todayLocal()).replace(/-/g, '');
 }
 
 
@@ -2230,6 +2252,7 @@ function collectState(){
   // 飲食／活動習慣的分類單選
   state._catSel = JSON.parse(JSON.stringify(categorySelections));
   state._src = Object.assign({}, FIELD_SRC);
+  state._warn = wWarn;
   return state;
 }
 function applyState(state){
@@ -2239,6 +2262,7 @@ function applyState(state){
   }
   // 單選按鈕列的「已點選」標記先清掉，載入後再依值判斷
   WD.querySelectorAll('select.as-buttons').forEach(s=> s.dataset.picked = '');
+  wWarn = state && state._warn != null ? String(state._warn) : null;
   Object.keys(state).forEach(id=>{
     if(id === '_track'){ Object.assign(trackData, state._track || {body:[],lab:[]}); renderTrackTable('body'); renderTrackTable('lab'); return; }
     if(id === '_phq9'){
@@ -2445,6 +2469,7 @@ async function importRecords(input){
   let incoming;
   try{
     const data = JSON.parse(await file.text());
+    if(data && data.app === 'muzi-checkup'){ alert('這是健檢報告的備份檔，請到健檢報告匯入。'); return; }
     incoming = Array.isArray(data) ? data : data.records;
     if(!Array.isArray(incoming)) throw new Error('format');
     incoming = incoming.filter(r=> r && typeof r.key === 'string' && r.state && typeof r.state === 'object');
@@ -2639,6 +2664,7 @@ function renderTxButtons(){
         else list = list.filter(k=> k !== 'lifestyle').concat(o.key);
         setTxChoices(list);
         genMedEdu();
+        wWarnSync();
         scheduleDraftSave();
       };
       box.appendChild(b);

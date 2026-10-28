@@ -1066,6 +1066,41 @@ function ckSave(){
   clearTimeout(ckSaveTimer);
   ckSaveTimer = setTimeout(()=>{ try{ localStorage.setItem(CK_DRAFT, JSON.stringify(CK)); }catch(e){} }, 400);
 }
+/* ---------- 備份 ----------
+   一位病人一個檔：姓名_健檢_檢查日期_備份.json。app 標記為 muzi-checkup，
+   和減重的備份（muzi-weight、多筆紀錄）互不相認，匯錯檔會被擋下來；原始報告圖片一起帶著 */
+function ckExport(){
+  const pages = {};
+  [...CK.reports, ...CK.att].forEach(x=>{ if(CK_PAGES[x.id]) pages[x.id] = CK_PAGES[x.id]; });
+  const data = {app:'muzi-checkup', version:1, exportedAt:new Date().toISOString(), ck:CK, pages};
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'}));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = ckFilename() + '_備份.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+}
+async function ckImport(input){
+  const file = input.files && input.files[0];
+  input.value = '';
+  if(!file) return;
+  let data;
+  try{ data = JSON.parse(await file.text()); }
+  catch(e){ alert('無法讀取這個檔案，請確認是健檢報告匯出的備份檔（.json）。'); return; }
+  if(!data || data.app !== 'muzi-checkup' || !data.ck || typeof data.ck !== 'object'){
+    alert(data && data.app === 'muzi-weight' ? '這是減重報告的備份檔，請到減重報告匯入。' : '這不是健檢報告的備份檔。');
+    return;
+  }
+  const cur = CK.info.name || CK.reports.length || CK.manual;
+  if(cur && !confirm('匯入會取代目前畫面上的健檢資料' + (CK.info.name ? '（' + CK.info.name + '）' : '') + '，確定要匯入嗎？')) return;
+  CK = Object.assign(ckBlank(), data.ck);
+  Object.keys(CK_PAGES).forEach(k=> delete CK_PAGES[k]);
+  Object.assign(CK_PAGES, data.pages || {});
+  ckSave();
+  ckRenderAll();
+  alert('已匯入' + (CK.info.name ? ' ' + CK.info.name + ' ' : '') + '的健檢資料。');
+}
+
 function ckChanged(opts){
   ckSave();
   ckRenderFields();
@@ -1215,6 +1250,9 @@ async function ckAddFiles(files){
   ckEl('k-line').addEventListener('click', ()=> ckLinePreview());
   ckEl('k-preview').addEventListener('click', ()=> ckPreview());
   ckEl('k-print').addEventListener('click', ()=> ckPrint());
+  ckEl('k-export').addEventListener('click', ckExport);
+  ckEl('k-import').addEventListener('click', ()=> ckEl('k-import-file').click());
+  ckEl('k-import-file').addEventListener('change', e=> ckImport(e.target));
 
   ckRenderAll();
 })();

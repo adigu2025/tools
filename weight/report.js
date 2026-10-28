@@ -866,12 +866,9 @@ function rChFollow(d){
     blocks.push(rBlock('心理支持<br>與復胖預防', 'SUPPORT',
       `<div class="rich ru-host">${psy.map(t=> `<div class="li ru">${rBr(t, 35)}</div>`).join('')}${rRich(rS('psy-note'))}</div>`, {split:true}));
   }
-  // 腸胃副作用與脫水是用藥的警示；沒用藥時只留快速減重可能引起的膽結石。懷孕、哺乳只提醒女性
-  blocks.push(rCallout('提早就醫', [onMed ? '上腹痛延伸到背部、持續嘔吐無法進食，或出現黃疸，請立即就醫。' :
-        '上腹痛延伸到背部，或出現黃疸，請立即就醫；體重下降快的時候，膽結石的機會會增加。',
-      onMed && '嚴重腹瀉、頭暈、尿量明顯減少，可能是脫水，請盡快回診。',
-      !d.male && (onMed ? '計畫懷孕、已懷孕或開始哺乳，請先停藥並回診討論。' : '計畫懷孕、已懷孕或開始哺乳，請回診討論減重計畫。'),
-      '任何疑問，歡迎來電木子澄安診所 07-3739496，或於回診時與醫師討論。'].filter(Boolean).map(t=> `<div class="li ru">${rBr(t, 34)}</div>`).join(''), true));
+  // 文字由 wWarnText() 提供：預設依用藥與性別產生，醫師可在「追蹤」頁修改
+  const warn = wWarnText().split('\n').map(t=> t.trim()).filter(Boolean);
+  if(warn.length) blocks.push(rCallout('提早就醫', warn.map(t=> `<div class="li ru">${rBr(t, 34)}</div>`).join(''), true));
   return blocks;
 }
 
@@ -1070,7 +1067,7 @@ function rTocHtml(m){
 }
 
 // ---------- 排版：把內容放進固定高度的 A4 頁 ----------
-async function layoutReport(doc, m){
+async function layoutReport(doc, m, retry){
   const pagesBox = doc.getElementById('pages');
   const stage = doc.getElementById('stage');
   const hd = r=> `<div class="rpt-hd"><span>木子澄安診所　減重評估報告</span><span class="r">${r}</span></div>`;
@@ -1209,11 +1206,21 @@ async function layoutReport(doc, m){
       tailBox(shell).appendChild(t);
       if(fits()) return;
       t.remove();
+      // 附註不單獨換頁：本頁還有兩列以上時，帶最後一列一起到下一頁
+      const last = shost && shost.querySelectorAll(':scope > .ru').length > 1 ? shost.lastElementChild : null;
+      if(last) last.remove();
       newPage();
-      shell = doc.createElement('div');
-      shell.className = 'rb';
-      shell.innerHTML = '<div class="rb-l"></div><div class="rb-r"></div>';
-      body.appendChild(shell);
+      if(last){
+        shell = contClone(blk);
+        shost = shell.querySelector('.ru-host');
+        body.appendChild(shell);
+        shost.appendChild(last);
+      } else {
+        shell = doc.createElement('div');
+        shell.className = 'rb';
+        shell.innerHTML = '<div class="rb-l"></div><div class="rb-r"></div>';
+        body.appendChild(shell);
+      }
       tailBox(shell).appendChild(t);
     });
   };
@@ -1282,6 +1289,11 @@ async function layoutReport(doc, m){
     const el = row.querySelector('.p');
     if(el) el.textContent = p ? String(p).padStart(2, '0') : '—';
   });
+  // 字型晚到時，排版當下量到的高度比實際小，最後一列會壓到頁尾：字型到位後整份重排一次
+  if(!retry && pages.some(pg=>{ const b = pg.querySelector('.rpt-body'); return b && b.scrollHeight > b.clientHeight + .5; })){
+    if(doc.fonts && doc.fonts.ready) await doc.fonts.ready;
+    return layoutReport(doc, m, true);
+  }
   stage.remove();
   return total;
 }
