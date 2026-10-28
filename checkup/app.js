@@ -223,20 +223,7 @@ async function ckPdfRead(file){
     const page = await pdf.getPage(i);
     const tc = await page.getTextContent();
     flat.push(tc.items.map(it=> it.str).join(' '));
-    const rows = [];
-    tc.items.forEach(it=>{
-      if(!it.str) return;
-      const y = it.transform[5], x = it.transform[4];
-      let row = rows.find(r=> Math.abs(r.y - y) < 3);
-      if(!row){ row = {y, items: []}; rows.push(row); }
-      row.items.push({x, s: it.str, w: it.width || 0});
-    });
-    rows.sort((a, b)=> b.y - a.y).forEach(r=>{
-      r.items.sort((a, b)=> a.x - b.x);
-      let s = '', end = null;
-      r.items.forEach(t=>{ if(end != null && t.x - end > 1.5 && !/\s$/.test(s) && !/^\s/.test(t.s)) s += ' '; s += t.s; end = t.x + t.w; });
-      lines.push(s);
-    });
+    lines.push(...pdfTextLines(tc));
     const vp = page.getViewport({scale: 1.6});
     const cv = document.createElement('canvas');
     cv.width = vp.width; cv.height = vp.height;
@@ -259,9 +246,9 @@ function ckPathDx(text){
   return t.length > 500 ? t.slice(0, 500) + '……' : t;
 }
 // 上傳後依種類判讀；回傳 {done:[], msg:[]}
-function ckAttParse(kind, text, flat){
+function ckAttParse(kind, text, flat, fname){
   if(!String(text || '').trim()) return {done: [], msg: ['這個 PDF 沒有文字層（可能是掃描檔），已附在報告後面，內容請手動輸入']};
-  if(kind === 'tanita') return ckImportTanita(flat || text, text);
+  if(kind === 'tanita') return ckImportTanita(flat || text, text, fname || '');
   if(kind === 'us'){ const r = ckImportUs(text); return r.ok ? r : {done: [], msg: ['讀不出超音波發現，已附在報告後面，請手動勾選']}; }
   if(kind === 'egd' || kind === 'colon'){ const r = ckImportScope(text, kind); return r.ok ? r : {done: [], msg: ['讀不出內視鏡發現，已附在報告後面，請手動勾選']}; }
   if(kind === 'egdpath' || kind === 'colonpath'){
@@ -314,12 +301,13 @@ async function ckAttach(kind, files){
         catch(err){ out.msg.push(`${f.name}：${err.message}，已附在報告後面，內容請手動輸入`); }
       }
       if(text.trim()){
-        const p = ckAttParse(kind, text, flat);
+        const p = ckAttParse(kind, text, flat, f.name);
         out.done.push(...p.done); out.msg.push(...p.msg);
         if(ocr) out.msg.push(`${f.name} 是用影像辨識讀出的文字，請逐項核對勾選結果`);
       } else if(isImg || ocr) out.msg.push(`${f.name} 讀不到文字，已附在報告後面；內容請手動輸入`);
       else if(!ocr) { const p = ckAttParse(kind, '', ''); out.msg.push(...p.msg); }
       CK.att.push({id, kind, name: f.name});
+      ckPagesUnsaved = true;
     }catch(err){ console.error(err); out.msg.push(`${f.name} 讀取失敗：${err.message}`); }
   }
   ckSave();
@@ -350,6 +338,8 @@ function ckInitAtt(){
       if(!id) return;
       CK.att = CK.att.filter(a=> a.id !== id);
       delete CK_PAGES[id];
+      // TANITA 全部移除後，下一份上傳的不論日期都可以帶入
+      if(!CK.att.some(a=> a.kind === 'tanita')) delete CK.tanitaDate;
       ckSave(); ckRenderAtt();
     });
   });
@@ -364,53 +354,38 @@ function ckRenderAtt(){
   });
 }
 
-/* TANITA：沿用減重報告的擷取規則（extractFieldsFromText、BODY_CURRENT_EXTRACT_DICT、MC-980 固定表格），
-   擷取結果是關鍵字比對，帶入後欄位要人工核對。 */
-// MC-780／MC-980 的欄位名稱是圖片，文字層只有數字：表頭前幾列最後一個「三位數.一位」是身高；
-// 部位測量有兩列「左 kg 右 kg 體脂率 / 脂肪量…」，依序是上肢、下肢，四肢肌肉量合計可用來估算 SMI
-function ckTanitaLines(text){
-  const s = String(text || ''), o = {};
-  if(!/TANITA/i.test(s) || !/MC-[79]80/i.test(s)) return o;
-  const L = s.split('\n').map(x=> x.trim());
-  for(const x of L.slice(0, 6)){ const m = x.match(/\s(1\d\d|2[0-4]\d)\.\d$/); if(m && !/[:\/]/.test(x)){ o.height = m[0].trim(); break; } }
-  const seg = L.map(x=> x.match(/^([\d.]+)kg ([\d.]+)kg [\d.]+% \/ [\d.]+kg [\d.]+% \/ [\d.]+kg$/)).filter(Boolean);
-  if(seg.length >= 2) o.limbs = [seg[0][1], seg[0][2], seg[1][1], seg[1][2]].map(Number);
-  return o;
-}
-function ckImportTanita(flat, lineText){
-  if(typeof extractFieldsFromText !== 'function') return {done: [], msg: ['減重報告的擷取元件沒有載入，請重新整理']};
-  const f = extractFieldsFromText(flat, BODY_CURRENT_EXTRACT_DICT, 18);
-  let note = '';
-  const mc = typeof extractMC980BodyFields === 'function' ? extractMC980BodyFields(flat) : null;
-  if(mc){ Object.keys(mc).forEach(k=>{ if(!(k in f)) f[k] = mc[k]; }); note = 'MC-980 格式的欄位名稱是圖片，數值依表格順序判讀，請逐項核對'; }
-  const pa = typeof extractMC980PhaseAngle === 'function' ? extractMC980PhaseAngle(flat) : null;
-  if(pa) f.phaseangle = pa;
-  const tl = ckTanitaLines(lineText);
-  if(tl.height && !('height' in f)) f.height = tl.height;
-  let smiNote = '';
-  if(!('smi' in f) && tl.limbs){
-    const h = parseFloat(f.height || CK.body.h);
-    if(h >= 100 && h <= 250){
-      const asm = tl.limbs.reduce((a, b)=> a + b, 0);
-      f.smi = (asm / (h / 100) ** 2).toFixed(1);
-      smiNote = `SMI 是用四肢肌肉量估算：（${tl.limbs.join('＋')}）＝ ${asm.toFixed(1)} kg ÷ 身高 ${h} cm 的平方。TANITA 的部位肌肉量和 AWGS 切點所用的四肢骨骼肌量定義不完全相同，判讀請當參考`;
+/* TANITA：和減重報告共用同一份判讀（tanitaParse，在 weight/app.js），擷取結果是關鍵字比對，帶入後欄位要人工核對。
+   帶入規則和減重報告相同：欄位空白、或目前的值本來就是上傳帶入的（CK.bodySrc 有記錄）才寫入，自己輸入或改過的值不覆蓋。
+   有多份時以量測日期最新的為準（CK.tanitaDate 記錄已帶入那份的日期），比它舊的報告只附圖、不帶數值。
+   姓名不從 TANITA 帶入：報表印的是「名 姓」順序，姓名維持從抽血報告帶入。 */
+const CK_TANITA_KEY = {weight:'w', height:'h', fat:'fat', fatmass:'fatmass', muscle:'muscle', visceral:'visceral', water:'water', bmr:'bmr', bodyage:'bodyage', smi:'smi', phaseangle:'phaseangle'};
+function ckImportTanita(flat, lineText, fname){
+  if(typeof tanitaParse !== 'function') return {done: [], msg: ['減重報告的擷取元件沒有載入，請重新整理']};
+  const date = tanitaDate(flat);
+  if(date && CK.tanitaDate && date < CK.tanitaDate)
+    return {done: [], msg: [`${fname} 的量測日期 ${date} 比已帶入的 TANITA（${CK.tanitaDate}）舊，只附在報告後面，數值沒有帶入`]};
+  const {f, bad, notes} = tanitaParse(flat, lineText, CK.body.h, !(CK.bodySrc && CK.bodySrc.h));
+  if(!Object.keys(f).length) return {done: [], msg: ['讀不到 TANITA 數值，已附在報告後面，請手動輸入'].concat(bad.length ? [`超出合理範圍、沒有採用：${bad.join('、')}`] : [])};
+  CK.bodySrc = CK.bodySrc || {};
+  const got = [], kept = [];
+  Object.keys(f).forEach(src=>{
+    const k = CK_TANITA_KEY[src];
+    if(!k) return;
+    const cur = String(CK.body[k] == null ? '' : CK.body[k]).trim();
+    if(cur && !CK.bodySrc[k]){
+      if(parseFloat(cur) !== parseFloat(f[src])) kept.push(`${TANITA_NAMES[src]}（欄位 ${cur}，報告 ${f[src]}）`);
+      return;
     }
-  }
-  const map = {weight:'w', height:'h', fat:'fat', fatmass:'fatmass', muscle:'muscle', visceral:'visceral', water:'water', bmr:'bmr', bodyage:'bodyage', smi:'smi', phaseangle:'phaseangle'};
-  const names = {w:'體重', h:'身高', fat:'體脂肪率', fatmass:'體脂肪量', muscle:'肌肉量', visceral:'內臟脂肪', water:'水分率', bmr:'基礎代謝', bodyage:'身體年齡', smi:'SMI', phaseangle:'相位角'};
-  const got = [];
-  Object.entries(map).forEach(([src, k])=>{
-    if(!(src in f)) return;
-    const v = parseFloat(f[src]);
-    if(isNaN(v) || (k === 'w' && (v < 20 || v > 400)) || (k === 'h' && (v < 100 || v > 250))) return;
     CK.body[k] = String(f[src]);
-    got.push(names[k]);
+    CK.bodySrc[k] = 'upload';
+    got.push(TANITA_NAMES[src]);
   });
-  if(!got.length) return {done: [], msg: ['讀不到 TANITA 數值，已附在報告後面，請手動輸入']};
-  const msg = ['擷取結果是關鍵字比對，請核對數值'];
-  if(note) msg.push(note);
-  if(smiNote) msg.push(smiNote);
-  return {done: [`TANITA：${got.join('、')}`], msg};
+  if(date) CK.tanitaDate = date;
+  const msg = ['擷取結果是關鍵字比對，請核對數值；欄位旁標示「上傳」，改過就會消失', '姓名不從 TANITA 帶入，維持從抽血報告帶入'];
+  if(kept.length) msg.push(`以下欄位已有自己輸入的數值，沒有覆蓋：${kept.join('、')}。要改用報告的數值，請直接修改欄位`);
+  if(bad.length) msg.push(`以下數值超出合理範圍，沒有採用，請對照原始報告手動輸入：${bad.join('、')}`);
+  msg.push(...notes);
+  return {done: got.length ? [`TANITA：${got.join('、')}`] : [], msg};
 }
 
 /* 報告工具的英文胃鏡（ESOPHAGOGASTRODUODENOSCOPY）與大腸鏡（COLONOSCOPY）報告：
@@ -899,6 +874,13 @@ function ckRenderFields(){
     if(el.value !== s && KD.activeElement !== el) el.value = s;
     el.classList.toggle('has-val', !!el.value);
     if(el.tagName === 'TEXTAREA') ckGrow(el);
+    // 身體測量：上傳帶入的欄位標「上傳」
+    const m = /^body\.(\w+)$/.exec(el.dataset.k), lab = el.closest('.k-f') && el.closest('.k-f').firstElementChild;
+    if(m && lab){
+      const on = !!(CK.bodySrc && CK.bodySrc[m[1]] && el.value), tag = lab.querySelector('.k-src');
+      if(on && !tag) lab.insertAdjacentHTML('beforeend', '<b class="k-src" title="由上傳的報告擷取，請核對">上傳</b>');
+      else if(!on && tag) tag.remove();
+    }
   });
   KD.querySelectorAll('.k-opts[data-k]').forEach(box=>{
     const v = ckGet(box.dataset.k);
@@ -1069,7 +1051,16 @@ function ckSave(){
 /* ---------- 備份 ----------
    一位病人一個檔：姓名_健檢_檢查日期_備份.json。app 標記為 muzi-checkup，
    和減重的備份（muzi-weight、多筆紀錄）互不相認，匯錯檔會被擋下來；原始報告圖片一起帶著 */
+// 原始報告圖片只在記憶體裡（不進暫存），重新整理或關掉就要重新上傳。
+// 有圖片、而且上傳後還沒匯出備份時，離開前提醒；工作台「全部清除」重新載入時（HUB_RELOADING）不提醒
+let ckPagesUnsaved = false;
+window.addEventListener('beforeunload', e=>{
+  if(!ckPagesUnsaved || window.HUB_RELOADING || !Object.keys(CK_PAGES).length) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
 function ckExport(){
+  ckPagesUnsaved = false;
   const pages = {};
   [...CK.reports, ...CK.att].forEach(x=>{ if(CK_PAGES[x.id]) pages[x.id] = CK_PAGES[x.id]; });
   const data = {app:'muzi-checkup', version:1, exportedAt:new Date().toISOString(), ck:CK, pages};
@@ -1123,6 +1114,7 @@ async function ckAddFiles(files){
       CK.reports = CK.reports.filter(r=> !(rep.sid && r.sid === rep.sid));
       CK.reports.push(rep);
       CK_PAGES[rep.id] = pages;
+      ckPagesUnsaved = true;
     }catch(err){
       console.error(err);
       alert(`${f.name} 讀取失敗：${err.message}`);
@@ -1153,6 +1145,9 @@ async function ckAddFiles(files){
     const el = e.target;
     if(el.dataset.k){
       ckSet(el.dataset.k, el.value);
+      // 自己改過上傳帶入的數值：取消「上傳」標記，之後再上傳也不會覆蓋
+      const bk = /^body\.(\w+)$/.exec(el.dataset.k);
+      if(bk && e.isTrusted && CK.bodySrc) delete CK.bodySrc[bk[1]];
       // 出生日期或檢查日期改了，重算年齡
       if(el.dataset.k === 'info.birth' || el.dataset.k === 'info.date'){
         const a = ckAgeAt(CK.info.birth, CK.info.date);

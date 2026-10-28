@@ -805,6 +805,7 @@ async function handleFiles(kind, files, listId){
         try{
           const textContent = await page.getTextContent();
           entry.text += textContent.items.map(it=>it.str).join(' ') + '\n';
+          entry.lines = (entry.lines || '') + pdfTextLines(textContent).join('\n') + '\n';
         }catch(te){ console.warn('文字擷取失敗', te); }
       }
     }catch(err){
@@ -1159,39 +1160,116 @@ const BODY_CURRENT_EXTRACT_DICT = {
   bodyage:['身體年齡','体年齢','Body\\s*Age'],
   smi:['四肢骨骼肌\\s*\\(?\\s*SMI\\s*\\)?\\s*[:：]','\\bSMI\\b','骨骼肌指數'],
 };
-function fillCurrentBodyFieldsFromUpload(){
-  const allText = getUploadedPdfText('tanita');
-  if(allText === null) return;
-  let fields = extractFieldsFromText(allText, BODY_CURRENT_EXTRACT_DICT, 18);
-  let fallbackNote = '';
-  const mc980 = extractMC980BodyFields(allText);
-  if(mc980){
-    Object.keys(mc980).forEach(k=>{ if(!(k in fields)) fields[k] = mc980[k]; });
-    fallbackNote = '\n\n※ 此報表（MC-980格式）的欄位名稱為圖片而非文字，身體組成數值是依固定表格順序判讀，並非依欄位名稱比對，請務必逐項仔細核對數值！';
+// PDF 一頁的文字依 y 座標排成列（同一列左到右），判讀依版面位置的報表用。健檢報告也用這個
+function pdfTextLines(tc){
+  const rows = [];
+  tc.items.forEach(it=>{
+    if(!it.str) return;
+    const y = it.transform[5], x = it.transform[4];
+    let row = rows.find(r=> Math.abs(r.y - y) < 3);
+    if(!row){ row = {y, items: []}; rows.push(row); }
+    row.items.push({x, s: it.str, w: it.width || 0});
+  });
+  return rows.sort((a, b)=> b.y - a.y).map(r=>{
+    r.items.sort((a, b)=> a.x - b.x);
+    let s = '', end = null;
+    r.items.forEach(t=>{ if(end != null && t.x - end > 1.5 && !/\s$/.test(s) && !/^\s/.test(t.s)) s += ' '; s += t.s; end = t.x + t.w; });
+    return s;
+  });
+}
+
+/* ---------- TANITA 共用判讀：減重報告與健檢報告都用這一份 ----------
+   姓名不從 TANITA 帶入：報表印的是「名 姓」順序（例如「泰霓 王」），姓名維持從抽血報告帶入。 */
+const TANITA_NAMES = {weight:'體重', height:'身高', fat:'體脂肪率', fatmass:'體脂肪量', muscle:'肌肉量', visceral:'內臟脂肪', water:'水分率', bmr:'基礎代謝', bodyage:'身體年齡', smi:'SMI', phaseangle:'相位角'};
+// MC-780／MC-980 的欄位名稱是圖片，文字層只有數字。身高：表頭（MC-780 之前）第一個「三位數.一位」，
+// 先看排好的列（姓名後面），沒有列資料時改看整串文字（日期、時間先拿掉）。
+// 部位測量有兩列「左 kg 右 kg 體脂率 / 脂肪量…」，依序是上肢、下肢，四肢肌肉量合計可用來估算 SMI
+function tanitaLayout(flat, lineText){
+  const s = String(flat || ''), o = {};
+  if(!/TANITA/i.test(s + lineText) || !/MC-[79]80/i.test(s + lineText)) return o;
+  const L = String(lineText || '').split('\n').map(x=> x.trim());
+  for(const x of L.slice(0, 6)){ const m = x.match(/\s(1\d\d|2[0-4]\d)\.\d$/); if(m && !/[:\/]/.test(x)){ o.height = m[0].trim(); break; } }
+  if(!o.height){
+    const head = s.slice(0, Math.max(0, s.search(/MC-[79]80/i))).replace(/\d{4}\/\s*\d{1,2}\/\s*\d{1,2}|\d{1,2}:\d{2}/g, ' ');
+    const m = head.match(/(?:^|\s)((?:1\d\d|2[0-4]\d)\.\d)(?=\s|$)/);
+    if(m) o.height = m[1];
   }
-  const mc980PhaseAngle = extractMC980PhaseAngle(allText);
-  if(mc980PhaseAngle){ fields.phaseangle = mc980PhaseAngle; }
-  const keys = Object.keys(fields);
-  if(keys.length === 0){ alert('未能自動辨識出可用數值，此PDF可能無文字層或欄位名稱為圖片，請於下方欄位手動輸入。'); return; }
-  // 體重、身高寫進基本資料（上傳數值優先），超出合理範圍的不採用，避免把別的數字誤當成體重
-  [['weight','b-weight',20,400],['height','b-height',100,250]].forEach(([k, id, lo, hi])=>{
-    if(!(k in fields)) return;
-    const v = parseFloat(fields[k]);
-    if(!isNaN(v) && v >= lo && v <= hi){
-      const el = WD.getElementById(id);
-      el.value = fields[k]; flashField(el); markUploaded(el);
-      el.dispatchEvent(new Event('input', {bubbles:true}));
-    } else delete fields[k];
+  const seg = L.map(x=> x.match(/^([\d.]+)kg ([\d.]+)kg [\d.]+% \/ [\d.]+kg [\d.]+% \/ [\d.]+kg$/)).filter(Boolean);
+  if(seg.length >= 2) o.limbs = [seg[0][1], seg[0][2], seg[1][1], seg[1][2]].map(Number);
+  return o;
+}
+// 報表上的量測日期（表頭「2026/ 10/ 19」），有多份時用來挑最新的一份
+function tanitaDate(flat){
+  const m = String(flat || '').match(/(\d{4})\/\s*(\d{1,2})\/\s*(\d{1,2})/);
+  return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : '';
+}
+// 擷取的數值是否在欄位的合理範圍內（範圍與手動輸入的檢查相同，見 FIELD_RANGES）
+function tanitaInRange(k, v){
+  const r = FIELD_RANGES[k === 'weight' ? 'b-weight' : k === 'height' ? 'b-height' : 't-' + k];
+  const n = parseFloat(v);
+  return !isNaN(n) && (!r || (n >= r.min && n <= r.max));
+}
+// 判讀一份 TANITA：回傳 {f 數值, bad 超出範圍未採用, notes 要提醒的事}。
+// 估算 SMI 的身高：欄位的身高是自己輸入或改過的（fieldManual）就用欄位的，否則用報表的，報表沒有才用欄位的
+function tanitaParse(flat, lineText, fieldH, fieldManual){
+  const f = extractFieldsFromText(flat, BODY_CURRENT_EXTRACT_DICT, 18), notes = [], bad = [];
+  const mc = extractMC980BodyFields(flat);
+  if(mc){ Object.keys(mc).forEach(k=>{ if(!(k in f)) f[k] = mc[k]; }); notes.push('MC-980 格式的欄位名稱是圖片，數值依表格順序判讀，請逐項核對'); }
+  const pa = extractMC980PhaseAngle(flat);
+  if(pa) f.phaseangle = pa;
+  const tl = tanitaLayout(flat, lineText);
+  if(tl.height && !('height' in f)) f.height = tl.height;
+  Object.keys(f).forEach(k=>{ if(!tanitaInRange(k, f[k])){ bad.push(`${TANITA_NAMES[k] || k} ${f[k]}`); delete f[k]; } });
+  if(!('smi' in f) && tl.limbs){
+    const h = parseFloat(fieldManual && String(fieldH || '').trim() ? fieldH : (f.height || fieldH));
+    if(h >= 100 && h <= 250){
+      const asm = tl.limbs.reduce((a, b)=> a + b, 0);
+      f.smi = (asm / (h / 100) ** 2).toFixed(1);
+      notes.push(`SMI 是用四肢肌肉量估算：（${tl.limbs.join('＋')}）＝ ${asm.toFixed(1)} kg ÷ 身高 ${h} cm 的平方。TANITA 的部位肌肉量和 AWGS 切點所用的四肢骨骼肌量定義不完全相同，判讀請當參考`);
+    }
+  }
+  return {f, bad, notes};
+}
+// 有多份 TANITA 時用量測日期最新的一份；日期相同或讀不到日期時，用最後上傳的一份
+function tanitaPick(list){
+  return list.map((x, i)=> ({x, i, d: tanitaDate(x.text)}))
+    .sort((a, b)=> (b.d || '').localeCompare(a.d || '') || b.i - a.i)[0].x;
+}
+
+// 帶入規則：欄位空白、或目前的值本來就是上傳帶入的，才寫入；自己輸入或改過的值不覆蓋，列在提示裡
+function fillCurrentBodyFieldsFromUpload(){
+  if(getUploadedPdfText('tanita') === null) return;
+  const files = uploadedFiles.tanita.filter(f=> f.text && f.text.trim());
+  const src = tanitaPick(files);
+  const {f: fields, bad, notes} = tanitaParse(src.text, src.lines || '', WD.getElementById('b-height').value, FIELD_SRC['b-height'] !== 'upload');
+  if(!Object.keys(fields).length){ alert('未能自動辨識出可用數值，此PDF可能無文字層或欄位名稱為圖片，請於下方欄位手動輸入。'); return; }
+  const done = [], kept = [];
+  Object.keys(fields).forEach(k=>{
+    const el = WD.getElementById(k === 'weight' ? 'b-weight' : k === 'height' ? 'b-height' : 't-' + k);
+    if(!el) return;
+    const cur = el.value.trim();
+    if(cur && FIELD_SRC[el.id] !== 'upload'){
+      if(parseFloat(cur) !== parseFloat(fields[k])) kept.push(`${TANITA_NAMES[k]}（欄位 ${cur}，報告 ${fields[k]}）`);
+      return;
+    }
+    el.value = fields[k]; flashField(el); markUploaded(el);
+    if(k === 'weight' || k === 'height') el.dispatchEvent(new Event('input', {bubbles:true}));
+    done.push(k);
   });
-  keys.length = 0; keys.push(...Object.keys(fields));
-  keys.forEach(k=>{
-    const el = WD.getElementById('t-'+k);
-    if(el){ el.value = fields[k]; flashField(el); markUploaded(el); }
-  });
-  try{ calcBMI(true); calcBody(); }catch(e){}
-  const phaseAngleNote = mc980PhaseAngle ? '' : '相位角 Phase Angle 仍需手動輸入。';
-  const NAMES = {weight:'體重',height:'身高',fat:'體脂肪率',fatmass:'體脂肪量',muscle:'肌肉量',visceral:'內臟脂肪',water:'水分率',bmr:'基礎代謝',bodyage:'身體年齡',smi:'SMI',phaseangle:'相位角'};
-  alert(`已自動帶入 ${keys.length} 項數值（${keys.map(k=> NAMES[k] || k).join('、')}）${('weight' in fields || 'height' in fields) ? '，身高體重已寫入「基本資料」' : ''}，欄位旁標示「上傳」。${phaseAngleNote}擷取結果為關鍵字比對，非AI判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。${fallbackNote}`);
+  try{ calcBMI(true); calcBody(); validateAllFields(); }catch(e){}
+  const basic = done.filter(k=> k === 'weight' || k === 'height').map(k=> TANITA_NAMES[k]);
+  const lines = [];
+  lines.push(done.length
+    ? `已自動帶入 ${done.length} 項數值（${done.map(k=> TANITA_NAMES[k]).join('、')}），欄位旁標示「上傳」。` + (basic.length ? `${basic.join('、')}已寫入「基本資料」。` : '')
+    : '沒有帶入新的數值。');
+  if(files.length > 1) lines.push(`有 ${files.length} 份 TANITA 報告，採用的是 ${src.name}${tanitaDate(src.text) ? `（${tanitaDate(src.text)}）` : ''}。`);
+  if(kept.length) lines.push(`以下欄位已有自己輸入的數值，沒有覆蓋：${kept.join('、')}。要改用報告的數值，請直接修改欄位。`);
+  if(bad.length) lines.push(`以下數值超出合理範圍，沒有採用，請對照原始報告手動輸入：${bad.join('、')}。`);
+  if(!('phaseangle' in fields)) lines.push('相位角 Phase Angle 仍需手動輸入。');
+  lines.push('姓名不從 TANITA 帶入，維持從抽血報告帶入。');
+  lines.push('擷取結果為關鍵字比對，非 AI 判讀，請務必核對數值是否正確，如有誤請直接於欄位內修改。');
+  if(notes.length) lines.push('※ ' + notes.join('。\n※ ') + '。');
+  alert(lines.join('\n\n'));
 }
 
 function extractFromUploads(kind){

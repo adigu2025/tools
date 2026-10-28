@@ -824,6 +824,7 @@ document.getElementById('cm-ok').addEventListener('click', ()=>{
   // 減重報告直接放在工作台裡，最乾淨的清除方式是刪掉暫存後重新載入整頁（臨床計算也一併重來）。
   // 先停掉減重的自動暫存計時器並標記為未修改，才不會在重新載入前又寫回草稿、或跳出「離開網頁」提醒。
   if(weightReady){ try{ clearTimeout(draftTimer); isDirty = false; }catch(err){} }
+  window.HUB_RELOADING = true;
   Object.values(CLEAR_KEYS).flat().forEach(([kind, k])=>{
     try{ (kind === 'session' ? sessionStorage : localStorage).removeItem(k); }catch(err){}
   });

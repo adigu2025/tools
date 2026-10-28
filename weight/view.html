@@ -378,16 +378,16 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
   <div class="card">
     <h2>基本資料<small>上傳抽血 PDF 後自動帶入，可以修改；已經填過的欄位不會被覆蓋</small></h2>
     <div class="grid">
-      <div class="field"><label>姓名</label><input id="p-name" placeholder=""></div>
+      <div class="field"><label>姓名</label><input id="p-name"></div>
       <div class="field"><label>病歷號</label><input id="p-chart" type="text"></div>
       <div class="field"><label>性別</label><select id="p-gender"><option value="" selected></option><option value="M">男</option><option value="F">女</option></select></div>
-      <div class="field"><label>出生年月日</label>
+      <div class="field"><label>出生年月日（西元年－月－日）</label>
         <div style="display:flex; gap:4px; align-items:center">
-          <input id="p-birth-y" type="text" inputmode="numeric" maxlength="4" placeholder="西元年" style="width:78px">
+          <input id="p-birth-y" type="text" inputmode="numeric" maxlength="4" style="width:78px">
           <span>-</span>
-          <input id="p-birth-m" type="text" inputmode="numeric" maxlength="2" placeholder="月" style="width:52px">
+          <input id="p-birth-m" type="text" inputmode="numeric" maxlength="2" style="width:52px">
           <span>-</span>
-          <input id="p-birth-d" type="text" inputmode="numeric" maxlength="2" placeholder="日" style="width:52px">
+          <input id="p-birth-d" type="text" inputmode="numeric" maxlength="2" style="width:52px">
           <input id="p-birth" type="hidden">
         </div>
       </div>
@@ -397,7 +397,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
   </div>
   <div class="card">
     <h2>身高體重、腰圍、血壓</h2>
-    <div class="hint" style="margin-top:-4px">上傳 TANITA 報告時，身高與體重會自動帶入這裡（標示「上傳」），以上傳的數值為準。</div>
+    <div class="hint" style="margin-top:-4px">上傳 TANITA 報告時，身高與體重會自動帶入這裡（標示「上傳」）；已經自己輸入或改過的數值不會被覆蓋。</div>
     <div class="grid" style="grid-template-columns:repeat(4,1fr)">
       <div class="field"><label>身高 (cm)</label><input id="b-height" type="number" min="100" max="250" step="0.1"></div>
       <div class="field"><label>體重 (kg)</label><input id="b-weight" type="number" min="20" max="400" step="0.1"></div>
@@ -406,8 +406,8 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
     </div>
     <div class="grid" style="margin-top:14px">
       <div class="field"><label>目標體重 (kg)</label><input id="b-target-weight" type="number" min="20" max="400" step="0.1"></div>
-      <div class="field"><label>預計減重比例</label><input id="target-loss-pct" readonly style="background:#F4F2EE" placeholder="填寫目標體重後自動計算"></div>
-      <div class="field"><label>標準體重範圍（BMI 18.5–24）</label><input id="standard-weight-range" readonly style="background:#F4F2EE" placeholder="填寫身高後自動計算"></div>
+      <div class="field"><label>預計減重比例（填目標體重後自動計算）</label><input id="target-loss-pct" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label>標準體重範圍（BMI 18.5–24，填身高後自動計算）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
     </div>
     <div id="bmi-result" style="margin-top:20px; display:none">
       <div style="display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap">
@@ -539,7 +539,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
     </h2>
     <div id="stopbang-body" style="display:none; margin-top:14px">
       <div id="stopbang-list"></div>
-      <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入分數（可覆蓋自動計算）</label><input id="stopbang-manual" type="number" min="0" max="8" placeholder="留空則自動計算"></div>
+      <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入分數（留空則自動計算）</label><input id="stopbang-manual" type="number" min="0" max="8"></div>
       <div class="summary-box" id="stopbang-result" style="margin-top:10px">請勾選後查看結果</div>
     </div>
   </div>
@@ -552,7 +552,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
     <div id="phq9-body" style="display:none; margin-top:14px">
       <div class="hint">過去兩週內，下列問題困擾您的頻率</div>
       <div id="phq9-list" style="margin-top:8px"></div>
-      <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入總分（可覆蓋自動計算）</label><input id="phq9-manual" type="number" min="0" max="27" placeholder="留空則自動計算"></div>
+      <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入總分（留空則自動計算）</label><input id="phq9-manual" type="number" min="0" max="27"></div>
       <div class="summary-box" id="phq9-result" style="margin-top:10px">請完成問卷後查看結果</div>
     </div>
   </div>
