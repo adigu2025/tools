@@ -542,6 +542,7 @@
       labels: labels, loss: loss, protein: protein, carbs: carbs, fat: fat,
       water: fmtInt(waterLo) + ' 至 ' + fmtInt(waterHi) + ' mL', floorNote: floorNote
     };
+    tdeePrep();
     show('tdee', true);
   }
 
@@ -694,6 +695,23 @@
     return cv;
   }
 
+  /* 結果一變就先在背景畫好 PNG。按下按鈕時圖已備妥，剪貼簿立刻寫入；
+     若點完馬上切到 LINE，視窗已失焦，瀏覽器會拒絕寫入 */
+  var TDEE_BLOB = null, TDEE_PREP_T = 0, TDEE_PREP_N = 0;
+  function tdeePrep(){
+    TDEE_BLOB = null;
+    var n = ++TDEE_PREP_N;
+    clearTimeout(TDEE_PREP_T);
+    TDEE_PREP_T = setTimeout(function(){
+      // 等字型載完再畫，避免圖上的中文用到備用字型
+      var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+      ready.then(function(){
+        if (n !== TDEE_PREP_N || !TDEE_IMG) return;
+        drawTDEE(TDEE_IMG).toBlob(function(b){ if (n === TDEE_PREP_N) TDEE_BLOB = b; }, 'image/png');
+      });
+    }, 250);
+  }
+
   (function(){
     var btn = $('tdee-img');
     if (!btn) return;
@@ -702,26 +720,48 @@
       btn.classList.toggle('done', !!ok);
       setTimeout(function(){ btn.classList.remove('done'); btn.textContent = '複製圖片'; }, 2200);
     }
-    function download(cv){
-      var a = document.createElement('a');
-      a.href = cv.toDataURL('image/png');
-      a.download = '每日熱量建議_' + today().replace(/-/g, '') + '.png';
-      a.click();
+    function fname(){ return '每日熱量建議_' + today().replace(/-/g, '') + '.png'; }
+
+    /* 瀏覽器不讓寫剪貼簿時，直接把圖片秀出來：
+       電腦在圖上按右鍵「複製圖片」，手機長按圖片，任何地方都貼得上 */
+    function preview(url){
+      var old = CD.getElementById('tdee-img-pop');
+      if (old) old.remove();
+      var pop = document.createElement('div');
+      pop.id = 'tdee-img-pop';
+      pop.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(21,40,49,.72);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;';
+      pop.innerHTML =
+        '<div style="background:#fff;border-radius:12px;padding:12px 16px;font-size:15px;color:#152831;text-align:center;line-height:1.6;">' +
+          '瀏覽器沒有讓這個頁面寫入剪貼簿。<br>電腦：在圖片上按右鍵，選「複製圖片」。手機：長按圖片。</div>' +
+        '<img alt="每日熱量建議" style="max-width:min(540px,100%);max-height:calc(100vh - 180px);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);background:#fff;">' +
+        '<div style="display:flex;gap:10px;">' +
+          '<a class="act" style="background:#fff;text-decoration:none;" download>下載圖片</a>' +
+          '<button class="act" type="button" style="background:#fff;">關閉</button></div>';
+      pop.querySelector('img').src = url;
+      var a = pop.querySelector('a');
+      a.href = url; a.download = fname();
+      function close(){ pop.remove(); if (url.indexOf('blob:') === 0) URL.revokeObjectURL(url); }
+      pop.querySelector('button').addEventListener('click', close);
+      pop.addEventListener('click', function(e){ if (e.target === pop) close(); });
+      CD.appendChild(pop);
     }
+
     btn.addEventListener('click', function(){
       if (!TDEE_IMG) return;
-      var cv = drawTDEE(TDEE_IMG);
-      // ClipboardItem 直接收 Promise，Safari 才會認定仍在使用者點擊當下
-      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
-        var blob = new Promise(function(res){ cv.toBlob(res, 'image/png'); });
-        navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(
-          function(){ flash('已複製，可貼到 LINE', true); },
-          function(){ download(cv); flash('已改為下載圖片'); }
-        );
-      } else {
-        download(cv);
-        flash('已改為下載圖片');
+      var ready = TDEE_BLOB;
+      var cv = ready ? null : drawTDEE(TDEE_IMG);
+      var blob = ready || new Promise(function(res){ cv.toBlob(res, 'image/png'); });
+      function fail(){
+        if (ready) preview(URL.createObjectURL(ready));
+        else preview(cv.toDataURL('image/png'));
+        flash('請改用右鍵複製');
       }
+      if (!(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write)) { fail(); return; }
+      // 圖還沒備妥時，ClipboardItem 直接收 Promise，Safari 才會認定仍在使用者點擊當下
+      try {
+        navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(
+          function(){ flash('已複製，可直接貼上', true); }, fail);
+      } catch (e) { fail(); }
     });
   })();
 
