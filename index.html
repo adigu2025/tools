@@ -573,7 +573,9 @@ function syncRep(){
   if(v === 'weight' && r === 'weight' && WB) WB.focus({preventScroll:true});
   if(v === 'weight' && r === 'checkup' && KB) KB.focus({preventScroll:true});
 }
-document.querySelectorAll('[data-rep]').forEach(b=> b.addEventListener('click', ()=> setRep(b.dataset.rep)));
+// 只綁報告種類的按鈕。<main> 本身也有 data-rep（記錄目前在哪個報告），綁到它的話報告裡任何一次點擊
+// 都會觸發 setRep → syncRep → 把焦點搶回報告容器，輸入欄位一放開滑鼠就失去游標
+document.querySelectorAll('button[data-rep]').forEach(b=> b.addEventListener('click', ()=> setRep(b.dataset.rep)));
 document.getElementById('btn-rep-back').addEventListener('click', ()=> setRep('home'));
 // 頂端的減重摘要直接帶到減重報告
 document.getElementById('chip-weight').addEventListener('click', ()=> setRep('weight'));
