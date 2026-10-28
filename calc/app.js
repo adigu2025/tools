@@ -208,7 +208,9 @@
     if (hint) hint.style.display = hasResult ? 'none' : 'block';
     if (res) res.style.display = hasResult ? 'block' : 'none';
     var btn = CD.querySelector('[data-copy="' + tool + '"]');
-    if (btn) { btn.disabled = !hasResult; btn.classList.remove('done'); btn.textContent = '複製結果'; }
+    if (btn) { btn.disabled = !hasResult; btn.classList.remove('done'); btn.textContent = btn.dataset.label || '複製結果'; }
+    var imgBtn = $(tool + '-img');
+    if (imgBtn) { imgBtn.disabled = !hasResult; imgBtn.classList.remove('done'); imgBtn.textContent = '複製圖片'; }
     if (!hasResult) COPY[tool] = '';
     renderSummary();
     saveState();
@@ -248,7 +250,7 @@
       copyText(COPY[tool] + '（' + today() + '）', function(){
         btn.classList.add('done');
         btn.textContent = '已複製';
-        setTimeout(function(){ btn.classList.remove('done'); btn.textContent = '複製結果'; }, 1800);
+        setTimeout(function(){ btn.classList.remove('done'); btn.textContent = btn.dataset.label || '複製結果'; }, 1800);
       });
     });
   });
@@ -482,21 +484,41 @@
 
     var bmr = 10 * wt + 6.25 * ht - 5 * age + (sex === 'male' ? 5 : -161);
     var tdee = bmr * act;
-    var target = tdee - 500;
+    // 一般減重建議每日少吃 500 kcal，但不低於自行節食的最低熱量
+    // （女性 1,200、男性 1,500 kcal），更低須在醫療監督下進行。
+    // 個子小、活動量低的人照扣 500 會掉到這條線以下，所以縮小赤字
+    var floor = sex === 'male' ? 1500 : 1200;
+    var deficit = Math.round(Math.max(0, Math.min(500, tdee - floor)));
+    var target = tdee - deficit;
 
     $('tdee-bmr').textContent = Math.round(bmr);
     $('tdee-val').textContent = Math.round(tdee);
     $('tdee-target').textContent = Math.round(target);
+    $('tdee-target-unit').textContent = 'kcal／天（−' + deficit + '）';
+    $('tdee-timeline-title').textContent = '減重時程預估（每日減少 ' + deficit + ' kcal）';
+    var floorNote = '';
+    var floorName = (sex === 'male' ? '男性 1,500' : '女性 1,200') + ' kcal';
+    if (deficit === 0) {
+      floorNote = '每日總消耗已低於自行節食的最低建議熱量（' + floorName + '），不建議再少吃。建議增加活動量，或到門診討論其他方式。';
+    } else if (deficit < 500) {
+      floorNote = '減重目標熱量已設在自行節食的最低建議值（' + floorName + '），不再往下扣。' +
+        (deficit < 200 ? '光靠少吃效果有限，建議增加活動量，或到門診討論其他方式。' : '想再加快，建議從增加活動量著手。');
+    }
+    $('tdee-floor').textContent = floorNote;
+    $('tdee-floor').hidden = !floorNote;
 
-    var weeks = [4, 8, 12, 24];
     var labels = ['1 個月', '2 個月', '3 個月', '6 個月'];
+    var weeks = [4, 8, 12, 24];
+    var loss = weeks.map(function(w){ return (w * 7 * deficit / 7700).toFixed(1); });
     var html = '';
     for (var i = 0; i < weeks.length; i++) {
-      var kg = (weeks[i] * 7 * 500 / 7700).toFixed(1);
       html += '<div class="mini"><div class="mini-label">' + labels[i] + '</div>' +
-              '<div class="mini-val">−' + kg + '</div><div class="mini-unit">kg</div></div>';
+              '<div class="mini-val">−' + loss[i] + '</div><div class="mini-unit">kg</div></div>';
     }
     $('tdee-timeline').innerHTML = html;
+
+    var waterLo = Math.round(wt * 30 / 50) * 50, waterHi = Math.round(wt * 35 / 50) * 50;
+    $('tdee-water').textContent = '每日飲水 30 至 35 mL/kg（以您的體重約 ' + fmtInt(waterLo) + ' 至 ' + fmtInt(waterHi) + ' mL）';
 
     var protein = Math.round(target * 0.30 / 4);
     var carbs = Math.round(target * 0.40 / 4);
@@ -506,13 +528,202 @@
       '<div class="mini"><div class="mini-label">碳水化合物</div><div class="mini-val" style="color:var(--green)">' + carbs + '</div><div class="mini-unit">g／天</div></div>' +
       '<div class="mini"><div class="mini-label">脂肪</div><div class="mini-val" style="color:var(--gold)">' + fat + '</div><div class="mini-unit">g／天</div></div>';
 
-    COPY.tdee = 'BMR ' + Math.round(bmr) + ' kcal／天｜TDEE ' + Math.round(tdee) +
-                ' kcal／天｜減重目標 ' + Math.round(target) + ' kcal／天｜' +
+    var actSel = $('tdee-activity');
+    var actName = actSel.options[actSel.selectedIndex].text.replace(/（.*$/, '');
+    var bmi = wt / Math.pow(ht / 100, 2);
+    COPY.tdee = (sex === 'male' ? '男' : '女') + ' ' + age + ' 歲，' + ht + ' cm／' + wt + ' kg（BMI ' + bmi.toFixed(1) + '），' +
+                actName + ' × ' + act + '｜' +
+                'BMR ' + Math.round(bmr) + ' kcal／天｜TDEE ' + Math.round(tdee) +
+                ' kcal／天｜減重目標 ' + Math.round(target) + ' kcal／天（−' + deficit + '）｜' +
                 '蛋白質 ' + protein + ' g、碳水 ' + carbs + ' g、脂肪 ' + fat + ' g';
+    TDEE_IMG = {
+      sex: sex, age: age, ht: ht, wt: wt, bmi: bmi, actName: actName, act: act,
+      bmr: Math.round(bmr), tdee: Math.round(tdee), target: Math.round(target), deficit: deficit,
+      labels: labels, loss: loss, protein: protein, carbs: carbs, fat: fat,
+      water: fmtInt(waterLo) + ' 至 ' + fmtInt(waterHi) + ' mL', floorNote: floorNote
+    };
     show('tdee', true);
   }
 
   bind(['tdee-sex','tdee-age','tdee-height','tdee-weight','tdee-activity'], calcTDEE);
+
+  function fmtInt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  /* 複製圖片：用 canvas 自己畫一張給病人看的卡片（1080 寬，適合 LINE）。
+     不直接截畫面，因為畫面放在 shadow root 裡，截圖套件抓不到樣式，
+     而且醫師螢幕寬窄不同，自己畫的版面才會每次一致 */
+  var TDEE_IMG = null;
+
+  function drawTDEE(d){
+    var W = 1080, P = 56, F = '"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
+    var C = { teal:'#3E6A7C', gold:'#BC7F30', navy:'#152831', green:'#2E7D4F', blue:'#2979A0',
+              ink:'#1F2A30', mute:'#6B7C86', line:'#E1E9ED', card:'#F7F9FA', bg:'#FFFFFF', goldSoft:'#FBF3E6' };
+    var cv = document.createElement('canvas');
+    var ctx = cv.getContext('2d');
+
+    function wrap(t, size, weight, maxW){
+      ctx.font = weight + ' ' + size + 'px ' + F;
+      var toks = String(t).match(/[A-Za-z0-9.,%/()\-+≥≤<>]+|\s+|./g) || [];
+      var lines = [], cur = '';
+      toks.forEach(function(tk){
+        // 標點不放行首，寧可讓這一行稍微超出
+        if (ctx.measureText(cur + tk).width > maxW && cur.trim() && !/^[，。、；：？！）」』]/.test(tk)) { lines.push(cur.replace(/\s+$/, '')); cur = tk.replace(/^\s+/, ''); }
+        else cur += tk;
+      });
+      if (cur.trim()) lines.push(cur.replace(/\s+$/, ''));
+      return lines;
+    }
+    function rr(x, y, w, h, r, fill, stroke){
+      ctx.beginPath();
+      ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+    }
+
+    function draw(dry){
+      var y = 0;
+      function text(t, x, size, weight, color, maxW, lh, align){
+        var ls = wrap(t, size, weight, maxW);
+        if (!dry) {
+          ctx.font = weight + ' ' + size + 'px ' + F; ctx.fillStyle = color;
+          ctx.textBaseline = 'top'; ctx.textAlign = align || 'left';
+          ls.forEach(function(l, i){ ctx.fillText(l, x, y + i * lh); });
+          ctx.textAlign = 'left';
+        }
+        return ls.length * lh;
+      }
+      function head(t){
+        y += 36;
+        if (!dry) { ctx.fillStyle = C.gold; ctx.fillRect(P, y + 4, 7, 30); }
+        y += text(t, P + 20, 30, 700, C.navy, W - 2 * P, 40) + 16;
+      }
+      // 一排數字方塊：items = [{label, val, unit, color}]
+      function boxes(items, h, valSize, accentIdx){
+        var gap = 16, bw = (W - 2 * P - gap * (items.length - 1)) / items.length;
+        items.forEach(function(it, i){
+          var x = P + i * (bw + gap), cx = x + bw / 2;
+          if (!dry) {
+            var acc = i === accentIdx;
+            rr(x, y, bw, h, 14, acc ? C.goldSoft : C.card, acc ? '#EFD6AC' : C.line);
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.font = '500 24px ' + F; ctx.fillStyle = C.mute; ctx.fillText(it.label, cx, y + 20);
+            ctx.font = '700 ' + valSize + 'px ' + F; ctx.fillStyle = it.color; ctx.fillText(it.val, cx, y + 56);
+            ctx.font = '400 22px ' + F; ctx.fillStyle = C.mute; ctx.fillText(it.unit, cx, y + 64 + valSize);
+            ctx.textAlign = 'left';
+          }
+        });
+        y += h;
+      }
+
+      if (!dry) { ctx.fillStyle = C.bg; ctx.fillRect(0, 0, W, cv.height); ctx.fillStyle = C.teal; ctx.fillRect(0, 0, W, 176); }
+      y = 44;
+      text('木子澄安診所', P, 28, 500, '#D7E3E8', 600, 36);
+      text(today().replace(/-/g, '／'), W - P, 26, 400, '#D7E3E8', 400, 36, 'right');
+      y += 42;
+      text('您的每日熱量建議', P, 52, 700, '#FFFFFF', W - 2 * P, 64);
+      y = 176 + 36;
+
+      var info = (d.sex === 'male' ? '男性' : '女性') + '　' + d.age + ' 歲　' + d.ht + ' cm　' + d.wt + ' kg　BMI ' + d.bmi.toFixed(1);
+      y += text(info, P, 28, 500, C.ink, W - 2 * P, 42);
+      y += text('活動量：' + d.actName, P, 26, 400, C.mute, W - 2 * P, 40) + 20;
+
+      boxes([
+        { label:'基礎代謝率 BMR', val:fmtInt(d.bmr), unit:'kcal／天', color:C.teal },
+        { label:'每日總消耗 TDEE', val:fmtInt(d.tdee), unit:'kcal／天', color:C.green },
+        { label:'減重目標熱量', val:fmtInt(d.target), unit:'kcal／天（−' + d.deficit + '）', color:C.gold }
+      ], 170, 56, 2);
+      y += 14;
+      y += text('「減重目標熱量」是建議您每天吃進的總熱量。', P, 24, 400, C.mute, W - 2 * P, 36);
+
+      head('照這個熱量吃，預估可以減少');
+      boxes(d.labels.map(function(l, i){ return { label:l, val:'−' + d.loss[i], unit:'kg', color:C.navy }; }), 150, 44, -1);
+      y += 14;
+      y += text('以 7,700 kcal ≈ 1 kg 體脂換算的線性推估；實際速度會隨體重下降而趨緩。', P, 24, 400, C.mute, W - 2 * P, 36);
+      if (d.floorNote) y += text(d.floorNote, P, 24, 500, C.gold, W - 2 * P, 36);
+
+      head('每日營養素建議');
+      boxes([
+        { label:'蛋白質', val:d.protein, unit:'g／天', color:C.blue },
+        { label:'碳水化合物', val:d.carbs, unit:'g／天', color:C.green },
+        { label:'脂肪', val:d.fat, unit:'g／天', color:C.gold }
+      ], 150, 44, -1);
+      y += 14;
+      y += text('比例為蛋白質 30%、碳水 40%、脂肪 30%。腎臟病或其他慢性病需個別調整。', P, 24, 400, C.mute, W - 2 * P, 36);
+
+      head('減重衛教重點');
+      var tips = [
+        ['足夠水分', '每日飲水約 ' + d.water + '，餐前喝 250 至 500 mL 可減少食量。心臟或腎臟病需限水者，依醫師指示。'],
+        ['飲食原則', '多蔬菜與蛋白質，少精製澱粉與含糖飲料，定時定量。'],
+        ['規律運動', '每週至少 150 分鐘中強度有氧，搭配阻力訓練維持肌肉量。'],
+        ['睡眠品質', '睡眠不足會讓食慾變大，建議每日睡 7 至 9 小時。'],
+        ['減重速度', '每週 0.5 至 1 kg 較安全，過快可能造成肌肉流失或膽結石。'],
+        ['醫師評估', 'BMI ≥ 30，或 ≥ 27 合併慢性病，可至門診評估藥物治療。']
+      ];
+      var gap = 16, cw = (W - 2 * P - gap) / 2;
+      for (var r = 0; r < tips.length; r += 2) {
+        var rowH = 0;
+        [0, 1].forEach(function(c){
+          var tlines = wrap(tips[r + c][1], 23, 400, cw - 44).length;
+          rowH = Math.max(rowH, 24 + 36 + 8 + tlines * 35 + 22);
+        });
+        [0, 1].forEach(function(c){
+          var x = P + c * (cw + gap), t = tips[r + c], y0 = y;
+          if (!dry) rr(x, y, cw, rowH, 12, C.card, C.line);
+          y = y0 + 22;
+          text(t[0], x + 22, 27, 700, C.teal, cw - 44, 36);
+          y = y0 + 22 + 44;
+          text(t[1], x + 22, 23, 400, C.ink, cw - 44, 35);
+          y = y0;
+        });
+        y += rowH + gap;
+      }
+
+      y += 18;
+      if (!dry) { ctx.fillStyle = C.line; ctx.fillRect(P, y, W - 2 * P, 2); }
+      y += 24;
+      y += text('數值為公式推估，實際需求因人而異，有疑問歡迎回診討論。', P, 23, 400, C.mute, W - 2 * P, 36);
+      y += text('木子澄安診所　高雄市仁武區仁孝路282號　07-3739496', P, 23, 400, C.mute, W - 2 * P, 36);
+      return y + 44;
+    }
+
+    cv.width = W; cv.height = 10;
+    var H = Math.ceil(draw(true));
+    cv.width = W; cv.height = H;
+    draw(false);
+    return cv;
+  }
+
+  (function(){
+    var btn = $('tdee-img');
+    if (!btn) return;
+    function flash(msg, ok){
+      btn.textContent = msg;
+      btn.classList.toggle('done', !!ok);
+      setTimeout(function(){ btn.classList.remove('done'); btn.textContent = '複製圖片'; }, 2200);
+    }
+    function download(cv){
+      var a = document.createElement('a');
+      a.href = cv.toDataURL('image/png');
+      a.download = '每日熱量建議_' + today().replace(/-/g, '') + '.png';
+      a.click();
+    }
+    btn.addEventListener('click', function(){
+      if (!TDEE_IMG) return;
+      var cv = drawTDEE(TDEE_IMG);
+      // ClipboardItem 直接收 Promise，Safari 才會認定仍在使用者點擊當下
+      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+        var blob = new Promise(function(res){ cv.toBlob(res, 'image/png'); });
+        navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(
+          function(){ flash('已複製，可貼到 LINE', true); },
+          function(){ download(cv); flash('已改為下載圖片'); }
+        );
+      } else {
+        download(cv);
+        flash('已改為下載圖片');
+      }
+    });
+  })();
 
   /* ======================================================
      FIB-4
@@ -2038,7 +2249,7 @@
      最後改版日期（顯示於主畫面左下角）
      每次改版請一併更新這個常數
      ====================================================== */
-  var APP_REVISION = '2026-10-27';
+  var APP_REVISION = '2026-10-28';
   (function renderAppRevision(){
     var el = $('app-revision');
     if (el) el.textContent = '最後改版：' + APP_REVISION;

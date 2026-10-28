@@ -930,7 +930,8 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <div class="panel-title">BMR / TDEE 熱量需求<small>Mifflin-St Jeor 公式</small></div>
         <div class="panel-actions">
           <button class="act" type="button" data-reset="tdee">重設</button>
-          <button class="act" type="button" data-copy="tdee" disabled>複製結果</button>
+          <button class="act" type="button" data-copy="tdee" data-label="複製文字" disabled>複製文字</button>
+          <button class="act" type="button" id="tdee-img" disabled>複製圖片</button>
         </div>
       </div>
 
@@ -973,9 +974,9 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <select id="tdee-activity">
           <option value="">未選擇</option>
           <option value="1.2">久坐少動（辦公室工作，幾乎不運動）× 1.2</option>
-          <option value="1.375">輕度活動（每週輕度運動 1–3 天）× 1.375</option>
-          <option value="1.55">中度活動（每週中強度運動 3–5 天）× 1.55</option>
-          <option value="1.725">高度活動（每週高強度運動 6–7 天）× 1.725</option>
+          <option value="1.375">輕度活動（每週輕度運動 1 至 3 天）× 1.375</option>
+          <option value="1.55">中度活動（每週中強度運動 3 至 5 天）× 1.55</option>
+          <option value="1.725">高度活動（每週高強度運動 6 至 7 天）× 1.725</option>
           <option value="1.9">極高度活動（體力勞動或每日高強度訓練）× 1.9</option>
         </select>
         <p class="field-err" hidden></p>
@@ -1003,13 +1004,14 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <div class="stat accent">
             <div class="stat-label">減重目標熱量</div>
             <div class="stat-val" style="color:var(--gold)" id="tdee-target">—</div>
-            <div class="stat-unit">kcal／天（−500）</div>
+            <div class="stat-unit" id="tdee-target-unit">kcal／天（−500）</div>
           </div>
         </div>
 
         <div class="section-box">
-          <div class="section-title">減重時程預估（每日減少 500 kcal）</div>
+          <div class="section-title" id="tdee-timeline-title">減重時程預估（每日減少 500 kcal）</div>
           <div class="mini-grid-4" id="tdee-timeline"></div>
+          <p class="notes" id="tdee-floor" style="margin-top:10px;color:var(--gold);" hidden></p>
           <p class="notes" style="margin-top:10px;">以 7,700 kcal ≈ 1 kg 體脂換算，為線性推估值；實際減重速度會隨體重下降而趨緩。</p>
         </div>
 
@@ -1025,7 +1027,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
             <div class="edu-card">
               <div class="edu-icon">💧</div>
               <div class="edu-title">足夠水分</div>
-              <div class="edu-text">每日飲水 30–35 mL/kg，有助代謝廢物排除，並可降低飢餓感。餐前飲水 250–500 mL 可減少食量。</div>
+              <div class="edu-text"><span id="tdee-water">每日飲水 30 至 35 mL/kg</span>，有助代謝廢物排除，並可降低飢餓感。餐前飲水 250 至 500 mL 可減少食量。心臟或腎臟疾病需要限水者，依醫師指示。</div>
             </div>
             <div class="edu-card">
               <div class="edu-icon">🥗</div>
@@ -1040,17 +1042,17 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
             <div class="edu-card">
               <div class="edu-icon">😴</div>
               <div class="edu-title">睡眠品質</div>
-              <div class="edu-text">睡眠不足會升高飢餓素（Ghrelin），增加食慾與脂肪堆積。建議每日睡眠 7–9 小時。</div>
+              <div class="edu-text">睡眠不足會升高飢餓素（Ghrelin），增加食慾與脂肪堆積。建議每日睡眠 7 至 9 小時。</div>
             </div>
             <div class="edu-card">
               <div class="edu-icon">📉</div>
               <div class="edu-title">減重速度</div>
-              <div class="edu-text">每週減重 0.5–1 kg 為較安全的速度，過快減重可能造成肌肉流失、膽結石或代謝紊亂。</div>
+              <div class="edu-text">每週減重 0.5 至 1 kg 為較安全的速度，過快減重可能造成肌肉流失、膽結石或代謝紊亂。</div>
             </div>
             <div class="edu-card">
               <div class="edu-icon">🩺</div>
               <div class="edu-title">醫師評估</div>
-              <div class="edu-text">BMI ≥ 27 合併慢性病，或 BMI ≥ 30，建議至門診由醫師評估是否需要藥物輔助或手術治療。</div>
+              <div class="edu-text">BMI ≥ 30，或 BMI ≥ 27 合併高血壓、糖尿病等慢性病，可至門診評估藥物治療。BMI ≥ 37.5，或 BMI ≥ 32.5 合併共病，可再評估減重手術。</div>
             </div>
           </div>
         </div>
