@@ -36,7 +36,7 @@ setTimeout(()=>{
 // NAVIGATION（工作台裡只有製作報告：報告目錄與各分頁）
 // ============================================================
 // 最後改版日期：每次改版請一併更新，顯示於工作台底部
-const W_REVISION = '2026-10-27';
+const W_REVISION = '2026-10-28';
 const CATEGORIES = [
   {id:'basic',   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>', label:'基本資料',      desc:'個人資料／身高體重血壓'},
   {id:'history', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/></svg>', label:'評估問卷',      desc:'病史／生活型態／量表'},
@@ -2349,11 +2349,14 @@ WD.addEventListener('keydown', e=>{
   const i = list.indexOf(t);
   if(i >= 0 && i < list.length - 1){ e.preventDefault(); list[i + 1].focus(); }
 }, true);
-// 2. 游標停在數字欄位上滾動滑鼠滾輪時，不改動數值（避免捲頁時不小心把 72 變成 71）
+// 2. 游標停在數字欄位上滾動滑鼠滾輪時，不改動數值（避免捲頁時不小心把 72 變成 71）。
+//    擋下預設動作、自己捲頁，不讓欄位失去焦點：觸控板的慣性滾動會把剛點進去的欄位踢出來
 WD.addEventListener('wheel', e=>{
   const t = e.target;
-  if(t && t.tagName === 'INPUT' && t.type === 'number' && WD.activeElement === t) t.blur();
-}, {capture:true, passive:true});
+  if(!(t && t.tagName === 'INPUT' && t.type === 'number' && WD.activeElement === t)) return;
+  e.preventDefault();
+  WB.scrollBy({top: e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? WB.clientHeight : 1)});
+}, {capture:true, passive:false});
 // 3. 點進數字欄位時整格選取，直接打字就能覆蓋舊值
 WD.addEventListener('focusin', e=>{
   const t = e.target;

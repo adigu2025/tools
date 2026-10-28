@@ -1,7 +1,7 @@
 /* 健檢報告：輸入畫面、優品 PDF 擷取、判讀規則。報告排版在 report.js。
    畫面在 view.html（裝進 #checkup-host 的 shadow root），一律用 KD 找元素、KB 處理捲動，不可直接用 document。
    所有全域名稱都以 ck／CK 開頭，避免和同一頁的減重報告、臨床計算撞名。 */
-const CK_REVISION = '2026-10-27';
+const CK_REVISION = '2026-10-28';
 const CK_DRAFT = 'checkup_draft_v1';
 
 /* ---------- 資料 ----------
@@ -1444,7 +1444,7 @@ function ckInitPlan(){
 }
 function ckRenderNav(){
   const has = {
-    upload: CK.reports.length > 0 || !!(CK.manual && CK.manual.length),
+    upload: CK.reports.length > 0 || !!(CK.manual && CK.manual.length) || CK.att.length > 0,
     info: !!(CK.info.name && CK.info.sex && CK.info.age),
     body: !!(CK.body.h && CK.body.w),
     hx: !!CK.hx.smoke,
@@ -1543,7 +1543,13 @@ async function ckAddFiles(files){
     const n = all[all.indexOf(e.target) + 1];
     if(n) n.focus();
   });
-  KD.addEventListener('wheel', e=>{ if(e.target.matches('input[type=number]') && KD.activeElement === e.target) e.target.blur(); }, {passive:true});
+  // 以前是滾輪一動就讓欄位失去焦點，但筆電觸控板捲到欄位後還會慣性送出滾輪事件，
+  // 剛點進去的欄位馬上被踢出來，看起來像「點不進去」。改成擋下預設動作（不改數值）、自己捲頁，焦點留著
+  KD.addEventListener('wheel', e=>{
+    if(!e.target.matches('input[type=number]') || KD.activeElement !== e.target) return;
+    e.preventDefault();
+    KB.scrollBy({top: e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? KB.clientHeight : 1)});
+  }, {passive:false});
 
   KD.querySelectorAll('.k-nav a[data-sec]').forEach(a=> a.addEventListener('click', ()=>{
     const s = ckEl('k-sec-' + a.dataset.sec);

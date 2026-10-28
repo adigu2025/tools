@@ -98,6 +98,9 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 .k-att .k-aitem img{width:38px; height:48px; object-fit:cover; border-radius:4px; border:1px solid var(--k-line);}
 .k-att .k-aitem button{font:inherit; font-size:13px; color:var(--k-red); background:none; border:0; cursor:pointer;}
 .k-att .k-amsg{margin-top:6px;}
+.k-upgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:0 16px;}
+.k-upgrid .k-att{margin:4px 0 8px;}
+.k-uph{font-size:13px; font-weight:400; color:var(--k-muted); letter-spacing:0; margin-left:8px;}
 .k-cvg{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;}
 .k-cvg > div{border:1px solid var(--k-line); border-radius:12px; padding:12px 14px;}
 .k-cvg h4{font-size:15px; margin:0 0 8px; color:var(--k-ink);}
@@ -136,7 +139,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 <div class="k-wrap">
   <nav class="k-nav" id="k-nav">
     <h1>健檢報告</h1>
-    <a data-sec="upload"><span class="d"></span>上傳檢驗報告</a>
+    <a data-sec="upload"><span class="d"></span>上傳報告</a>
     <a data-sec="info"><span class="d"></span>基本資料</a>
     <a data-sec="body"><span class="d"></span>身體測量</a>
     <a data-sec="hx"><span class="d"></span>病史與生活習慣</a>
@@ -158,12 +161,26 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 
   <main class="k-main">
     <section class="k-card" id="k-sec-upload">
-      <h2>上傳檢驗報告<small>優品醫事檢驗所的 PDF，可以一次放入多份（今年加往年），日期最新的一份當作本次</small></h2>
+      <h2>上傳報告<small>所有檔案只在這台電腦讀取，不會上傳；讀得到文字的會自動帶入下方欄位</small></h2>
+      <h3 style="margin-top:4px">檢驗報告<small class="k-uph">優品醫事檢驗所的 PDF，可以一次放入多份（今年加往年），日期最新的一份當作本次</small></h3>
       <div class="k-drop" id="k-drop"><b>把 PDF 拖到這裡，或點一下選擇檔案</b>檔案只在這台電腦讀取，不會上傳</div>
       <input type="file" id="k-file" accept="application/pdf" multiple hidden>
       <div class="k-files" id="k-files"></div>
       <div class="k-warn" id="k-warn-id" hidden></div>
       <div class="k-warn soft" id="k-warn-unv" hidden></div>
+      <h3>身體組成</h3>
+      <div class="k-att" data-att="tanita" data-label="TANITA 報告"></div>
+      <h3>有做才上傳<small class="k-uph">內視鏡、超音波、病理、斷層等報告；有文字的 PDF 會自動判讀，掃描檔與照片只附在報告後面</small></h3>
+      <div class="k-upgrid">
+        <div class="k-att" data-att="us" data-label="超音波報告"></div>
+        <div class="k-att" data-att="egd" data-label="胃鏡報告"></div>
+        <div class="k-att" data-att="egdpath" data-label="胃鏡病理報告"></div>
+        <div class="k-att" data-att="colon" data-label="大腸鏡報告"></div>
+        <div class="k-att" data-att="colonpath" data-label="大腸鏡病理報告"></div>
+        <div class="k-att" data-att="ldct" data-label="低劑量肺部電腦斷層報告"></div>
+        <div class="k-att" data-att="carotid" data-label="頸動脈超音波報告"></div>
+        <div class="k-att" data-att="ecg" data-label="心電圖"></div>
+      </div>
     </section>
 
     <section class="k-card" id="k-sec-info">
@@ -189,8 +206,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
         <label class="k-f"><span>脈搏<i>次／分</i></span><input type="number" data-k="body.hr"></label>
       </div>
       <div class="k-calc" id="k-bmi"></div>
-      <h3>TANITA 身體組成</h3>
-      <div class="k-att" data-att="tanita" data-label="TANITA 報告"></div>
+      <h3>TANITA 身體組成<small class="k-uph">報告在最上方「上傳報告」上傳，會自動帶入</small></h3>
       <div class="k-grid">
         <label class="k-f"><span>體脂肪率<i>%</i></span><input type="number" step="0.1" data-k="body.fat"></label>
         <label class="k-f"><span>內臟脂肪等級</span><input type="number" step="0.5" data-k="body.visceral"></label>
@@ -230,8 +246,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
     </section>
 
     <section class="k-card" id="k-sec-us">
-      <h2>超音波<small>上傳 PDF、圖片，或貼上報告工具的英文報告；有文字的 PDF 會自動勾選</small></h2>
-      <div class="k-att" data-att="us" data-label="超音波報告"></div>
+      <h2>超音波<small>報告在最上方「上傳報告」上傳，或在這裡貼上報告工具的英文報告；有文字的 PDF 會自動勾選</small></h2>
       <label class="k-f"><span>貼上英文報告（腹部、甲狀腺可一起貼）</span><textarea id="k-us-paste" style="min-height:60px"></textarea></label>
       <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" id="k-us-import">帶入</button></div>
       <div class="k-find" id="k-us-msg" style="margin-top:8px"></div>
@@ -252,13 +267,12 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
     </section>
 
     <section class="k-card" id="k-sec-scope">
-      <h2>胃腸鏡<small>報告與病理可上傳 PDF 或圖片；有文字的 PDF 會自動判讀，掃描檔與照片只附在報告後面</small></h2>
+      <h2>胃腸鏡<small>報告與病理在最上方「上傳報告」上傳，或在這裡貼上英文報告；有文字的 PDF 會自動判讀</small></h2>
       <label class="k-f"><span>貼上英文內視鏡報告（胃鏡、大腸鏡可一起貼）</span><textarea id="k-scope-paste" style="min-height:60px"></textarea></label>
       <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" id="k-scope-import">帶入</button></div>
       <div class="k-find" id="k-scope-msg" style="margin-top:8px"></div>
 
       <h3>胃鏡</h3>
-      <div class="k-att" data-att="egd" data-label="胃鏡報告"></div>
       <div class="k-row"><b>診斷</b><div class="k-opts" data-k="mod.egd" data-multi="1" data-excl="normal" data-opts="normal:正常|gerd:逆流性食道炎|barrett:巴瑞特食道|hernia:食道裂孔疝氣|gastritis:胃炎|erosive:糜爛性胃炎|atrophy:萎縮性胃炎|im:胃炎併腸上皮化生|ulcer:胃潰瘍|duoulcer:十二指腸潰瘍|duodenitis:十二指腸炎|fgp:胃底腺瘜肉|polyp:胃瘜肉|tumor:疑似腫瘤|other:其他"></div></div>
       <div class="k-row"><b>處置</b><div>
         <div class="k-opts" data-k="mod.egdProc" data-multi="1" data-opts="biopsy:切片|clo:幽門桿菌快速尿素酶檢查|polypectomy:瘜肉切除|hemostasis:止血"></div>
@@ -266,20 +280,17 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       </div></div>
       <label class="k-f"><span>胃鏡摘要（自由輸入）</span><textarea data-k="mod.egdNote" style="min-height:60px"></textarea></label>
       <h3>胃鏡病理</h3>
-      <div class="k-att" data-att="egdpath" data-label="胃鏡病理報告"></div>
       <div class="k-opts" data-k="mod.egdPath" data-multi="1" data-opts="chronic:慢性胃炎|hp:幽門桿菌陽性|im:腸上皮化生|atrophy:萎縮性變化|fgp:胃底腺瘜肉|hyperplastic:增生性瘜肉|adenoma:腺瘤|dysplasia:分化不良|cancer:癌"></div>
       <label class="k-f" style="margin-top:10px"><span>病理報告內容（可貼上原文）</span><textarea data-k="mod.egdPathNote" style="min-height:60px"></textarea></label>
       <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" data-path-read="egd">依病理文字自動勾選</button></div>
 
       <h3>大腸鏡</h3>
-      <div class="k-att" data-att="colon" data-label="大腸鏡報告"></div>
       <div class="k-row"><b>診斷</b><div class="k-opts" data-k="mod.cDx" data-multi="1" data-excl="normal" data-opts="normal:正常|polyp:大腸瘜肉|hemorrhoid:痔瘡|divert:大腸憩室|colitis:大腸炎|tumor:疑似腫瘤|other:其他"></div></div>
       <div class="k-row"><b>處置</b><div class="k-opts" data-k="mod.cProc" data-multi="1" data-opts="biopsy:切片|polypectomy:瘜肉切除|emr:黏膜切除術（EMR）|hemostasis:止血"></div></div>
       <div class="k-row"><b>腸道清潔</b><div class="k-opts" data-k="mod.cPrep" data-opts="good:良好|poor:不佳"></div></div>
       <div class="k-row"><b>分片切除</b><div class="k-opts" data-k="mod.cPiece" data-opts="yes:有 20 mm 以上分片切除"></div></div>
       <label class="k-f"><span>大腸鏡摘要（自由輸入）</span><textarea data-k="mod.colonNote" style="min-height:60px"></textarea></label>
       <h3>大腸鏡病理</h3>
-      <div class="k-att" data-att="colonpath" data-label="大腸鏡病理報告"></div>
       <div class="k-row"><b>病理分類</b><div class="k-opts" data-k="mod.cHist" data-opts="none:沒有瘜肉|hyper:增生性瘜肉|tubular:管狀腺瘤|advanced:絨毛狀或高度分化不良|ssl:無柄鋸齒狀病灶|ssldys:鋸齒狀病灶合併分化不良|cancer:癌"></div></div>
       <div class="k-sub" data-show-not="mod.cHist:none">
         <label class="k-f"><span>瘜肉數目</span><input type="number" data-k="mod.cNum"></label>
@@ -303,13 +314,11 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <div class="k-row" style="margin-top:10px; border-top:1px solid var(--k-line)"><b>心電圖</b><div>
         <div class="k-opts" data-k="mod.ecg" data-opts="normal:正常|abn:異常"></div>
         <div class="k-sub" data-show="mod.ecg:abn"><label class="k-f" style="flex:1"><span>心電圖發現</span><input type="text" data-k="mod.ecgNote"></label></div>
-        <div class="k-att" data-att="ecg" data-label="心電圖"></div>
       </div></div>
 
       <h3>② 頸動脈超音波</h3>
       <div class="k-opts" data-k="mod.carotid" data-multi="1" data-excl="normal" data-opts="normal:正常|imt:內膜中層增厚|plaque:有斑塊|sten50:狹窄 50% 以上"></div>
       <div class="k-sub"><label class="k-f"><span>最大 IMT<i>mm</i></span><input type="number" step="0.01" data-k="mod.imt"></label><label class="k-f" style="flex:1"><span>補充</span><input type="text" data-k="mod.carotidNote"></label></div>
-      <div class="k-att" data-att="carotid" data-label="頸動脈超音波報告"></div>
 
       <h3>③ B、C 型肝炎篩檢<small style="font-weight:400; color:var(--k-muted); letter-spacing:0">　PDF 沒有時才填</small></h3>
       <div class="k-row"><b>B 肝表面抗原</b><div class="k-opts" data-k="mod.hbsag" data-opts="陰性:陰性|陽性:陽性"></div></div>
@@ -327,7 +336,6 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <p class="k-note" style="margin-top:0">在上方「胃腸鏡」填寫。</p>
 
       <h3>⑧ 低劑量肺部電腦斷層</h3>
-      <div class="k-att" data-att="ldct" data-label="電腦斷層報告"></div>
       <div class="k-opts" data-k="mod.ldct" data-opts="1:Lung-RADS 1|2:Lung-RADS 2|3:Lung-RADS 3|4A:Lung-RADS 4A|4B:Lung-RADS 4B|4X:Lung-RADS 4X"></div>
       <label class="k-f" style="margin-top:10px"><span>報告摘要</span><textarea data-k="mod.ldctNote" style="min-height:60px"></textarea></label>
       <p class="k-note">⑦ 腫瘤標記由 PDF 帶入，結果在「檢驗數值」。</p>
