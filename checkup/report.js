@@ -441,7 +441,7 @@ async function ckLayout(doc, m, retry){
     const pg = doc.createElement('section');
     pg.className = 'rpt-page';
     pg.innerHTML = hd(chLabel) + '<div class="rpt-body"></div>' +
-      `<div class="rpt-ft"><span>木子澄安診所　${ckEsc(m.name)}　檢查日期 ${ckEsc(m.date)}<br>本報告僅供臨床參考，檢查結果請與醫師討論</span><span class="pg"></span></div>`;
+      `<div class="rpt-ft"><span>${ckEsc(m.name)}　檢查日期 ${ckEsc(m.date)}<br>本報告僅供臨床參考，檢查結果請與醫師討論</span><span class="pg"></span></div>`;
     pagesBox.appendChild(pg);
     pages.push(pg);
     body = pg.querySelector('.rpt-body');
