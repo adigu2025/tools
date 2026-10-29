@@ -226,13 +226,16 @@ function ckChLab(d){
   return blocks;
 }
 
+// 超音波的發現與結論：每行一個 .ru，長內容可以跨頁
+function ckUsTxt(label, s){
+  const ls = String(s || '').split('\n').map(x=> x.trim()).filter(Boolean);
+  return ls.length ? `<div class="us-txt ru"><b>${label}</b></div>` + ls.map(x=> `<div class="us-line ru">${rBr(x, 40)}</div>`).join('') : '';
+}
 function ckChUs(d){
   const blocks = [];
-  // 發現每行一個 .ru，長內容可以跨頁
-  const txt = (label, s)=>{ const ls = String(s || '').split('\n').map(x=> x.trim()).filter(Boolean); return ls.length ? `<div class="us-txt ru"><b>${label}</b></div>` + ls.map(x=> `<div class="us-line ru">${rBr(x, 40)}</div>`).join('') : ''; };
-  [['腹部', 'abd'], ['甲狀腺', 'thy']].forEach(([area, k])=>{
+  [['腹部', 'abd'], ['甲狀腺', 'thy'], ['其他', 'oth']].forEach(([area, k])=>{
     const list = d.us.filter(u=> u.area === area);
-    const extra = txt('發現', CK.us[k + 'Find']) + txt('結論', CK.us[k + 'Imp']);
+    const extra = ckUsTxt('發現', CK.us[k + 'Find']) + ckUsTxt('結論', CK.us[k + 'Imp']);
     if(!list.length && !extra) return;
     blocks.push(rBlock(area + '超音波', '', `<div class="ru-host">${list.map(u=> `<div class="us-row ru"><div><b>${ckEsc(u.t)}</b>${u.d ? `<p>${rBr(u.d, 34)}</p>` : ''}</div>${ckPill(u.g)}</div>`).join('')}${extra}</div>`, {split:true}));
   });
@@ -254,7 +257,7 @@ function ckChMod(d){
     if(note.length > 600) note = note.slice(0, 600) + '……（全文見原始報告與附件）';
     const proc = I.proc ? `<p class="note-line tail" style="margin-top:8px">${rBr('處置：' + I.proc, 40)}</p>` : '';
     const label = /病理/.test(area) ? '病理報告' : '摘要';
-    blocks.push(rBlock(area, '', `<div class="ru-host">${list.map(row).join('')}</div>` + proc +
+    blocks.push(rBlock(area, '', `<div class="ru-host">${list.map(row).join('')}${area === '頸動脈超音波' ? ckUsTxt('發現', CK.mod.carFind) + ckUsTxt('結論', CK.mod.carImp) : ''}</div>` + proc +
       (note ? `<div class="memo tail" style="margin-top:8px"><div class="muted small" style="margin-bottom:2px">${label}</div><div class="rich">${rRich(note, 36)}</div></div>` : ''), {split:true}));
   });
   return blocks;

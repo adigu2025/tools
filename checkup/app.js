@@ -25,9 +25,9 @@ function ckMigrate(){
 function ckFamCancer(re){ return (CK.hx.fam || []).includes('cancer') && re.test(CK.hx.famCancer || ''); }
 
 function ckGet(path){ return path.split('.').reduce((o, k)=> o == null ? undefined : o[k], CK); }
-// 報告「提早就醫」：CK.warn 沒改過（null）就用預設文字；醫師改過就照改過的存檔與列印
+// 報告「提早就醫」：預設空白，醫師有填才印；「帶入常用文字」填入 CK_WARN_DEFAULT
 const CK_WARN_DEFAULT = '胸痛、呼吸困難、單側肢體無力或說話不清楚，請立即就醫。\n解黑便、吐血、皮膚或眼白變黃，請盡快回診。';
-function ckWarnText(){ return CK.warn == null ? CK_WARN_DEFAULT : String(CK.warn); }
+function ckWarnText(){ return CK.warn == null ? '' : String(CK.warn); }
 function ckSet(path, v){
   const ks = path.split('.'), last = ks.pop();
   const o = ks.reduce((o, k)=> (o[k] = o[k] || {}), CK);
@@ -120,18 +120,153 @@ const CK_THY = {
   lymph:{t:'頸部淋巴結腫大', g:1, adv:'usother', c:'頸部淋巴結腫大。'},
   other:{t:'其他', g:1, adv:'usother', c:''}
 };
-// 「發現」欄的預設正常內容
-const CK_US_NORMAL = {
-  abd: '肝臟：大小正常，實質回音均勻，未見局部病灶。\n膽囊與膽管：膽囊正常，總膽管管徑在正常範圍內。\n胰臟：無特殊發現。\n脾臟：大小與實質回音正常。\n腎臟：右腎無特殊發現，左腎無特殊發現。\n其他：無腹水，主動脈管徑正常。',
-  thy: '甲狀腺：大小與形態正常。\n甲狀腺結節：未發現甲狀腺結節。\n頸部淋巴結：無頸部淋巴結腫大。'
+// 頸動脈超音波（加選模組）：診斷按鈕、發現與結論和腹部同一套做法
+const CK_CAR = {
+  normal:{t:'正常', g:0, c:'雙側頸動脈內膜中層厚度正常，未見明顯斑塊。'},
+  imtb:{t:'內膜中層臨界增厚', g:1, adv:'plaque', c:'頸動脈內膜中層厚度臨界增厚（0.8 至 1.0 mm），心血管風險中等。'},
+  imt:{t:'內膜中層增厚', g:1, adv:'plaque', c:'頸動脈內膜中層厚度增厚，代表已有亞臨床動脈硬化，心血管風險上升。'},
+  plaque:{t:'有斑塊', g:1, adv:'plaque', c:'頸動脈粥狀硬化斑塊。'},
+  softp:{t:'軟斑塊', g:1, adv:'plaque', c:'斑塊為富含脂質的軟斑塊。'},
+  calcp:{t:'鈣化斑塊', g:1, adv:'plaque', c:'斑塊為鈣化斑塊。'},
+  ulcer:{t:'斑塊表面不規則', g:2, adv:'carotidref', c:'斑塊表面不規則，疑似潰瘍。'},
+  sten50:{t:'中度狹窄', g:2, adv:'carotid50', c:'頸動脈中度狹窄（50% 至 69%），建議血管專科評估。'},
+  sten70:{t:'重度狹窄', g:2, adv:'carotid50', c:'頸動脈重度狹窄（70% 以上），建議盡速轉介血管專科。'},
+  vhypo:{t:'椎動脈發育不全', g:0, c:'椎動脈發育不全，多屬先天變異。'},
+  steal:{t:'椎動脈逆流', g:2, adv:'carotidref', c:'椎動脈逆流，疑似鎖骨下動脈竊血。'},
+  other:{t:'其他', g:1, adv:'usother', c:''}
 };
+
+/* ---------- 超音波「發現」欄：每個器官固定一行 ----------
+   器官行由幾段組成，沒有診斷的段落寫正常字句；診斷的 f 回傳 [器官, 段落, 字句]。
+   段落 '*' 會取代整行的正常字句（例如沒選側別的腎結石），'+' 則接在正常字句後面。 */
+const ckSide = (o, k)=> o[k + 'Side'] || '';
+const ckKid = (word, verb)=> (o, k)=>{
+  const v = ckSide(o, k), b = verb ? `雙側腎臟${verb}${word}` : `雙側腎${word}`;
+  return v === 'r' ? ['kid', 'r', `右腎${verb}${word}`] : v === 'l' ? ['kid', 'l', `左腎${verb}${word}`] : ['kid', '*', v === 'b' ? b : `${verb}腎${word}`];
+};
+const ckCarSide = (slot, part, s)=> (o, k)=> [slot, part, ({r:'右側', l:'左側', b:'雙側'}[ckSide(o, k)] || '') + s];
+// 只選斑塊型態、沒選「有斑塊」時，斑塊行不能還寫「未見斑塊」
+const ckPlaqueType = s=> o=> ['plaque', (o.carotid || []).includes('plaque') ? '+' : '*', s];
+const CK_FIND = {
+  abd:{
+    fatty1:['liver', 'echo', '輕度脂肪肝，肝實質回音增強，肝腎對比增加'],
+    fatty2:['liver', 'echo', '中度脂肪肝，肝實質回音增強，肝腎對比增加，深部回音衰減，肝內血管邊界模糊'],
+    fatty3:['liver', 'echo', '重度脂肪肝，肝實質回音增強，肝腎對比增加，深部回音衰減，肝內血管、膽囊壁與橫膈邊界模糊'],
+    liverdz:['liver', 'echo', '實質回音不均，符合慢性肝實質病變'],
+    cirrhosis:['liver', 'echo', '表面不規則，實質回音粗糙不均，疑似肝硬化'],
+    lcyst:['liver', 'les', '可見肝囊腫'],
+    hemangioma: o=> ['liver', 'les', '可見肝血管瘤' + (ckNum(o.hemangioma) != null ? `，約 ${ckNum(o.hemangioma)} cm` : '')],
+    lnod:['liver', 'les', '可見肝臟結節'],
+    lcalc:['liver', 'les', '可見肝內鈣化點'],
+    gbstone:['gb', 'gb', '膽囊內可見結石'],
+    gbpolyp: o=> ['gb', 'gb', '膽囊可見瘜肉' + (ckNum(o.gbpolyp) != null ? `，約 ${ckNum(o.gbpolyp)} mm` : '')],
+    gbsludge:['gb', 'gb', '膽囊內可見膽泥'],
+    postchole:['gb', 'gb', '膽囊已切除'],
+    cbd:['gb', 'cbd', '總膽管擴張'],
+    panfat:['pan', 'p', '實質呈脂肪浸潤'],
+    panvis:['pan', 'p', '因腸氣遮蔽，觀察受限'],
+    pancyst:['pan', 'p', '可見囊性病灶'],
+    splmeg:['spl', 's', '脾臟腫大'],
+    accspl:['spl', '+', '另可見副脾'],
+    kstone: ckKid('結石', '可見'),
+    kcyst: ckKid('囊腫', '可見'),
+    hydro: ckKid('水腫', ''),
+    ascites:['oth', 'asc', '可見腹水'],
+    other: o=> o.abdOther ? ['oth', '+', String(o.abdOther)] : null
+  },
+  thy:{
+    nodule: o=>{
+      const tr = +o.tirads || 0, cm = ckNum(o.nodSize);
+      return ['nod', 'n', '可見甲狀腺結節' + (cm != null ? `，最大約 ${cm} cm` : '') + (tr ? `，ACR TI-RADS TR${tr}` : '')];
+    },
+    cyst:['gland', '+', '可見單純囊腫'],
+    goiter:['gland', 'size', '甲狀腺腫大'],
+    atrophy:['gland', 'size', '甲狀腺萎縮'],
+    hetero:['gland', '+', '實質回音不均'],
+    hashimoto:['gland', '+', '實質回音不均且血流增加，符合橋本氏甲狀腺炎型態'],
+    graves:['gland', '+', '血流瀰漫性增加，符合葛瑞夫茲病型態'],
+    postop:['gland', 'size', '已切除，甲狀腺床無特殊發現'],
+    lymph:['lymph', 'l', '頸部淋巴結腫大'],
+    other: o=> o.thyOther ? ['gland', '+', String(o.thyOther)] : null
+  },
+  car:{
+    imtb:['imt', 'v', '臨界增厚（0.8 至 1.0 mm）'],
+    imt:['imt', 'v', '增厚（大於 1.0 mm）'],
+    plaque: ckCarSide('plaque', 'p', '頸動脈可見斑塊'),
+    softp: ckPlaqueType('斑塊為富含脂質的軟斑塊'),
+    calcp: ckPlaqueType('斑塊為鈣化斑塊'),
+    ulcer: ckPlaqueType('斑塊表面不規則，疑似潰瘍'),
+    sten50: ckCarSide('flow', 'f', '內頸動脈中度狹窄（50% 至 69%）'),
+    sten70: ckCarSide('flow', 'f', '內頸動脈重度狹窄（70% 以上）'),
+    vhypo: ckCarSide('vert', 'v', '椎動脈發育不全'),
+    steal: ckCarSide('vert', 'v', '椎動脈逆流，疑似鎖骨下動脈竊血')
+  }
+};
+const CK_USF = {
+  abd:{obj:()=> CK.us, sel:'abd', T: CK_ABD, deps:/^us\.(abd|gbpolyp|hemangioma|abdOther|\w+Side)$/, slots:[
+    ['liver', '肝臟', [['size', '大小正常'], ['echo', '實質回音均勻'], ['les', '未見局部病灶']]],
+    ['gb', '膽囊與膽管', [['gb', '膽囊正常'], ['cbd', '總膽管管徑在正常範圍內']]],
+    ['pan', '胰臟', [['p', '無特殊發現']]],
+    ['spl', '脾臟', [['s', '大小與實質回音正常']]],
+    ['kid', '腎臟', [['r', '右腎無特殊發現'], ['l', '左腎無特殊發現']]],
+    ['oth', '其他', [['asc', '無腹水'], ['ao', '主動脈管徑正常']]]
+  ]},
+  thy:{obj:()=> CK.us, sel:'thy', T: CK_THY, deps:/^us\.(thy|tirads|nodSize|thyOther)$/, slots:[
+    ['gland', '甲狀腺', [['size', '大小與形態正常']]],
+    ['nod', '甲狀腺結節', [['n', '未發現甲狀腺結節']]],
+    ['lymph', '頸部淋巴結', [['l', '無頸部淋巴結腫大']]]
+  ]},
+  car:{obj:()=> (CK.mod = CK.mod || {}), sel:'carotid', T: CK_CAR, deps:/^mod\.(carotid|imt|\w+Side)$/, slots:[
+    ['imt', '內膜中層厚度（IMT）', [['v', '雙側在正常範圍內']]],
+    ['plaque', '斑塊', [['p', '未見斑塊']]],
+    ['flow', '血流與狹窄', [['f', '雙側頸動脈血流正常，無明顯狹窄']]],
+    ['vert', '椎動脈', [['v', '雙側椎動脈血流正常']]]
+  ], extra: o=> ckNum(o.imt) != null ? ['imt', '+', `最大 ${ckNum(o.imt)} mm`] : null}
+};
+// 依目前勾選產生各器官行：[[器官 id, 整行文字], ...]；sel 給空陣列就是預設正常內容
+function ckUsLines(area, sel){
+  const A = CK_USF[area], o = A.obj(), F = CK_FIND[area], ph = {};
+  const put = r=>{ if(!r) return; (Array.isArray(r[0]) ? r : [r]).forEach(([slot, part, s])=>{ if(!s) return; ((ph[slot] = ph[slot] || {})[part] = ph[slot][part] || []).push(s); }); };
+  (sel || o[A.sel] || []).forEach(k=>{ const f = F[k]; if(f) put(typeof f === 'function' ? f(o, k) : f); });
+  if(A.extra) put(A.extra(o));
+  return A.slots.map(([id, label, parts])=>{
+    const P = ph[id] || {}, star = P['*'] || [], seg = [];
+    parts.forEach(([pid, n])=>{ if(P[pid]) seg.push(...P[pid]); else if(!star.length) seg.push(n); });
+    seg.push(...star, ...(P['+'] || []));
+    return [id, label + '：' + seg.join(seg.some(s=> s.includes('，')) ? '；' : '，') + '。'];
+  });
+}
+// 診斷或大小改了就更新發現欄：只換掉還是自動產生內容的行，醫師改過或刪掉的行不動
+function ckUsFindSync(area, force){
+  const A = CK_USF[area], o = A.obj(), key = area + 'Find', akey = area + 'Auto';
+  const gen = ckUsLines(area), cur = String(o[key] || '');
+  const auto = o[akey] || Object.fromEntries(ckUsLines(area, []));
+  let out = gen.map(x=> x[1]);
+  if(!force && cur.trim()){
+    const lines = cur.split('\n');
+    gen.forEach(([id, line])=>{
+      const label = line.slice(0, line.indexOf('：') + 1);
+      const i = lines.findIndex(l=> l.startsWith(label));
+      if(i >= 0 && lines[i] === auto[id]) lines[i] = line;
+    });
+    out = lines;
+  }
+  o[key] = out.join('\n');
+  o[akey] = Object.fromEntries(gen);
+}
+// 發現欄是不是還跟自動產生的一樣（重新產生前用來判斷要不要確認）
+function ckUsFindEdited(area){
+  const o = CK_USF[area].obj(), cur = String(o[area + 'Find'] || '').trim();
+  return !!cur && cur !== ckUsLines(area).map(x=> x[1]).join('\n');
+}
+function ckUsDeps(path){ Object.keys(CK_USF).forEach(a=>{ if(CK_USF[a].deps.test(path)) ckUsFindSync(a); }); }
 // 診斷按鈕增減時，同步結論欄：拿掉取消的字句、補上新選的字句，其餘手動輸入的文字保留
 function ckUsImpSync(area, before, after){
-  const T = area === 'abd' ? CK_ABD : CK_THY, key = area + 'Imp';
-  let s = String(CK.us[key] || '');
-  before.filter(k=> !after.includes(k)).forEach(k=>{ const c = T[k] && T[k].c; if(c) s = s.split(c).join(''); });
-  after.filter(k=> !before.includes(k)).forEach(k=>{ const c = T[k] && T[k].c; if(c && !s.includes(c)) s += c; });
-  CK.us[key] = s.replace(/^\s+|\s+$/g, '');
+  const A = CK_USF[area], o = A.obj(), key = area + 'Imp';
+  let s = String(o[key] || '');
+  before.filter(k=> !after.includes(k)).forEach(k=>{ const c = A.T[k] && A.T[k].c; if(c) s = s.split(c).join(''); });
+  after.filter(k=> !before.includes(k)).forEach(k=>{ const c = A.T[k] && A.T[k].c; if(c && !s.includes(c)) s += c; });
+  o[key] = s.replace(/^\s+|\s+$/g, '');
 }
 
 // 超音波每個發現一筆：{area, t, g, d, adv}
@@ -251,12 +386,14 @@ function ckImportUs(text){
     ckUsImpSync('abd', U.abd || [], r.abd.list);
     U.abd = r.abd.list;
     ['gbpolyp', 'hemangioma', 'abdOther'].forEach(k=>{ if(r.abd.u[k] != null) U[k] = r.abd.u[k]; });
+    ckUsFindSync('abd');
     done.push('腹部：' + r.abd.list.map(k=> CK_ABD[k].t).join('、'));
   }
   if(r.thy){
     ckUsImpSync('thy', U.thy || [], r.thy.list);
     U.thy = r.thy.list;
     ['tirads', 'nodSize'].forEach(k=>{ if(r.thy.u[k] != null) U[k] = r.thy.u[k]; });
+    ckUsFindSync('thy');
     if(r.thy.u.noteAdd && !String(U.note || '').includes(r.thy.u.noteAdd)) U.note = (U.note ? U.note + '\n' : '') + r.thy.u.noteAdd;
     done.push('甲狀腺：' + r.thy.list.map(k=> CK_THY[k].t).join('、') + (U.tirads ? `（TR${U.tirads}${U.nodSize ? ' ' + U.nodSize + ' cm' : ''}）` : ''));
   }
@@ -646,13 +783,12 @@ function ckModJudge(){
   if(m.ecg === 'normal') out.push({area:'心電圖', t:'正常', g:0});
   if(m.ecg === 'abn') out.push({area:'心電圖', t: m.ecgNote ? String(m.ecgNote) : '異常', g:1, adv:'ecg'});
   const ca = m.carotid || [], imt = ckNum(m.imt);
-  if(ca.length || imt != null){
-    let g = 0, adv = '', t = [];
-    if(ca.includes('normal')) t.push('正常');
-    if(ca.includes('imt') || (imt != null && imt >= 1.0)){ g = Math.max(g, 1); adv = 'plaque'; t.push('內膜中層增厚'); }
-    if(ca.includes('plaque')){ g = Math.max(g, 1); adv = 'plaque'; t.push('有斑塊'); }
-    if(ca.includes('sten50')){ g = 2; adv = 'carotid50'; t.push('狹窄 50% 以上'); }
-    out.push({area:'頸動脈超音波', t: (t.join('、') || '已檢查') + (imt != null ? `（IMT ${imt} mm）` : ''), g, adv, note: m.carotidNote});
+  if(ca.length || imt != null || String(m.carFind || m.carImp || '').trim()){
+    const ks = ca.filter(k=> CK_CAR[k]);
+    if(imt != null && imt >= 1.0 && !ks.includes('imt')) ks.push('imt');
+    const w = ks.reduce((a, k)=> !a || CK_CAR[k].g > CK_CAR[a].g ? k : a, '');
+    const g = w ? CK_CAR[w].g : 0, adv = w ? CK_CAR[w].adv || '' : '';
+    out.push({area:'頸動脈超音波', t: (ks.map(k=> CK_CAR[k].t).join('、') || '已檢查') +(imt != null ? `（IMT ${imt} mm）` : ''), g, adv, note: m.carotidNote});
   }
   if(m.ubt === 'neg') out.push({area:'幽門桿菌', t:'碳 13 呼氣檢查陰性', g:0});
   if(m.ubt === 'pos') out.push({area:'幽門桿菌', t:'碳 13 呼氣檢查陽性' + (ckNum(m.ubtVal) != null ? `（DOB ${ckNum(m.ubtVal)}‰）` : ''), g:1, d:'有幽門桿菌感染，建議除菌治療', adv:'hp'});
@@ -787,6 +923,7 @@ const CK_ADV = {
   ecg:      {when:'m3', t:'心電圖有異常發現，請回診討論是否需要心臟超音波或轉介心臟科。'},
   plaque:   {when:'m3', t:'頸動脈有斑塊或內膜增厚，代表已有動脈硬化，血脂與血壓的控制目標要更嚴格。'},
   carotid50:{when:'now', t:'頸動脈狹窄 50% 以上，建議轉介神經內科或心臟科評估。'},
+  carotidref:{when:'now', t:'頸動脈超音波有需要進一步評估的發現，建議轉介神經內科或心臟科。'},
   hp:       {when:'m3', t:'幽門桿菌陽性建議除菌治療，可以降低胃癌與潰瘍的風險；療程結束 4 週以上、並停用胃藥 2 週後，再做呼氣檢查確認除菌成功。'},
   fitpos:   {when:'now', t:'糞便潛血陽性，請安排大腸鏡檢查，不建議只重驗一次糞便。'},
   gerd:     {when:'m3', t:'逆流性食道炎可以先調整生活習慣：睡前 3 小時不進食、減少咖啡與油炸食物、控制體重；症狀明顯時再用藥。'},
@@ -906,12 +1043,13 @@ function ckInitOpts(){
         const excl = box.dataset.excl;
         if(cur.includes(v)) cur = cur.filter(x=> x !== v);
         else cur = v === excl ? [v] : [...cur.filter(x=> x !== excl), v];
-        const us = /^us.(abd|thy)$/.exec(path);
-        if(us) ckUsImpSync(us[1], Array.isArray(ckGet(path)) ? ckGet(path) : [], cur);
+        const ua = {'us.abd':'abd', 'us.thy':'thy', 'mod.carotid':'car'}[path];
+        if(ua) ckUsImpSync(ua, Array.isArray(ckGet(path)) ? ckGet(path) : [], cur);
         ckSet(path, cur);
       } else {
         ckSet(path, ckGet(path) === v ? '' : v);
       }
+      ckUsDeps(path);
       ckChanged();
     });
   });
@@ -1080,7 +1218,7 @@ function ckRenderNav(){
     body: !!(CK.body.h && CK.body.w),
     hx: !!CK.hx.smoke,
     lab: ckCurrentRows().some(r=> String(r.raw || '').trim()),
-    us: !!((CK.us.abd || []).length || (CK.us.thy || []).length || ['abdFind', 'abdImp', 'thyFind', 'thyImp'].some(k=> String(CK.us[k] || '').trim())),
+    us: !!((CK.us.abd || []).length || (CK.us.thy || []).length || ['abdFind', 'abdImp', 'thyFind', 'thyImp', 'othFind', 'othImp'].some(k=> String(CK.us[k] || '').trim())),
     mod: Object.values(CK.mod || {}).some(v=> Array.isArray(v) ? v.length : String(v || '').trim()),
     scope: !!((CK.mod.egd || []).length || (CK.mod.cDx || []).length || CK.mod.cHist),
     cv: (()=>{ const c = ckCollect().cv; return c.prevent.cvd10 != null || c.tw.risk != null; })(),
@@ -1202,6 +1340,7 @@ async function ckAddFiles(files){
     const el = e.target;
     if(el.dataset.k){
       ckSet(el.dataset.k, el.value);
+      ckUsDeps(el.dataset.k);
       // 自己改過上傳帶入的數值：取消「上傳」標記，之後再上傳也不會覆蓋
       const bk = /^body\.(\w+)$/.exec(el.dataset.k);
       if(bk && e.isTrusted && CK.bodySrc) delete CK.bodySrc[bk[1]];
@@ -1266,16 +1405,16 @@ async function ckAddFiles(files){
     ckSave(); ckRenderAll();
   });
   ckInitPlan();
-  ckEl('k-warn-reset').addEventListener('click', ()=>{ CK.warn = null; ckChanged(); });
+  ckEl('k-warn-reset').addEventListener('click', ()=>{ if(String(CK.warn || '').trim() && !confirm('會取代目前的提早就醫內容，確定嗎？')) return; CK.warn = CK_WARN_DEFAULT; ckChanged(); });
   ckEl('k-draft').addEventListener('click', ()=>{
     if(String(CK.comment || '').trim() && !confirm('會取代目前的醫師評語，確定嗎？')) return;
     CK.comment = ckDraftComment(ckCollect());
     ckRenderFields(); ckSave(); ckRenderNav();
   });
   KD.querySelectorAll('[data-us-normal]').forEach(b=> b.addEventListener('click', ()=>{
-    const key = b.dataset.usNormal + 'Find';
-    if(String(CK.us[key] || '').trim() && !confirm('會取代目前的發現內容，確定嗎？')) return;
-    CK.us[key] = CK_US_NORMAL[b.dataset.usNormal];
+    const a = b.dataset.usNormal;
+    if(ckUsFindEdited(a) && !confirm('發現欄有手動修改過的內容，重新產生會取代，確定嗎？')) return;
+    ckUsFindSync(a, true);
     ckRenderFields(); ckChanged();
   }));
   ckEl('k-us-import').addEventListener('click', ()=>{
