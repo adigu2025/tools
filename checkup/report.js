@@ -18,6 +18,9 @@ const CK_RPT_CSS = `
 .us-row:first-child{padding-top:0;}
 .us-row b{font-size:13.5px; color:#1F262A;}
 .us-row p{font-size:12px; color:#5F5A53; margin-top:2px;}
+.us-txt{padding:10px 0 2px;}
+.us-txt b{font-size:13px; color:#3E6A7C; letter-spacing:.08em;}
+.us-line{font-size:12.5px; color:#1F262A; line-height:1.75;}
 .big-row{display:flex; align-items:flex-end; gap:14px; margin-bottom:6px;}
 .fib-v{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:34px; font-weight:700; color:#1F262A; line-height:1;}
 .tile .v b{font-weight:500;}
@@ -225,10 +228,13 @@ function ckChLab(d){
 
 function ckChUs(d){
   const blocks = [];
-  ['腹部', '甲狀腺'].forEach(area=>{
+  // 發現每行一個 .ru，長內容可以跨頁
+  const txt = (label, s)=>{ const ls = String(s || '').split('\n').map(x=> x.trim()).filter(Boolean); return ls.length ? `<div class="us-txt ru"><b>${label}</b></div>` + ls.map(x=> `<div class="us-line ru">${rBr(x, 40)}</div>`).join('') : ''; };
+  [['腹部', 'abd'], ['甲狀腺', 'thy']].forEach(([area, k])=>{
     const list = d.us.filter(u=> u.area === area);
-    if(!list.length) return;
-    blocks.push(rBlock(area + '超音波', '', `<div class="ru-host">${list.map(u=> `<div class="us-row ru"><div><b>${ckEsc(u.t)}</b>${u.d ? `<p>${rBr(u.d, 34)}</p>` : ''}</div>${ckPill(u.g)}</div>`).join('')}</div>`, {split:true}));
+    const extra = txt('發現', CK.us[k + 'Find']) + txt('結論', CK.us[k + 'Imp']);
+    if(!list.length && !extra) return;
+    blocks.push(rBlock(area + '超音波', '', `<div class="ru-host">${list.map(u=> `<div class="us-row ru"><div><b>${ckEsc(u.t)}</b>${u.d ? `<p>${rBr(u.d, 34)}</p>` : ''}</div>${ckPill(u.g)}</div>`).join('')}${extra}</div>`, {split:true}));
   });
   const note = String(CK.us.note || '').trim();
   if(note) blocks.push(rRichBlock('補充說明', '', note));

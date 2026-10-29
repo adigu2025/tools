@@ -85,12 +85,54 @@ function ckBodyJudge(P){
   return out;
 }
 
+// c：按下診斷按鈕時帶入「結論」欄的字句（醫師可再手動修改）
 const CK_ABD = {
-  normal:{t:'正常', g:0}, fatty1:{t:'輕度脂肪肝', g:1, adv:'fatty'}, fatty2:{t:'中度脂肪肝', g:1, adv:'fatty'}, fatty3:{t:'重度脂肪肝', g:2, adv:'fatty'},
-  gbstone:{t:'膽結石', g:1, adv:'gbstone'}, gbpolyp:{t:'膽囊瘜肉', g:1}, lcyst:{t:'肝囊腫', g:0, d:'單純囊腫屬良性變化'},
-  hemangioma:{t:'肝血管瘤', g:0, d:'屬良性腫瘤', adv:'hemangioma'}, kstone:{t:'腎結石', g:1, adv:'kstone'}, kcyst:{t:'腎囊腫', g:0, d:'單純囊腫屬良性變化'}, other:{t:'其他', g:1, adv:'usother'}
+  normal:{t:'正常', g:0, c:'本次檢查未發現明顯異常。'},
+  fatty1:{t:'輕度脂肪肝', g:1, adv:'fatty', c:'輕度脂肪肝。'}, fatty2:{t:'中度脂肪肝', g:1, adv:'fatty', c:'中度脂肪肝。'}, fatty3:{t:'重度脂肪肝', g:2, adv:'fatty', c:'重度脂肪肝。'},
+  liverdz:{t:'慢性肝實質病變', g:1, adv:'usother', c:'肝臟實質回音不均，符合慢性肝實質病變。'},
+  cirrhosis:{t:'疑似肝硬化', g:2, adv:'usother', c:'肝臟表面不規則、實質回音粗糙，疑似肝硬化。'},
+  lcyst:{t:'肝囊腫', g:0, d:'單純囊腫屬良性變化', c:'肝囊腫。'},
+  hemangioma:{t:'肝血管瘤', g:0, d:'屬良性腫瘤', adv:'hemangioma', c:'肝血管瘤。'},
+  lnod:{t:'肝臟結節', g:1, adv:'usother', c:'肝臟結節。'},
+  lcalc:{t:'肝內鈣化點', g:0, d:'多屬過去發炎留下的痕跡', c:'肝內鈣化點。'},
+  gbstone:{t:'膽結石', g:1, adv:'gbstone', c:'膽結石。'}, gbpolyp:{t:'膽囊瘜肉', g:1, c:'膽囊瘜肉。'},
+  gbsludge:{t:'膽泥', g:1, adv:'usother', c:'膽囊內膽泥。'},
+  postchole:{t:'膽囊切除術後', g:0, c:'膽囊已切除。'},
+  cbd:{t:'總膽管擴張', g:2, adv:'usother', c:'總膽管擴張，需排除阻塞原因。'},
+  panfat:{t:'胰臟脂肪浸潤', g:0, c:'胰臟脂肪浸潤。'},
+  panvis:{t:'胰臟受腸氣遮蔽', g:0, d:'胰臟觀察受限', c:'胰臟受腸氣遮蔽，觀察受限。'},
+  pancyst:{t:'胰臟囊性病灶', g:1, adv:'usother', c:'胰臟囊性病灶。'},
+  splmeg:{t:'脾臟腫大', g:1, adv:'usother', c:'脾臟腫大。'},
+  accspl:{t:'副脾', g:0, d:'屬先天變異', c:'副脾。'},
+  kstone:{t:'腎結石', g:1, adv:'kstone', c:'腎結石。'}, kcyst:{t:'腎囊腫', g:0, d:'單純囊腫屬良性變化', c:'腎囊腫。'},
+  hydro:{t:'腎水腫', g:2, adv:'usother', c:'腎水腫。'},
+  ascites:{t:'腹水', g:2, adv:'usother', c:'腹水。'},
+  other:{t:'其他', g:1, adv:'usother', c:''}
 };
-const CK_THY = {normal:{t:'正常', g:0}, nodule:{t:'甲狀腺結節', g:1}, cyst:{t:'甲狀腺囊腫', g:0, d:'單純囊腫屬良性變化'}, goiter:{t:'甲狀腺腫大', g:1, adv:'thyroid'}, other:{t:'其他', g:1, adv:'usother'}};
+const CK_THY = {
+  normal:{t:'正常', g:0, c:'未發現甲狀腺結節。'}, nodule:{t:'甲狀腺結節', g:1, c:'甲狀腺結節。'},
+  cyst:{t:'甲狀腺囊腫', g:0, d:'單純囊腫屬良性變化', c:'甲狀腺囊腫。'}, goiter:{t:'甲狀腺腫大', g:1, adv:'thyroid', c:'甲狀腺腫大。'},
+  atrophy:{t:'甲狀腺萎縮', g:1, adv:'thyroid', c:'甲狀腺萎縮。'},
+  hetero:{t:'甲狀腺實質回音不均', g:1, adv:'thyroid', c:'甲狀腺實質回音不均。'},
+  hashimoto:{t:'橋本氏甲狀腺炎型態', g:1, adv:'thyroid', c:'甲狀腺實質回音不均且血流增加，符合橋本氏甲狀腺炎型態。'},
+  graves:{t:'葛瑞夫茲病型態', g:1, adv:'thyroid', c:'甲狀腺血流瀰漫性增加，符合葛瑞夫茲病（Graves disease）型態。'},
+  postop:{t:'甲狀腺切除術後', g:0, c:'甲狀腺切除術後，甲狀腺床無特殊發現。'},
+  lymph:{t:'頸部淋巴結腫大', g:1, adv:'usother', c:'頸部淋巴結腫大。'},
+  other:{t:'其他', g:1, adv:'usother', c:''}
+};
+// 「發現」欄的預設正常內容
+const CK_US_NORMAL = {
+  abd: '肝臟：大小正常，實質回音均勻，未見局部病灶。\n膽囊與膽管：膽囊正常，總膽管管徑在正常範圍內。\n胰臟：無特殊發現。\n脾臟：大小與實質回音正常。\n腎臟：右腎無特殊發現，左腎無特殊發現。\n其他：無腹水，主動脈管徑正常。',
+  thy: '甲狀腺：大小與形態正常。\n甲狀腺結節：未發現甲狀腺結節。\n頸部淋巴結：無頸部淋巴結腫大。'
+};
+// 診斷按鈕增減時，同步結論欄：拿掉取消的字句、補上新選的字句，其餘手動輸入的文字保留
+function ckUsImpSync(area, before, after){
+  const T = area === 'abd' ? CK_ABD : CK_THY, key = area + 'Imp';
+  let s = String(CK.us[key] || '');
+  before.filter(k=> !after.includes(k)).forEach(k=>{ const c = T[k] && T[k].c; if(c) s = s.split(c).join(''); });
+  after.filter(k=> !before.includes(k)).forEach(k=>{ const c = T[k] && T[k].c; if(c && !s.includes(c)) s += c; });
+  CK.us[key] = s.replace(/^\s+|\s+$/g, '');
+}
 
 // 超音波每個發現一筆：{area, t, g, d, adv}
 function ckUsJudge(){
@@ -206,11 +248,13 @@ function ckImportUs(text){
   const U = CK.us;
   const done = [];
   if(r.abd){
+    ckUsImpSync('abd', U.abd || [], r.abd.list);
     U.abd = r.abd.list;
     ['gbpolyp', 'hemangioma', 'abdOther'].forEach(k=>{ if(r.abd.u[k] != null) U[k] = r.abd.u[k]; });
     done.push('腹部：' + r.abd.list.map(k=> CK_ABD[k].t).join('、'));
   }
   if(r.thy){
+    ckUsImpSync('thy', U.thy || [], r.thy.list);
     U.thy = r.thy.list;
     ['tirads', 'nodSize'].forEach(k=>{ if(r.thy.u[k] != null) U[k] = r.thy.u[k]; });
     if(r.thy.u.noteAdd && !String(U.note || '').includes(r.thy.u.noteAdd)) U.note = (U.note ? U.note + '\n' : '') + r.thy.u.noteAdd;
@@ -862,6 +906,8 @@ function ckInitOpts(){
         const excl = box.dataset.excl;
         if(cur.includes(v)) cur = cur.filter(x=> x !== v);
         else cur = v === excl ? [v] : [...cur.filter(x=> x !== excl), v];
+        const us = /^us.(abd|thy)$/.exec(path);
+        if(us) ckUsImpSync(us[1], Array.isArray(ckGet(path)) ? ckGet(path) : [], cur);
         ckSet(path, cur);
       } else {
         ckSet(path, ckGet(path) === v ? '' : v);
@@ -1034,7 +1080,7 @@ function ckRenderNav(){
     body: !!(CK.body.h && CK.body.w),
     hx: !!CK.hx.smoke,
     lab: ckCurrentRows().some(r=> String(r.raw || '').trim()),
-    us: !!((CK.us.abd || []).length || (CK.us.thy || []).length),
+    us: !!((CK.us.abd || []).length || (CK.us.thy || []).length || ['abdFind', 'abdImp', 'thyFind', 'thyImp'].some(k=> String(CK.us[k] || '').trim())),
     mod: Object.values(CK.mod || {}).some(v=> Array.isArray(v) ? v.length : String(v || '').trim()),
     scope: !!((CK.mod.egd || []).length || (CK.mod.cDx || []).length || CK.mod.cHist),
     cv: (()=>{ const c = ckCollect().cv; return c.prevent.cvd10 != null || c.tw.risk != null; })(),
@@ -1226,6 +1272,12 @@ async function ckAddFiles(files){
     CK.comment = ckDraftComment(ckCollect());
     ckRenderFields(); ckSave(); ckRenderNav();
   });
+  KD.querySelectorAll('[data-us-normal]').forEach(b=> b.addEventListener('click', ()=>{
+    const key = b.dataset.usNormal + 'Find';
+    if(String(CK.us[key] || '').trim() && !confirm('會取代目前的發現內容，確定嗎？')) return;
+    CK.us[key] = CK_US_NORMAL[b.dataset.usNormal];
+    ckRenderFields(); ckChanged();
+  }));
   ckEl('k-us-import').addEventListener('click', ()=>{
     const ta = ckEl('k-us-paste'), box = ckEl('k-us-msg');
     if(((CK.us.abd || []).length || (CK.us.thy || []).length) && !confirm('會取代目前超音波的勾選，確定嗎？')) return;
