@@ -684,6 +684,16 @@
      ====================================================== */
   function ck(id){ var e = $(id); return !!(e && e.checked); }
   function rxFmt(n){ return isNum(n) ? (Math.round(n * 100) / 100).toLocaleString('en-US') : '－'; }
+  // 日期欄位（YYYY-MM-DD）轉成 Date；兩個日期相差幾個月（以日曆月計，不足一月按天折算）
+  function rxYmd(s){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+    return m ? new Date(+m[1], m[2] - 1, +m[3]) : null;
+  }
+  function rxDate(id){ return rxYmd($(id).value); }
+  function rxMonths(a, b){
+    if (!a || !b) return NaN;
+    return (b.getFullYear() - a.getFullYear()) * 12 + b.getMonth() - a.getMonth() + (b.getDate() - a.getDate()) / 30.4375;
+  }
   var RX_LABEL = { yes:'符合', no:'未符合', wait:'需先生活型態調整', na:'資料不足', part:'部分品項' };
   function rxBadge(st, label){
     return '<span class="rx-status st-' + st + '">' + esc(label || RX_LABEL[st] || '') + '</span>';
@@ -732,7 +742,17 @@
 
     var nonhdl = (isNum(tc) && isNum(hdl)) ? tc - hdl : NaN;
     var ratio = (isNum(tc) && isNum(hdl) && hdl > 0) ? tc / hdl : NaN;
-    $('lx-calcLine').textContent = 'non-HDL-C：' + rxFmt(nonhdl) + '　TC/HDL-C：' + rxFmt(ratio);
+
+    // 前次檢驗：間隔 ≥3 個月且兩次都達起始值，視為生活型態調整後仍未達標
+    var ldl0 = num('lx-ldl0'), tc0 = num('lx-tc0'), hdl0 = num('lx-hdl0'), tg0 = num('lx-tg0');
+    var ratio0 = (isNum(tc0) && isNum(hdl0) && hdl0 > 0) ? tc0 / hdl0 : NaN;
+    var hasPrev = isNum(ldl0) || isNum(tc0) || isNum(tg0) || isNum(hdl0);
+    var gapM = rxMonths(rxDate('lx-date0'), rxDate('lx-date'));
+    var gapOK = isNum(gapM) && gapM >= 3;
+    var gapTxt = isNum(gapM) ? '間隔 ' + gapM.toFixed(1) + ' 個月' : '';
+    var prevWhy = !hasPrev ? '' : !isNum(gapM) ? '已有前次數值，請填兩次檢驗日期' : gapM < 0 ? '前次日期晚於本次，請核對日期' : !gapOK ? '兩次' + gapTxt + '，未滿 3 個月' : '';
+    $('lx-calcLine').textContent = 'non-HDL-C：' + rxFmt(nonhdl) + '　TC/HDL-C：' + rxFmt(ratio) +
+      (hasPrev ? '　｜　前次 LDL-C ' + rxFmt(ldl0) + '、TC ' + rxFmt(tc0) + '、TG ' + rxFmt(tg0) + '、HDL-C ' + rxFmt(hdl0) + (gapTxt ? '，' + gapTxt : '') : '');
 
     var ageRF = isNum(age) && s && (s === 'M' ? age >= 45 : age >= 55);
     var hdlLow = isNum(hdl) && s && (s === 'M' ? hdl < 40 : hdl < 50);
@@ -771,7 +791,13 @@
     var t1, t1txt;
     if (!isNum(ldl)) { t1 = 'na'; t1txt = '請輸入 LDL-C。'; }
     else if (ldl < start) { t1 = 'no'; t1txt = 'LDL-C ' + rxFmt(ldl) + '，未達起始值 ≥ ' + start + '。'; }
-    else if (needLS && !h.life3) { t1 = 'wait'; t1txt = '先生活型態調整 3–6 個月並處置風險因子；屆時 LDL-C 仍 ≥ ' + start + '，給予中強度 statin。'; }
+    else if (needLS && !h.life3 && gapOK && isNum(ldl0) && ldl0 >= start) {
+      t1 = 'yes'; t1txt = '前次 LDL-C ' + rxFmt(ldl0) + '、本次 ' + rxFmt(ldl) + ' 皆 ≥ ' + start + '（' + gapTxt + '）：生活型態調整後仍未達標，可給予中強度 statin。病歷請記載期間的生活型態調整。';
+    }
+    else if (needLS && !h.life3) {
+      t1 = 'wait'; t1txt = '先生活型態調整 3–6 個月並處置風險因子；屆時 LDL-C 仍 ≥ ' + start + '，給予中強度 statin。' +
+        (prevWhy ? '（' + prevWhy + '）' : hasPrev && isNum(ldl0) && ldl0 < start ? '（前次 LDL-C ' + rxFmt(ldl0) + ' 未達起始值，不能作為調整前依據）' : '');
+    }
     else { t1 = 'yes'; t1txt = needLS ? ('LDL-C ' + rxFmt(ldl) + ' ≥ ' + start + '，可給予中強度 statin。') : ('LDL-C ' + rxFmt(ldl) + ' ≥ ' + start + '，可給予中至高強度 statin。'); }
     var fu1 = needLS ? '生活型態調整 3–6 個月後驗血脂；中強度 statin 6–8 週後追蹤；達標後每 6–12 個月追蹤。' : '起始治療 6–8 週驗血脂；達標後每 6 個月追蹤；調整用藥後 1–3 個月內再驗。';
 
@@ -790,7 +816,11 @@
     var t2cond = row.tc !== null ? ('TC ≥ ' + row.tc + ' 或 LDL-C ≥ ' + row.ldl) : ('LDL-C ≥ ' + row.ldl);
     if (!isNum(ldl) && !isNum(tc)) { t2 = 'na'; t2txt = '請輸入 LDL-C 或 TC。'; }
     else if (!(hitL || hitT)) { t2 = 'no'; t2txt = '未達起始值（' + t2cond + '）。'; }
-    else if (row.ls && !h.life3) { t2 = 'wait'; t2txt = '符合數值（' + t2cond + '），但給藥前需 3–6 個月非藥物治療。'; }
+    else if (row.ls && !h.life3) {
+      var hit0 = (isNum(ldl0) && ldl0 >= row.ldl) || (row.tc !== null && isNum(tc0) && tc0 >= row.tc);
+      if (gapOK && hit0) { t2 = 'yes'; t2txt = '前次與本次皆符合（' + t2cond + '，' + gapTxt + '）：非藥物治療後仍未達標。'; }
+      else { t2 = 'wait'; t2txt = '符合數值（' + t2cond + '），但給藥前需 3–6 個月非藥物治療。' + (prevWhy ? '（' + prevWhy + '）' : hasPrev && !hit0 ? '（前次數值未達起始值）' : ''); }
+    }
     else { t2 = 'yes'; t2txt = '符合（' + t2cond + '）' + (hitT && !hitL ? '，以 TC 達標' : '') + '。'; }
 
     var ok1 = t1 === 'yes', ok2 = t2 === 'yes';
@@ -825,7 +855,13 @@
       else { tgs = 'no'; tgTxt = tg >= 200 ? 'TG ≥200，但 TC/HDL-C 未 >5 且 HDL-C 未 <40。' : ('TG ' + rxFmt(tg) + ' 未達 200。'); }
     } else {
       if (tg >= 500) { tgs = 'yes'; tgTxt = 'TG ' + rxFmt(tg) + ' ≥500：可與非藥物治療並行。'; tgGoal = 'TG < 500'; }
-      else if (tgCond) { tgs = h.life3 ? 'yes' : 'wait'; tgTxt = 'TG ≥200 且（TC/HDL-C >5 或 HDL-C <40）：給藥前需 3–6 個月非藥物治療' + (h.life3 ? '，已完成' : '') + '。'; }
+      else if (tgCond) {
+        var tgCond0 = isNum(tg0) && tg0 >= 200 && ((isNum(ratio0) && ratio0 > 5) || (isNum(hdl0) && hdl0 < 40));
+        var tgTwice = !h.life3 && gapOK && tgCond0;
+        tgs = h.life3 || tgTwice ? 'yes' : 'wait';
+        tgTxt = 'TG ≥200 且（TC/HDL-C >5 或 HDL-C <40）：給藥前需 3–6 個月非藥物治療' +
+          (h.life3 ? '，已完成' : tgTwice ? '；前次 TG ' + rxFmt(tg0) + ' 也符合（' + gapTxt + '），可視為非藥物治療後仍未達標' : prevWhy ? '（' + prevWhy + '）' : '') + '。';
+      }
       else { tgs = 'no'; tgTxt = tg >= 200 ? 'TG ≥200，但 TC/HDL-C 未 >5 且 HDL-C 未 <40。' : ('TG ' + rxFmt(tg) + ' 未達 200。'); }
     }
 
@@ -855,17 +891,20 @@
 
     var hasResult = !!(s && isNum(age) && isNum(ldl));
     if (hasResult) {
-      COPY.lipidrx = '降血脂給付判定：' + lvName + '｜LDL-C ' + rxFmt(ldl) + '（目標 ' + goal + '）｜表一 ' + RX_LABEL[t1] + '、表二 ' + RX_LABEL[t2];
+      COPY.lipidrx = '降血脂給付判定：' + lvName + '｜LDL-C ' + rxFmt(ldl) + ($('lx-date').value ? '（' + $('lx-date').value + '）' : '') + '（目標 ' + goal + '）' +
+        (isNum(ldl0) ? '｜前次 LDL-C ' + rxFmt(ldl0) + ($('lx-date0').value ? '（' + $('lx-date0').value + '）' : '') + (gapTxt ? '，' + gapTxt : '') : '') +
+        '｜表一 ' + RX_LABEL[t1] + '、表二 ' + RX_LABEL[t2] + '｜TG 藥物 ' + RX_LABEL[tgs];
     }
     lipidrxShow(hasResult);
   }
 
-  bind(['lx-sex','lx-age','lx-ldl','lx-tc','lx-hdl','lx-tg','lx-waist','lx-statin'].concat(LX_FLAGS), calcLipidRx);
+  bind(['lx-sex','lx-age','lx-ldl','lx-tc','lx-hdl','lx-tg','lx-waist','lx-statin',
+    'lx-date','lx-date0','lx-ldl0','lx-tc0','lx-hdl0','lx-tg0'].concat(LX_FLAGS), calcLipidRx);
   calcLipidRx();
 
   RESETTERS.lipidrx = function(){
     var panel = $('panel-lipidrx');
-    panel.querySelectorAll('input[type=number]').forEach(function(el){ el.value = ''; el.classList.remove('invalid'); });
+    panel.querySelectorAll('input[type=number], input[type=date]').forEach(function(el){ el.value = ''; el.classList.remove('invalid'); });
     panel.querySelectorAll('input[type=checkbox]').forEach(function(el){ el.checked = false; });
     panel.querySelectorAll('select').forEach(function(el){ el.selectedIndex = 0; });
     panel.querySelectorAll('.field-err').forEach(function(el){ el.textContent = ''; el.hidden = true; });
@@ -896,7 +935,9 @@
     var bx = Number($('hb-bx').value || 0);
     var x1 = (isNum(a1) && isNum(uln) && uln > 0) ? a1 / uln : NaN;
     var x2 = (isNum(a2) && isNum(uln) && uln > 0) ? a2 / uln : NaN;
-    $('hb-altLine').textContent = 'ALT 倍數：最近 ' + (isNum(x1) ? x1.toFixed(2) + ' X' : '－') + '　另一次 ' + (isNum(x2) ? x2.toFixed(2) + ' X' : '－');
+    var gapM = rxMonths(rxDate('hb-date2'), rxDate('hb-date1'));
+    $('hb-altLine').textContent = 'ALT 倍數：最近 ' + (isNum(x1) ? x1.toFixed(2) + ' X' : '－') + '　另一次 ' + (isNum(x2) ? x2.toFixed(2) + ' X' : '－') +
+      (isNum(gapM) ? '　｜　兩次間隔 ' + gapM.toFixed(1) + ' 個月' + (gapM < 0 ? '（前次日期晚於最近，請核對）' : gapM > 3 && gapM <= 6 ? '（符合 3–6 個月）' : '（不在 3–6 個月內）') : '');
 
     var fs = num('hb-fs'), arfi = num('hb-arfi');
     var fib4 = (isNum(age) && isNum(ast) && isNum(plt) && isNum(a1) && plt > 0 && a1 > 0) ? (age * ast) / (plt * Math.sqrt(a1)) : NaN;
@@ -1003,20 +1044,32 @@
     $('hbvrx-result').innerHTML = cards.join('');
 
     if (hbsag) {
-      COPY.hbvrx = 'B 肝用藥給付判定：' + head + '｜HBeAg ' + (e === 'P' ? '陽性' : e === 'N' ? '陰性' : '未選') + '｜纖維化 ' + fLabel;
+      COPY.hbvrx = 'B 肝用藥給付判定：' + head + '｜HBeAg ' + (e === 'P' ? '陽性' : e === 'N' ? '陰性' : '未選') +
+        (isNum(a1) ? '｜ALT ' + rxFmt(a1) + ($('hb-date1').value ? '（' + $('hb-date1').value + '）' : '') +
+          (isNum(a2) ? '、前次 ' + rxFmt(a2) + ($('hb-date2').value ? '（' + $('hb-date2').value + '）' : '') : '') +
+          (isNum(gapM) ? '，間隔 ' + gapM.toFixed(1) + ' 個月' : '') : '') +
+        '｜HBV DNA ' + (und ? '測不到' : (isNum(dnaRaw) ? rxFmt(dnaRaw) + ' IU/mL' : '－')) + '｜纖維化 ' + fLabel;
     }
     hbvrxShow(!!hbsag);
   }
 
   var HB_FIELDS = ['hb-age','hb-uln','hb-alt1','hb-alt2','hb-ast','hb-plt','hb-dna','hb-fs','hb-arfi','hb-bx','hb-bil','hb-pt','hb-eag',
     'hb-hbsag','hb-hbsag6','hb-gap3','hb-dnaUnd','hb-usLc','hb-usVar','hb-usSpl','hb-ctLc','hb-preg','hb-hcc','hb-immuno'];
+  // 兩次檢驗日期都填了，就依間隔自動勾選「間隔超過 3 個月（半年內）」；之後仍可手動改勾
+  ['hb-date1', 'hb-date2'].forEach(function(id){
+    $(id).addEventListener('input', function(){
+      var g = rxMonths(rxDate('hb-date2'), rxDate('hb-date1'));
+      if (isNum(g)) $('hb-gap3').checked = g > 3 && g <= 6;
+      calcHbvRx();
+    });
+  });
   bind(HB_FIELDS, calcHbvRx);
   calcHbvRx();
 
   RESETTERS.hbvrx = function(){
     var panel = $('panel-hbvrx');
     panel.querySelectorAll('input[type=number]').forEach(function(el){ el.value = ''; el.classList.remove('invalid'); });
-    panel.querySelectorAll('input[type=text]').forEach(function(el){ el.value = ''; el.classList.remove('invalid'); });
+    panel.querySelectorAll('input[type=text], input[type=date]').forEach(function(el){ el.value = ''; el.classList.remove('invalid'); });
     panel.querySelectorAll('input[type=checkbox]').forEach(function(el){ el.checked = false; });
     panel.querySelectorAll('select').forEach(function(el){ el.selectedIndex = 0; });
     panel.querySelectorAll('.field-err').forEach(function(el){ el.textContent = ''; el.hidden = true; });
@@ -1190,87 +1243,228 @@
     return m && +m[1] >= 2 && +m[1] <= 75 ? +m[1] : NaN;
   }
 
+  // 檢驗日期：先找採檢、檢驗、抽血、收件那幾行，再找報告日期，最後才找任何日期；出生日期那行跳過
+  function ocrDate(lines){
+    var DATE = /(\d{2,4})\s*[\/.\-年]\s*(\d{1,2})\s*[\/.\-月]\s*(\d{1,2})|\b((?:19|20)\d{2})(\d{2})(\d{2})\b/g;
+    var tiers = [/採\s*檢|檢\s*驗|抽\s*血|採\s*血|收\s*件|Collect|Sampl/i, /報\s*告|日\s*期|Date/i, /./];
+    var today = new Date();
+    for (var t = 0; t < tiers.length; t++) {
+      for (var i = 0; i < lines.length; i++) {
+        if (/出生|生日|DOB|Birth/i.test(lines[i]) || !tiers[t].test(lines[i])) continue;
+        var m; DATE.lastIndex = 0;
+        while ((m = DATE.exec(lines[i]))) {
+          var y = +(m[1] || m[4]), mo = +(m[2] || m[5]), d = +(m[3] || m[6]);
+          if (y < 1000) y += 1911;   // 民國年
+          var dt = new Date(y, mo - 1, d);
+          if (y >= 1990 && mo >= 1 && mo <= 12 && dt.getDate() === d && dt <= today)
+            return y + '-' + (mo < 10 ? '0' : '') + mo + '-' + (d < 10 ? '0' : '') + d;
+        }
+      }
+    }
+    return '';
+  }
+
+  // 已手動改過的欄位不覆蓋，回傳是否有帶入
   function ocrSet(id, v){
     var el = $(id);
-    if (!el) return;
+    if (!el || el.dataset.manual) return false;
     if (el.type === 'checkbox') el.checked = !!v; else el.value = v;
     el.classList.add('ocr-filled');
     var flag = el.closest('.flag'); if (flag) flag.classList.add('ocr-filled');
     el.dispatchEvent(new Event(el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input', { bubbles: true }));
+    return true;
   }
   function ocrClearMarks(panel){
     panel.querySelectorAll('.ocr-filled').forEach(function(el){ el.classList.remove('ocr-filled'); });
   }
 
-  // 依工具把辨識結果填入欄位，回傳已帶入與未辨識的清單
-  var OCR_APPLY = {
+  // 每張截圖先各自讀出數值，等全部辨識完再依日期整理後一起帶入
+  var OCR_READ = {
     lipidrx: function(text, lines){
-      var got = [], miss = [];
-      var sex = ocrSex(text), age = ocrAge(text);
       var v = ocrPick(lines, ['tc', 'tg', 'hdl', 'ldl', 'waist']);
-      if (sex) { ocrSet('lx-sex', sex); got.push('性別 ' + (sex === 'M' ? '男' : '女')); }
-      if (isNum(age)) { ocrSet('lx-age', age); got.push('年齡 ' + age); } else miss.push('年齡');
-      [['tc', 'lx-tc', 'Cholesterol'], ['tg', 'lx-tg', 'TG'], ['hdl', 'lx-hdl', 'HDL'], ['ldl', 'lx-ldl', 'LDL']].forEach(function(f){
-        if (f[0] in v) { ocrSet(f[1], v[f[0]]); got.push(f[2] + ' ' + v[f[0]]); } else miss.push(f[2]);
-      });
-      if ('waist' in v) { ocrSet('lx-waist', v.waist); got.push('腰圍 ' + v.waist); }
-      return { got: got, miss: miss };
+      v.sex = ocrSex(text); v.age = ocrAge(text);
+      return v;
     },
     hbvrx: function(text, lines){
-      var got = [], miss = [];
-      var age = ocrAge(text);
       var v = ocrPick(lines, ['alt', 'ast', 'plt', 'bil']);
-      if (isNum(age)) { ocrSet('hb-age', age); got.push('年齡 ' + age); } else miss.push('年齡');
-      var sag = ocrAntigen(lines, /HBs\s*Ag/i), eag = ocrAntigen(lines, /HBe\s*Ag/i);
-      if (sag === 'P') { ocrSet('hb-hbsag', true); got.push('HBsAg（＋）'); }
-      else if (sag === 'N') { ocrSet('hb-hbsag', false); got.push('HBsAg（－）'); }
-      if (eag) { ocrSet('hb-eag', eag); got.push('HBeAg ' + (eag === 'P' ? '陽性' : '陰性')); } else miss.push('HBeAg');
-      [['alt', 'hb-alt1', 'ALT'], ['ast', 'hb-ast', 'AST'], ['plt', 'hb-plt', '血小板']].forEach(function(f){
-        if (f[0] in v) { ocrSet(f[1], Math.round(v[f[0]] * 10) / 10); got.push(f[2] + ' ' + Math.round(v[f[0]] * 10) / 10); } else miss.push(f[2]);
+      v.age = ocrAge(text);
+      v.sag = ocrAntigen(lines, /HBs\s*Ag/i); v.eag = ocrAntigen(lines, /HBe\s*Ag/i);
+      v.dna = ocrDna(lines); v.fs = ocrFibroscan(text);
+      return v;
+    }
+  };
+  function ocrClean(v){
+    Object.keys(v).forEach(function(k){
+      if (v[k] === '' || v[k] === null || v[k] === undefined || (typeof v[k] === 'number' && isNaN(v[k]))) delete v[k];
+    });
+    return v;
+  }
+  // 同一天的截圖合併成一次檢驗，沒辨識到日期的併入最近一次；由新到舊排列
+  function ocrMerge(list){
+    var out = {};
+    list.forEach(function(r){ Object.keys(r.v).forEach(function(k){ if (!(k in out)) out[k] = r.v[k]; }); });
+    return out;
+  }
+  function ocrGroup(recs){
+    var by = {}, undated = [];
+    recs.forEach(function(r){ if (r.date) (by[r.date] = by[r.date] || []).push(r); else undated.push(r); });
+    var dates = Object.keys(by).sort().reverse();
+    if (!dates.length) return undated.length ? [{ date: '', v: ocrMerge(undated) }] : [];
+    by[dates[0]] = by[dates[0]].concat(undated);
+    return dates.map(function(d){ return { date: d, v: ocrMerge(by[d]) }; });
+  }
+  // 從最近一次往前找第一個有這項數值的檢驗
+  function ocrFirst(groups, k){
+    for (var i = 0; i < groups.length; i++) if (k in groups[i].v) return { val: groups[i].v[k], date: groups[i].date, i: i };
+    return null;
+  }
+  function ocrResult(){
+    var r = { got: [], kept: [], miss: [] };
+    r.put = function(id, v, label){ (ocrSet(id, v) ? r.got : r.kept).push(label); };
+    return r;
+  }
+  function ocrRound(v){ return Math.round(v * 10) / 10; }
+
+  var LX_OCR = [['tc', 'lx-tc', 'Cholesterol'], ['tg', 'lx-tg', 'TG'], ['hdl', 'lx-hdl', 'HDL'], ['ldl', 'lx-ldl', 'LDL']];
+  var OCR_APPLY = {
+    lipidrx: function(groups){
+      var r = ocrResult(), cur = groups[0], prev = null;
+      // 前次：與最近一次相隔 ≥3 個月中最接近的一次；都不到 3 個月就取第二近的，讓畫面提示間隔不足
+      for (var i = 1; i < groups.length && !prev; i++)
+        if (rxMonths(rxYmd(groups[i].date), rxYmd(cur.date)) >= 3) prev = groups[i];
+      if (!prev && groups.length > 1) prev = groups[1];
+      if (cur.date) r.put('lx-date', cur.date, '本次日期 ' + cur.date);
+      var sex = ocrFirst(groups, 'sex'), age = ocrFirst(groups, 'age');
+      if (sex) r.put('lx-sex', sex.val, '性別 ' + (sex.val === 'M' ? '男' : '女'));
+      if (age) r.put('lx-age', age.val, '年齡 ' + age.val); else r.miss.push('年齡');
+      LX_OCR.forEach(function(f){
+        if (f[0] in cur.v) r.put(f[1], cur.v[f[0]], f[2] + ' ' + cur.v[f[0]]); else r.miss.push(f[2]);
       });
-      var dna = ocrDna(lines);
-      if (dna && dna.und) { $('hb-dna').value = ''; ocrSet('hb-dnaUnd', true); got.push('HBV DNA ' + dna.note); }
-      else if (dna) { ocrSet('hb-dnaUnd', false); ocrSet('hb-dna', dna.v); got.push('HBV DNA ' + rxFmt(dna.v) + (dna.note ? '（' + dna.note + '）' : '')); }
-      else miss.push('HBV DNA');
-      if ('bil' in v) { ocrSet('hb-bil', v.bil); got.push('總膽紅素 ' + v.bil); }
-      var fs = ocrFibroscan(text);
-      if (isNum(fs)) { ocrSet('hb-fs', fs); got.push('Fibroscan ' + fs); }
-      return { got: got, miss: miss };
+      var waist = ocrFirst(groups, 'waist');
+      if (waist) r.put('lx-waist', waist.val, '腰圍 ' + waist.val);
+      if (prev) {
+        if (prev.date) r.put('lx-date0', prev.date, '前次日期 ' + prev.date);
+        LX_OCR.forEach(function(f){
+          if (f[0] in prev.v) r.put(f[1] + '0', prev.v[f[0]], '前次 ' + f[2] + ' ' + prev.v[f[0]]);
+        });
+      }
+      return r;
+    },
+    hbvrx: function(groups){
+      var r = ocrResult(), cur = groups[0], prev = null;
+      // 前次 ALT：優先取與最近一次相隔 3–6 個月的一次（「半年內兩次、間隔 3 個月以上」）
+      var cands = groups.slice(1).filter(function(g){ return 'alt' in g.v; });
+      cands.forEach(function(g){
+        var m = rxMonths(rxYmd(g.date), rxYmd(cur.date));
+        if (!prev && m > 3 && m <= 6) prev = g;
+      });
+      if (!prev) prev = cands[0] || null;
+      function from(x){ return x.date && x.date !== cur.date ? '（取自 ' + x.date + '）' : ''; }
+      var age = ocrFirst(groups, 'age');
+      if (age) r.put('hb-age', age.val, '年齡 ' + age.val); else r.miss.push('年齡');
+      // HBsAg 任一次陽性就勾選；最早與最近一次陽性相隔 ≥6 個月，同時勾「持續超過 6 個月」
+      var pos = groups.filter(function(g){ return g.v.sag === 'P'; });
+      if (pos.length) {
+        r.put('hb-hbsag', true, 'HBsAg（＋）');
+        var span = rxMonths(rxYmd(pos[pos.length - 1].date), rxYmd(pos[0].date));
+        if (span >= 6) r.put('hb-hbsag6', true, 'HBsAg 陽性相隔 ' + span.toFixed(1) + ' 個月');
+      } else if (ocrFirst(groups, 'sag')) r.put('hb-hbsag', false, 'HBsAg（－）');
+      var eag = ocrFirst(groups, 'eag');
+      if (eag) r.put('hb-eag', eag.val, 'HBeAg ' + (eag.val === 'P' ? '陽性' : '陰性') + from(eag)); else r.miss.push('HBeAg');
+      if (cur.date) r.put('hb-date1', cur.date, '最近日期 ' + cur.date);
+      if ('alt' in cur.v) r.put('hb-alt1', ocrRound(cur.v.alt), 'ALT ' + ocrRound(cur.v.alt)); else r.miss.push('ALT');
+      if (prev) {
+        if (prev.date) r.put('hb-date2', prev.date, '前次日期 ' + prev.date);
+        r.put('hb-alt2', ocrRound(prev.v.alt), '前次 ALT ' + ocrRound(prev.v.alt));
+      }
+      [['ast', 'hb-ast', 'AST'], ['plt', 'hb-plt', '血小板']].forEach(function(f){
+        var x = ocrFirst(groups, f[0]);
+        if (x) r.put(f[1], ocrRound(x.val), f[2] + ' ' + ocrRound(x.val) + from(x)); else r.miss.push(f[2]);
+      });
+      var dna = ocrFirst(groups, 'dna');
+      if (dna && dna.val.und) {
+        if (!$('hb-dna').dataset.manual) $('hb-dna').value = '';
+        r.put('hb-dnaUnd', true, 'HBV DNA ' + dna.val.note + from(dna));
+      } else if (dna) {
+        ocrSet('hb-dnaUnd', false);
+        r.put('hb-dna', dna.val.v, 'HBV DNA ' + rxFmt(dna.val.v) + (dna.val.note ? '（' + dna.val.note + '）' : '') + from(dna));
+      } else r.miss.push('HBV DNA');
+      var bil = ocrFirst(groups, 'bil');
+      if (bil) r.put('hb-bil', bil.val, '總膽紅素 ' + bil.val + from(bil));
+      var fs = ocrFirst(groups, 'fs');
+      if (fs) r.put('hb-fs', fs.val, 'Fibroscan ' + fs.val + from(fs));
+      return r;
     }
   };
 
-  function ocrRun(tool, file){
+  // 已辨識的截圖依工具累加，直到按「重設」；gen 用來丟掉重設前還在辨識的結果
+  var ocrRecs = { lipidrx: [], hbvrx: [] }, ocrGen = { lipidrx: 0, hbvrx: 0 }, ocrQueue = [];
+  function ocrSay(tool, cls, html){
     var box = CD.querySelector('.rx-ocr[data-ocr="' + tool + '"]');
-    if (!box || !file || !/^image\//.test(file.type) || ocrBusy) return;
-    var msg = box.querySelector('.rx-ocr-msg');
-    function say(cls, html){ box.className = 'rx-ocr ' + cls; msg.innerHTML = html; }
+    box.className = 'rx-ocr ' + cls;
+    box.querySelector('.rx-ocr-msg').innerHTML = html;
+  }
+
+  function ocrShow(tool, info){
+    if (info.lib) return ocrSay(tool, 'fail', '辨識元件載入失敗：需要連上網路下載（第一次約 5 MB），請確認網路後再試。');
+    var recs = ocrRecs[tool], groups = ocrGroup(recs);
+    var bad = info.bad ? '有 ' + info.bad + ' 張圖片讀取或辨識失敗，請換一張截圖再試。' : '';
+    if (!groups.length) { if (bad) ocrSay(tool, 'fail', bad); return; }
+    ocrClearMarks($('panel-' + tool));
+    var r = OCR_APPLY[tool](groups);
+    if (!r.got.length && !r.kept.length)
+      return ocrSay(tool, 'fail', bad + '沒有辨識到可帶入的數值。請確認截圖清楚、包含項目名稱，或直接手動輸入。');
+    var head = '已讀取 ' + recs.length + ' 張截圖' +
+      (groups.length > 1 ? '，共 ' + groups.length + ' 次檢驗（' + groups.map(function(g){ return g.date || '日期未辨識'; }).join('、') + '）' :
+        groups[0].date ? '（' + groups[0].date + '）' : '') + '。';
+    ocrSay(tool, 'done', esc(head) + esc(bad) +
+      (r.got.length ? '已帶入（黃底欄位）：<b>' + esc(r.got.join('、')) + '</b>。' : '') +
+      (r.kept.length ? '保留手動修改的欄位（辨識值未帶入）：' + esc(r.kept.join('、')) + '。' : '') +
+      (r.miss.length ? '未辨識：' + esc(r.miss.join('、')) + '。' : '') +
+      (recs.some(function(x){ return !x.date; }) ? '有截圖沒辨識到檢驗日期，已併入最近一次，請核對日期欄位。' : '') +
+      '所有欄位都可以直接修改，改過的欄位之後上傳也不會被蓋掉；再上傳的截圖會累加，換病人請先按「重設」。');
+  }
+
+  // 多張截圖依序辨識（同一個 worker 不能並行）；辨識中再貼上或拖進來的排進佇列
+  function ocrRun(tool, files){
+    files = [].filter.call(files || [], function(f){ return f && /^image\//.test(f.type); });
+    if (!files.length) return;
+    files.forEach(function(f){ ocrQueue.push({ tool: tool, file: f, gen: ocrGen[tool] }); });
+    if (ocrBusy) return;
     ocrBusy = true;
-    var pass = 0;
-    say('busy', '準備辨識元件中…（第一次使用需下載約 5 MB）');
-    ocrProgress = function(m){
-      if (m.status === 'recognizing text') say('busy', '辨識中… ' + Math.round((pass + m.progress) / 2 * 100) + '%');
-    };
-    Promise.all([ocrGetWorker(), ocrPrepare(file)]).then(function(r){
-      var worker = r[0], imgs = r[1], texts = [];
-      say('busy', '辨識中…');
-      // 依序辨識（同一個 worker 不能並行），先找到的值優先
-      return imgs.reduce(function(p, c){
-        return p.then(function(){ pass = texts.length; return worker.recognize(c); }).then(function(res){ texts.push(res.data.text || ''); });
-      }, Promise.resolve()).then(function(){ return texts.join('\n'); });
-    }).then(function(raw){
-      var text = ocrNormalize(raw);
-      var lines = text.split(/\n+/).map(function(l){ return l.trim(); }).filter(Boolean);
-      var panel = $('panel-' + tool);
-      ocrClearMarks(panel);
-      var out = OCR_APPLY[tool](text, lines);
-      if (!out.got.length) say('fail', '沒有辨識到可帶入的數值。請確認截圖清楚、包含項目名稱，或直接手動輸入。');
-      else say('done', '已帶入（黃底欄位）：<b>' + esc(out.got.join('、')) + '</b>' +
-        (out.miss.length ? '。未辨識：' + esc(out.miss.join('、')) : '') + '。請核對後再判定。');
-    }).catch(function(err){
-      say('fail', err && err.message === 'lib' ?
-        '辨識元件載入失敗：需要連上網路下載（第一次約 5 MB），請確認網路後再試。' :
-        '圖片讀取或辨識失敗，請換一張截圖再試。');
-    }).then(function(){ ocrBusy = false; ocrProgress = null; });
+    var info = {};
+    function next(){
+      var job = ocrQueue.shift();
+      if (!job) return Promise.resolve();
+      var t = job.tool, k = ocrRecs[t].length + 1, pass = 0;
+      var left = ocrQueue.filter(function(q){ return q.tool === t; }).length;
+      var tail = left ? '（後面還有 ' + left + ' 張）' : '';
+      info[t] = info[t] || { bad: 0, lib: false };
+      ocrSay(t, 'busy', window.Tesseract ? '辨識第 ' + k + ' 張截圖…' + tail : '準備辨識元件中…（第一次使用需下載約 5 MB）');
+      ocrProgress = function(m){
+        if (m.status === 'recognizing text') ocrSay(t, 'busy', '辨識第 ' + k + ' 張截圖… ' + Math.round((pass + m.progress) / 2 * 100) + '%' + tail);
+      };
+      return Promise.all([ocrGetWorker(), ocrPrepare(job.file)]).then(function(r){
+        var worker = r[0], texts = [];
+        return r[1].reduce(function(p, c){
+          return p.then(function(){ pass = texts.length; return worker.recognize(c); }).then(function(res){ texts.push(res.data.text || ''); });
+        }, Promise.resolve()).then(function(){
+          if (job.gen !== ocrGen[t]) return;
+          var text = ocrNormalize(texts.join('\n'));
+          var lines = text.split(/\n+/).map(function(l){ return l.trim(); }).filter(Boolean);
+          ocrRecs[t].push({ date: ocrDate(lines), v: ocrClean(OCR_READ[t](text, lines)) });
+        });
+      }).catch(function(err){
+        if (err && err.message === 'lib') {
+          info[t].lib = true;
+          ocrQueue = ocrQueue.filter(function(q){ return q.tool !== t; });
+        } else info[t].bad++;
+      }).then(next);
+    }
+    next().then(function(){
+      ocrBusy = false; ocrProgress = null;
+      Object.keys(info).forEach(function(t){ ocrShow(t, info[t]); });
+    });
   }
 
   CD.querySelectorAll('.rx-ocr').forEach(function(box){
@@ -1278,9 +1472,9 @@
     var input = panel.querySelector('input[type=file]');
     panel.querySelector('[data-ocr-pick]').addEventListener('click', function(){ input.click(); });
     input.addEventListener('change', function(){
-      var f = input.files && input.files[0];
+      var files = [].slice.call(input.files || []);
       input.value = '';   // 清掉，免得 saveState 存到檔名
-      ocrRun(tool, f);
+      ocrRun(tool, files);
     });
     // 整個面板都可以拖放圖檔
     panel.addEventListener('dragover', function(e){
@@ -1288,34 +1482,40 @@
     });
     panel.addEventListener('dragleave', function(e){ if (!panel.contains(e.relatedTarget)) panel.classList.remove('drag'); });
     panel.addEventListener('drop', function(e){
-      var f = e.dataTransfer && e.dataTransfer.files[0];
+      var files = e.dataTransfer && e.dataTransfer.files;
       panel.classList.remove('drag');
-      if (!f) return;
+      if (!files || !files.length) return;
       e.preventDefault();
-      ocrRun(tool, f);
+      ocrRun(tool, files);
     });
-    // 手動修改後就不再標示為自動帶入
-    panel.addEventListener('input', function(e){ if (e.isTrusted && e.target.classList) e.target.classList.remove('ocr-filled'); });
-    panel.addEventListener('change', function(e){
-      if (!e.isTrusted || !e.target.classList) return;
+    // 手動修改後就不再標示為自動帶入，之後再上傳也不覆蓋
+    function manual(e){
+      if (!e.isTrusted || !e.target.classList || e.target.type === 'file') return;
       e.target.classList.remove('ocr-filled');
+      if (e.target.id) e.target.dataset.manual = '1';
       var flag = e.target.closest('.flag'); if (flag) flag.classList.remove('ocr-filled');
-    });
+    }
+    panel.addEventListener('input', manual);
+    panel.addEventListener('change', manual);
     var reset = panel.querySelector('[data-reset]');
     var msg = box.querySelector('.rx-ocr-msg'), msg0 = msg.innerHTML;
-    if (reset) reset.addEventListener('click', function(){ ocrClearMarks(panel); box.className = 'rx-ocr'; msg.innerHTML = msg0; });
+    if (reset) reset.addEventListener('click', function(){
+      ocrRecs[tool] = []; ocrGen[tool]++;
+      ocrQueue = ocrQueue.filter(function(q){ return q.tool !== tool; });
+      panel.querySelectorAll('[data-manual]').forEach(function(el){ delete el.dataset.manual; });
+      ocrClearMarks(panel); box.className = 'rx-ocr'; msg.innerHTML = msg0;
+    });
   });
 
-  // Ctrl+V 貼上截圖：只在降血脂或 B 肝面板開啟時接手
+  // Ctrl+V 貼上截圖：只在降血脂或 B 肝面板開啟時接手，可一次貼多張
   CD.addEventListener('paste', function(e){
-    var items = (e.clipboardData && e.clipboardData.items) || [];
-    var file = null;
-    for (var i = 0; i < items.length; i++) if (items[i].kind === 'file' && /^image\//.test(items[i].type)) { file = items[i].getAsFile(); break; }
-    if (!file) return;
+    var items = (e.clipboardData && e.clipboardData.items) || [], files = [];
+    for (var i = 0; i < items.length; i++) if (items[i].kind === 'file' && /^image\//.test(items[i].type)) files.push(items[i].getAsFile());
+    if (!files.length) return;
     var panel = CD.querySelector('.rx-panel.active');
     if (!panel) return;
     e.preventDefault();
-    ocrRun(panel.querySelector('.rx-ocr').dataset.ocr, file);
+    ocrRun(panel.querySelector('.rx-ocr').dataset.ocr, files);
   });
 
   /* ======================================================

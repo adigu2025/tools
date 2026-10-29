@@ -537,6 +537,13 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .rx-panel .panel-head{margin-bottom:10px;}
 .rx-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px 12px;margin-bottom:6px;}
 .rx-fields .rx-wide{grid-column:span 2;}
+.rx-sub{font-size:12.5px;font-weight:700;color:var(--teal-dark);margin:10px 0 6px;}
+.rx-sub small{font-weight:500;color:var(--faint);margin-left:6px;}
+/* 用藥判定欄位多，三個操作鈕加大，上傳鈕用實心主色 */
+.rx-panel .panel-actions{flex-wrap:wrap;}
+.rx-panel .panel-actions .act{padding:9px 18px;font-size:14.5px;border-color:var(--teal);color:var(--teal);}
+.rx-panel .panel-actions .act.primary{background:var(--teal);color:#fff;}
+.rx-panel .panel-actions .act.primary:hover:not(:disabled){background:var(--teal-dark);border-color:var(--teal-dark);color:#fff;}
 .rx-panel .field-head{margin-bottom:3px;}
 .rx-panel .field input,.rx-panel .field select{padding:7px 10px;font-size:15px;}
 .rx-panel .field select{font-size:14px;padding-right:28px;background-position:right 9px center;}
@@ -1297,16 +1304,20 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
       <div class="panel-head">
         <div class="panel-title">降血脂／三酸甘油酯用藥健保給付判定<small>依 ASCVD 風險分級判斷 statin、ezetimibe、PCSK9 抑制劑與 TG 藥物給付資格</small></div>
         <div class="panel-actions">
-          <input type="file" id="lx-ocrFile" accept="image/*" hidden>
-          <button class="act" type="button" data-ocr-pick="lx-ocrFile">上傳檢驗截圖</button>
+          <input type="file" id="lx-ocrFile" accept="image/*" multiple hidden>
+          <button class="act primary" type="button" data-ocr-pick="lx-ocrFile">上傳檢驗截圖</button>
           <button class="act" type="button" data-reset="lipidrx">重設</button>
           <button class="act" type="button" data-copy="lipidrx" disabled>複製結果</button>
         </div>
       </div>
 
-      <p class="rx-ocr" data-ocr="lipidrx"><span class="rx-ocr-msg" id="lx-ocrMsg">截圖可按 Ctrl+V 貼上或直接拖進來，自動帶入性別、年齡、血脂四項與腰圍；影像只在本機辨識，不上傳。</span></p>
+      <p class="rx-ocr" data-ocr="lipidrx"><span class="rx-ocr-msg" id="lx-ocrMsg">截圖可一次選多張、按 Ctrl+V 貼上或直接拖進來，自動帶入性別、年齡、血脂四項與腰圍；不同日期的兩次檢驗會分別帶入本次與前次。影像只在本機辨識，不上傳。</span></p>
 
       <div class="rx-fields">
+        <div class="field rx-wide">
+          <div class="field-head"><label for="lx-date">本次檢驗日期</label></div>
+          <input type="date" id="lx-date" autocomplete="off">
+        </div>
         <div class="field">
           <div class="field-head"><label for="lx-sex">性別</label></div>
           <select id="lx-sex">
@@ -1343,6 +1354,33 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <div class="field">
           <div class="field-head"><label for="lx-waist">腰圍</label><span class="field-unit">cm</span></div>
           <input type="number" id="lx-waist" min="40" max="200" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+      </div>
+      <div class="rx-sub">前次檢驗<small>選填：間隔 ≥3 個月的另一次數據，兩次都達起始值即可佐證生活型態調整後仍未達標</small></div>
+      <div class="rx-fields">
+        <div class="field rx-wide">
+          <div class="field-head"><label for="lx-date0">前次檢驗日期</label></div>
+          <input type="date" id="lx-date0" autocomplete="off">
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-tc0">Cholesterol</label></div>
+          <input type="number" id="lx-tc0" min="0" max="800" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-tg0">TG</label></div>
+          <input type="number" id="lx-tg0" min="0" max="3000" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-hdl0">HDL</label></div>
+          <input type="number" id="lx-hdl0" min="0" max="200" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-ldl0">LDL</label></div>
+          <input type="number" id="lx-ldl0" min="0" max="500" step="1" inputmode="decimal" autocomplete="off">
           <p class="field-err" hidden></p>
         </div>
       </div>
@@ -1420,14 +1458,14 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
       <div class="panel-head">
         <div class="panel-title">B 型肝炎抗病毒藥物健保給付判定<small>依「藥品給付規定」第 10 節 10.7.3（自 114 年 6 月 1 日生效）</small></div>
         <div class="panel-actions">
-          <input type="file" id="hb-ocrFile" accept="image/*" hidden>
-          <button class="act" type="button" data-ocr-pick="hb-ocrFile">上傳檢驗截圖</button>
+          <input type="file" id="hb-ocrFile" accept="image/*" multiple hidden>
+          <button class="act primary" type="button" data-ocr-pick="hb-ocrFile">上傳檢驗截圖</button>
           <button class="act" type="button" data-reset="hbvrx">重設</button>
           <button class="act" type="button" data-copy="hbvrx" disabled>複製結果</button>
         </div>
       </div>
 
-      <p class="rx-ocr" data-ocr="hbvrx"><span class="rx-ocr-msg" id="hb-ocrMsg">截圖可按 Ctrl+V 貼上或直接拖進來，自動帶入年齡、HBsAg、HBeAg、ALT、AST、血小板、HBV DNA 等；影像只在本機辨識，不上傳。</span></p>
+      <p class="rx-ocr" data-ocr="hbvrx"><span class="rx-ocr-msg" id="hb-ocrMsg">截圖可一次選多張、按 Ctrl+V 貼上或直接拖進來，自動帶入年齡、HBsAg、HBeAg、ALT、AST、血小板、HBV DNA 等；不同日期的兩次檢驗會分別帶入 ALT 最近與前次，並依日期判斷間隔。影像只在本機辨識，不上傳。</span></p>
 
       <div class="rx-fields">
         <div class="field">
@@ -1457,6 +1495,14 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <div class="field-head"><label for="hb-uln">ALT 上限</label><span class="field-unit">U/L</span></div>
           <input type="number" id="hb-uln" min="1" max="200" step="1" inputmode="numeric" autocomplete="off" value="40">
           <p class="field-err" hidden></p>
+        </div>
+        <div class="field rx-wide">
+          <div class="field-head"><label for="hb-date1">最近檢驗日期</label></div>
+          <input type="date" id="hb-date1" autocomplete="off">
+        </div>
+        <div class="field rx-wide">
+          <div class="field-head"><label for="hb-date2">前次檢驗日期</label></div>
+          <input type="date" id="hb-date2" autocomplete="off">
         </div>
         <div class="field">
           <div class="field-head"><label for="hb-ast">AST</label><span class="field-unit">U/L</span></div>
@@ -1515,7 +1561,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <div class="flags">
             <label class="flag"><input type="checkbox" id="hb-hbsag">HBsAg（＋）</label>
             <label class="flag sub"><input type="checkbox" id="hb-hbsag6">持續超過 6 個月（或 IgM anti-HBc 陰性）</label>
-            <label class="flag"><input type="checkbox" id="hb-gap3">兩次 ALT 間隔超過 3 個月</label>
+            <label class="flag" title="填兩次檢驗日期會自動勾選"><input type="checkbox" id="hb-gap3">兩次 ALT 間隔超過 3 個月（半年內）</label>
             <label class="flag"><input type="checkbox" id="hb-dnaUnd">HBV DNA 低於偵測下限</label>
           </div>
         </div>
