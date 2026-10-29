@@ -129,7 +129,7 @@ const TX_OPTIONS = [
   {key:'mounjaro',  title:'Mounjaro 猛健樂',  sub:'注射',     edu:'mounjaro'},
 ];
 
-// ── 檢驗判讀標準：報告的判讀與健康紀錄表的單位、參考值共用 ──
+// ── 檢驗判讀標準：報告的判讀與健康紀錄表的單位、參考值共用；有性別差異的照優品報告的參考值（同 lab/lab.js 的 CK_MANUAL_REF） ──
 const LAB_EPS = 1e-9;
 function LAB_META(male){
   const lim = (a, b)=> (male ? a : b);
@@ -144,14 +144,14 @@ function LAB_META(male){
     {k:'hdl',   zh:'高密度膽固醇',   en:'HDL-C',       u:'mg/dL', ref:'≥ ' + lim(40, 50), scale:[20, 90], cuts:[[lim(40, 50), 1], [Infinity, 0]]},
     {k:'ldl',   zh:'低密度膽固醇',   en:'LDL-C',       u:'mg/dL', ref:'< 130',  scale:[50, 220],  cuts:[[130, 0], [160, 1], [Infinity, 2]]},
     {grp:'肝功能'},
-    {k:'alt',   zh:'丙胺酸轉胺酶',   en:'ALT（GPT）',  u:'U/L',   ref:'≤ 40',   scale:[0, 160],   cuts:[[40 + LAB_EPS, 0], [120 + LAB_EPS, 1], [Infinity, 2]]},
-    {k:'ast',   zh:'天門冬胺酸轉胺酶', en:'AST（GOT）', u:'U/L',   ref:'≤ 40',   scale:[0, 160],   cuts:[[40 + LAB_EPS, 0], [120 + LAB_EPS, 1], [Infinity, 2]]},
+    {k:'alt',   zh:'丙胺酸轉胺酶',   en:'ALT（GPT）',  u:'U/L',   ref:'≤ ' + lim(50, 35), scale:[0, 160], cuts:[[lim(50, 35) + LAB_EPS, 0], [lim(150, 105) + LAB_EPS, 1], [Infinity, 2]]},
+    {k:'ast',   zh:'天門冬胺酸轉胺酶', en:'AST（GOT）', u:'U/L',   ref:'≤ ' + lim(50, 35), scale:[0, 160], cuts:[[lim(50, 35) + LAB_EPS, 0], [lim(150, 105) + LAB_EPS, 1], [Infinity, 2]]},
     {grp:'腎功能與尿酸'},
-    {k:'cr',    zh:'肌酸酐',         en:'Creatinine',  u:'mg/dL', ref:'≤ ' + lim('1.3', '1.1'), scale:[.3, 2.5], cuts:[[lim(1.3, 1.1) + LAB_EPS, 0], [Infinity, 1]]},
+    {k:'cr',    zh:'肌酸酐',         en:'Creatinine',  u:'mg/dL', ref:'≤ ' + lim('1.20', '0.90'), scale:[.3, 2.5], cuts:[[lim(1.2, 0.9) + LAB_EPS, 0], [Infinity, 1]]},
     {k:'egfr',  zh:'腎絲球過濾率',   en:'eGFR（mL/min/1.73m²）', u:'', ref:'≥ 60', scale:[0, 130], cuts:[[30, 2], [60, 1], [Infinity, 0]]},
-    {k:'ua',    zh:'尿酸',           en:'Uric Acid',   u:'mg/dL', ref:'≤ ' + lim('7.0', '6.0'), scale:[2, 11], cuts:[[lim(7, 6) + LAB_EPS, 0], [Infinity, 1]]},
+    {k:'ua',    zh:'尿酸',           en:'Uric Acid',   u:'mg/dL', ref:'≤ ' + lim('7.0', '5.7'), scale:[2, 11], cuts:[[lim(7, 5.7) + LAB_EPS, 0], [Infinity, 1]]},
     {grp:'甲狀腺'},
-    {k:'tsh',   zh:'甲狀腺刺激素',   en:'TSH',         u:'μIU/mL', ref:'0.4–4.0', scale:[0, 8], cuts:[[.4, 1], [4 + LAB_EPS, 0], [Infinity, 1]]},
+    {k:'tsh',   zh:'甲狀腺刺激素',   en:'TSH',         u:'μIU/mL', ref:'0.27–4.20', scale:[0, 8], cuts:[[.27, 1], [4.2 + LAB_EPS, 0], [Infinity, 1]]},
   ];
 }
 

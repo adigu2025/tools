@@ -297,8 +297,8 @@ function rvLab(val){
   const v = (val == null ? '' : String(val)).trim();
   return v ? wEsc(v) : RV_NA_LAB;
 }
-// 檢驗值標示：依一般成人參考值，只用來提醒「偏高／偏低」，實際判讀以各檢驗單位的參考範圍為準。
-// 有性別差異的（HDL、Cr、尿酸）依基本資料的性別判斷。
+// 檢驗值標示：參考值照優品報告（與健檢報告、forms/forms.js 的 LAB_META 同一套），只用來提醒「偏高／偏低」。
+// 有性別差異的（HDL、ALT、AST、Cr、尿酸）依基本資料的性別判斷。
 const LAB_REF = {
   ac:    {hi:v=> v >= 100},
   hba1c: {hi:v=> v >= 5.7},
@@ -306,12 +306,12 @@ const LAB_REF = {
   tg:    {hi:v=> v >= 150},
   ldl:   {hi:v=> v >= 130},
   hdl:   {lo:(v,m)=> v < (m ? 40 : 50)},
-  alt:   {hi:v=> v > 40},
-  ast:   {hi:v=> v > 40},
-  cr:    {hi:(v,m)=> v > (m ? 1.3 : 1.1)},
+  alt:   {hi:(v,m)=> v > (m ? 50 : 35)},
+  ast:   {hi:(v,m)=> v > (m ? 50 : 35)},
+  cr:    {hi:(v,m)=> v > (m ? 1.2 : 0.9)},
   egfr:  {lo:v=> v < 60},
-  tsh:   {hi:v=> v > 4.0, lo:v=> v < 0.4},
-  ua:    {hi:(v,m)=> v > (m ? 7.0 : 6.0)},
+  tsh:   {hi:v=> v > 4.2, lo:v=> v < 0.27},
+  ua:    {hi:(v,m)=> v > (m ? 7.0 : 5.7)},
 };
 function labFlag(key, val){
   const v = parseFloat(val);

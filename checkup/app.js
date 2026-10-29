@@ -147,6 +147,11 @@ const ckKid = (word, verb)=> (o, k)=>{
 const ckCarSide = (slot, part, s)=> (o, k)=> [slot, part, ({r:'右側', l:'左側', b:'雙側'}[ckSide(o, k)] || '') + s];
 // 只選斑塊型態、沒選「有斑塊」時，斑塊行不能還寫「未見斑塊」
 const ckPlaqueType = s=> o=> ['plaque', (o.carotid || []).includes('plaque') ? '+' : '*', s];
+// 狹窄來自斑塊：沒選「有斑塊」時，斑塊行一起改成「可見斑塊」
+const ckStenosis = s=> (o, k)=>{
+  const f = ckCarSide('flow', 'f', s)(o, k);
+  return (o.carotid || []).includes('plaque') ? f : [f, ['plaque', 'p', '頸動脈可見斑塊']];
+};
 const CK_FIND = {
   abd:{
     fatty1:['liver', 'echo', '輕度脂肪肝，肝實質回音增強，肝腎對比增加'],
@@ -196,8 +201,8 @@ const CK_FIND = {
     softp: ckPlaqueType('斑塊為富含脂質的軟斑塊'),
     calcp: ckPlaqueType('斑塊為鈣化斑塊'),
     ulcer: ckPlaqueType('斑塊表面不規則，疑似潰瘍'),
-    sten50: ckCarSide('flow', 'f', '內頸動脈中度狹窄（50% 至 69%）'),
-    sten70: ckCarSide('flow', 'f', '內頸動脈重度狹窄（70% 以上）'),
+    sten50: ckStenosis('內頸動脈中度狹窄（50% 至 69%）'),
+    sten70: ckStenosis('內頸動脈重度狹窄（70% 以上）'),
     vhypo: ckCarSide('vert', 'v', '椎動脈發育不全'),
     steal: ckCarSide('vert', 'v', '椎動脈逆流，疑似鎖骨下動脈竊血')
   }
@@ -264,8 +269,17 @@ function ckUsDeps(path){ Object.keys(CK_USF).forEach(a=>{ if(CK_USF[a].deps.test
 function ckUsImpSync(area, before, after){
   const A = CK_USF[area], o = A.obj(), key = area + 'Imp';
   let s = String(o[key] || '');
-  before.filter(k=> !after.includes(k)).forEach(k=>{ const c = A.T[k] && A.T[k].c; if(c) s = s.split(c).join(''); });
-  after.filter(k=> !before.includes(k)).forEach(k=>{ const c = A.T[k] && A.T[k].c; if(c && !s.includes(c)) s += c; });
+  // 有的結論是另一句的一部分（「甲狀腺結節。」在「未發現甲狀腺結節。」裡），比對前先把較長的那幾句遮起來
+  const all = Object.values(A.T).map(x=> x.c).filter(Boolean);
+  const masked = (c, fn)=>{
+    const longer = all.filter(x=> x !== c && x.includes(c));
+    longer.forEach((x, i)=> s = s.split(x).join('\u0000' + i + '\u0000'));
+    const r = fn();
+    longer.forEach((x, i)=> s = s.split('\u0000' + i + '\u0000').join(x));
+    return r;
+  };
+  before.filter(k=> !after.includes(k)).forEach(k=>{ const c = A.T[k] && A.T[k].c; if(c) masked(c, ()=>{ s = s.split(c).join(''); }); });
+  after.filter(k=> !before.includes(k)).forEach(k=>{ const c = A.T[k] && A.T[k].c; if(c && !masked(c, ()=> s.includes(c))) s += c; });
   o[key] = s.replace(/^\s+|\s+$/g, '');
 }
 
@@ -1041,8 +1055,10 @@ function ckInitOpts(){
       if(box.dataset.multi){
         let cur = Array.isArray(ckGet(path)) ? [...ckGet(path)] : [];
         const excl = box.dataset.excl;
+        // data-groups：「a,b,c;d,e」同一組只能選一個，按了新的就取消同組其他的（例如脂肪肝三級）
+        const rival = (box.dataset.groups || '').split(';').map(g=> g.split(',')).filter(g=> g.includes(v)).flat();
         if(cur.includes(v)) cur = cur.filter(x=> x !== v);
-        else cur = v === excl ? [v] : [...cur.filter(x=> x !== excl), v];
+        else cur = v === excl ? [v] : [...cur.filter(x=> x !== excl && !rival.includes(x)), v];
         const ua = {'us.abd':'abd', 'us.thy':'thy', 'mod.carotid':'car'}[path];
         if(ua) ckUsImpSync(ua, Array.isArray(ckGet(path)) ? ckGet(path) : [], cur);
         ckSet(path, cur);
@@ -1330,7 +1346,12 @@ async function ckAddFiles(files){
 
 /* ---------- 啟動 ---------- */
 (function ckInit(){
-  try{ const s = JSON.parse(localStorage.getItem(CK_DRAFT)); if(s && typeof s === 'object'){ CK = Object.assign(ckBlank(), s); ckMigrate(); } }catch(e){}
+  // 有草稿先問要不要接續（和減重報告一樣），不直接帶入，免得下一位病人打開就看到上一位的資料
+  let draft = null;
+  try{
+    const s = JSON.parse(localStorage.getItem(CK_DRAFT));
+    if(s && typeof s === 'object' && JSON.stringify(Object.assign(ckBlank(), s)) !== JSON.stringify(ckBlank())) draft = s;
+  }catch(e){}
   ckInitOpts();
   ckInitAtt();
   KD.addEventListener('keydown', ckOnEsc);
@@ -1452,4 +1473,18 @@ async function ckAddFiles(files){
   ckEl('k-import-file').addEventListener('change', e=> ckImport(e.target));
 
   ckRenderAll();
+  if(draft){
+    const who = [draft.info && draft.info.name, draft.info && draft.info.date].filter(x=> String(x || '').trim()).map(ckEsc).join('，');
+    const bar = document.createElement('div');
+    bar.className = 'k-draft';
+    bar.innerHTML = `<span>偵測到未完成的健檢報告草稿${who ? `（${who}）` : ''}，要接續填寫嗎？</span>` +
+      '<button type="button" class="k-btn sm" data-d="load">載入草稿</button><button type="button" class="k-btn ghost sm" data-d="drop">捨棄</button>';
+    bar.addEventListener('click', e=>{
+      const b = e.target.closest('[data-d]'); if(!b) return;
+      if(b.dataset.d === 'load'){ CK = Object.assign(ckBlank(), draft); ckMigrate(); ckSave(); ckRenderAll(); }
+      else { try{ localStorage.removeItem(CK_DRAFT); }catch(err){} }
+      bar.remove();
+    });
+    KB.insertBefore(bar, KB.querySelector('.k-wrap'));
+  }
 })();

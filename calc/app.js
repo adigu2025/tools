@@ -551,8 +551,8 @@
     var fib4 = (age * ast) / (plt * Math.sqrt(alt));
     var senior = age >= 65;
     var loCut = senior ? 2.0 : 1.30;
-    var hiCut = senior ? 4.0 : 2.67;
-    var cutNote = senior ? '（年齡 ≥ 65 歲，已改用調整閾值 2.0／4.0）' : '';
+    var hiCut = 2.67;
+    var cutNote = senior ? '（年齡 ≥ 65 歲，下限改用 2.0，上限維持 2.67）' : '';
 
     var status, color, bg, band, interp;
     if (fib4 < loCut) {
@@ -579,7 +579,7 @@
 
     COPY.fib4 = 'FIB-4 = ' + fib4.toFixed(2) + '（' + status + '）｜年齡 ' + age +
                 '、AST ' + ast + '、ALT ' + alt + '、PLT ' + plt + ' ×10⁹/L' +
-                (senior ? '｜採 ≥65 歲調整閾值 2.0／4.0' : '');
+                (senior ? '｜採 ≥65 歲調整下限 2.0' : '');
     show('fib4', true);
   }
 
@@ -1622,7 +1622,7 @@
         max:17,
         qs:[
           { tag:'代謝指標', tagCls:'tag-meta', q:'你的 BMI 是否超過 24？（BMI = 體重 kg ÷ 身高 m²）',
-            opts:['否，BMI < 24','BMI 24–27（過重）','BMI > 27（肥胖）'], scores:[0,1,2] },
+            opts:['否，BMI < 24','BMI 24 至未滿 27（過重）','BMI ≥ 27（肥胖）'], scores:[0,1,2] },
           { tag:'代謝指標', tagCls:'tag-meta', q:'腰圍是否超標？（男性 ≥ 90 cm，女性 ≥ 80 cm）',
             opts:['否','是'], scores:[0,2] },
           { tag:'三高病史', tagCls:'tag-3high', q:'是否曾被告知有高血脂（三酸甘油酯偏高或 HDL 偏低）？',
@@ -1780,7 +1780,7 @@
         max:14,
         qs:[
           { q:'你的年齡？', opts:['40 歲以下','40–49 歲','50–59 歲','60 歲以上'], scores:[0,1,2,3] },
-          { q:'你的 BMI（體重 kg ÷ 身高 m²）？', opts:['BMI < 18.5（過輕）','BMI 18.5–24（正常）','BMI 24–27（過重）','BMI > 27（肥胖）'], scores:[0,0,1,2] },
+          { q:'你的 BMI（體重 kg ÷ 身高 m²）？', opts:['BMI < 18.5（過輕）','BMI 18.5 至未滿 24（正常）','BMI 24 至未滿 27（過重）','BMI ≥ 27（肥胖）'], scores:[0,0,1,2] },
           { q:'你的腰圍是否超標？（男 ≥ 90 cm，女 ≥ 80 cm）', opts:['否','是'], scores:[0,2] },
           { q:'家族中（父母或兄弟姊妹）是否有人罹患糖尿病？', opts:['否','是'], scores:[0,1] },
           { q:'是否曾被告知血壓偏高（≥ 130/85 mmHg）或正在服用降壓藥？', opts:['否','是'], scores:[0,1] },

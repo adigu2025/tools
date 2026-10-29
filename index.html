@@ -263,6 +263,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 .modal-card h2{font-family:var(--serif); font-size:22px; margin:0 0 10px;}
 .modal-card p{margin:0 0 8px; font-size:16px; color:var(--ink-2);}
 .modal-card p.sub{font-size:14.5px; color:var(--muted);}
+.modal-card p.warn{font-size:15px; color:#B0392B; font-weight:600;}
 .modal-acts{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}
 .modal-acts .tbtn{padding:10px 20px; font-size:16px;}
 .tbtn.danger{background:var(--clay); border-color:var(--clay); color:#fff; font-weight:700;}
@@ -415,8 +416,9 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 <div class="modal" id="clear-modal" role="dialog" aria-modal="true" aria-labelledby="cm-title" hidden>
   <div class="modal-card">
     <h2 id="cm-title">清除這位病人的資料？</h2>
-    <p>「臨床計算」與「減重報告」畫面上的輸入與結果會全部清空。</p>
-    <p class="sub">減重報告裡已按「儲存」的病人紀錄不受影響。</p>
+    <p>「臨床計算」「減重報告」「健檢報告」畫面上的輸入與結果會全部清空。</p>
+    <p class="warn" id="cm-pages" hidden>健檢報告上傳的報告圖片還沒匯出備份，清除後要重新上傳。</p>
+    <p class="sub">減重報告裡已按「儲存」的病人紀錄、已匯出的健檢備份檔不受影響。</p>
     <div class="modal-acts">
       <button class="tbtn" id="cm-cancel">取消</button>
       <button class="tbtn danger" id="cm-ok">全部清除</button>
@@ -829,6 +831,10 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 /* ── 全部清除 ── */
 const clearModal = document.getElementById('clear-modal');
 function openClear(){
+  // 健檢報告有上傳圖片、還沒匯出備份時多一行提醒（圖片只在記憶體裡，清除後就沒了）
+  let pages = false;
+  try{ pages = ckPagesUnsaved && Object.keys(CK_PAGES).length > 0; }catch(err){}
+  document.getElementById('cm-pages').hidden = !pages;
   clearModal.hidden = false;
   // 預設焦點放在「取消」，避免誤按 Enter 就清掉
   document.getElementById('cm-cancel').focus();
