@@ -1,0 +1,1383 @@
+<!-- 報價工具（醫療費用規劃）畫面：由 ../mount.js 放進工作台 #quote-host 的 shadow root，程式在 app.js。
+     工作台外觀（配色、拿掉頁首）在 hub.css；頁首 .banner 只在列印報價單時顯示。 -->
+<style>
+:host{display:block;}
+.q-body:focus{outline:none;}
+/* ─── 自訂新增項目 ────────────────────────────────────────────────── */
+.custom-add-card {
+  border-style: dashed !important; justify-content: center; align-items: center;
+  cursor: pointer; flex-direction: column; gap: 6px;
+}
+.custom-add-card:hover { border-color: var(--accent) !important; background: var(--accent-pale) !important; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.custom-add-input {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 6px 10px; font-family: inherit; font-size: 13px; color: var(--text);
+  background: var(--surface); outline: none; display: block; margin-bottom: 6px;
+  transition: border-color 0.15s; box-sizing: border-box;
+}
+.custom-add-input:focus { border-color: var(--accent); }
+.custom-add-btn-row { display: flex; gap: 6px; width: 100%; }
+.custom-add-confirm {
+  flex: 1; padding: 6px 0; border-radius: 12px; cursor: pointer;
+  font-size: 12px; font-family: inherit; background: var(--accent); border: none; color: white;
+  transition: background 0.15s;
+}
+.custom-add-confirm:hover { background: var(--accent-light); }
+.custom-add-cancel-btn {
+  flex: 1; padding: 6px 0; border-radius: 12px; cursor: pointer;
+  font-size: 12px; font-family: inherit; background: none;
+  border: 1.5px solid var(--border); color: var(--muted); transition: all 0.15s;
+}
+.custom-add-cancel-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ─── Reset & Variables ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:host {
+  /* 品牌色（依診所品牌規範）：Teal #3E6A7C ／ Gold #BC7F30 ／ Navy #152831 */
+  --primary:      #152831;
+  --primary-dark: #0C1A21;
+  --primary-mid:  #23414F;
+  --accent:       #3E6A7C;
+  --accent-light: #54889D;
+  --accent-pale:  #EEF4F6;
+  --accent-rgb:   62,106,124;
+  --ins-color:    #14805C;
+  --ins-pale:     #EDF8F3;
+  --ins-rgb:      20,128,92;
+  --gold:         #BC7F30;
+  --gold-pale:    #FDF6EA;
+  --gold-line:    #E4C793;
+  --gold-deep:    #7A4F14;
+  --gold-rgb:     188,127,48;
+  --danger:       #C0453C;
+  --danger-pale:  #FCF2F1;
+  --bg:           #E9EEF1;
+  --surface:      #FFFFFF;
+  --text:         #1F2E37;
+  --muted:        #5D6C75;
+  --border:       #D8E0E5;
+  --border-strong:#B9C6CE;
+  --shadow-sm:    0 1px 2px rgba(21,40,49,0.05), 0 1px 6px rgba(21,40,49,0.04);
+  --shadow-md:    0 6px 20px rgba(21,40,49,0.09);
+  --shadow-lg:    0 14px 40px rgba(21,40,49,0.13);
+  --focus-ring:   0 0 0 3px rgba(62,106,124,0.32);
+  --radius:       14px;
+  --radius-sm:    10px;
+  --ease:         cubic-bezier(0.25,0.46,0.45,0.94);
+  --panel-w:      370px;
+  --surface-warm: #F4F7F9;
+  --serif:        "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  font-family: "Noto Sans TC", -apple-system, BlinkMacSystemFont,
+               "PingFang TC", "Microsoft JhengHei",
+               "Helvetica Neue", sans-serif;
+}
+
+/* 一致的鍵盤焦點樣式 */
+:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: 8px; }
+.item-card:focus-visible, .cat-card:focus-visible { box-shadow: var(--focus-ring), var(--shadow-md); }
+.q-body {
+  background: var(--bg); color: var(--text);
+  height: 100vh; overflow: hidden;
+  display: flex; flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Banner ─────────────────────────────────────────────────────── */
+.banner {
+  flex-shrink: 0; height: calc(68px + 10pt);
+  background: linear-gradient(130deg, var(--primary-dark) 0%, var(--primary) 52%, var(--primary-mid) 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 calc(var(--panel-w) + 32px) 0 32px;
+  box-shadow: 0 2px 14px rgba(21,40,49,0.24);
+  position: relative; z-index: 10;
+}
+/* 細金線收邊：呼應品牌強調色 */
+.banner::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 55%, var(--accent) 100%);
+  opacity: 0.75;
+}
+.banner-text { text-align: center; margin-top: 10pt; }
+.banner-name { font-size: 22px; font-weight: 700; color: #FFF; letter-spacing: 0.12em; }
+.banner-sub  { font-size: 12px; color: rgba(255,255,255,0.68); letter-spacing: 0.1em; margin-top: 2px; }
+.banner-date { position: absolute; right: 32px; color: rgba(255,255,255,0.5); font-size: 12px; letter-spacing: 0.05em; text-align: right; line-height: 1.6; }
+
+/* ─── Layout ─────────────────────────────────────────────────────── */
+.layout  { flex: 1; display: flex; overflow: hidden; }
+.content { flex: 1; position: relative; overflow: hidden; }
+
+/* ─── Screens ────────────────────────────────────────────────────── */
+.screen {
+  position: absolute; inset: 0;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+  transform: translateX(18px);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.screen.active { opacity: 1; pointer-events: all; transform: translateX(0); }
+.screen.exit   { opacity: 0; transform: translateX(-18px); }
+
+/* ─── Home Screen ────────────────────────────────────────────────── */
+/* 改為流排版：任何視窗高度都不會互相重疊，過矮時可捲動 */
+/* 永遠保留捲軸槽：內容置中時，捲軸忽隱忽現會讓可用寬度變動，
+   元素跟著左右跳動（按 X 展開／收起隱藏功能區時最明顯）。 */
+#screen-home { overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; }
+#screen-home::-webkit-scrollbar { width: 6px; }
+#screen-home::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+#home-inner {
+  position: relative;
+  /* .screen 是 column flex 容器，預設會把本區塊壓縮到容器高度，
+     導致內容溢出卻無法捲動（矮視窗時選單會壓到左下角的改版日期）。 */
+  flex: 0 0 auto;
+  min-height: 100%; width: 100%;
+  display: flex; flex-direction: column;
+  align-items: center;
+  /* 內容自上方排起並略微下移：完全置中會讓 banner 下方留下過大的空白，
+     完全貼齊上緣又會頭重腳輕，取中間的偏上配置。 */
+  justify-content: flex-start;
+  /* 改版日期已改貼 .content，這裡只需留一般底部留白 */
+  padding: clamp(28px, 10vh, 110px) 32px clamp(40px, 6vh, 72px);
+}
+/* 最後改版日期：貼在 .content 底部（高度固定），不隨首頁內容增減而浮動。
+   僅在主畫面顯示，用相鄰選擇器判斷，不需額外 JS。 */
+.app-revision {
+  display: none;
+  position: absolute; left: 32px; bottom: 14px; z-index: 2;
+  text-align: left; font-size: 12.5px;
+  color: var(--muted); opacity: .75;
+  letter-spacing: 0.02em; pointer-events: none;
+}
+#screen-home.active ~ .app-revision { display: block; }
+
+/* 區塊節奏：標題→搜尋較近，搜尋→選單較遠，層級才讀得出來 */
+.home-hero { width: 100%; max-width: 780px; text-align: center; margin-bottom: clamp(22px, 3.5vh, 38px); }
+/* 全大寫拉丁字需要較寬字距才好讀；行高放寬讓它與標題分得開 */
+.home-hero-eyebrow {
+  font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase;
+  line-height: 1.5; color: var(--accent); margin-bottom: 12px; font-weight: 500;
+}
+/* 中文大字：字距 0.06em、行高 1.3，字面不會擠在一起也不會鬆散 */
+.home-hero-title {
+  font-size: clamp(30px, 3.4vw, 44px); font-weight: 300; color: var(--text);
+  letter-spacing: 0.06em; line-height: 1.3;
+}
+/* 同一行呈現「訂製您的個人醫療」，以字重區分前後段 */
+.home-hero-title strong { font-weight: 700; color: var(--primary); }
+
+/* Search bar */
+.search-wrap { width: 100%; max-width: 560px; margin-bottom: clamp(32px, 6vh, 64px); }
+.search-box  { position: relative; }
+.field-label {
+  display: block; font-size: 12.5px; color: var(--muted);
+  letter-spacing: 0.08em; line-height: 1.5; margin: 0 0 8px 20px;
+}
+.field-label kbd {
+  font-family: inherit; font-size: 11px; background: var(--surface);
+  border: 1px solid var(--border); border-bottom-width: 2px;
+  border-radius: 5px; padding: 1px 5px; margin-left: 6px; color: var(--muted);
+}
+.search-input {
+  width: 100%; height: 48px;
+  padding: 0 48px 0 20px;
+  border-radius: 24px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font-size: 16px; font-family: inherit;
+  color: var(--text);
+  box-shadow: var(--shadow-md);
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.search-input:focus { border-color: var(--accent); box-shadow: var(--focus-ring), var(--shadow-md); }
+.search-icon {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: 18px;
+}
+.search-clear {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1;
+  display: none; background: none; border: none;
+  padding: 4px; border-radius: 50%;
+  transition: color 0.15s, background 0.15s;
+}
+.search-clear:hover { color: var(--text); background: var(--bg); }
+.search-clear.visible { display: block; }
+.search-icon.hidden  { display: none; }
+
+/* Search results dropdown — fixed 定位，不受捲動容器裁切 */
+.search-results {
+  position: fixed;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  max-height: 320px; overflow-y: auto;
+  z-index: 9999;
+  display: none;
+}
+.search-results.open { display: block; }
+.search-result-item.kb-active { background: var(--accent-pale); }
+.search-results::-webkit-scrollbar { width: 4px; }
+.search-results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.search-result-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: var(--accent-pale); }
+/* item 圓角由 parent overflow:hidden+border-radius 統一處理 */
+
+.sr-cat-badge {
+  font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 10px;
+  background: var(--accent-pale); color: var(--accent);
+  white-space: nowrap; flex-shrink: 0; letter-spacing: 0.04em;
+}
+.sr-name  { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; }
+.sr-desc  { font-size: 12px; color: var(--muted); flex: 2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sr-price { font-size: 14px; font-weight: 700; color: var(--primary); white-space: nowrap; margin-left: auto; }
+.search-empty {
+  padding: 20px 16px; text-align: center;
+  font-size: 14px; color: var(--muted);
+}
+
+/* Cat grid */
+.cat-grid-wrap { width: 100%; max-width: 900px; }
+.cat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: clamp(10px, 1.4vw, 18px); width: 100%;
+}
+.cat-card {
+  background: var(--surface); border-radius: var(--radius);
+  padding: clamp(18px, 2.4vh, 26px) 12px clamp(16px, 2vh, 22px);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  cursor: pointer; border: 1.5px solid var(--border); box-shadow: var(--shadow-sm);
+  transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease), border-color 0.22s var(--ease);
+  user-select: none; -webkit-user-select: none;
+}
+.cat-card:hover  { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+.cat-card:active { transform: translateY(-2px); }
+.cat-icon {
+  width: 64px; height: 64px; border-radius: 18px; color: var(--primary);
+  background: var(--accent-pale); border: 1.5px solid #D5E3E9;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.22s var(--ease), background 0.22s var(--ease), color 0.22s var(--ease);
+}
+.cat-icon svg { width: 36px; height: 36px; }
+.cat-card:hover .cat-icon { transform: scale(1.07); background: #E1EDF2; color: var(--accent); }
+/* 選單文字：字距略放寬、行高 1.45，中文字面才不會黏在一起 */
+.cat-label       { font-size: clamp(16px, 1.5vw, 20px); font-weight: 600; color: var(--text); letter-spacing: 0.06em; line-height: 1.45; }
+.cat-count-badge { font-size: 13px; line-height: 1.7; color: var(--muted); background: var(--bg); padding: 2px 10px; border-radius: 12px; border: 1px solid var(--border); letter-spacing: 0.04em; }
+
+/* ─── 隱藏功能區（首頁按 X 顯示）──────────────────────────────── */
+.cat-extra {
+  width: 100%; max-width: 900px;
+  display: none; margin-top: clamp(14px, 1.8vh, 22px);
+}
+.cat-extra.show { display: block; animation: extraIn 0.28s var(--ease); }
+@keyframes extraIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform:none; } }
+/* 橫向緊湊卡片：高度約 68px（直式為 174px），
+   展開後總高度才不會撐出捲軸；目前只有一張（說明文件），依卡片數置中 */
+.cat-extra-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 280px)); justify-content: center;
+  gap: clamp(10px, 1.4vw, 18px);
+  width: 100%; max-width: 580px; margin: 0 auto;
+}
+.cat-extra-grid .cat-card {
+  flex-direction: row; align-items: center; justify-content: flex-start;
+  gap: 12px; padding: 11px 14px; text-align: left; max-width: none;
+}
+.cat-extra .cat-icon { width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0; }
+.cat-extra .cat-icon svg { width: 24px; height: 24px; }
+.cat-extra .cat-label { font-size: 16px; line-height: 1.4; }
+.cat-extra .cat-count-badge { margin-left: auto; flex-shrink: 0; }
+/* 窄螢幕兩欄會把卡片壓到換行（高度變成 114px），改為單欄維持一列高 */
+@media screen and (max-width: 560px) {
+  .cat-extra-grid { grid-template-columns: 1fr; }
+}
+.cat-extra .cat-icon { background: var(--gold-pale); border-color: var(--gold-line); color: var(--gold-deep); }
+.cat-extra .cat-card:hover { border-color: var(--gold); }
+.cat-extra .cat-card:hover .cat-icon { background: var(--gold-pale); color: var(--gold); }
+
+/* 螢幕越高，整組內容往下帶越多並放寬區塊間距，
+   否則內容只佔上方會頭重腳輕（分兩段，避免單一斷點在筆電尺寸失衡） */
+@media screen and (min-height: 860px) {
+  #home-inner  { padding-top: 13vh; }
+  .home-hero   { margin-bottom: 38px; }
+  .search-wrap { margin-bottom: 64px; }
+}
+@media screen and (min-height: 1000px) {
+  #home-inner  { padding-top: 17vh; }
+  .home-hero   { margin-bottom: 42px; }
+  .search-wrap { margin-bottom: 72px; }
+}
+/* 矮螢幕：收緊上方留白，讓五個選單在不捲動的情況下放得進去 */
+@media screen and (max-height: 700px) {
+  #home-inner { padding-top: clamp(20px, 5vh, 40px); }
+}
+
+/* ─── Category Screen ────────────────────────────────────────────── */
+#screen-category { padding: 20px 28px 28px; overflow: hidden; }
+.screen-nav { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; flex-shrink: 0; }
+.back-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 18px 7px 14px;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px;
+  cursor: pointer; font-size: 15px; color: var(--muted); font-family: inherit;
+  transition: all 0.18s var(--ease); letter-spacing: 0.02em;
+}
+.back-btn:hover { background: var(--accent-pale); border-color: var(--accent); color: var(--accent); }
+.back-arrow { font-size: 16px; }
+.screen-heading { display: flex; align-items: center; gap: 10px; }
+.screen-cat-icon { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent); }
+.screen-cat-icon svg { width: 32px; height: 32px; }
+.screen-title { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: 0.04em; } /* ★ 保持 */
+.screen-desc  { font-size: 15px; color: var(--muted); margin-top: 2px; }
+
+
+/* 同上：篩選讓項目數大幅增減時，捲軸出現與否會使卡片左右位移 */
+.items-scroll { flex: 1; overflow-y: auto; padding-right: 4px; padding-top: 8px; scrollbar-gutter: stable; }
+.items-scroll::-webkit-scrollbar { width: 4px; }
+.items-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.items-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 12px; padding-bottom: 8px; }
+.items-section-header {
+  grid-column: 1 / -1; padding: 14px 8px 6px; margin-top: 10px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--primary); border-bottom: 2px solid rgba(var(--accent-rgb),0.3);
+}
+.items-section-header:first-child { margin-top: 0; }
+
+/* Item Card */
+.item-card {
+  background: var(--surface); border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 16px 14px 14px; cursor: pointer;
+  display: flex; flex-direction: column; min-height: 110px;
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease),
+              border-color 0.18s var(--ease), background 0.18s var(--ease);
+  box-shadow: var(--shadow-sm); position: relative;
+  user-select: none; -webkit-user-select: none;
+}
+/* 自費內視鏡：卡片不放說明文字（改置於備註），高度統一由 JS 對齊常規內視鏡 */
+.item-card:hover:not(.selected):not(.ins-mode) { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+.item-card.selected  { border-color: var(--accent); background: var(--accent-pale); box-shadow: 0 0 0 1px var(--accent), var(--shadow-md); transform: translateY(-1px); }
+.item-card.ins-mode  { border-color: var(--ins-color); background: var(--ins-pale); box-shadow: 0 0 0 1px var(--ins-color), var(--shadow-md); transform: translateY(-1px); }
+
+/* Search highlight flash */
+@keyframes highlightFlash {
+  0%,100% { box-shadow: 0 0 0 3px var(--accent), var(--shadow-lg); }
+  50%     { box-shadow: 0 0 0 7px rgba(var(--accent-rgb),0.25), var(--shadow-lg); transform: scale(1.02); }
+}
+.highlight-flash { animation: highlightFlash 0.55s ease 3 !important; border-color: var(--accent) !important; }
+
+.mode-badge {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 10px; letter-spacing: 0.04em;
+}
+.mode-badge.self { background: rgba(var(--accent-rgb),0.12); color: var(--accent); }
+.mode-badge.ins  { background: rgba(var(--ins-rgb),0.12); color: var(--ins-color); }
+
+.item-name { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.4; padding-right: 46px; margin-bottom: 5px; word-break: keep-all; overflow-wrap: break-word; }
+/* 規格括號（(直徑約0.9cm)、(1-3個)…）：縮小且整段不斷行，
+   避免斷成「0.9c／m」這種語意不完整的位置 */
+.item-name .nm-spec { font-size: 0.76em; font-weight: 500; white-space: nowrap; overflow-wrap: normal; word-break: keep-all; }
+/* 徽章佔位只保留在第一行，第二行起可用整個寬度，規格才排得下 */
+.item-name.nm-flow { padding-right: 0; }
+.item-name.nm-flow::before { content: ''; float: right; width: 46px; height: 1.4em; }
+.item-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; word-break: keep-all; overflow-wrap: break-word; }
+.item-price-row { display: flex; align-items: baseline; gap: 3px; margin-top: auto; padding-top: 8px; padding-right: 30px; }
+.price-currency { font-size: 13px; color: var(--muted); font-weight: 500; }
+.price-val      { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--primary); line-height: 1; }
+.price-val.ins-price { color: var(--ins-color); font-size: 16px; }
+.price-val.tbd       { color: var(--muted); font-size: 13px; font-weight: 500; } /* ★ 保持 */
+
+/* Notes indicator — hidden, tooltip still works on hover */
+.notes-hint { display: none; }
+
+.check-dot {
+  position: absolute; bottom: 12px; right: 12px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); color: white;
+  display: flex; align-items: center; justify-content: center; font-size: 11px;
+  opacity: 0; transform: scale(0.4);
+  transition: opacity 0.18s var(--ease), transform 0.22s var(--ease);
+}
+.item-card.selected  .check-dot { opacity: 1; transform: scale(1); }
+.item-card.ins-mode  .check-dot { opacity: 1; transform: scale(1); background: var(--ins-color); }
+
+/* ─── Tooltip ────────────────────────────────────────────────────── */
+.tooltip-popup {
+  position: fixed; z-index: 9999;
+  background: var(--primary); color: #EDF3F6;
+  padding: 12px 16px; border-radius: 12px;
+  font-size: 13px; line-height: 1.7;
+  max-width: 290px; max-height: 320px; overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+  pointer-events: none;
+  opacity: 0; transition: opacity 0.18s;
+}
+.tooltip-popup.visible { opacity: 1; }
+.tooltip-popup::-webkit-scrollbar { width: 3px; }
+.tooltip-popup::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
+.tooltip-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
+.tooltip-line  { display: flex; align-items: flex-start; gap: 6px; padding: 1px 0; }
+.tooltip-bullet { color: var(--accent-light); flex-shrink: 0; margin-top: 2px; }
+
+/* ─── Pricing Panel ──────────────────────────────────────────────── */
+.pricing-panel {
+  width: var(--panel-w); flex-shrink: 0;
+  background: var(--surface); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  box-shadow: -4px 0 24px rgba(21,40,49,0.05);
+}
+.panel-head {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; display: flex; flex-direction: column;
+}
+.panel-head-title { font-size: 17px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.panel-head-title .head-icon { color: var(--accent); display: inline-flex; }
+.panel-head-title .head-icon svg { width: 17px; height: 17px; display: block; }
+.cart-count { background: var(--accent); color: white; font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 12px; min-width: 24px; text-align: center; transition: background 0.2s; }
+.cart-count.zero { background: var(--border); color: var(--muted); }
+.panel-legend { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.legend-item  { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+.legend-dot   { width: 8px; height: 8px; border-radius: 50%; }
+
+.panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; scroll-behavior: smooth; scrollbar-gutter: stable; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.empty-state { text-align: center; padding: 52px 20px; opacity: 0; animation: fadeIn 0.4s var(--ease) 0.1s forwards; }
+@keyframes fadeIn { to { opacity: 1; } }
+.empty-icon { margin-bottom: 14px; color: var(--border-strong); display: flex; justify-content: center; }
+.empty-icon svg { width: 40px; height: 40px; }
+.empty-text { font-size: 15px; color: var(--muted); line-height: 1.7; }
+
+.cart-item {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 12px; margin-bottom: 7px;
+  display: flex; align-items: flex-start; gap: 8px;
+  animation: slideUp 0.2s var(--ease);
+  transition: box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+/* 剛加入的項目短暫標示，避免長清單中看不到新增了什麼 */
+.cart-item.just-added { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--accent-rgb),0.22); }
+@keyframes slideUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.cart-item-body { flex: 1; min-width: 0; }
+.cart-item-name { font-size: 15px; font-weight: 600; color: var(--text); white-space: normal; word-break: break-word; margin-bottom: 3px; }
+.cart-item-meta { display: flex; align-items: center; gap: 5px; }
+.cart-badge { font-size: 11.5px; font-weight: 700; padding: 1px 7px; border-radius: 8px; letter-spacing: 0.04em; }
+.cart-badge.self { background: rgba(var(--accent-rgb),0.1); color: var(--accent); }
+.cart-badge.ins  { background: rgba(var(--ins-rgb),0.1); color: var(--ins-color); }
+.cart-item-cat   { font-size: 12px; color: var(--muted); }
+
+/* Editable price */
+.cart-price-wrap {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 2px; flex-shrink: 0; align-self: center;
+}
+.cart-item-price {
+  font-size: 17px; font-weight: 700; color: var(--primary);
+  white-space: nowrap; cursor: pointer; border-radius: 6px;
+  padding: 2px 6px; transition: background 0.15s;
+}
+.cart-item-price:hover:not(.ins-p):not(.tbd) { background: rgba(var(--accent-rgb),0.1); }
+.cart-item-price.ins-p { color: var(--ins-color); cursor: default; }
+.cart-item-price.tbd   { color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; }
+.cart-item-price.edited { color: var(--gold); }
+.price-edit-hint { font-size: 10px; color: var(--muted); opacity: 0.6; display: none; }
+.cart-item:hover .price-edit-hint:not(.ins-hint) { display: block; }
+/* 還原定價 */
+.price-revert-btn {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  font-size: 10px; color: var(--gold); padding: 1px 3px; border-radius: 4px;
+  white-space: nowrap; transition: background 0.15s;
+}
+.price-revert-btn:hover { background: rgba(var(--gold-rgb),0.12); }
+/* 件數加減（病理檢查費） */
+.qty-ctrl { display: inline-flex; align-items: center; gap: 2px; margin-left: 2px; }
+.qty-btn {
+  width: 18px; height: 18px; line-height: 1; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+  color: var(--accent); font-family: inherit; font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.qty-btn:hover { border-color: var(--accent); background: var(--accent-pale); }
+.qty-num { font-size: 12px; font-weight: 700; color: var(--text); min-width: 14px; text-align: center; }
+.price-edit-input {
+  width: 80px; font-size: 17px; font-weight: 700; color: var(--primary);
+  border: none; border-bottom: 2px solid var(--accent);
+  background: transparent; font-family: inherit; text-align: right;
+  outline: none; padding: 0 4px;
+}
+
+.cart-remove-btn {
+  background: none; border: none; cursor: pointer; color: var(--muted);
+  padding: 4px 5px; border-radius: 6px; font-size: 16px; line-height: 1;
+  transition: color 0.15s, background 0.15s; flex-shrink: 0; align-self: flex-start;
+}
+.cart-remove-btn:hover { color: var(--danger); background: var(--danger-pale); }
+
+.cart-group-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 8px 4px 4px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+
+.discount-block { margin: 8px 0; padding: 8px 14px; background: var(--gold-pale); border: 1px solid var(--gold-line); border-radius: var(--radius-sm); animation: slideUp 0.2s var(--ease); }
+.discount-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 5px 0; border-top: 1px solid rgba(var(--gold-rgb),0.22); }
+.discount-row:first-child { border-top: none; }
+.discount-name { font-size: 14px; color: var(--gold-deep); flex: 1; line-height: 1.4; }
+.discount-amt  { font-size: 15px; font-weight: 700; color: var(--gold); white-space: nowrap; cursor: pointer; border-radius: 4px; padding: 1px 5px; transition: background 0.15s; }
+.discount-amt:hover { background: rgba(var(--gold-rgb),0.12); }
+.discount-remove-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--gold-deep); opacity: 0.45; font-size: 15px; line-height: 1;
+  padding: 2px 4px; border-radius: 4px; margin-left: 4px; flex-shrink: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.discount-remove-btn:hover { opacity: 1; background: rgba(var(--gold-rgb),0.14); }
+
+/* Panel Footer */
+.panel-foot { padding: 14px 20px 18px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.sub-total-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.sub-label { font-size: 14px; color: var(--muted); }
+.sub-value { font-size: 14px; font-weight: 600; color: var(--text); }
+/* 院外繳費（例如榮總）：照列金額，不計入本院應收 */
+.ext-pay-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gold-line); }
+.ext-pay-row[hidden] { display: none; }
+.ext-pay-row .sub-label, .ext-pay-row .sub-value { color: var(--gold-deep); }
+.ext-pay-tag { display: block; font-size: 11px; color: var(--gold-deep); text-align: right; margin-top: 2px; }
+.divider   { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.grand-row { display: flex; justify-content: space-between; align-items: center; }
+.grand-label { font-size: 17px; font-weight: 600; color: var(--text); }
+.grand-value-wrap { display: flex; align-items: baseline; gap: 3px; }
+.grand-currency { font-size: 15px; color: var(--muted); font-weight: 500; }
+.grand-value { font-size: 32px; font-weight: 700; color: var(--primary); letter-spacing: -0.03em; line-height: 1; transition: color 0.2s, background 0.15s; cursor: pointer; border-radius: 6px; padding: 2px 6px; }
+#grandTotal:hover { background: rgba(var(--accent-rgb),0.10); }
+.action-row { display: flex; gap: 8px; margin-top: 14px; }
+
+/* ─── 已付金額 ──────────────────────────────────────────────────── */
+.paid-display, .discount-display {
+  font-size: 14px; font-weight: 600; color: var(--gold);
+  cursor: pointer; border-radius: 4px; padding: 1px 5px;
+  transition: background 0.15s;
+}
+.paid-display:hover, .discount-display:hover { background: rgba(var(--gold-rgb),0.10); }
+.paid-display.edited { opacity: 0.85; }
+.btn-clear, .btn-print {
+  flex: 1; padding: 10px; border-radius: 20px; cursor: pointer;
+  font-size: 14px; font-family: inherit; letter-spacing: 0.02em; transition: all 0.18s var(--ease);
+}
+.btn-clear { background: none; border: 1.5px solid var(--border); color: var(--muted); }
+.btn-clear:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-pale); }
+.btn-print { background: var(--primary); border: none; color: white; }
+.btn-print:hover { background: var(--accent); }
+
+/* Toast（可附「復原」動作） */
+.toast {
+  position: fixed; bottom: 22px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--primary); color: white;
+  padding: 9px 14px 9px 22px; border-radius: 22px;
+  font-size: 15px; box-shadow: var(--shadow-lg);
+  opacity: 0; transition: opacity 0.25s, transform 0.25s var(--ease);
+  pointer-events: none; z-index: 999; white-space: nowrap; letter-spacing: 0.02em;
+  display: flex; align-items: center; gap: 12px;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.has-action { pointer-events: auto; }
+.toast-msg { flex: 1; }
+.toast-action {
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28);
+  color: #FFF; font-family: inherit; font-size: 13.5px; font-weight: 600;
+  padding: 4px 14px; border-radius: 14px; cursor: pointer;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.toast-action:hover { background: rgba(255,255,255,0.26); }
+.toast-action.hidden { display: none; }
+
+/* ─── 重複計費提示（螢幕限定，不列印） ──────────────────────────── */
+.warn-block {
+  margin: 0 0 8px; padding: 9px 12px;
+  background: var(--danger-pale); border: 1px solid #EBC3BF;
+  border-left: 3px solid var(--danger);
+  border-radius: var(--radius-sm); animation: slideUp 0.2s var(--ease);
+}
+.warn-title { font-size: 12px; font-weight: 700; color: var(--danger); letter-spacing: 0.04em; margin-bottom: 3px; }
+.warn-text  { font-size: 12.5px; color: #7A3A34; line-height: 1.55; }
+
+/* ─── 還原上次清單提示列 ────────────────────────────────────────── */
+.restore-bar {
+  display: none; align-items: center; gap: 10px;
+  margin: 0 0 8px; padding: 9px 12px;
+  background: var(--gold-pale); border: 1px solid var(--gold-line);
+  border-radius: var(--radius-sm); animation: slideUp 0.25s var(--ease);
+}
+.restore-bar.show { display: flex; }
+.restore-text { flex: 1; font-size: 12.5px; color: var(--gold-deep); line-height: 1.5; }
+.restore-btn {
+  font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  padding: 4px 12px; border-radius: 12px; flex-shrink: 0;
+  background: var(--gold); border: none; color: #FFF; transition: opacity 0.15s;
+}
+.restore-btn:hover { opacity: 0.86; }
+.restore-dismiss {
+  background: none; border: none; cursor: pointer; color: var(--gold-deep);
+  opacity: 0.5; font-size: 15px; line-height: 1; padding: 2px 4px; flex-shrink: 0;
+}
+.restore-dismiss:hover { opacity: 1; }
+
+/* ─── Patient Name Input ────────────────────────────────────────── */
+.patient-name-row {
+  padding: 12px 22px 8px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.patient-name-label { font-size: 14px; color: var(--muted); white-space: nowrap; }
+.patient-name-input {
+  flex: 1; min-width: 0; height: 34px; padding: 0 14px;
+  border: 1.5px solid var(--border); border-radius: 20px;
+  font-family: inherit; font-size: 14px; color: var(--text);
+  background: var(--bg); outline: none;
+  transition: border-color 0.18s, background 0.18s;
+}
+.patient-name-input:focus { border-color: var(--accent); background: var(--surface); }
+.patient-greeting-label { font-size: 15px; color: var(--muted); white-space: nowrap; }
+.panel-head-inner { display: flex; align-items: center; padding: 8px 22px 14px; gap: 8px; }
+.panel-head-inner .panel-head-title { flex: 1; }
+
+/* ─── Letter Parts (print only) ─────────────────────────────────── */
+.letter-part { display: none; }
+.banner-addr { display: none; }
+
+
+/* ─── Endo Tree Navigation ───────────────────────────────── */
+.item-card.endo-nav { border-color: var(--accent-light); }
+.item-card.endo-nav .mode-badge { background: rgba(var(--accent-rgb),0.1); color: var(--accent); }
+.endo-nav-arrow { font-size: 22px; color: var(--accent); font-weight: 200; line-height: 1; }
+/* ─── Endo 橘色選取 & 淡化 ──────────────────────────────────────── */
+.item-card.endo-open {
+  border-color: var(--gold) !important;
+  background: var(--gold-pale) !important;
+  box-shadow: 0 0 0 1px var(--gold), var(--shadow-md) !important;
+}
+.item-card.endo-open .mode-badge { background: rgba(var(--gold-rgb),0.12) !important; color: var(--gold) !important; }
+.item-card.endo-open .endo-nav-arrow { color: var(--gold) !important; }
+.item-card.endo-ins {
+  border-color: var(--ins-color) !important;
+  background: var(--ins-pale) !important;
+  box-shadow: 0 0 0 1px var(--ins-color), var(--shadow-md) !important;
+}
+.item-card.endo-ins .mode-badge { background: rgba(var(--ins-rgb),0.12) !important; color: var(--ins-color) !important; }
+.item-card.endo-dimmed {
+  opacity: 0.22; pointer-events: auto;
+  transform: none !important; box-shadow: var(--shadow-sm) !important;
+}
+.item-card.endo-dimmed:hover { opacity: 0.5; }
+.endo-sub-row .item-card.selected {
+  border-color: var(--gold) !important;
+  background: var(--gold-pale) !important;
+  box-shadow: 0 0 0 1px var(--gold), var(--shadow-md) !important;
+}
+.endo-sub-row .item-card.selected .mode-badge { background: rgba(var(--gold-rgb),0.12) !important; color: var(--gold) !important; }
+.endo-sub-row .item-card.selected .endo-nav-arrow { color: var(--gold) !important; }
+.endo-sub-row.l3 .item-card.selected {
+  border-color: var(--gold) !important;
+  background: var(--gold-pale) !important;
+}
+.endo-sub-row.l3 .item-card.selected .check-dot { background: var(--gold) !important; }
+
+
+/* 自費內視鏡區內的次級分組標題（耗材），比分類大標輕，不搶視覺 */
+.endo-group-label {
+  grid-column: 1 / -1;
+  font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--muted); line-height: 1.6;
+  padding: 12px 4px 2px; margin-top: 4px;
+  border-top: 1px dashed var(--border);
+}
+/* 耗材列：獨立一列、欄寬較窄，五張並排不落單 */
+.endo-consum-row {
+  grid-column: 1 / -1;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 12px;
+}
+.endo-sub-row {
+  grid-column: 1 / -1; background: var(--accent-pale);
+  border-radius: var(--radius-sm); padding: 10px 10px 8px; margin-bottom: 2px;
+}
+.endo-sub-row.l3 { background: rgba(var(--ins-rgb),0.06); }
+.endo-sub-grid {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(170px,1fr)); gap: 8px;
+}
+
+
+/* ─── 自訂項目欄位標籤（依規範不使用 placeholder） ────────────────── */
+.custom-add-label {
+  display: block; font-size: 11.5px; color: var(--muted);
+  letter-spacing: 0.04em; margin: 0 0 3px 2px;
+}
+
+/* ═══ 文件檢視器（說明文件）════════════════════════════════
+   整頁顯示、標籤置於右側、＋／－ 縮放、方向鍵換項目。
+   兩頁式文件並列顯示，縮放時兩頁同步。 */
+#screen-doc { padding: 20px 28px 22px; overflow: hidden; }
+.doc-shell { flex: 1; display: flex; gap: 12px; min-height: 0; }
+.doc-stage { flex: 1; min-width: 0; position: relative; }
+.doc-toolbar {
+  position: absolute; top: 10px; left: 12px; right: 12px; z-index: 3;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; pointer-events: none;
+}
+.doc-topic {
+  font-size: 15px; font-weight: 700; color: var(--primary);
+  background: rgba(255,255,255,0.9); border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 8px; letter-spacing: 0.04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46%;
+}
+.doc-tools {
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0; pointer-events: auto;
+  background: rgba(255,255,255,0.9); border: 1px solid var(--border);
+  padding: 4px 6px; border-radius: 10px;
+}
+.doc-btn {
+  border: 1.4px solid var(--border); background: var(--surface); color: var(--primary);
+  height: 30px; min-width: 32px; padding: 0 10px; border-radius: 7px; cursor: pointer;
+  font-family: inherit; font-size: 14px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.doc-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-pale); }
+.doc-btn-print { gap: 5px; }
+.doc-btn-print svg { width: 15px; height: 15px; }
+.doc-zoom-val { min-width: 84px; text-align: center; font-size: 13px; color: var(--muted); letter-spacing: 0.02em; }
+.doc-canvas {
+  height: 100%; overflow: auto; scrollbar-gutter: stable; background: #EBEFF1; position: relative;
+  border: 1px solid var(--border); border-radius: 12px; padding: 10px;
+  display: flex; align-items: flex-start; justify-content: center; gap: 12px;
+}
+.doc-canvas img {
+  display: block; border-radius: 6px; background: #FFF;
+  box-shadow: 0 2px 12px rgba(21,40,49,0.16); flex-shrink: 0;
+}
+.doc-canvas img[data-loading] { opacity: 0; }
+/* 程式性收回焦點用，不顯示焦點框 */
+.doc-canvas:focus { outline: none; box-shadow: none; }
+.doc-loading {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 14px; pointer-events: none;
+}
+.doc-rail {
+  width: 176px; flex-shrink: 0; overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 5px; padding-right: 3px;
+}
+.doc-rail::-webkit-scrollbar { width: 4px; }
+.doc-rail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.doc-tab {
+  padding: 10px 12px; border-radius: 9px; font-size: 14px; line-height: 1.45;
+  letter-spacing: 0.04em; cursor: pointer; background: var(--bg); color: var(--muted);
+  border: 1px solid transparent; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.doc-tab:hover { background: var(--accent-pale); color: var(--accent); }
+.doc-tab.current { background: var(--accent); color: #FFF; font-weight: 700; }
+.doc-tab-pages { font-size: 11.5px; opacity: 0.8; flex-shrink: 0; }
+
+/* 右鍵選單 */
+.doc-ctx-menu {
+  position: fixed; z-index: 10000; min-width: 178px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; box-shadow: var(--shadow-lg); padding: 6px;
+}
+.doc-ctx-item {
+  display: block; width: 100%; padding: 9px 13px; border: none; background: none;
+  text-align: left; cursor: pointer; font-family: inherit; font-size: 14.5px;
+  color: var(--text); border-radius: 7px; white-space: nowrap; letter-spacing: 0.02em;
+}
+.doc-ctx-item:hover { background: var(--accent-pale); color: var(--accent); }
+.doc-ctx-sep { height: 1px; background: var(--border); margin: 5px 8px; }
+.doc-canvas img { cursor: context-menu; }
+
+/* 最大化：隱藏 banner 與費用清單，檢視區佔滿整個視窗 */
+.q-body.doc-max .banner { display: none; }
+.q-body.doc-max .pricing-panel { display: none; }
+.q-body.doc-max #screen-doc { padding: 10px 14px; }
+.q-body.doc-max #screen-doc .screen-nav { display: none; }
+
+@media screen and (max-width: 860px) {
+  .doc-shell { flex-direction: column; }
+  .doc-canvas { height: 62vh; }
+  .doc-rail { width: auto; flex-direction: row; flex-wrap: wrap; overflow: visible; }
+}
+
+/* ─── 分類內即時篩選 ───────────────────────────────────────────── */
+.cat-filter { display: flex; align-items: center; gap: 7px; margin-left: 18px; flex-shrink: 0; }
+.cat-filter.hidden { display: none; }
+.cat-filter-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.cat-filter-box { position: relative; display: flex; align-items: center; }
+.cat-filter-input {
+  width: 190px; height: 32px; padding: 0 30px 0 12px;
+  border: 1.5px solid var(--border); border-radius: 16px;
+  font-family: inherit; font-size: 14px; color: var(--text);
+  background: var(--surface); outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s, width 0.18s var(--ease);
+}
+.cat-filter-input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); width: 230px; }
+.cat-filter-clear {
+  position: absolute; right: 8px; background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 15px; line-height: 1; padding: 3px; border-radius: 50%;
+  display: none;
+}
+.cat-filter-clear.visible { display: block; }
+.cat-filter-clear:hover { color: var(--text); background: var(--bg); }
+.cat-filter-count { font-size: 12px; color: var(--muted); white-space: nowrap; min-width: 48px; }
+.filter-empty {
+  grid-column: 1 / -1; padding: 36px 16px; text-align: center;
+  font-size: 15px; color: var(--muted); line-height: 1.8;
+}
+
+/* ─── 鍵盤快捷提示（分類頁） ────────────────────────────────────── */
+.nav-hint {
+  margin-left: auto; display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--muted); flex-shrink: 0;
+}
+.nav-hint kbd {
+  font-family: inherit; font-size: 11px; background: var(--surface);
+  border: 1px solid var(--border); border-bottom-width: 2px;
+  border-radius: 5px; padding: 1px 6px; color: var(--muted);
+}
+
+/* ─── 響應式 ─────────────────────────────────────────────────────── */
+@media screen and (max-width: 1240px) { :host { --panel-w: 322px; } }
+@media screen and (max-width: 1040px) { :host { --panel-w: 290px; } .nav-hint { display: none; } }
+
+/* 平板直式／窄視窗：清單改為下方區塊，避免左右擠壓 */
+@media screen and (max-width: 860px) {
+  .q-body { height: auto; min-height: 100vh; overflow-y: auto; }
+  .banner { padding: 0 20px; height: auto; min-height: 76px; }
+  .banner-date { position: static; margin-left: auto; text-align: right; }
+  .banner-text { margin-top: 0; }
+  .layout { flex-direction: column; overflow: visible; }
+  .content { min-height: 68vh; }
+  .pricing-panel {
+    width: 100%; border-left: none; border-top: 2px solid var(--border);
+    box-shadow: none;
+  }
+  .panel-body { max-height: 46vh; }
+  #screen-category { padding: 16px 18px 22px; }
+  /* 直式／窄視窗時內容區已被壓縮，上方留白跟著收緊 */
+  #home-inner  { padding-top: clamp(24px, 4vh, 48px); }
+  .home-hero   { margin-bottom: clamp(20px, 2.6vh, 28px); }
+  .search-wrap { margin-bottom: clamp(28px, 4vh, 44px); }
+}
+
+
+/* ═══ 視覺改版（2026-10）════════════════════════════════════════════
+   冷灰中性底＋白卡片；深藍頁首、列印鍵與結算線當深色錨點，金色只做點綴。
+   標題與金額用襯線字。只覆寫外觀，不更動任何 class 名稱與功能。 */
+
+/* 頁首：深藍底，金線收邊 */
+.banner {
+  background: var(--primary);
+  box-shadow: 0 2px 12px rgba(21,40,49,0.22); border-bottom: none;
+}
+.banner::after { height: 2px; background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold) 70%, transparent 100%); opacity: .9; }
+.banner-name { font-family: var(--serif); font-weight: 700; color: #FFF; letter-spacing: 0.18em; font-size: 23px; }
+.banner-sub  { color: var(--gold-line); letter-spacing: 0.32em; font-size: 11.5px; margin-top: 3px; }
+.banner-date { color: rgba(255,255,255,0.62); }
+
+/* 首頁 */
+.home-hero-eyebrow { color: var(--gold); letter-spacing: 0.34em; font-weight: 700; font-size: 12px; }
+.home-hero-title { font-family: var(--serif); font-weight: 600; letter-spacing: 0.1em; }
+.home-hero-title strong { font-weight: 700; color: var(--primary); }
+.search-input { border: 1px solid var(--border-strong); box-shadow: var(--shadow-sm); height: 52px; border-radius: 26px; padding-left: 24px; }
+.search-input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
+.cat-card { border: 1px solid var(--border); padding-top: clamp(22px, 2.8vh, 30px); padding-bottom: clamp(18px, 2.4vh, 24px); }
+.cat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(var(--accent-rgb),0.45); }
+.cat-icon { background: var(--surface-warm); border: 1px solid var(--border); color: var(--accent); border-radius: 50%; }
+.cat-card:hover .cat-icon { background: var(--accent-pale); border-color: rgba(var(--accent-rgb),0.3); }
+.cat-label { font-family: var(--serif); font-weight: 700; letter-spacing: 0.12em; }
+.cat-count-badge { background: transparent; border: none; color: var(--muted); padding: 0; font-size: 12.5px; }
+
+/* 分類頁 */
+#screen-category { padding: 22px 32px 28px; }
+.back-btn { border: 1px solid var(--border-strong); background: var(--surface); }
+.screen-title { font-family: var(--serif); font-weight: 700; letter-spacing: 0.1em; }
+.screen-cat-icon { color: var(--gold); }
+.items-grid { gap: 14px; }
+.items-section-header {
+  font-size: 12.5px; letter-spacing: 0.14em; color: var(--accent);
+  border-bottom: 1px solid var(--border); padding: 18px 2px 8px; position: relative;
+}
+.items-section-header::after {
+  content: ''; position: absolute; left: 2px; bottom: -1px; width: 28px; height: 2px; background: var(--gold);
+}
+
+/* 項目卡片 */
+.item-card { border: 1px solid var(--border); padding: 16px 16px 14px; min-height: 116px; }
+.item-card:hover:not(.selected):not(.ins-mode) { transform: translateY(-2px); border-color: rgba(var(--accent-rgb),0.4); box-shadow: var(--shadow-md); }
+.item-card.selected { border-color: var(--accent); background: #F3F8FA; box-shadow: 0 0 0 1px var(--accent), var(--shadow-sm); transform: none; }
+.item-card.ins-mode { box-shadow: 0 0 0 1px var(--ins-color), var(--shadow-sm); transform: none; }
+.item-name { font-size: 15.5px; letter-spacing: 0.02em; }
+.item-desc { font-size: 12.8px; line-height: 1.6; }
+.mode-badge { font-size: 11px; font-weight: 500; padding: 1px 8px; letter-spacing: 0.08em; }
+.mode-badge.self { background: var(--surface-warm); color: var(--muted); border: 1px solid var(--border); }
+.item-card.selected .mode-badge.self { background: var(--surface); color: var(--accent); border-color: rgba(var(--accent-rgb),0.35); }
+.price-currency { font-size: 12px; letter-spacing: 0.04em; }
+.price-val { font-family: var(--serif); font-weight: 700; font-size: 23px; letter-spacing: 0; color: var(--primary); }
+.price-val.ins-price, .price-val.tbd { font-family: inherit; }
+.check-dot { width: 24px; height: 24px; }
+.endo-sub-row { background: var(--surface-warm); border: 1px solid var(--border); }
+
+/* 費用清單 */
+.pricing-panel { background: var(--surface); border-left: 1px solid var(--border); box-shadow: -6px 0 28px rgba(21,40,49,0.05); }
+.patient-name-row { padding: 14px 22px 10px; }
+.patient-name-input { border: 1px solid var(--border-strong); background: var(--surface-warm); }
+.panel-head-title { font-family: var(--serif); font-weight: 700; letter-spacing: 0.08em; font-size: 17px; white-space: nowrap; }
+.cart-count { font-family: "Noto Sans TC", sans-serif; font-weight: 500; }
+.panel-head-title .head-icon { color: var(--gold); }
+.panel-body { padding: 12px 16px; background: var(--surface-warm); }
+.cart-group-label {
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.24em; color: var(--accent);
+  border-bottom: 1px solid var(--border); padding: 12px 2px 5px; margin-bottom: 8px;
+}
+.cart-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 12px 12px 14px; box-shadow: var(--shadow-sm); }
+.cart-item-name { font-size: 14.5px; letter-spacing: 0.02em; }
+.cart-badge { font-weight: 500; font-size: 11px; letter-spacing: 0.08em; }
+.cart-item-price { font-family: var(--serif); font-size: 17px; }
+.cart-item-price.ins-p, .cart-item-price.tbd { font-family: inherit; }
+.discount-block { border-radius: 12px; }
+.panel-foot { background: var(--surface); border-top: 2px solid var(--primary); padding: 16px 22px 18px; }
+.sub-label { font-size: 13.5px; }
+.grand-label { font-family: var(--serif); font-weight: 700; letter-spacing: 0.12em; }
+.grand-value { font-family: var(--serif); font-size: 34px; letter-spacing: 0; }
+.grand-currency { font-size: 13px; letter-spacing: 0.04em; }
+.btn-clear, .btn-print { border-radius: 24px; padding: 11px; letter-spacing: 0.12em; }
+.btn-clear { border: 1px solid var(--border-strong); background: var(--surface); }
+.btn-print { background: var(--primary); box-shadow: 0 4px 14px rgba(21,40,49,0.25); }
+.btn-print:hover { background: var(--primary-mid); }
+.toast { background: var(--primary); }
+
+/* 說明文件 */
+.doc-canvas { background: #DFE6EA; border-color: var(--border); }
+.doc-tab { background: var(--surface); border-color: var(--border); }
+.doc-tab.current { background: var(--accent); border-color: var(--accent); }
+.doc-topic { font-family: var(--serif); }
+
+/* 篩選與提示 */
+.cat-filter-input { border: 1px solid var(--border-strong); }
+
+/* ─── Print ──────────────────────────────────────────────────────── */
+@page { margin: 0; size: A4; }
+
+.cart-notes-print { display: none; }
+
+@media print {
+  /* ═══ 報價單列印版（2026-10 改版）══════════════════════════════
+     A4 直式；頁首品牌列、信件開頭、分類明細、右側結算、備註、署名。
+     版面寬度由 .layout 左右 16mm 留白決定。 */
+  .q-body {
+    display: block !important;
+    height: auto !important; overflow: visible !important;
+    padding: 0 !important; background: #FFF !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    color: #1F2E37;
+  }
+
+  /* 頁首：左側診所名稱，右側日期與地址電話，下方金線 */
+  .banner {
+    display: grid !important; grid-template-columns: 1fr auto; align-items: end;
+    height: auto !important; padding: 10mm 16mm 3.5mm !important; margin: 0 !important;
+    background: #FFF !important; box-shadow: none !important;
+    border-bottom: none !important; position: relative !important;
+    break-after: avoid; page-break-after: avoid;
+  }
+  .banner::after {
+    display: block !important; left: 16mm !important; right: 16mm !important; bottom: 0 !important;
+    height: 1.5px !important; opacity: 1 !important; background: #BC7F30 !important;
+  }
+  .banner-text { text-align: left !important; margin: 0 !important; }
+  .banner-name { font-family: var(--serif); font-size: 21pt !important; font-weight: 700; color: #152831 !important; letter-spacing: 0.16em !important; line-height: 1.25; }
+  .banner-sub  { font-size: 9.5pt !important; color: #3E6A7C !important; letter-spacing: 0.42em !important; margin-top: 3px !important; font-weight: 700; }
+  .banner-date {
+    position: static !important; grid-column: 2; grid-row: 1;
+    align-self: start; color: #5D6C75 !important; font-size: 9pt !important; line-height: 1.5 !important;
+  }
+  .banner-addr {
+    display: block !important; position: static !important; grid-column: 2; grid-row: 1;
+    align-self: end; text-align: right; font-size: 9pt; line-height: 1.5; color: #5D6C75;
+  }
+  .banner-addr { white-space: nowrap; }
+
+  /* 信件開頭 */
+  .letter-part {
+    display: block !important;
+    font-family: var(--serif);
+    font-size: 10.5pt; line-height: 1.85; color: #1F2E37;
+  }
+  .letter-intro { padding: 5mm 16mm 1mm; }
+  .letter-intro p { margin: 0 !important; }
+  .letter-greeting { font-size: 14pt; font-weight: 700; margin-bottom: 1.5mm !important; letter-spacing: 0.04em; }
+  .letter-body { color: #3B4A53; }
+
+  /* 隱藏互動元素 */
+  .content, .action-row, .toast,
+  .search-wrap, .search-results, .back-btn, .panel-legend, .nav-hint, .restore-bar,
+  .app-revision, .cat-filter, .warn-block, .empty-state,
+  .tooltip-popup, .panel-head { display: none !important; }
+
+  .layout {
+    display: block !important; height: auto !important; overflow: visible !important;
+    padding: 0 16mm 2mm;
+  }
+  .pricing-panel {
+    display: block !important; width: 100% !important;
+    border: none !important; box-shadow: none !important; background: none !important;
+    height: auto !important; overflow: visible !important;
+  }
+  .panel-body {
+    overflow: visible !important; height: auto !important; max-height: none !important;
+    padding: 0 !important; background: none !important;
+  }
+
+  /* 分類標題 */
+  .cart-group-label {
+    display: block !important; position: relative;
+    font-size: 8.5pt !important; font-weight: 700 !important; letter-spacing: 0.3em !important;
+    color: #3E6A7C !important; padding: 4.5mm 0 1.2mm !important; margin: 0 !important;
+    border-bottom: 1px solid #3E6A7C !important;
+    break-after: avoid; page-break-after: avoid;
+  }
+
+  /* 明細列：名稱在左、金額在右，包含項目在下方兩欄 */
+  .cart-item {
+    display: flex !important; align-items: flex-start !important; gap: 4mm !important;
+    padding: 2.1mm 0 2mm !important; margin: 0 !important;
+    border: none !important; border-bottom: 0.6pt solid #D8E0E5 !important;
+    border-radius: 0 !important; background: transparent !important;
+    box-shadow: none !important; animation: none !important; transition: none !important;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .cart-item-body { display: block !important; }
+  .cart-item-name {
+    display: inline !important; white-space: normal !important;
+    font-size: 10.5pt !important; font-weight: 700 !important; color: #1F2E37 !important;
+    letter-spacing: 0.02em; margin: 0 !important;
+  }
+  .cart-item-meta { display: inline-flex !important; margin-left: 2mm; vertical-align: 1px; }
+  .cart-item-cat, .cart-badge.self { display: none !important; }
+  .cart-badge.ins { font-size: 7.5pt !important; padding: 0 5px !important; border: 0.6pt solid #14805C; background: none !important; }
+  .cart-price-wrap { align-self: flex-start !important; }
+  .cart-item-price {
+    font-family: var(--serif) !important; font-size: 11pt !important; font-weight: 700 !important;
+    color: #152831 !important; padding: 0 !important;
+  }
+  .cart-item-price.ins-p { font-family: inherit !important; font-size: 9.5pt !important; color: #14805C !important; }
+  .cart-remove-btn, .price-edit-hint, .price-revert-btn, .qty-ctrl { display: none !important; }
+  .ext-pay-tag { font-size: 8pt !important; margin-top: 0.5mm; }
+
+  .cart-notes-print {
+    display: block !important;
+    margin: 1.2mm 0 0 !important; padding: 0 0 0 3mm !important;
+    border: none !important; border-left: 1.2pt solid #E4C793 !important; border-radius: 0 !important;
+    background: transparent !important;
+    font-size: 8.6pt !important; color: #55636C !important; line-height: 1.7 !important;
+    overflow-wrap: anywhere;
+  }
+  /* 單項說明一欄排到金額前方；只有四行以上的套組內含項目才分兩欄 */
+  .cart-notes-print.cols { column-count: 2; column-gap: 8mm; }
+  .cart-notes-print-title { display: none !important; }
+
+  /* 優惠：一列金色字，不用色塊 */
+  .discount-block {
+    margin: 0 !important; padding: 2mm 0 !important; border: none !important;
+    border-bottom: 0.6pt solid #D8E0E5 !important; border-radius: 0 !important;
+    background: none !important; animation: none !important;
+  }
+  .discount-row { padding: 0.6mm 0 !important; border: none !important; }
+  .discount-name { font-size: 9.5pt !important; color: #7A4F14 !important; }
+  .discount-amt  { font-size: 10pt !important; color: #BC7F30 !important; padding: 0 !important; }
+  .discount-remove-btn { display: none !important; }
+
+  /* 結算：靠右的小計欄，應收總額加粗 */
+  .panel-foot {
+    width: 84mm; margin: 4mm 0 0 auto !important; padding: 0 !important;
+    background: none !important; border: none !important;
+    break-inside: avoid; page-break-inside: avoid; break-before: avoid; page-break-before: avoid;
+  }
+  .sub-total-row { margin: 0 0 0.8mm !important; }
+  .sub-label, .sub-value, .discount-display, .paid-display { font-size: 9.5pt !important; padding: 0 !important; }
+  .divider { margin: 1.8mm 0 2mm !important; border-top: 1.2pt solid #152831 !important; }
+  .grand-row { align-items: baseline !important; }
+  .grand-label { font-family: var(--serif); font-size: 12pt !important; letter-spacing: 0.14em !important; color: #152831 !important; }
+  .grand-currency { font-size: 9pt !important; }
+  .grand-value { font-family: var(--serif) !important; font-size: 22pt !important; color: #152831 !important; padding: 0 !important; }
+  .ext-pay-row { margin-top: 2mm !important; padding-top: 1.6mm !important; border-top: 0.8pt dashed #C9A56A !important; }
+
+  /* 備註與署名 */
+  .letter-part.letter-close {
+    display: grid !important; grid-template-columns: 1fr auto; column-gap: 6mm; align-items: baseline;
+    padding: 5mm 16mm 6mm; line-height: 1.7 !important;
+  }
+  .letter-remark, .letter-version { grid-column: 1 / -1; }
+  .letter-remark {
+    margin: 0; padding: 3mm 4mm; background: #F2F5F7 !important;
+    border-left: 2pt solid #BC7F30; font-size: 9pt; color: #4A5860;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .letter-remark p { margin: 0; line-height: 1.7; }
+  .letter-remark p:first-child { font-weight: 700; color: #3E6A7C; letter-spacing: 0.3em; font-size: 8.5pt; margin-bottom: 0.5mm; }
+  .letter-contact { margin: 4mm 0 0; font-size: 10pt; color: #3B4A53; }
+  .letter-sign { text-align: right; margin-top: 4mm; font-size: 11pt; font-weight: 700; letter-spacing: 0.12em; break-after: avoid; page-break-after: avoid; }
+  .letter-version {
+    margin: 1mm 0 0 !important; text-align: right !important; font-family: "Noto Sans TC", sans-serif;
+    font-size: 7.5pt !important; color: #8A97A0 !important; line-height: 1.4 !important;
+  }
+
+  #endoNote, #hcNote, #extPayNote { display: none !important; }
+  #endoNote.active, #hcNote.active, #extPayNote.active { display: block !important; }
+}
+</style>
+<div class="q-body" id="q-body" tabindex="-1">
+
+<!-- Banner -->
+<header class="banner">
+  <div class="banner-text">
+    <div class="banner-name">木子澄安診所</div>
+    <div class="banner-sub">醫療費用說明</div>
+  </div>
+  <div class="banner-date" id="bannerDate"></div>
+  <!-- 地址電話：只在列印時顯示於頁首左側 -->
+  <div class="banner-addr">高雄市仁武區仁孝路282號｜07-3739496</div>
+</header>
+
+<!-- ── 說明信件（列印用，螢幕隱藏）─────────────────── -->
+<div id="letterIntro" class="letter-part letter-intro">
+  <p class="letter-greeting"><span id="letterPatientName">___</span> 您好：</p>
+  <p class="letter-body">感謝您對木子澄安診所的信任，依您目前需求與醫療評估結果，提供以下醫療內容與費用說明：</p>
+</div>
+
+<div class="layout">
+  <div class="content">
+
+    <!-- Home Screen -->
+    <div class="screen active" id="screen-home">
+      <div id="home-inner">
+
+        <!-- 標題（上 1/4） -->
+        <div class="home-hero">
+          <div class="home-hero-eyebrow">Personal Medical Planning</div>
+          <div class="home-hero-title">訂製您的<strong>個人醫療</strong></div>
+        </div>
+
+        <!-- 搜尋列 -->
+        <div class="search-wrap">
+          <label class="field-label" for="searchInput">搜尋檢查、治療或套組<kbd>Ctrl</kbd><kbd>K</kbd></label>
+          <div class="search-box">
+            <input class="search-input" id="searchInput" type="text"
+                   autocomplete="off" spellcheck="false">
+            <span class="search-icon" id="searchIcon" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;"><svg width="20" height="20" viewBox="0 0 28 28" fill="none" style="display:block">
+              <circle cx="12" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+              <line x1="17.5" y1="16.5" x2="24" y2="23" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg></span>
+            <button class="search-clear" id="searchClear" title="清除">✕</button>
+            <div class="search-results" id="searchResults"></div>
+          </div>
+        </div>
+
+        <!-- 五大選單（正中央） -->
+        <div class="cat-grid-wrap">
+          <div class="cat-grid" id="catGrid"></div>
+        </div>
+
+        <!-- 隱藏功能區：首頁按 X 顯示／再按一次收起 -->
+        <div class="cat-extra" id="catExtra">
+          <div class="cat-extra-grid" id="catExtraGrid"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Category Screen -->
+    <div class="screen" id="screen-category">
+      <div class="screen-nav">
+        <button class="back-btn" id="backBtn"><span class="back-arrow">‹</span> 返回選單</button>
+        <div class="screen-heading">
+          <span class="screen-cat-icon" id="catIconEl"></span>
+          <div>
+            <div class="screen-title" id="catTitleEl"></div>
+            <div class="screen-desc"  id="catDescEl"></div>
+          </div>
+        </div>
+        <div class="cat-filter hidden" id="catFilter">
+          <label class="cat-filter-label" for="catFilterInput">篩選</label>
+          <div class="cat-filter-box">
+            <input class="cat-filter-input" id="catFilterInput" type="text"
+                   autocomplete="off" spellcheck="false">
+            <button class="cat-filter-clear" id="catFilterClear" title="清除篩選">✕</button>
+          </div>
+          <span class="cat-filter-count" id="catFilterCount"></span>
+        </div>
+        <div class="nav-hint">
+          <span><kbd>Esc</kbd> 返回</span>
+          <span><kbd>Ctrl</kbd><kbd>K</kbd> 搜尋</span>
+        </div>
+      </div>
+      <div class="items-scroll">
+        <div class="items-grid" id="itemsGrid"></div>
+      </div>
+    </div>
+
+    <!-- Document Screen（說明文件）-->
+    <div class="screen" id="screen-doc">
+      <div class="screen-nav">
+        <button class="back-btn" id="docBackBtn"><span class="back-arrow">‹</span> 返回選單</button>
+        <div class="screen-heading">
+          <span class="screen-cat-icon" id="docIconEl"></span>
+          <div>
+            <div class="screen-title" id="docTitleEl"></div>
+            <div class="screen-desc"  id="docDescEl"></div>
+          </div>
+        </div>
+        <div class="nav-hint">
+          <span><kbd>←</kbd><kbd>→</kbd> 換項目</span>
+          <span><kbd>+</kbd><kbd>-</kbd> 縮放</span>
+          <span><kbd>F</kbd> 最大化</span>
+          <span>右鍵列印／複製／另存</span>
+          <span><kbd>Esc</kbd> 返回</span>
+        </div>
+      </div>
+      <div class="doc-shell">
+        <div class="doc-stage">
+          <div class="doc-toolbar">
+            <div class="doc-topic" id="docTopic"></div>
+            <div class="doc-tools">
+              <button class="doc-btn" id="docZoomOut" title="縮小（按 - 鍵）">−</button>
+              <span class="doc-zoom-val" id="docZoomVal"></span>
+              <button class="doc-btn" id="docZoomIn" title="放大（按 + 鍵）">＋</button>
+              <button class="doc-btn" id="docFitBtn" title="整頁顯示（按 0 鍵）">整頁</button>
+              <button class="doc-btn" id="docMaxBtn" title="最大化（按 F 鍵）">最大化</button>
+              <button class="doc-btn doc-btn-print" id="docPrintBtn" title="列印（也可在圖片上按右鍵選擇頁數）">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 9V3.5h10V9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="7" y="14" width="10" height="6.5" rx="1" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>列印</button>
+            </div>
+          </div>
+          <!-- tabindex 讓列印結束後可用程式把焦點收回這裡，不進 Tab 順序 -->
+          <div class="doc-canvas" id="docCanvas" tabindex="-1"></div>
+        </div>
+        <div class="doc-rail" id="docRail"></div>
+      </div>
+    </div>
+
+    <!-- 最後改版日期：貼在 content 底部而非 #home-inner，
+         內容高度改變（例如展開隱藏功能區）時位置完全不動 -->
+    <div class="app-revision" id="appRevision"></div>
+
+  </div><!-- /content -->
+
+  <!-- Pricing Panel -->
+  <aside class="pricing-panel">
+    <div class="panel-head">
+      <div class="patient-name-row">
+        <label class="patient-name-label" for="patientNameInput">稱謂</label>
+        <input type="text" id="patientNameInput" class="patient-name-input" autocomplete="off">
+        <span class="patient-greeting-label">您好</span>
+      </div>
+      <div class="panel-head-inner">
+        <div class="panel-head-title">
+          <span class="head-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="4" y="3.5" width="16" height="18" rx="2.4" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M9 3.5V2.6A1.1 1.1 0 0110.1 1.5h3.8A1.1 1.1 0 0115 2.6v.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M8 10h8M8 14h8M8 18h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg></span>
+          費用清單 <span class="cart-count zero" id="cartCount">0</span>
+        </div>
+        <div class="panel-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>自費</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--ins-color)"></div>免自費</div>
+          <div class="legend-item" style="font-size:11px;opacity:.6;margin-left:4px">右鍵／長按切換</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body" id="panelBody">
+      <div class="restore-bar" id="restoreBar">
+        <span class="restore-text" id="restoreText"></span>
+        <button class="restore-btn" id="restoreBtn">還原</button>
+        <button class="restore-dismiss" id="restoreDismiss" title="不還原">✕</button>
+      </div>
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3.5" y="4" width="17" height="16.5" rx="2.4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M3.5 9h17" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7.5 13.5h6M7.5 16.8h3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg></div>
+        <div class="empty-text">尚未選取任何項目<br>請從左側選擇檢查或治療項目</div>
+      </div>
+      <div id="warnBlock"></div>
+      <div id="cartList"></div>
+      <div id="discountBlock"></div>
+    </div>
+    <div class="panel-foot">
+      <div class="sub-total-row"><span class="sub-label">自費小計</span><span class="sub-value" id="selfTotal">NT$ 0</span></div>
+      <div class="sub-total-row">
+        <span class="sub-label">優惠折扣</span>
+        <div class="cart-price-wrap">
+          <span class="discount-display" id="discountDisplay">— NT$ 0</span>
+          <span class="price-edit-hint" style="color:var(--gold);opacity:0.6">點擊修改金額</span>
+        </div>
+      </div>
+      <div class="sub-total-row">
+        <span class="sub-label" style="color:var(--gold)">已付金額</span>
+        <div class="cart-price-wrap">
+          <span class="paid-display" id="paidDisplay">— NT$ 0</span>
+          <span class="price-edit-hint" style="color:var(--gold);opacity:0.6">點擊修改金額</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="grand-row">
+        <span class="grand-label">應收總額</span>
+        <div class="grand-value-wrap">
+          <span class="grand-currency">NT$</span>
+          <span class="grand-value" id="grandTotal">0</span>
+        </div>
+      </div>
+      <div class="sub-total-row ext-pay-row" id="extPayRow" hidden>
+        <span class="sub-label" id="extPayLabel">另於榮總繳費</span>
+        <span class="sub-value" id="extPayValue">NT$ 0</span>
+      </div>
+      <div class="action-row">
+        <button class="btn-clear" id="btnClear">清除全部</button>
+        <button class="btn-print" id="btnPrint">列印清單</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ── 說明信件結尾（列印用，螢幕隱藏）────────────── -->
+<div id="letterClose" class="letter-part letter-close">
+  <div class="letter-remark">
+    <p>備註：</p>
+    <p>※ 實際醫療內容將依醫師診察與檢查結果調整，如有額外必要醫療處置，將事前充分說明。</p>
+    <p id="hcNote">※ 健檢項目都可以單獨選擇；符合國民健康署公費篩檢資格的項目，本診所會先協助您使用公費。</p>
+    <p id="extPayNote">※ 低劑量肺部電腦斷層由本診所協助安排，依榮總定價，於榮總檢查當日繳費，不列入本院應收總額；報告回到本診所，與其他項目一起說明。</p>
+    <p id="endoNote">※ 此為內視鏡預估費用，如檢查過程中發現出血或內視鏡處置高風險病灶時，<br>醫師會依臨床需求使用注射針以及止血藥物（1,500 元）、止血夾（每支 1,000 元）。</p>
+  </div>
+  <p class="letter-contact">若您有任何問題，歡迎與我們聯繫。</p>
+  <p class="letter-sign">木子澄安診所 敬上</p>
+  <!-- 價目版本：日後對帳或費用爭議時可回推當時適用的價目表 -->
+  <p class="letter-version" id="letterVersion"></p>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip-popup" id="tooltipPopup"></div>
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="toast-msg" id="toastMsg"></span>
+  <button class="toast-action hidden" id="toastAction"></button>
+</div>
+
+</div>

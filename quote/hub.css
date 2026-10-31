@@ -1,0 +1,31 @@
+/* 工作台載入報價工具時才加上（見 ../index.html 的 mountQuote）：換成工作台的暖白色票、拿掉頁首，畫面撐滿分頁。
+   全部包在 @media screen 裡：列印出來的報價單維持原本的品牌配色與版面，不受影響。 */
+:host{height:100%; position:relative;}
+@media print{ :host{height:auto;} }
+@media screen{
+  /* 配色：灰紫（主色）＋淡金（輔色）的莫蘭迪色調，與工作台「報價」分頁一致；底色、文字、框線用工作台的色票 */
+  :host{
+    --primary:#4A3D59; --primary-dark:#3A2F47; --primary-mid:#5C4A6D;
+    --accent:#7D6A8E; --accent-light:#9584A5; --accent-pale:#EEE9F2; --accent-rgb:125,106,142;
+    --gold:#B0894F; --gold-pale:#F6EFE3; --gold-line:#E0CDAE; --gold-deep:#7A5A2E; --gold-rgb:176,137,79;
+    --bg:#F5F4EE; --surface:#FFFFFF; --surface-warm:#FAF9F5;
+    --text:#1F1E1D; --muted:#6F6B63; --border:#E6E3DA; --border-strong:#D6D2C6;
+    --shadow-sm:0 1px 2px rgba(31,30,29,.04), 0 1px 6px rgba(31,30,29,.04);
+    --shadow-md:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06);
+    --shadow-lg:0 2px 4px rgba(31,30,29,.05), 0 12px 32px rgba(31,30,29,.10);
+    --focus-ring:0 0 0 3px rgba(125,106,142,.28);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  }
+  /* 報價工具原本撐滿整個視窗，在工作台裡改成撐滿分頁 */
+  .q-body{position:absolute; inset:0; height:auto !important;}
+  /* 頁首由工作台的頂端列取代；改版日期顯示在工作台底列 */
+  .banner, .app-revision{display:none !important;}
+  /* 右側清單與工作台卡片同樣的框線、圓角與陰影 */
+  .pricing-panel{border-left:1px solid var(--border) !important; box-shadow:none !important;}
+  .panel-foot{border-top:1px solid var(--border) !important;}
+  /* 「列印」按鈕與工作台相同：淡底＋深色字，滑過時才填主色 */
+  .btn-print{background:var(--accent-pale) !important; color:var(--primary) !important; box-shadow:none !important;
+    border:1px solid rgba(var(--accent-rgb),.35) !important;}
+  .btn-print:hover{background:var(--accent) !important; color:#fff !important;}
+  .toast{background:var(--text) !important;}
+}

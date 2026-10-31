@@ -8,10 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
 <script>
-/* 開頁就同時下載三個工具的畫面與程式，不必等前一個裝好才開始抓下一個（健檢報告要等減重報告裝好才執行，但檔案可以先下載） */
+/* 開頁就同時下載四個工具的畫面與程式，不必等前一個裝好才開始抓下一個（健檢報告要等減重報告裝好才執行，但檔案可以先下載） */
 (function(){
   var base = location.protocol === 'file:' ? 'https://adigu2025.github.io/tools/' : './';
-  [['calc/view.html','fetch'],['weight/view.html','fetch'],['checkup/view.html','fetch'],['calc/hub.css','fetch'],
+  [['quote/view.html','fetch'],['quote/hub.css','fetch'],['quote/app.js','script'],
+   ['calc/view.html','fetch'],['weight/view.html','fetch'],['checkup/view.html','fetch'],['calc/hub.css','fetch'],
    ['lab/lab.js','script'],['weight/app.js','script'],['weight/report.js','script'],
    ['checkup/app.js','script'],['checkup/report.js','script'],['calc/app.js','script']].forEach(function(p){
     var l = document.createElement('link');
@@ -33,13 +34,14 @@
   --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06);
   --bar-h:80px; --foot-h:30px;
 }
-/* 四個分頁各用一個霍格華茲學院的代表色（主色＋輔色），只用在分頁、選取狀態、主要按鈕與細線；
+/* 報價用灰紫；其餘四個分頁各用一個霍格華茲學院的代表色（主色＋輔色），只用在分頁、選取狀態、主要按鈕與細線；
    大面積底色維持暖白，內文維持墨色，閱讀舒適度不受影響。
    --acc 主色（填色）、--acc-fg 主色上的文字、--acc-2 輔色（細線、指示條）、--acc-soft 淡底、--acc-text 白底上可讀的強調字色。
    赫夫帕夫的黃色當底時字用黑色；史萊哲林的銀色太淺，指示條改用較深的銀灰。
    色調採莫蘭迪感：原色降低彩度、略提亮度，主色上的白字仍維持 4.5:1 以上。
    選中的分頁與「列印」按鈕用淡底＋深色字，滑過時才填主色，畫面不厚重。 */
-body{--acc:#5B6B8C; --acc-fg:#fff; --acc-2:#A88A62; --acc-soft:#E8ECF3; --acc-text:#3E4C6B;}         /* 臨床計算：雷文克勞 藍＋銅 */
+body{--acc:#7D6A8E; --acc-fg:#fff; --acc-2:#B0894F; --acc-soft:#EEE9F2; --acc-text:#5C4A6D;}         /* 報價：灰紫＋淡金 */
+body[data-view="calc"]{--acc:#5B6B8C; --acc-fg:#fff; --acc-2:#A88A62; --acc-soft:#E8ECF3; --acc-text:#3E4C6B;}   /* 臨床計算：雷文克勞 藍＋銅 */
 body[data-view="weight"]{--acc:#E2C477; --acc-fg:#4A4038; --acc-2:#4A4038; --acc-soft:#F6EDD3; --acc-text:#6B5520;} /* 製作報告：赫夫帕夫 黃＋黑 */
 body[data-view="edu"]{--acc:#9B5A57; --acc-fg:#fff; --acc-2:#C9A96A; --acc-soft:#F3E6E4; --acc-text:#7A3F3D;}       /* 衛教圖卡：葛來分多 紅＋金 */
 body[data-view="print"]{--acc:#587562; --acc-fg:#fff; --acc-2:#A3A8AB; --acc-soft:#E5EDE7; --acc-text:#3F5A48;}     /* 列印表單：史萊哲林 綠＋銀 */
@@ -65,7 +67,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
   box-shadow:0 1px 2px rgba(31,30,29,.08), 0 2px 8px rgba(31,30,29,.06);}
 /* 分頁圖示：來源是主 repo 的「圖示」資料夾（icons.js），滑過時有小動畫。
    改成各分頁的學院色：線條用深色（--dot-ink），紙白部分用淡色，其餘填色用學院色（--dot），不畫暗面 */
-.hub-tab[data-view="calc"]{--dot:#5B6B8C; --dot-ink:#3E4C6B;} .hub-tab[data-view="weight"]{--dot:#E2C477; --dot-ink:#6B5520;}
+.hub-tab[data-view="quote"]{--dot:#7D6A8E; --dot-ink:#5C4A6D;} .hub-tab[data-view="calc"]{--dot:#5B6B8C; --dot-ink:#3E4C6B;} .hub-tab[data-view="weight"]{--dot:#E2C477; --dot-ink:#6B5520;}
 .hub-tab[data-view="edu"]{--dot:#9B5A57; --dot-ink:#7A3F3D;} .hub-tab[data-view="print"]{--dot:#587562; --dot-ink:#3F5A48;}
 .hub-tab .ic{width:20px; height:20px; margin-right:8px; vertical-align:-4px; color:var(--dot-ink);}
 .hub-tab .ic [fill]:not([fill="none"]){fill:var(--dot);}
@@ -98,6 +100,20 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .hub-main{position:relative; height:calc(100dvh - var(--bar-h) - var(--foot-h)); display:grid;
   grid-template-columns:1fr; grid-template-areas:"main";}
 .pane{grid-area:main; min-height:0; min-width:0; visibility:hidden; pointer-events:none;}
+/* 報價直接放在工作台裡（quote/view.html 裝進 #quote-host 的 shadow root）。準備好之前先遮住，不會看到原本的外觀再跳成工作台外觀 */
+#quote-host{display:block; height:100%; background:var(--bg);}
+#quote-host.loading{opacity:0;}
+/* 列印報價單時只印報價這一區（window.QUOTE_PRINT 加上 body.print-quote），版面由報價工具自己的列印樣式決定 */
+@media print{
+  body.print-quote .hub-bar, body.print-quote .hub-foot, body.print-quote .toast, body.print-quote .pane:not(#pane-quote){display:none !important;}
+  html:has(body.print-quote), body.print-quote{height:auto; background:#fff;}
+  body.print-quote .hub-main{display:block; height:auto;}
+  body.print-quote #pane-quote{visibility:visible; height:auto;}
+  body.print-quote #quote-host{height:auto;}
+}
+/* 報價的說明文件最大化時，工作台的頂端列與底列一起收起 */
+body.q-max .hub-bar, body.q-max .hub-foot{display:none;}
+body.q-max .hub-main{height:100dvh;}
 /* 臨床計算直接放在工作台裡（calc/view.html 裝進 #calc-host 的 shadow root）。
    準備好之前先遮住（保留版面，量測字級才準），避免看到排版調整的過程 */
 #calc-host{display:block; height:100%; background:var(--bg);}
@@ -139,6 +155,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .rep-card.soon .ico{background:var(--sunken); color:var(--faint);}
 .rep-empty{padding:48px 32px; text-align:center; color:var(--muted);}
 .rep-empty b{display:block; font-family:var(--serif); font-size:24px; color:var(--ink); margin-bottom:8px;}
+.hub-main[data-view="quote"]  #pane-quote,
 .hub-main[data-view="calc"]   #pane-calc,
 .hub-main[data-view="weight"] #pane-weight,
 .hub-main[data-view="edu"]    #pane-edu,
@@ -307,10 +324,11 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
   <div class="hub-brand">木子澄安診所</div>
   <nav class="hub-tabs" role="tablist" aria-label="切換工具">
     <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="mz-sh" clipPathUnits="objectBoundingBox"><path d="M1 0V1H0z"/></clipPath></defs></svg>
-    <button class="hub-tab" role="tab" data-view="calc"   aria-selected="true"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-calc' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='none'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='#4C74E0' stroke='none'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='none'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='#F5B841' stroke='none'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='none'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='none'><path class='a-draw' pathLength='1' stroke='#FFFFFF' d='M10 7.25h4'/><path d='M9 13h0M12 13h0M15 13h0M9 17.5h0M12 17.5h0'/></g></svg>臨床計算<kbd>Alt+1</kbd></button>
-    <button class="hub-tab" role="tab" data-view="weight" aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-weight' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#4C74E0' stroke='none'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='none'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='#FFFFFF' stroke='none'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='none'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='none'><path class='a-swing' d='M12 11.5l1.75-2.25'/><path stroke='#FFFFFF' d='M8 16.5h2.5M13.5 16.5H16'/></g></svg>製作報告<kbd>Alt+2</kbd></button>
+    <button class="hub-tab" role="tab" data-view="quote"  aria-selected="true"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-quote' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><path d='M5.5 2.5h13v19l-2.17-1.4-2.16 1.4-2.17-1.4-2.17 1.4-2.16-1.4-2.17 1.4z'/></g><g fill='none'><path d='M5.5 2.5h13v19l-2.17-1.4-2.16 1.4-2.17-1.4-2.17 1.4-2.16-1.4-2.17 1.4z'/></g><g fill='#4C74E0' stroke='none'><circle cx='14.5' cy='14.5' r='2.75'/></g><g fill='none'><circle cx='14.5' cy='14.5' r='2.75'/><path class='a-draw' pathLength='1' d='M8.5 7h7'/><path d='M8.5 10.25h4'/></g></svg>報價<kbd>Alt+1</kbd></button>
+    <button class="hub-tab" role="tab" data-view="calc"   aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-calc' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='none'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='#4C74E0' stroke='none'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='none'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='#F5B841' stroke='none'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='none'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='none'><path class='a-draw' pathLength='1' stroke='#FFFFFF' d='M10 7.25h4'/><path d='M9 13h0M12 13h0M15 13h0M9 17.5h0M12 17.5h0'/></g></svg>臨床計算<kbd>Alt+2</kbd></button>
     <button class="hub-tab" role="tab" data-view="edu"    aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-edu' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g class='a-fan'><g fill='#F5B841' stroke='none'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g><g fill='none'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g></g><g fill='#FFFFFF' stroke='none'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='none'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='#F08FA0' stroke='none'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='none'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='none'><path d='M6.5 18.5l3-3 2 2 1.25-1.25 1.75 1.75'/></g></svg>衛教圖卡<kbd>Alt+3</kbd></button>
-    <button class="hub-tab" role="tab" data-view="print"  aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-print' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='none'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='#4C74E0' stroke='none'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='none'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='#F5B841' stroke='none'><circle cx='17.5' cy='11' r='1'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><circle cx='17.5' cy='11' r='1'/></g><g class='a-feed'><g fill='#FFFFFF' stroke='none'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g><g fill='none'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g></g><g fill='none'><path class='a-feed' d='M9.5 17h5M9.5 19.25h3'/></g></svg>列印表單<kbd>Alt+4</kbd></button>
+    <button class="hub-tab" role="tab" data-view="weight" aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-weight' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#4C74E0' stroke='none'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='none'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='#FFFFFF' stroke='none'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='none'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='none'><path class='a-swing' d='M12 11.5l1.75-2.25'/><path stroke='#FFFFFF' d='M8 16.5h2.5M13.5 16.5H16'/></g></svg>製作報告<kbd>Alt+4</kbd></button>
+    <button class="hub-tab" role="tab" data-view="print"  aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-print' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='none'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='#4C74E0' stroke='none'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='none'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='#F5B841' stroke='none'><circle cx='17.5' cy='11' r='1'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><circle cx='17.5' cy='11' r='1'/></g><g class='a-feed'><g fill='#FFFFFF' stroke='none'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g><g fill='none'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g></g><g fill='none'><path class='a-feed' d='M9.5 17h5M9.5 19.25h3'/></g></svg>列印表單<kbd>Alt+5</kbd></button>
   </nav>
   <div class="hub-chips" aria-live="polite">
     <button class="chip" id="chip-calc" data-go="calc" hidden></button>
@@ -323,7 +341,8 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
   </div>
 </header>
 
-<main class="hub-main" id="hub-main" data-view="calc" data-split="0" data-rep="home">
+<main class="hub-main" id="hub-main" data-view="quote" data-split="0" data-rep="home">
+  <section class="pane" id="pane-quote"><div id="quote-host" class="loading"></div></section>
   <section class="pane" id="pane-calc"><div id="calc-host" class="loading"></div></section>
   <section class="pane" id="pane-weight">
     <div id="weight-host" class="loading"></div>
@@ -417,7 +436,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 <div class="modal" id="clear-modal" role="dialog" aria-modal="true" aria-labelledby="cm-title" hidden>
   <div class="modal-card">
     <h2 id="cm-title">清除這位病人的資料？</h2>
-    <p>「臨床計算」「減重報告」「健檢報告」畫面上的輸入與結果會全部清空。</p>
+    <p>「報價」「臨床計算」「減重報告」「健檢報告」畫面上的輸入與結果會全部清空，報價清單與稱謂也會清掉。</p>
     <p class="warn" id="cm-pages" hidden>健檢報告上傳的報告圖片還沒匯出備份，清除後要重新上傳。</p>
     <p class="sub">減重報告裡已按「儲存」的病人紀錄、已匯出的健檢備份檔不受影響。</p>
     <div class="modal-acts">
@@ -436,15 +455,16 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 <script>
 const APP_REVISION = '2026-10-31';
 
-/* 減重報告與臨床計算都直接放在工作台裡，不再用 iframe：
-   各自的畫面檔（weight/view.html、calc/view.html）由 mount.js 裝進 #weight-host、#calc-host 的 shadow root，
-   樣式與 id 關在裡面，和工作台互不影響。程式以 WD／WB（減重）、CD／CB（臨床計算）操作自己的畫面與捲動區。
-   舊網址 tools/weight/ 轉到這裡；tools/calc/ 是病人版，與工作台共用同一份畫面與程式。
+/* 報價、減重報告與臨床計算都直接放在工作台裡，不再用 iframe：
+   各自的畫面檔（quote/view.html、weight/view.html、calc/view.html）由 mount.js 裝進 #quote-host、#weight-host、#calc-host 的 shadow root，
+   樣式與 id 關在裡面，和工作台互不影響。程式以 QD／QB（報價）、WD／WB（減重）、CD／CB（臨床計算）操作自己的畫面與捲動區。
+   舊網址 tools/weight/、tools/quote/、clinic-planner 轉到這裡；tools/calc/ 是病人版，與工作台共用同一份畫面與程式。
    以 file:// 開啟時改讀線上版，只剩分頁切換與保留結果。 */
 const IS_FILE = location.protocol === 'file:';
 const BASE = IS_FILE ? 'https://adigu2025.github.io/tools/' : './';
 // 清除時只刪「目前填寫中」的暫存，減重系統已儲存的紀錄（obesity_records_v1）不動。
 const CLEAR_KEYS = {
+  quote:  [['local','muzicheng_planner_state_v1']],
   calc:   [['session','muzi-calc-state']],
   weight: [['local','obesity_draft_v1']],
   checkup: [['local','checkup_draft_v1']]
@@ -455,6 +475,34 @@ const EDU_AFTER = [['針劑注射與保存', '藥物選擇']];
 
 const main = document.getElementById('hub-main');
 const revs = {};
+
+/* 報價。QD、QB 是報價程式共用的全域變數；工作台外觀 quote/hub.css 只在這裡加上 */
+let QD = null, QB = null;
+async function mountQuote(){
+  const host = document.getElementById('quote-host');
+  try{
+    await mountView(host, BASE + 'quote/view.html', {
+      css: [BASE + 'quote/hub.css'],
+      onRoot: root=>{ QD = root; QB = root.getElementById('q-body'); },
+      scripts: [BASE + 'quote/app.js']
+    });
+  }catch(err){ mountFailed(host, '報價', err); return; }
+  revs.quote = window.Q_REVISION;
+  renderRevision();
+  host.classList.remove('loading');
+  if(main.dataset.view === 'quote') QB.focus({preventScroll:true});
+}
+// 報價單的列印：只印報價這一區（見樣式 body.print-quote）。
+// @page 寫在 shadow root 裡不一定有作用，列印時在工作台另外放一份：A4、邊界 0，瀏覽器不會加上網址與日期的頁首頁尾
+window.QUOTE_PRINT = ()=>{
+  const page = document.createElement('style');
+  page.textContent = '@page{size:A4;margin:0;}';
+  document.head.appendChild(page);
+  document.body.classList.add('print-quote');
+  window.print();
+  document.body.classList.remove('print-quote');
+  page.remove();
+};
 
 /* 減重報告。WD、WB 是減重程式共用的全域變數 */
 let WD = null, WB = null, weightReady = false;
@@ -543,6 +591,7 @@ function imgSrcAttr(view, src){ return (main.dataset.view === view ? 'src' : 'da
 function setView(v){
   // 最大化只用在衛教與列印表單，切到其他分頁時先結束，否則上方分頁列會一直隱藏
   if(document.body.classList.contains('edu-max') && v !== 'edu' && v !== 'print') toggleMax();
+  if(document.body.classList.contains('q-max') && v !== 'quote' && window.Q_EXIT_MAX) Q_EXIT_MAX();
   main.dataset.view = v;
   document.querySelectorAll('.hub-tab').forEach(b=> b.setAttribute('aria-selected', String(b.dataset.view === v)));
   document.getElementById('btn-split').hidden = (v !== 'edu');
@@ -560,10 +609,13 @@ function setView(v){
   }
   // 頁面重新整理後回到同一個分頁
   store('hub-view', v);
+  // 報價的 Ctrl+K、Esc、方向鍵也一樣，焦點要在報價畫面內
+  if(v === 'quote' && QB) QB.focus({preventScroll:true});
   // 臨床計算的 ESC、貼上截圖等操作要在焦點位於計算畫面內時才有作用
   if(v === 'calc' && CB) CB.focus({preventScroll:true});
 }
 const FOOT_HINT = {
+  quote:  'Ctrl+K 搜尋　Esc 返回選單　右鍵切換自費／免自費',
   calc:   '以上結果僅供臨床參考，實際診斷與治療須由醫師綜合判斷。數值只在本機計算，不會上傳。',
   report: '選擇要製作的報告。',
   weight: '減重報告會自動暫存草稿；上傳的檔案只在這台電腦讀取，不會上傳。按 Esc 回到報告種類。',
@@ -606,7 +658,7 @@ document.getElementById('btn-split').addEventListener('click', e=>{
 
 function onHubKey(e){
   if(e.altKey && !e.ctrlKey && !e.metaKey){
-    const v = {'1':'calc','2':'weight','3':'edu','4':'print'}[e.key];
+    const v = {'1':'quote','2':'calc','3':'edu','4':'weight','5':'print'}[e.key];
     if(v){ e.preventDefault(); setView(v); return true; }
   }
   return false;
@@ -789,6 +841,7 @@ function splitCalcPanels(){
 }
 function renderRevision(){
   const parts = ['最後改版：' + APP_REVISION];
+  if(revs.quote) parts.push('報價 ' + revs.quote);
   if(revs.calc) parts.push('計算 ' + revs.calc);
   if(revs.weight) parts.push('減重 ' + revs.weight);
   if(revs.checkup) parts.push('健檢 ' + revs.checkup);
@@ -1354,14 +1407,15 @@ function toast(msg){
 }
 
 renderRevision();
+mountQuote();
 mountCalc();
 mountWeight().then(mountCheckup);
 renderRail();
 renderForms();
 const lastRep = recall('hub-rep', 'home');
 main.dataset.rep = ['home','weight','checkup'].includes(lastRep) ? lastRep : 'home';
-const lastView = recall('hub-view', 'calc');
-setView(['calc','weight','edu','print'].includes(lastView) ? lastView : 'calc');
+const lastView = recall('hub-view', 'quote');
+setView(['quote','calc','weight','edu','print'].includes(lastView) ? lastView : 'quote');
 setInterval(updateChips, 1500);
 // 「全部清除」會重新載入整頁，載入後再顯示完成訊息
 try{ if(sessionStorage.getItem('hub-cleared')){ sessionStorage.removeItem('hub-cleared'); toast('已全部清除，可以開始下一位。'); } }catch(err){}
