@@ -4,14 +4,14 @@
 :host{height:100%; position:relative;}
 .c-body{position:absolute; inset:0; overflow:auto;}
 @media print{ :host{height:auto;} .c-body{position:static; overflow:visible;} }
-/* 配色：雷文克勞 藍（主色）＋銅（輔色）的莫蘭迪色調，與工作台「臨床計算」分頁一致 */
+/* 配色：灰紫（主色）＋淡金（輔色）的莫蘭迪色調，與工作台「臨床計算」分頁一致 */
 :host{
-  --teal:#4F5E7E !important; --teal-dark:#3E4C6B !important; --teal-soft:#E8ECF3 !important;
-  --gold:#A88A62 !important; --gold-soft:#F3EDE4 !important; --navy:#3E4C6B !important;
+  --teal:#6E5B80 !important; --teal-dark:#5C4A6D !important; --teal-soft:#EEE9F2 !important;
+  --gold:#B0894F !important; --gold-soft:#F6EFE3 !important; --navy:#5C4A6D !important;
   --bg:#F5F4EE !important; --surface-alt:#FAF9F5 !important; --line:#E6E3DA !important;
   --text:#1F1E1D !important; --muted:#6F6B63 !important; --faint:#9C978C !important;
   --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06) !important;
-  --ring:0 0 0 3px rgba(91,107,140,.25) !important;
+  --ring:0 0 0 3px rgba(125,106,142,.25) !important;
 }
 .c-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif !important; padding-top:18px !important; background-image:none !important;}
 .card{border:1px solid #E6E3DA !important; border-radius:16px !important;}

@@ -208,7 +208,7 @@ const CATEGORIES = [
       { id:'lb_01023', name:'CPK 肌酸激脢', price:150 },
       { id:'lb_01024', name:'LDH 乳酸脫氫脢', price:150 },
       { id:'lb_01025', name:'CK-MB 肌酸磷酸脢', price:200 },
-      { id:'lb_01026', name:'Cholinesterase 膽素脂脢', price:150 },
+      { id:'lb_01026', name:'Cholinesterase 膽素脂脢', price:350 },
       { id:'lb_01027', name:'Ammonia 血氨', price:500 },
       { id:'lb_01028', name:'VMA 香莢杏仁酸定量', price:500 },
       { id:'lb_s1', type:'section', name:'肝炎病毒檢查' },

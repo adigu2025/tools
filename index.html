@@ -34,14 +34,14 @@
   --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06);
   --bar-h:80px; --foot-h:30px;
 }
-/* 報價用灰紫；其餘四個分頁各用一個霍格華茲學院的代表色（主色＋輔色），只用在分頁、選取狀態、主要按鈕與細線；
+/* 臨床計算用灰紫；其餘四個分頁各用一個霍格華茲學院的代表色（主色＋輔色），只用在分頁、選取狀態、主要按鈕與細線；
    大面積底色維持暖白，內文維持墨色，閱讀舒適度不受影響。
    --acc 主色（填色）、--acc-fg 主色上的文字、--acc-2 輔色（細線、指示條）、--acc-soft 淡底、--acc-text 白底上可讀的強調字色。
    赫夫帕夫的黃色當底時字用黑色；史萊哲林的銀色太淺，指示條改用較深的銀灰。
    色調採莫蘭迪感：原色降低彩度、略提亮度，主色上的白字仍維持 4.5:1 以上。
    選中的分頁與「列印」按鈕用淡底＋深色字，滑過時才填主色，畫面不厚重。 */
-body{--acc:#7D6A8E; --acc-fg:#fff; --acc-2:#B0894F; --acc-soft:#EEE9F2; --acc-text:#5C4A6D;}         /* 報價：灰紫＋淡金 */
-body[data-view="calc"]{--acc:#5B6B8C; --acc-fg:#fff; --acc-2:#A88A62; --acc-soft:#E8ECF3; --acc-text:#3E4C6B;}   /* 臨床計算：雷文克勞 藍＋銅 */
+body{--acc:#5B6B8C; --acc-fg:#fff; --acc-2:#A88A62; --acc-soft:#E8ECF3; --acc-text:#3E4C6B;}         /* 報價：雷文克勞 藍＋銅 */
+body[data-view="calc"]{--acc:#7D6A8E; --acc-fg:#fff; --acc-2:#B0894F; --acc-soft:#EEE9F2; --acc-text:#5C4A6D;}   /* 臨床計算：灰紫＋淡金 */
 body[data-view="weight"]{--acc:#E2C477; --acc-fg:#4A4038; --acc-2:#4A4038; --acc-soft:#F6EDD3; --acc-text:#6B5520;} /* 製作報告：赫夫帕夫 黃＋黑 */
 body[data-view="edu"]{--acc:#9B5A57; --acc-fg:#fff; --acc-2:#C9A96A; --acc-soft:#F3E6E4; --acc-text:#7A3F3D;}       /* 衛教圖卡：葛來分多 紅＋金 */
 body[data-view="print"]{--acc:#587562; --acc-fg:#fff; --acc-2:#A3A8AB; --acc-soft:#E5EDE7; --acc-text:#3F5A48;}     /* 列印表單：史萊哲林 綠＋銀 */
@@ -67,7 +67,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
   box-shadow:0 1px 2px rgba(31,30,29,.08), 0 2px 8px rgba(31,30,29,.06);}
 /* 分頁圖示：來源是主 repo 的「圖示」資料夾（icons.js），滑過時有小動畫。
    改成各分頁的學院色：線條用深色（--dot-ink），紙白部分用淡色，其餘填色用學院色（--dot），不畫暗面 */
-.hub-tab[data-view="quote"]{--dot:#7D6A8E; --dot-ink:#5C4A6D;} .hub-tab[data-view="calc"]{--dot:#5B6B8C; --dot-ink:#3E4C6B;} .hub-tab[data-view="weight"]{--dot:#E2C477; --dot-ink:#6B5520;}
+.hub-tab[data-view="quote"]{--dot:#5B6B8C; --dot-ink:#3E4C6B;} .hub-tab[data-view="calc"]{--dot:#7D6A8E; --dot-ink:#5C4A6D;} .hub-tab[data-view="weight"]{--dot:#E2C477; --dot-ink:#6B5520;}
 .hub-tab[data-view="edu"]{--dot:#9B5A57; --dot-ink:#7A3F3D;} .hub-tab[data-view="print"]{--dot:#587562; --dot-ink:#3F5A48;}
 .hub-tab .ic{width:20px; height:20px; margin-right:8px; vertical-align:-4px; color:var(--dot-ink);}
 .hub-tab .ic [fill]:not([fill="none"]){fill:var(--dot);}

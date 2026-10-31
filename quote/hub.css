@@ -3,17 +3,17 @@
 :host{height:100%; position:relative;}
 @media print{ :host{height:auto;} }
 @media screen{
-  /* 配色：灰紫（主色）＋淡金（輔色）的莫蘭迪色調，與工作台「報價」分頁一致；底色、文字、框線用工作台的色票 */
+  /* 配色：雷文克勞 藍（主色）＋銅（輔色）的莫蘭迪色調，與工作台「報價」分頁一致；底色、文字、框線用工作台的色票 */
   :host{
-    --primary:#4A3D59; --primary-dark:#3A2F47; --primary-mid:#5C4A6D;
-    --accent:#7D6A8E; --accent-light:#9584A5; --accent-pale:#EEE9F2; --accent-rgb:125,106,142;
-    --gold:#B0894F; --gold-pale:#F6EFE3; --gold-line:#E0CDAE; --gold-deep:#7A5A2E; --gold-rgb:176,137,79;
+    --primary:#3E4C6B; --primary-dark:#323E58; --primary-mid:#4F5E7E;
+    --accent:#5B6B8C; --accent-light:#7584A3; --accent-pale:#E8ECF3; --accent-rgb:91,107,140;
+    --gold:#A88A62; --gold-pale:#F3EDE4; --gold-line:#D9C7AC; --gold-deep:#6E5634; --gold-rgb:168,138,98;
     --bg:#F5F4EE; --surface:#FFFFFF; --surface-warm:#FAF9F5;
     --text:#1F1E1D; --muted:#6F6B63; --border:#E6E3DA; --border-strong:#D6D2C6;
     --shadow-sm:0 1px 2px rgba(31,30,29,.04), 0 1px 6px rgba(31,30,29,.04);
     --shadow-md:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06);
     --shadow-lg:0 2px 4px rgba(31,30,29,.05), 0 12px 32px rgba(31,30,29,.10);
-    --focus-ring:0 0 0 3px rgba(125,106,142,.28);
+    --focus-ring:0 0 0 3px rgba(91,107,140,.28);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
   }
   /* 報價工具原本撐滿整個視窗，在工作台裡改成撐滿分頁 */
