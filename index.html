@@ -433,7 +433,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 <script src="mount.js"></script>
 <script src="forms/forms.js"></script>
 <script>
-const APP_REVISION = '2026-10-29';
+const APP_REVISION = '2026-10-31';
 
 /* 減重報告與臨床計算都直接放在工作台裡，不再用 iframe：
    各自的畫面檔（weight/view.html、calc/view.html）由 mount.js 裝進 #weight-host、#calc-host 的 shadow root，
@@ -895,9 +895,10 @@ let EDU = weightEdu([
 ]).concat(LOCAL_EDU);
 
 // 列印表單：依用途分組。問卷與健康紀錄表由 forms/forms.js 產生空白表（與減重系統共用版面）；
-// 地中海飲食、腸泌素同意書與檢查同意書都是圖片，放在工作台的 img/（檢查同意書由 consent-src/ 輸出）。
+// 地中海飲食、腸泌素同意書、管藥與麻醉紀錄、檢查同意書都是圖片，放在工作台的 img/（檢查同意書由 consent-src/ 輸出）。
 const FORM_GROUPS = [
   {key:'weight',  label:'減重門診'},
+  {key:'ctrl',    label:'管藥與麻醉紀錄'},
   {key:'consent', label:'檢查與治療同意書'},
 ];
 const C = n=> Array.from({length:n.pages}, (_, i)=> `img/consent-${n.file}-${i + 1}.webp`);
@@ -906,6 +907,12 @@ let FORMS = [
   {group:'weight', label:'地中海飲食衛教', note:'共 2 頁', pages:[W('img/diet-mediterranean-1.webp'), W('img/diet-mediterranean-2.webp')], kind:'img'},
   {group:'weight', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'html', html:()=> formHealthRecordHtml()},
   {group:'weight', label:'腸泌素針劑自費使用同意書', note:'共 2 頁', pages:[W('img/consent-glp1-1.webp'), W('img/consent-glp1-2.webp')], kind:'img'},
+  // 管制藥品處方箋為橫式 A4，列印時依圖片比例自動改橫式紙
+  {group:'ctrl', label:'Midazolam 管藥紀錄單', note:'共 1 頁', pages:['img/ctrl-midazolam.jpg'], kind:'img'},
+  {group:'ctrl', label:'Fentanyl 管藥紀錄單',  note:'共 1 頁', pages:['img/ctrl-fentanyl.jpg'],  kind:'img'},
+  {group:'ctrl', label:'Propofol 管藥紀錄單',  note:'共 1 頁', pages:['img/ctrl-propofol.jpg'],  kind:'img'},
+  {group:'ctrl', label:'管藥紀錄單（空白）',   note:'共 1 頁', pages:['img/ctrl-blank.jpg'],     kind:'img'},
+  {group:'ctrl', label:'麻醉紀錄表',           note:'共 1 頁', pages:['img/anesthesia-record.jpg'], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
   {label:'大腸鏡同意書',     file:'colonoscopy', pages:2},
