@@ -6,7 +6,7 @@
 
 | 路徑 | 內容 | 單獨開啟 |
 |---|---|---|
-| `index.html` | 工作台（四個分頁、衛教圖卡、列印表單），臨床計算與減重報告直接載入這一頁 | <https://adigu2025.github.io/tools/> |
+| `index.html` | 工作台（五個分頁、衛教圖卡、列印表單），臨床計算與減重報告直接載入這一頁 | <https://adigu2025.github.io/tools/> |
 | `quote/` | 報價（醫療費用規劃，原 clinic-planner repo）：`view.html`（畫面與樣式）、`app.js`；`hub.css` 是工作台外觀（只套螢幕，列印的報價單維持品牌配色）；`index.html` 只轉址到工作台 | |
 | `calc/` | 臨床計算與自我評估（原 muzi-calc repo）：`view.html`（畫面與樣式）、`app.js`；`index.html` 是病人版，與工作台載入同一份畫面，`hub.css` 只在工作台加上 | <https://adigu2025.github.io/tools/calc/> |
 | `weight/` | 減重報告：`view.html`（畫面與樣式）、`app.js`、`report.js`；`index.html` 只轉址到工作台 | |
