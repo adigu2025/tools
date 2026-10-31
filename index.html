@@ -159,7 +159,8 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .edu-item{position:relative; display:flex; gap:10px; align-items:center; width:100%; text-align:left; border:0;
   background:transparent; padding:11px 12px; border-radius:10px; color:var(--ink-2); font-size:16.5px; line-height:1.4;}
 .edu-item:hover{background:var(--sunken);}
-.edu-item[aria-current="true"]{background:var(--acc-soft); color:var(--ink); font-weight:700;}
+/* 選取時不加粗：加粗會讓字變寬、換行位置跳動，改用底色、左側色條與字色標示 */
+.edu-item[aria-current="true"]{background:var(--acc-soft); color:var(--ink);}
 .edu-item[aria-current="true"]::before{content:""; position:absolute; left:0; top:10px; bottom:10px; width:3px;
   border-radius:3px; background:var(--acc-2);}
 .edu-item .ico{width:20px; flex:none; display:inline-flex; justify-content:center; color:var(--muted);}
@@ -908,11 +909,11 @@ let FORMS = [
   {group:'weight', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'html', html:()=> formHealthRecordHtml()},
   {group:'weight', label:'腸泌素針劑自費使用同意書', note:'共 2 頁', pages:[W('img/consent-glp1-1.webp'), W('img/consent-glp1-2.webp')], kind:'img'},
   // 管制藥品處方箋為橫式 A4，列印時依圖片比例自動改橫式紙
-  {group:'ctrl', label:'Midazolam 管藥紀錄單', note:'共 1 頁', pages:['img/ctrl-midazolam.jpg'], kind:'img'},
-  {group:'ctrl', label:'Fentanyl 管藥紀錄單',  note:'共 1 頁', pages:['img/ctrl-fentanyl.jpg'],  kind:'img'},
-  {group:'ctrl', label:'Propofol 管藥紀錄單',  note:'共 1 頁', pages:['img/ctrl-propofol.jpg'],  kind:'img'},
-  {group:'ctrl', label:'管藥紀錄單（空白）',   note:'共 1 頁', pages:['img/ctrl-blank.jpg'],     kind:'img'},
-  {group:'ctrl', label:'麻醉紀錄表',           note:'共 1 頁', pages:['img/anesthesia-record.jpg'], kind:'img'},
+  {group:'ctrl', label:'Midazolam', note:'共 1 頁', pages:['img/ctrl-midazolam.jpg'], kind:'img'},
+  {group:'ctrl', label:'Fentanyl',  note:'共 1 頁', pages:['img/ctrl-fentanyl.jpg'],  kind:'img'},
+  {group:'ctrl', label:'Propofol',  note:'共 1 頁', pages:['img/ctrl-propofol.jpg'],  kind:'img'},
+  {group:'ctrl', label:'空白管藥單', note:'共 1 頁', pages:['img/ctrl-blank.jpg'],     kind:'img'},
+  {group:'ctrl', label:'麻醉紀錄表', note:'共 1 頁', pages:['img/anesthesia-record.jpg'], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
   {label:'大腸鏡同意書',     file:'colonoscopy', pages:2},
