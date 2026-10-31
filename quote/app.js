@@ -2124,6 +2124,7 @@ function renderCart(){
     discountBlock.appendChild(block);
   }
 
+  lastAutoDiscount=totalDiscount;
   const displayDiscount=(manualDiscountOverride!==null)?manualDiscountOverride:totalDiscount;
   const grand=Math.max(0,selfSum-displayDiscount-paidAmount);
   const allTbd=selfSum===0&&selfItems.some(i=>i.price===0&&i.catLabel!=='內視鏡');
@@ -2434,10 +2435,13 @@ window.addEventListener('resize', function(){
    一次且從未移除，監聽器會不斷累積，點一次會觸發 N 個處理器並搶走焦點。
    ═══════════════════════════════════════════════════════════════════ */
 var paidAmount=0;
+var lastAutoDiscount=0;   /* 目前自動計算的優惠合計，點開折扣欄時先顯示它 */
 
 const EDITABLE_AMOUNTS = {
-  paidDisplay:     { get:()=>paidAmount,                set:v=>{paidAmount=v;} },
-  discountDisplay: { get:()=>manualDiscountOverride||0,  set:v=>{manualDiscountOverride=v;} }
+  paidDisplay:     { get:()=>paidAmount, set:v=>{paidAmount=v||0;} },
+  /* 清空折扣欄＝恢復自動計算；否則點開又離開會把自動優惠改成 0 */
+  discountDisplay: { get:()=>manualDiscountOverride!==null?manualDiscountOverride:lastAutoDiscount,
+                     set:v=>{manualDiscountOverride=(v===lastAutoDiscount)?null:v;} }
 };
 
 function startEditAmount(el, cfg){
@@ -2447,18 +2451,20 @@ function startEditAmount(el, cfg){
   input.style.color='var(--gold)'; input.value=cfg.get()||'';
   el.replaceWith(input); input.focus(); input.select();
   let done=false;
-  function save(){
+  function save(cancel){
     if(done) return; done=true;            /* blur 與 keydown 可能同時觸發 */
-    cfg.set(Math.max(0,parseInt(input.value)||0));
+    const raw=input.value.trim();
+    if(!cancel) cfg.set(raw===''?null:Math.max(0,parseInt(raw,10)||0));
     const span=document.createElement('span');
     span.id=elId; span.className=cls;
     span.textContent='— NT$ '+fmtPrice(cfg.get());
     input.replaceWith(span);
     renderCart();
   }
-  input.addEventListener('blur',save);
+  input.addEventListener('blur',()=>save(false));
   input.addEventListener('keydown',function(e){
-    if(e.key==='Enter'||e.key==='Escape'){ e.preventDefault(); save(); }
+    if(e.key==='Enter'){ e.preventDefault(); save(false); }
+    else if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); save(true); }   /* Esc 取消，不存 */
   });
 }
 

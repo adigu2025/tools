@@ -599,9 +599,9 @@
       label = '肝細胞型損傷 Hepatocellular'; color = '#C0392B'; bg = '#FBEBE9'; band = 'hep';
       interp = 'R ≥ 5：以 ALT 顯著升高為主，提示肝細胞直接損傷。';
       detail = '處置建議：停用可疑藥物並密切追蹤肝功能。鑑別診斷可安排病毒性肝炎血清學（HAV／HBV／HCV）、自體免疫抗體（ANA、ASMA、IgG），並評估酒精與草藥使用史。若合併黃疸（Hy’s law），需警覺急性肝衰竭風險。';
-    } else if (r < 2) {
+    } else if (r <= 2) {
       label = '膽汁鬱積型損傷 Cholestatic'; color = '#2979A0'; bg = '#E6F1F8'; band = 'chol';
-      interp = 'R < 2：以 ALP 顯著升高為主，提示膽道排泄或膽汁分泌受損。';
+      interp = 'R ≤ 2：以 ALP 顯著升高為主，提示膽道排泄或膽汁分泌受損。';
       detail = '處置建議：先以腹部超音波排除膽道阻塞，並檢驗 GGT（確認 ALP 來自肝膽）、直接與間接膽紅素；必要時安排 MRCP。亦須考慮原發性膽汁性膽管炎（AMA）等膽汁鬱積性肝病。';
     } else {
       label = '混合型損傷 Mixed'; color = '#B45A00'; bg = '#FFF5E6'; band = 'mix';
@@ -937,7 +937,7 @@
     var x2 = (isNum(a2) && isNum(uln) && uln > 0) ? a2 / uln : NaN;
     var gapM = rxMonths(rxDate('hb-date2'), rxDate('hb-date1'));
     $('hb-altLine').textContent = 'ALT 倍數：最近 ' + (isNum(x1) ? x1.toFixed(2) + ' X' : '－') + '　另一次 ' + (isNum(x2) ? x2.toFixed(2) + ' X' : '－') +
-      (isNum(gapM) ? '　｜　兩次間隔 ' + gapM.toFixed(1) + ' 個月' + (gapM < 0 ? '（前次日期晚於最近，請核對）' : gapM > 3 && gapM <= 6 ? '（符合 3–6 個月）' : '（不在 3–6 個月內）') : '');
+      (isNum(gapM) ? '　｜　兩次間隔 ' + gapM.toFixed(1) + ' 個月' + (gapM < 0 ? '（前次日期晚於最近，請核對）' : gapM >= 3 && gapM <= 6 ? '（符合 3–6 個月）' : '（不在 3–6 個月內）') : '');
 
     var fs = num('hb-fs'), arfi = num('hb-arfi');
     var fib4 = (isNum(age) && isNum(ast) && isNum(plt) && isNum(a1) && plt > 0 && a1 > 0) ? (age * ast) / (plt * Math.sqrt(a1)) : NaN;
@@ -2265,7 +2265,7 @@
      最後改版日期（顯示於主畫面左下角）
      每次改版請一併更新這個常數
      ====================================================== */
-  var APP_REVISION = '2026-10-29';
+  var APP_REVISION = '2026-10-31';
   (function renderAppRevision(){
     var el = $('app-revision');
     if (el) el.textContent = '最後改版：' + APP_REVISION;
