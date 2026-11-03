@@ -343,6 +343,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       <button class="btn w-gold" onclick="previewReport()">預覽報告</button>
       <button class="btn" id="pdf-export-btn" onclick="printReport()">列印／輸出 PDF</button>
       <button class="btn outline" onclick="saveRecord()">儲存紀錄</button>
+      <button class="btn outline" onclick="newPatient()">下一位病人</button>
     </div>
     <div class="w-rev" id="w-rev"></div>
   </nav>
@@ -407,7 +408,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
     <div class="grid" style="margin-top:14px">
       <div class="field"><label>目標體重 (kg)</label><input id="b-target-weight" type="number" min="20" max="400" step="0.1"></div>
       <div class="field"><label>預計減重比例（填目標體重後自動計算）</label><input id="target-loss-pct" readonly style="background:#F4F2EE"></div>
-      <div class="field"><label>標準體重範圍（BMI 18.5–24，填身高後自動計算）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label>標準體重範圍（BMI 18.5 至 24，填身高後自動計算）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
     </div>
     <div id="bmi-result" style="margin-top:20px; display:none">
       <div style="display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap">
@@ -651,7 +652,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       </label>
       <label class="ms-item w3" style="cursor:pointer">
         <input type="checkbox" id="ms-bp">
-        <div><div class="ms-title">血壓</div><div class="ms-desc">≥130／85 mmHg，或用藥中</div></div>
+        <div><div class="ms-title">血壓</div><div class="ms-desc">≥ 130/85 mmHg，或用藥中（代謝症候群依國健署標準，一般血壓判讀為 130/80）</div></div>
       </label>
       <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-glucose">
@@ -897,7 +898,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       <button class="btn outline" onclick="WD.getElementById('records-import').click()">匯入備份</button>
       <input type="file" id="records-import" accept=".json,application/json" hidden onchange="importRecords(this)">
     </div>
-    <div class="hint" style="margin-top:10px">紀錄只存在這台電腦的瀏覽器裡，清除瀏覽器資料或換電腦就會消失，請定期匯出備份。匯入時與本機紀錄合併，不會刪除既有紀錄。備份檔含病人個資，請存在診所電腦或加密隨身碟，不要用 LINE 或電子郵件傳送。<br><b id="records-backup"></b></div>
+    <div class="hint" style="margin-top:10px">紀錄只存在這台電腦的瀏覽器裡，清除瀏覽器資料或換電腦就會消失，請定期匯出備份。匯入時與本機紀錄合併，不會刪除既有紀錄。備份檔含病人個資，請存在診所電腦或加密隨身碟，不要用 LINE 或電子郵件傳送。<br>紀錄含姓名與生日，打開這台電腦瀏覽器的人都看得到；共用電腦請匯出備份後刪除不再需要的紀錄。<br><b id="records-backup"></b></div>
     <div id="records-list" style="margin-top:12px"></div>
   </div>
 </section>

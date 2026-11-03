@@ -54,7 +54,7 @@ const ICONS = {
    ═══════════════════════════════════════════════════════════════════ */
 const ITEM_NOTES = {
   hc_base:`血液常規（紅血球、白血球、血小板）\n飯前血糖、糖化血色素、胰島素阻抗\n肝功能 AST、ALT（附 FIB-4 肝纖維化指數）\n腎功能 BUN、肌酸酐，尿酸\n總膽固醇、三酸甘油酯、高密度及低密度膽固醇\n甲狀腺功能 TSH、free T4\n尿液一般檢查\n腹部超音波、甲狀腺超音波\nTANITA 身體組成分析`,
-  hc_m1:`脂蛋白(a)\nApoB 載脂蛋白 B\nhs-CRP 高敏感度 C 反應蛋白\n心電圖`,
+  hc_m1:`Lp(a) 脂蛋白(a)\nApoB 載脂蛋白 B\nhs-CRP 高敏感度 C 反應蛋白\n心電圖`,
   hc_m3:`B 型肝炎表面抗原\nB 型肝炎表面抗體\nC 型肝炎抗體`,
   hc_m7f:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n女性：CA125、CA153\n數值僅供參考，不能取代影像與內視鏡檢查`,
   hc_m7m:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n男性：PSA、free-PSA\n數值僅供參考，不能取代影像與內視鏡檢查`,
@@ -145,7 +145,7 @@ const CATEGORIES = [
       { id:'hc_s1', type:'section', name:'基礎套組' },
       { id:'hc_base', name:'基礎套組', desc:'血液常規、血糖代謝、肝腎功能、\n尿酸、血脂肪、甲狀腺功能、尿液、\n腹部超音波、甲狀腺超音波、TANITA', price:3000 },
       { id:'hc_s2', type:'section', name:'加選模組（每項都可單獨選擇）' },
-      { id:'hc_m1', name:'① 心血管風險評估', desc:'脂蛋白(a)、ApoB、hs-CRP、心電圖', price:1900 },
+      { id:'hc_m1', name:'① 心血管風險評估', desc:'Lp(a) 脂蛋白(a)、ApoB、hs-CRP、心電圖', price:1900 },
       { id:'hc_m2', name:'② 頸動脈超音波', desc:'與 ① 合選優惠 NT$ 400', price:600 },
       { id:'hc_m3', name:'③ B、C 型肝炎篩檢', desc:'B 肝表面抗原與抗體、C 肝抗體', price:500 },
       { id:'hc_m4', name:'④ 幽門桿菌呼氣檢查', desc:'碳 13 尿素呼氣測試', price:1200 },
@@ -187,7 +187,7 @@ const CATEGORIES = [
       { id:'lb_01004', name:'TC Total Cholesterol膽固醇', price:100 },
       { id:'lb_01005', name:'HDL 高密度膽固醇', price:170 },
       { id:'lb_01006', name:'LDL 低密度膽固醇', price:170 },
-      { id:'lb_01007', name:'Lipoprotein(a) 脂蛋白(a)', price:600 },
+      { id:'lb_01007', name:'Lp(a) 脂蛋白(a)', price:600 },
       { id:'lb_01029', name:'Apo B 載脂蛋白B', price:600 },
       { id:'lb_01008', name:'BUN 血中尿素氮', price:70 },
       { id:'lb_01009', name:'UA (Uric Acid) 尿酸', price:70 },
@@ -2369,17 +2369,20 @@ QD.getElementById('btnPrint').addEventListener('click',()=>{
 });
 
 /* ═══════════════════════════════════════════════════════════════════
-   最後改版日期
-   ★ 每次改版請一併更新這個日期，會顯示於首頁左下角與列印版頁尾
+   最後改版日期與價目版本
+   改版日期集中在工作台的 revision.js（REVISION.quote），顯示於首頁左下角。
+   價目版本另外記：只有價格（PRICES、PANEL_PARTS 等）改了才更新，印在報價單底部，
+   日後對帳或費用爭議時可回推當時適用的價目表；程式或排版改版不動它
    ═══════════════════════════════════════════════════════════════════ */
-const Q_REVISION = '2026-10-31';
+const Q_REVISION = REVISION.quote;
+const Q_PRICE_VERSION = '2026-10-31';
 window.Q_REVISION = Q_REVISION;
 
 function renderAppRevision(){
   const el = QD.getElementById('appRevision');
   if(el) el.textContent = '最後改版：' + Q_REVISION;
   const lv = QD.getElementById('letterVersion');
-  if(lv) lv.textContent = '價目版本：' + Q_REVISION;
+  if(lv) lv.textContent = '價目版本：' + Q_PRICE_VERSION;
 }
 renderAppRevision();
 

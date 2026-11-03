@@ -9,363 +9,12 @@
 // 數值的取用順序：上傳或實測的數值優先，沒有時才用公式估算，並在報告上標示來源。
 // ============================================================
 
-const RPT_FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com">' +
-  '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
-  '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700;900&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">';
-
-const REPORT_CSS = `
-@page{size:A4; margin:0;}
-*{box-sizing:border-box; margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
-html,body{background:#fff;}
-body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:#24292B; font-size:13px; line-height:1.8;
-  text-wrap:pretty; line-break:strict; -webkit-font-smoothing:antialiased;}
-.serif,.rc-head h2,.rb-h,.rb-no,.toc .no,.toc .t,.toc .p,.kcal .v,.goal .w,.find .i,.big,.co-l,.tier h5,.tl-when,.rpt-hd b,.toc-head h2{
-  font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif;}
-#stage{position:absolute; left:-10000px; top:0; width:666px;}
-body.preview{background:#E7E3DC; padding:28px 0 8px;}
-body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.18);}
-@media print{
-  body.preview{background:#fff; padding:0;}
-  body.preview .rpt-page{margin:0; box-shadow:none;}
-}
-
-/* 頁面骨架：794 × 1123（A4，96 dpi），版型比照工作台的減重衛教單 */
-.rpt-page{width:794px; height:1123px; overflow:hidden; position:relative; background:#fff; display:flex; flex-direction:column;
-  padding:0 64px; break-after:page; page-break-after:always;}
-.rpt-page:last-child{break-after:auto; page-break-after:auto;}
-.rpt-hd{flex:none; height:76px; display:flex; align-items:flex-end; justify-content:space-between; padding-bottom:4px;
-  font-size:11.5px; color:#6F6A62; letter-spacing:.2em;}
-.rpt-hd .r{letter-spacing:.12em; color:#3B3A36;}
-.rpt-hd b{color:#9A6E2A; font-size:16px; font-weight:700; letter-spacing:.04em; margin-left:8px;}
-.rpt-body{flex:1; min-height:0; overflow:hidden; padding-top:26px;}
-.rpt-ft{flex:none; height:70px; display:flex; justify-content:space-between; align-items:flex-start; padding-top:12px;
-  border-top:1px solid #E6E1D8; font-size:10.5px; color:#6F6A62; line-height:1.7; letter-spacing:.04em;}
-.rpt-ft .pg{font-variant-numeric:tabular-nums; color:#3B3A36; letter-spacing:.08em; padding-top:2px;}
-
-/* 章首：襯線大標＋一句說明＋深色細線 */
-.rc-head{padding-bottom:20px; margin-bottom:26px; border-bottom:1px solid #24292B;}
-.rc-head h2{font-size:42px; color:#1F262A; letter-spacing:.04em; line-height:1.2; font-weight:700;}
-.rc-head .lead{font-size:14.5px; color:#55524B; margin-top:12px; line-height:1.7;}
-
-/* 段落：左欄金色序號＋襯線小標，右欄內容，段落之間淡色細線 */
-.rb{display:grid; grid-template-columns:150px 1fr; border-top:1px solid #E6E1D8; padding-top:22px; margin-top:22px;}
-.rpt-body > .rb:first-child, .rc-head + .rb{border-top:0; padding-top:0; margin-top:0;}
-.rb-l{padding-right:16px;}
-.rb-no{font-size:13px; color:#9A6E2A; letter-spacing:.14em; line-height:1.4; font-weight:700;}
-.rb-no:empty{display:none;}
-.rb-h{font-size:17.5px; font-weight:700; color:#1F262A; line-height:1.45; letter-spacing:.04em; margin-top:2px;}
-.rb-h .cont{display:block; font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-style:normal; font-size:11.5px; font-weight:400; color:#9A9387; letter-spacing:.06em;}
-.rb-r{min-width:0;}
-.muted{color:#66615A;} .small{font-size:11.5px;}
-.na{color:#8A847A; font-weight:400;}
-.empty{font-size:12.5px; color:#77716A;}
-.note-line{font-size:12px; color:#5F5A53; margin-top:10px; line-height:1.75;}
-.nw{white-space:nowrap;}
-/* 心血管章旁列的 10 年數字：列距收窄，整章盡量排在同一頁 */
-.rt.kv.cvkv th,.rt.kv.cvkv td{padding-top:5px; padding-bottom:5px;}
-.mark{font-weight:700; color:#1F262A; background:linear-gradient(transparent 60%, #EFE1C2 60%);}
-
-/* 提示框：米色（一般）與淡紅（就醫），左側襯線標籤 */
-.rb.callout{grid-template-columns:118px 1fr; background:#F7F4EC; padding:18px 22px 18px 24px; border-top:0;}
-.rb.callout.red{background:#FAEDEA;}
-.co-l{font-size:16px; font-weight:700; color:#9A6E2A; letter-spacing:.1em; line-height:1.75;}
-.callout.red .co-l{color:#A3362F;}
-.co-r{font-size:13.5px; color:#2F3436;}
-
-/* 判讀與資料來源：彩色文字，不用圓角標籤 */
-.pill{font-size:11.5px; font-weight:700; letter-spacing:.12em; white-space:nowrap;}
-.g0{color:#3F6E4D;} .g1{color:#8A5F1F;} .g2{color:#A8352F;} .gna{color:#8A847A; font-weight:400;}
-.src{font-size:9.5px; color:#3E6A7C; margin-left:5px; letter-spacing:.08em; font-weight:500; white-space:nowrap; vertical-align:1px;}
-.src::before{content:'／';  color:#B9C9CF; margin-right:2px;}
-.arrow{font-weight:700; margin-left:3px;}
-.arrow.hi{color:#B3413B;} .arrow.lo{color:#2F5D8A;}
-
-/* 表格 */
-.rt{width:100%; border-collapse:collapse; table-layout:fixed; font-size:12.5px;}
-.rt th{font-size:11px; letter-spacing:.12em; color:#66615A; font-weight:400; text-align:left; padding:0 6px 7px; border-bottom:1px solid #24292B;}
-.rt td{padding:8px 6px; border-bottom:1px solid #ECE7DE; vertical-align:middle; overflow-wrap:anywhere;}
-.rt td.n{font-variant-numeric:tabular-nums; font-weight:700; color:#1F262A; font-size:13.5px; white-space:nowrap;}
-.rt td.n .u{font-size:10.5px; color:#77716A; font-weight:400; margin-left:3px;}
-.rt td.ref{font-size:11.5px; color:#6F6A62; font-variant-numeric:tabular-nums; white-space:nowrap;}
-.rt td.c{text-align:right;} .rt th.c{text-align:right;}
-.rt .en{display:block; font-size:10.5px; color:#77716A; letter-spacing:.02em; line-height:1.45;}
-.rt tr.grp td{padding:14px 6px 4px; font-size:11.5px; font-weight:700; color:#9A6E2A; letter-spacing:.2em; border-bottom:1px solid #E6E1D8;}
-.rt tr:first-child.grp td{padding-top:6px;}
-.rt.kv th{width:26%; font-size:12px; letter-spacing:.1em; color:#9A6E2A; font-weight:700; padding:9px 6px; border-bottom:1px solid #ECE7DE; vertical-align:top;}
-.rt.kv td{padding:9px 6px; line-height:1.75;}
-.rt.kv tr:first-child th, .rt.kv tr:first-child td{padding-top:2px;}
-.rt.track th,.rt.track td{text-align:center; padding-left:2px; padding-right:2px; font-variant-numeric:tabular-nums;}
-.rt.track td{font-size:12px;}
-.bar{display:block;}
-
-/* 總結 */
-.memo .rich p{font-size:13.5px;}
-.find{display:grid; grid-template-columns:24px 1fr auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px solid #ECE7DE;}
-.find:first-child{padding-top:0;}
-.find .i{font-weight:700; color:#9A6E2A; font-size:14px; font-variant-numeric:tabular-nums;}
-.find .t{font-size:12.5px; color:#2F3436; line-height:1.7; white-space:nowrap;}
-.find .t b{color:#1F262A;}
-.tiles{display:grid; grid-template-columns:repeat(5,1fr); column-gap:12px; row-gap:16px;}
-.tile{border-top:2px solid #24292B; padding-top:8px;}
-.tile .k{font-size:12px; color:#1F262A; font-weight:700; letter-spacing:.08em; white-space:nowrap;}
-.tile .v{font-size:14px; font-weight:500; color:#1F262A; margin:4px 0 2px; line-height:1.4; font-variant-numeric:tabular-nums; white-space:nowrap;}
-.tile .v small{font-size:10.5px; color:#9A9387; font-weight:400;}
-.tile .v .na{font-size:12.5px;}
-.goal{display:grid; grid-template-columns:repeat(4,1fr); position:relative;}
-.goal::before{content:''; position:absolute; left:7px; width:50%; top:6px; height:2px; background:#24292B;}
-.goal::after{content:''; position:absolute; left:calc(50% + 7px); width:25%; top:6px; height:0; border-top:2px dashed #9A6E2A;}
-.goal.n3{grid-template-columns:repeat(3,1fr);}
-.goal.n3::before{width:33.3%;}
-.goal.n3::after{left:calc(33.3% + 7px); width:33.3%;}
-.goal.n2{grid-template-columns:repeat(2,1fr);}
-.goal.n2::before{display:none;}
-.goal.n2::after{left:7px; width:50%;}
-.goal .st{position:relative; padding-right:8px;}
-.goal .pt{width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid #24292B; position:relative; z-index:1;}
-.goal .st.end .pt{border-color:#9A6E2A; background:#9A6E2A;}
-.goal .lbl{font-size:11px; letter-spacing:.08em; color:#66615A; margin-top:10px; white-space:nowrap;}
-.goal .w{font-size:24px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
-.goal .w small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A9387; font-weight:400; margin-left:3px;}
-.goal .st.end .w{color:#9A6E2A;}
-.goal .b{font-size:11.5px; color:#6F6A62;}
-/* 評估醫師與日期：放在「評估總結」標題列右側，不另佔高度 */
-.rc-head{position:relative;}
-.rc-sign{position:absolute; right:0; bottom:20px; height:24.65px; display:grid; grid-template-columns:auto 130px auto 96px; gap:8px; align-items:center; font-size:12px; line-height:1; color:#4A4740; letter-spacing:.12em;}
-.rc-sign .ln{border-bottom:1px solid #24292B; height:16px; align-self:start;}
-
-/* 體位 */
-.bmi-top{display:flex; align-items:flex-end; gap:16px; margin-bottom:12px;}
-.big{font-size:50px; font-weight:700; color:#1F262A; line-height:.95; font-variant-numeric:tabular-nums;}
-.big small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:12.5px; font-weight:400; color:#9A9387; margin-left:5px;}
-.bmi-top .facts{margin-left:auto; display:grid; grid-template-columns:auto auto; column-gap:14px; row-gap:0; font-size:12px; color:#6F6A62; white-space:nowrap;}
-.bmi-top .facts b{color:#1F262A; font-weight:500; font-variant-numeric:tabular-nums;}
-.pheno{display:flex; gap:12px; align-items:baseline; padding-top:12px; font-size:12px;}
-.pheno b{font-size:14px; color:#1F262A; letter-spacing:.04em;}
-
-/* 治療階梯：每一階一列，本次所在的階層以米色底標出 */
-.tier{display:grid; grid-template-columns:158px 1fr; gap:14px; padding:12px 12px 12px 0; border-bottom:1px solid #ECE7DE;}
-.tier:first-child{padding-top:0;}
-.tier .n{font-size:11px; letter-spacing:.16em; color:#9A6E2A; font-weight:700;}
-.tier h5{font-size:15px; color:#1F262A; letter-spacing:.04em; line-height:1.5;}
-.tier .when{font-size:10.5px; color:#6F6A62; line-height:1.6; margin-top:2px; white-space:nowrap;}
-.tier p{font-size:12px; color:#3B3A36; line-height:1.75;}
-.tier.on{background:#F7F4EC; margin:0 -12px; padding:12px;}
-.tier .now{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11px; color:#9A6E2A; font-weight:700; margin-left:6px; letter-spacing:.1em;}
-
-/* 熱量：三欄，每欄上方深色粗線 */
-.kcal{display:grid; grid-template-columns:repeat(3,1fr); column-gap:14px;}
-.kcal > div{border-top:2px solid #24292B; padding-top:8px;}
-.kcal .k{font-size:12px; color:#1F262A; font-weight:700; letter-spacing:.06em;}
-.kcal .v{font-size:28px; font-weight:700; color:#1F262A; line-height:1.3; font-variant-numeric:tabular-nums;}
-.kcal .v small{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:11.5px; color:#9A9387; font-weight:400; margin-left:4px;}
-.kcal .main .v{color:#9A6E2A;}
-.kcal .s{font-size:11px; color:#66615A; line-height:1.6;}
-.macro{display:flex; height:8px; margin:18px 0 10px;}
-.macro i{display:block; height:100%;}
-.macro-lg{display:grid; grid-template-columns:repeat(3,1fr); column-gap:14px; font-size:12px;}
-.macro-lg b{display:block; font-size:15px; color:#1F262A; font-variant-numeric:tabular-nums;}
-.macro-lg .sw{display:inline-block; width:8px; height:8px; margin-right:6px;}
-.warn{font-size:12.5px; color:#B3413B; font-weight:700; margin-top:10px; line-height:1.75;}
-
-/* 自由文字 */
-.rich h4{font-size:13.5px; font-weight:700; color:#1F262A; margin:14px 0 2px; letter-spacing:.04em;}
-.rich > h4:first-child{margin-top:0;}
-.rich p{margin:0 0 3px;}
-.rich .li{padding-left:16px; position:relative; margin:0 0 3px;}
-.rich .li::before{content:''; position:absolute; left:2px; top:.72em; width:6px; height:6px; background:#C9A15E;}
-.rich .note{font-size:12px; color:#5F5A53;}
-
-/* 量表 */
-.scale-row{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center;}
-.scale-row .score{font-size:12px; color:#66615A;}
-.scale-row .score b{display:block; font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:30px; color:#1F262A; line-height:1.25;}
-.items{margin-top:10px; font-size:12px; color:#4A4740; line-height:1.75;}
-
-/* 回診時程：左欄時間（襯線大字），右欄重點 */
-.tl-row{display:grid; grid-template-columns:120px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid #ECE7DE;}
-.tl-row:first-child{padding-top:0;}
-.tl-when{font-size:22px; font-weight:700; color:#1F262A; line-height:1.3; white-space:nowrap;}
-.tl-row:first-child .tl-when{color:#9A6E2A;}
-.tl-sub{font-size:11px; color:#66615A; line-height:1.6; white-space:nowrap;}
-.tl-row h4{font-size:13.5px; color:#1F262A; font-weight:700; line-height:1.6;}
-.tl-row .what{font-size:12.5px; color:#3B3A36; line-height:1.75;}
-.chart svg{width:100%; height:auto; display:block; border:0 !important; border-top:1px solid #24292B !important; border-radius:0 !important; padding-top:6px; margin-top:16px;}
-
-/* 封面：依診所設計稿重建，位置由設計稿等比換算；個人資料由系統帶入 */
-.rpt-page.cover{padding:0; display:block; color:#1F2A26;}
-.cover .cv-wm{position:absolute; left:81px; top:-106px; width:1217px; height:1521px; display:block; pointer-events:none;}
-.cover .cv-bar{position:absolute; left:0; right:0; top:0; height:9px; background:#2E5244; box-shadow:0 2px 0 #C9A15E;}
-.cover .cv-brand{position:absolute; left:72px; top:64px; display:flex; align-items:center; gap:14px;}
-.cover .cv-mark{width:36px; height:auto; display:block;}
-.cover .cv-zh{font-size:16px; font-weight:700; letter-spacing:.24em; color:#202A26; line-height:1.3;}
-.cover .cv-en{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:12px; font-weight:500; letter-spacing:.3em; color:#4B5852; line-height:1.3; margin-top:5px;}
-.cover .cv-rule{position:absolute; left:72px; right:72px; top:129px; border-top:1px solid #DEE2E1;}
-.cover .cv-title{position:absolute; left:72px; top:340px;}
-.cover .cv-kicker{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:14px; font-weight:600; letter-spacing:.42em; color:#9A6E2A; line-height:1;}
-.cover h1{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:68px; font-weight:900; letter-spacing:.03em; line-height:1; color:#14251F; margin-top:33px;}
-.cover .cv-line{width:56px; height:3px; background:#BC7F30; margin-top:36px;}
-.cover .cv-sub{font-size:14.5px; letter-spacing:.22em; color:#4A524E; line-height:1; margin-top:28px;}
-.cover .cv-info{position:absolute; left:72px; top:741px; width:521px;}
-.cover .cv-info-h{display:flex; align-items:baseline; gap:16px; line-height:1;}
-.cover .cv-info-h b{font-size:13.5px; letter-spacing:.2em; color:#2F5445;}
-.cover .cv-info-h span{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:12.5px; font-weight:500; letter-spacing:.3em; color:#5E6662;}
-.cover .cv-grid{display:grid; grid-template-columns:240px 240px; column-gap:41px; margin-top:28px;}
-.cover .cv-f{display:flex; align-items:center; height:55px; border-bottom:1px solid #CDD4D0;}
-.cover .cv-f .k{flex:none; width:81px; font-size:12.5px; letter-spacing:.2em; color:#5E6662;}
-.cover .cv-f .v{font-size:17px; font-weight:500; color:#1F2A26; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums;}
-.cover .cv-f .v.na{color:#8C9490; font-weight:400;}
-.cover .cv-foot{position:absolute; left:72px; right:72px; top:1006px; padding-top:16px; border-top:1px solid #DEE2E1;
-  display:flex; justify-content:space-between; font-size:12px; line-height:24px; color:#5E6662; letter-spacing:.02em;}
-.cover .cv-foot .r{text-align:right;}
-
-/* 目錄頁 */
-.toc-head{padding-bottom:20px; margin-bottom:6px; border-bottom:1px solid #24292B;}
-.toc-head h2{font-size:42px; color:#1F262A; letter-spacing:.04em; line-height:1.2;}
-.toc-head .lead{font-size:14.5px; color:#55524B; margin-top:12px;}
-.toc{display:grid; grid-template-columns:54px 1fr auto; align-items:baseline; padding:13px 0; border-bottom:1px solid #ECE7DE;}
-.toc .no{font-size:16px; color:#9A6E2A; font-weight:700; letter-spacing:.1em;}
-.toc .t{font-size:19px; color:#1F262A; font-weight:700; letter-spacing:.06em;}
-.toc .p{font-size:16px; color:#3B3A36; font-variant-numeric:tabular-nums;}
-.howto{margin-top:34px; grid-template-columns:1fr !important;}
-.howto .co-l{margin-bottom:10px;}
-.howto p{white-space:nowrap;}
-.howto .lg{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:12px;}
-.howto .lg div{font-size:12px; color:#3B3A36; line-height:1.7;}
-.howto p{font-size:12.5px; color:#3B3A36; line-height:1.85; margin-top:6px;}
-
-/* 附錄名詞表：整頁寬，每列說明都不自動換行 */
-.rb.full{display:block;}
-.gloss .rt.kv th{width:150px; padding:8px 6px 8px 0;}
-.gloss .rt.kv td{padding:8px 6px; white-space:nowrap; line-height:1.7;}
-
-/* 附件 */
-.rb.att{display:block; border:0; padding:0; margin:0;}
-.att .rb-h{margin-bottom:12px;}
-.att img{display:block; max-width:100%; margin:0 auto; border:1px solid #E4DED3; object-fit:contain;}
-/* FIB-4 大數字（樣式與健檢報告相同） */
-.big-row{display:flex; align-items:flex-end; gap:14px; margin-bottom:6px;}
-.fib-v{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:34px; font-weight:700; color:#1F262A; line-height:1;}
-`;
 
 // ---------- 取值與判讀 ----------
 function rS(id){ const e = WD.getElementById(id); return e ? String(e.value == null ? '' : e.value).trim() : ''; }
 function rN(id){ const v = parseFloat(rS(id)); return isNaN(v) ? null : v; }
 function rMale(){ return rS('p-gender') === 'M'; }
-// cuts：[[上限, 等級], …]，數值小於上限就取該等級；等級 0 正常、1 注意、2 異常
-function rGrade(v, cuts){
-  if(v == null || !cuts) return -1;
-  for(const [lim, g] of cuts){ if(v < lim) return g; }
-  return -1;
-}
-const R_GRADE_TXT = ['正常', '注意', '異常'];
-function rPill(g, txt){ return `<span class="pill ${g < 0 ? 'gna' : 'g' + g}">${txt || (g < 0 ? '未評估' : R_GRADE_TXT[g])}</span>`; }
-function rSrc(t){ return t ? `<span class="src">${t}</span>` : ''; }
 function rUp(id){ return (typeof FIELD_SRC !== 'undefined' && FIELD_SRC[id] === 'upload') ? '上傳' : ''; }
-function rMax(...gs){ return gs.reduce((a, b)=> Math.max(a, b), -1); }
-const R_EPS = 1e-9;
-
-// 數值在參考範圍上的位置：灰底長條＋分區色塊＋指標
-function rBar(v, scale, cuts, W){
-  if(v == null || !scale || !cuts) return '';
-  W = W || 116;
-  const [lo, hi] = scale, H = 20, y = 10, bh = 5;
-  const x = t => Math.max(0, Math.min(W, (t - lo) / (hi - lo) * W));
-  const col = ['#A9CBB4', '#E8C88E', '#DD9A92'];
-  let segs = '', start = lo;
-  for(const [lim, g] of cuts){
-    const end = Math.min(lim, hi);
-    if(end > start) segs += `<rect x="${x(start).toFixed(1)}" y="${y}" width="${(x(end) - x(start)).toFixed(1)}" height="${bh}" fill="${col[g]}"/>`;
-    start = Math.max(start, lim);
-    if(start >= hi) break;
-  }
-  const mx = x(v);
-  return `<svg class="bar" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><rect x="0" y="${y}" width="${W}" height="${bh}" fill="#EEEAE3"/>${segs}` +
-    `<path d="M${mx.toFixed(1)} ${y - 1} l-4 -6 h8 z" fill="#152831"/><rect x="${(mx - .75).toFixed(1)}" y="${y - 1}" width="1.5" height="${bh + 2}" fill="#152831"/></svg>`;
-}
-
-// 分數量表（STOP-BANG、PHQ-9）。cells 是可能分數的個數（0 到 8 分共 9 格），標記畫在該分數那一格的中間
-function rScale(v, cells, bands, W){
-  W = W || 440;
-  const H = 46, y = 14, bh = 8;
-  const x = t => t / cells * W;
-  const col = ['#A9CBB4', '#E8C88E', '#DD9A92'];
-  let s = '', from = 0;
-  bands.forEach(([to, g, label])=>{
-    s += `<rect x="${x(from).toFixed(1)}" y="${y}" width="${(x(to) - x(from)).toFixed(1)}" height="${bh}" fill="${col[g]}"/>` +
-         `<text x="${((x(from) + x(to)) / 2).toFixed(1)}" y="${y + bh + 15}" text-anchor="middle" font-size="10.5" fill="#7D776D">${label}</text>`;
-    from = to;
-  });
-  const mx = v == null ? null : x(Math.max(0, Math.min(cells - 1, v)) + .5);
-  const mk = mx == null ? '' : `<path d="M${mx.toFixed(1)} ${y - 1} l-5 -8 h10 z" fill="#152831"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${s}${mk}</svg>`;
-}
-
-// 中文手動斷行：只在標點後面斷開，每行不超過 max 個全形字寬，不從詞語中間切斷。
-// 寬度以全形字為 1、英數字約 0.56 估算；max 依各區塊的實際寬度與字級設定，並留一點餘裕。
-function rW(s){
-  let w = 0;
-  for(const ch of String(s)) w += /[⺀-鿿豈-﫿︰-﹏＀-｠　-〿]/.test(ch) ? 1 : .56;
-  return w;
-}
-function rSplit(text, max){
-  const parts = String(text == null ? '' : text).match(/[^，。；：、！？）」]*[，。；：、！？）」]*/g).filter(Boolean);
-  const lines = [];
-  let cur = '';
-  parts.forEach(p=>{
-    if(cur && rW(cur + p) > max){ lines.push(cur); cur = p; }
-    else cur += p;
-  });
-  if(cur) lines.push(cur);
-  return lines;
-}
-function rBr(text, max){ return rSplit(text, max).map(esc).join('<br>'); }
-// 多行文字（使用者輸入）：保留原本的換行，每一行再依標點斷行
-function rLines(text, max){ return String(text || '').split('\n').filter(l=> l.trim()).map(l=> rBr(l.trim(), max)).join('<br>'); }
-
-// 文字框內容轉成段落：【標題】成小標，• 開頭成項目，※ 開頭成附註。每一行是可換頁的最小單位，小標不會孤單留在頁尾
-function rRich(text, max){
-  max = max || 36;
-  const out = [];
-  String(text || '').replace(/\r/g, '').split('\n').forEach(raw=>{
-    const l = raw.trim();
-    if(!l) return;
-    let m;
-    if((m = l.match(/^【(.+?)】\s*(.*)$/))){
-      out.push(`<h4 class="ru keep">${wEsc(m[1])}</h4>`);
-      if(m[2]) out.push(`<p class="ru">${rBr(m[2], max)}</p>`);
-      return;
-    }
-    if((m = l.match(/^[•・●▪︎]\s*(.+)$/)) || (m = l.match(/^[-－]\s+(.+)$/))){ out.push(`<div class="li ru">${rBr(m[1], max - 1.2)}</div>`); return; }
-    if(/^※/.test(l)){ out.push(`<p class="note ru">${rBr(l, max * 13 / 12)}</p>`); return; }
-    out.push(`<p class="ru">${rBr(l, max)}</p>`);
-  });
-  return out.join('');
-}
-function rBlock(title, en, inner, opt){
-  opt = opt || {};
-  return `<div class="rb${opt.cls ? ' ' + opt.cls : ''}"${opt.split ? ' data-split="1"' : ''}>` +
-    `<div class="rb-l"><div class="rb-no"></div><h3 class="rb-h">${title}</h3></div><div class="rb-r">${inner}</div></div>`;
-}
-// 米色或淡紅的提示框（比照衛教單的「效果不如預期」「提早就醫」）
-function rCallout(label, inner, red){
-  return `<div class="rb callout${red ? ' red' : ''}" data-split="1"><div class="co-l">${label}</div><div class="co-r rich ru-host">${inner}</div></div>`;
-}
-function rRichBlock(title, en, text, cls){
-  if(!String(text || '').trim()) return '';
-  return rBlock(title, en, `<div class="rich ru-host${cls ? ' ' + cls : ''}">${rRich(text)}</div>`, {split:true});
-}
-function rAddDays(base, d){ const t = new Date(base + 'T00:00:00'); t.setDate(t.getDate() + d); return rYmd(t); }
-function rAddMonths(base, m){
-  const t = new Date(base + 'T00:00:00'), day = t.getDate();
-  t.setDate(1); t.setMonth(t.getMonth() + m);
-  const last = new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate();
-  t.setDate(Math.min(day, last));
-  return rYmd(t);
-}
-function rYmd(t){ return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
-// 血壓超標的說明：只寫實際達標的那一項（例如 130/70 只有收縮壓達 130）
-function rBpTxt(s, d, hs, hd){ return s >= hs && d >= hd ? `達 ${hs}/${hd} 以上` : s >= hs ? `收縮壓達 ${hs} 以上` : `舒張壓達 ${hd} 以上`; }
-function rDateZh(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? `${m[1]} 年 ${+m[2]} 月 ${+m[3]} 日` : (s || ''); }
 
 // ---------- 判讀標準 ----------
 // 判讀標準在 forms/forms.js（LAB_META），健康紀錄表也用同一份
@@ -380,39 +29,33 @@ function rLabValue(k){
   }
   return {v:null, src:''};
 }
-function rBodyMeta(){
-  const m = rMale();
-  return [
-    {id:'t-fat',        zh:'體脂肪率',     en:'Body Fat',            u:'%',  ref: m ? '< 25%' : '< 30%', scale:[5, 50], cuts:[[m ? 25 : 30, 0], [Infinity, 2]]},
-    {id:'t-fatmass',    zh:'體脂肪量',     en:'Fat Mass',            u:'kg', ref:''},
-    {id:'t-muscle',     zh:'肌肉量',       en:'Muscle Mass',         u:'kg', ref:''},
-    {id:'t-visceral',   zh:'內臟脂肪等級', en:'Visceral Fat Level',  u:'',   ref:'1–9', scale:[1, 25], cuts:[[10, 0], [15, 1], [Infinity, 2]]},
-    {id:'t-water',      zh:'身體水分率',   en:'Total Body Water',    u:'%',  ref: m ? '50–65%' : '45–60%', scale:[35, 75], cuts: m ? [[50, 1], [65 + R_EPS, 0], [Infinity, 1]] : [[45, 1], [60 + R_EPS, 0], [Infinity, 1]]},
-    {id:'t-smi',        zh:'四肢骨骼肌指數', en:'SMI',               u:'kg/m²', ref: m ? '≥ 7.0' : '≥ 5.7', scale:[4, 11], cuts:[[m ? 7 : 5.7, 1], [Infinity, 0]]},
-    {id:'t-phaseangle', zh:'相位角',       en:'Phase Angle',         u:'°',  ref:'≥ 4.5°', scale:[2, 9], cuts:[[4.5, 1], [Infinity, 0]]},
-    {id:'t-bodyage',    zh:'身體年齡',     en:'Body Age',            u:'歲', ref:''},
-  ];
+function rBodyMeta(){ return BODY_META(rMale()); }
+// 上一次的身體測量：先找已儲存的上一筆紀錄（同姓名、同生日、檢查日期較早，wPrevState），
+// 沒有再用「歷次身體組成」追蹤表裡日期早於這次的最近一列
+function rPrevBody(){
+  const st = collectState(), num = v=> { v = parseFloat(v); return isNaN(v) ? null : v; };
+  const ps = wPrevState(st);
+  if(ps) return {date: ps['p-date'], w: num(ps['b-weight']), waist: num(ps['b-waist']), fat: num(ps['t-fat']), visceral: num(ps['t-visceral']), muscle: num(ps['t-muscle'])};
+  const date = String(st['p-date'] || '');
+  const r = (trackData.body || [])
+    .filter(x=> x.date && num(x.weight) != null && (!date || String(x.date).trim() < date))
+    .sort((a, b)=> String(b.date).localeCompare(String(a.date)))[0];
+  return r ? {date: String(r.date).trim(), w: num(r.weight), waist: num(r.waist), fat: num(r.fat), visceral: num(r.visceral), muscle: num(r.muscle)} : null;
 }
 
 // ---------- 評估資料整理（報告各章共用） ----------
-// FIB-4 說明，健檢報告共用（切點與判讀在 lab/lab.js 的 ckFib4）
-function rFib4Note(F){
-  return `FIB-4 是用年齡、肝指數（AST、ALT）和血小板估計肝臟纖維化程度的分數，不能取代影像或切片檢查。` +
-    `低於 ${F.low} 表示晚期纖維化的可能性低，高於 2.67 表示可能性高${F.low === 2 ? '（65 歲以上低切點改用 2.0）' : ''}。` +
-    (F.young ? '35 歲以下準確度較差，這個數值僅供參考。' : '');
-}
 function rCollect(){
   const male = rMale();
   const h = rN('b-height'), w = rN('b-weight');
   const bmi = (h && w) ? w / Math.pow(h / 100, 2) : null;
   const d = {male, h, w, bmi, age: rN('p-age')};
-  d.gBmi = bmi == null ? -1 : rGrade(bmi, [[18.5, 1], [24, 0], [27, 1], [Infinity, 2]]);
+  d.gBmi = kBmiGrade(bmi);
   d.bmiCat = bmi == null ? '' : bmiCategory(bmi).label;
   d.waist = rN('b-waist');
-  d.waistCut = male ? 90 : 80;
-  d.gWaist = d.waist == null ? -1 : (d.waist >= d.waistCut ? 2 : 0);
+  d.waistCut = kWaistCut(male);
+  d.gWaist = kWaistGrade(d.waist, male);
   d.sbp = rN('b-sbp'); d.dbp = rN('b-dbp');
-  d.gBp = (d.sbp == null || d.dbp == null) ? -1 : ((d.sbp >= 140 || d.dbp >= 90) ? 2 : (d.sbp >= 130 || d.dbp >= 80) ? 1 : 0);
+  d.gBp = kBpGrade(d.sbp, d.dbp);
   d.lab = {};
   rLabMeta().forEach(x=>{
     if(!x.k) return;
@@ -474,7 +117,7 @@ function rFindings(d){
   const add = (g, html)=>{ if(g >= 1) f.push({g, html}); };
   if(d.bmi != null) add(d.gBmi, `<b>BMI ${d.bmi.toFixed(1)}</b>，屬${d.bmiCat}`);
   if(d.waist != null) add(d.gWaist, `<b>腰圍 ${d.waist} 公分</b>，達${d.male ? '男' : '女'}性腹部肥胖標準 ${d.waistCut} 公分`);
-  if(d.gBp >= 1) add(d.gBp, `<b>血壓 ${d.sbp}/${d.dbp} mmHg</b>，${d.gBp === 2 ? rBpTxt(d.sbp, d.dbp, 140, 90) : rBpTxt(d.sbp, d.dbp, 130, 80)}`);
+  if(d.gBp >= 1) add(d.gBp, `<b>血壓 ${d.sbp}/${d.dbp} mmHg</b>，${kBpTxt(d.sbp, d.dbp)}`);
   if(d.msPositive) add(2, `<b>符合代謝症候群</b>（五項指標符合 ${d.msCount} 項）`);
   const L = d.lab;
   // HbA1c 只填在代謝症候群頁、檢驗頁沒有數值時，仍列出糖尿病前期
@@ -548,6 +191,28 @@ function rChSummary(d){
     `<div class="tiles">${tiles.map(t=> `<div class="tile"><div class="k">${t.k}</div><div class="v">${t.v}</div><div>${rPill(t.g)}</div></div>`).join('')}</div>` +
     `<p class="note-line">睡眠為 STOP-BANG 分數，情緒為 PHQ-9 分數。</p>`));
 
+  // 這次比上次：回診的病人第一頁就看得到變化
+  const prev = rPrevBody();
+  if(prev){
+    const now = {w: d.w, waist: d.waist, fat: B['t-fat'].v, visceral: B['t-visceral'].v, muscle: B['t-muscle'].v};
+    // up：數值變大是好事（肌肉量），其餘變小是好事
+    const items = [['w', '體重', 'kg'], ['waist', '腰圍', 'cm'], ['fat', '體脂肪率', '%'], ['visceral', '內臟脂肪', ''], ['muscle', '肌肉量', 'kg', true]]
+      .filter(([k])=> now[k] != null && prev[k] != null);
+    if(items.length){
+      const fx = v=> (Math.round(v * 10) / 10).toFixed(1).replace(/\.0$/, '');
+      const cmp = `<div class="tiles cmp">${items.map(([k, label, u, up])=>{
+        const diff = now[k] - prev[k], same = Math.abs(diff) < .05;
+        const good = !same && (up ? diff > 0 : diff < 0), bad = !same && !good;
+        const txt = same ? '持平' : `${diff < 0 ? '減' : '增'} ${fx(Math.abs(diff))}${u ? ' ' + u : ''}`;
+        return `<div class="tile"><div class="k">${label}</div><div class="v">${fx(now[k])}${u ? `<small> ${u}</small>` : ''}</div>` +
+          `<div class="dl${good ? ' good' : bad ? ' bad' : ''}">${txt}</div></div>`;
+      }).join('')}</div>`;
+      const pct = d.w != null && prev.w ? (d.w - prev.w) / prev.w * 100 : null;
+      blocks.push(rBlock('這次比上次', '', cmp +
+        `<p class="note-line">上次檢查：${rDateZh(prev.date)}${pct != null && Math.abs(pct) >= .05 ? `。體重${pct < 0 ? '減少' : '增加'} ${Math.abs(pct).toFixed(1)}%` : ''}。</p>`));
+    }
+  }
+
   if(d.w != null && d.h){
     const hM = d.h / 100;
     const tgt = rN('b-target-weight');
@@ -591,7 +256,7 @@ function rChBody(d){
     blocks.push(rBlock('身體質量指數', 'BODY MASS INDEX',
       `<div class="bmi-top"><div class="big">${d.bmi.toFixed(1)}<small>kg/m²</small></div><div style="padding-bottom:6px">${rPill(d.gBmi, d.bmiCat)}</div>` +
       `<div class="facts"><span>身高</span><b>${d.h} cm</b><span>體重</span><b>${d.w} kg${rSrc(rUp('b-weight'))}</b>` +
-      `<span>標準體重</span><b>${(18.5 * hM * hM).toFixed(1)}–${(24 * hM * hM).toFixed(1)} kg</b><span>理想體重（BMI 22）</span><b>${(22 * hM * hM).toFixed(1)} kg</b></div></div>` +
+      `<span>標準體重</span><b>${(18.5 * hM * hM).toFixed(1)} 至 ${(24 * hM * hM).toFixed(1)} kg</b><span>理想體重（BMI 22）</span><b>${(22 * hM * hM).toFixed(1)} kg</b></div></div>` +
       gauge));
   }
   const rows = [];
@@ -603,7 +268,7 @@ function rChBody(d){
     `<table class="rt"><colgroup><col style="width:28%"><col style="width:19%"><col style="width:15%"><col style="width:25%"><col style="width:13%"></colgroup>` +
     `<thead><tr><th>項目</th><th>結果</th><th>參考值</th><th>位置</th><th class="c">判讀</th></tr></thead><tbody>` +
     rows.map(([zh, en, v, u, ref, g, bar])=> `<tr><td>${zh}<span class="en">${en}</span></td>` +
-      `<td class="n">${v == null ? '<span class="na">未測</span>' : `${v}<span class="u">${u}</span>`}</td><td class="ref">${ref}</td><td>${bar}</td>` +
+      `<td class="n">${v == null ? '<span class="na">未測</span>' : `${v}<span class="u">${u}</span>`}</td><td class="ref">${kRange(ref)}</td><td>${bar}</td>` +
       `<td class="c">${g === -2 ? '' : rPill(v == null ? -1 : g)}</td></tr>`).join('') + `</tbody></table>`));
 
   const B = d.body;
@@ -614,7 +279,7 @@ function rChBody(d){
       const r = B[x.id];
       const v = r.v == null ? '<span class="na">未測</span>' : `${r.v}<span class="u">${x.u}</span>${rSrc(r.src)}`;
       const ref = x.id === 't-bodyage' && d.age != null ? `實際 ${d.age} 歲` : x.ref;
-      return `<tr class="ru"><td>${x.zh}<span class="en">${x.en}</span></td><td class="n">${v}</td><td class="ref">${ref}</td>` +
+      return `<tr class="ru"><td>${x.zh}<span class="en">${x.en}</span></td><td class="n">${v}</td><td class="ref">${kRange(ref)}</td>` +
         `<td>${r.v == null ? '' : rBar(r.v, x.scale, x.cuts)}</td><td class="c">${(x.cuts || x.id === 't-bodyage') ? rPill(r.v == null ? -1 : r.g) : ''}</td></tr>`;
     });
     const bmr = rN('t-bmr');
@@ -659,14 +324,14 @@ function rChLab(d){
       const flag = r.v == null ? '' : (typeof labFlag === 'function' ? labFlag(x.k, r.v) : '');
       const v = r.v == null ? '<span class="na">未檢驗</span>' :
         `${r.v}${flag ? `<span class="arrow ${flag}">${flag === 'hi' ? '↑' : '↓'}</span>` : ''}<span class="u">${x.u}</span>${rSrc(r.src)}`;
-      trs += `<tr class="ru"><td>${x.zh}<span class="en">${x.en}</span></td><td class="n">${v}</td><td class="ref">${x.ref}</td>` +
+      trs += `<tr class="ru"><td>${x.zh}<span class="en">${x.en}</span></td><td class="n">${v}</td><td class="ref">${kRange(x.ref)}</td>` +
         `<td>${rBar(r.v, x.scale, x.cuts)}</td><td class="c">${x.cuts ? rPill(r.v == null ? -1 : r.g) : ''}</td></tr>`;
       // BUN、free T4 不在共用的 LAB_META（健康紀錄表也用那份），接在同組最後；判讀用 lab/lab.js
       const ex = x.k === 'ua' ? 'bun' : x.k === 'tsh' ? 'ft4' : '';
       const er = ex && d.extra.find(e=> e.key === ex);
       if(er) trs += `<tr class="ru"><td>${wEsc(er.zh)}<span class="en">${ex === 'bun' ? 'BUN' : 'free T4'}</span></td>` +
         `<td class="n">${wEsc(er.raw)}${er.flag === 'H' ? '<span class="arrow hi">↑</span>' : er.flag === 'L' ? '<span class="arrow lo">↓</span>' : ''}<span class="u">${wEsc(er.unit)}</span></td>` +
-        `<td class="ref">${wEsc(er.ref)}</td><td></td><td class="c">${rPill(er.j.g, er.j.pill)}</td></tr>`;
+        `<td class="ref">${wEsc(kRange(er.ref))}</td><td></td><td class="c">${rPill(er.j.g, er.j.pill)}</td></tr>`;
     });
     blocks.push(rBlock('血液檢驗', 'LABORATORY',
       `<table class="rt"><colgroup><col style="width:28%"><col style="width:19%"><col style="width:15%"><col style="width:25%"><col style="width:13%"></colgroup>` +
@@ -686,7 +351,7 @@ function rChLab(d){
       const ar = r.flag === 'H' ? '<span class="arrow hi">↑</span>' : r.flag === 'L' ? '<span class="arrow lo">↓</span>' : '';
       return `<tr class="ru"><td>${wEsc(r.zh || r.code)}${r.code ? `<span class="en">${wEsc(r.code)}</span>` : ''}</td>` +
         `<td class="n">${wEsc(r.raw)}${ar}${r.unit ? `<span class="u">${wEsc(r.unit)}</span>` : ''}</td>` +
-        `<td class="ref">${wEsc(String(r.ref || '').replace(/\s*[（(]見(報告)?說明[)）]/g, ''))}</td>` +
+        `<td class="ref">${wEsc(kRange(String(r.ref || '').replace(/\s*[（(]見(報告)?說明[)）]/g, '')))}</td>` +
         `<td class="c">${rPill(r.j.g, r.j.pill)}</td></tr>`;
     };
     const groups = [];
@@ -716,7 +381,7 @@ function rChLab(d){
 
   if(d.msAny){
     const sug = (typeof msSuggestions === 'function') ? msSuggestions() : {};
-    const items = [['ms-waist', '腹部肥胖', `腰圍 男 ≥ 90／女 ≥ 80 cm，或 BMI ≥ 27`], ['ms-bp', '血壓偏高', '≥ 130/85 mmHg，或已服藥'],
+    const items = [['ms-waist', '腹部肥胖', `腰圍 男 ≥ 90／女 ≥ 80 cm，或 BMI ≥ 27`], ['ms-bp', '血壓偏高', '≥ 130/85 mmHg，或已服藥（國健署標準）'],
       ['ms-glucose', '空腹血糖偏高', '≥ 100 mg/dL，或已服藥'], ['ms-tg', '三酸甘油酯偏高', '≥ 150 mg/dL，或已服藥'], ['ms-hdl', 'HDL-C 偏低', '男 < 40／女 < 50 mg/dL，或已服藥']];
     // 本次數值：標準已寫在左欄，這裡只列數值
     const lab = k=> rN('lab-' + k);
@@ -795,14 +460,14 @@ function rChHistory(d){
   const sbHtml = d.sb == null
     ? '<div class="empty">未填寫 STOP-BANG 問卷。</div>'
     : `<div class="scale-row"><div class="score">STOP-BANG 分數<b>${d.sb}<small style="font-size:13px; color:#9A9387"> / 8</small></b>${rPill(d.gSb, ['低風險', '中風險', '高風險'][d.gSb])}</div>` +
-      rScale(d.sb, 9, [[3, 0, '0–2 低風險'], [5, 1, '3–4 中風險'], [9, 2, '5–8 高風險']], 340) + `</div>` +
+      rScale(d.sb, 9, [[3, 0, '0 至 2 低風險'], [5, 1, '3 至 4 中風險'], [9, 2, '5 至 8 高風險']], 340) + `</div>` +
       `<div class="items">${d.sbItems.length ? '問卷勾選：<br>' + d.sbItems.map(t=> '・' + wEsc(t)).join('<br>') : '問卷各題皆未勾選。'}<br>另依資料自動計分：BMI ＞ 35、年齡 ＞ 50 歲、男性；頸圍未納入。</div>`;
   blocks.push(rBlock('睡眠評估', 'SLEEP APNEA SCREENING', sbHtml));
 
   const phqHtml = !d.phq
     ? '<div class="empty">未完成 PHQ-9 量表。</div>'
     : `<div class="scale-row"><div class="score">PHQ-9 總分<b>${d.phq.total}<small style="font-size:13px; color:#9A9387"> / 27</small></b>${rPill(d.gPhq, d.phq.severity)}</div>` +
-      rScale(d.phq.total, 28, [[5, 0, '0–4 無明顯'], [10, 1, '5–9 輕度'], [28, 2, '10 以上 中度至重度']], 340) + `</div>` +
+      rScale(d.phq.total, 28, [[5, 0, '0 至 4 無明顯'], [10, 1, '5 至 9 輕度'], [28, 2, '10 以上 中度至重度']], 340) + `</div>` +
       (d.phq.item9 >= 1 ? `<p class="warn">第 9 題（傷害自己的念頭）有作答，<br>建議立即評估自殺風險並轉介身心科。</p>` : '');
   blocks.push(rBlock('情緒評估', 'MOOD SCREENING', phqHtml + (rS('sleep-note') ? `<p class="note-line">${rLines('睡眠與心理評估備註：' + rS('sleep-note'), 42)}</p>` : '')));
 
@@ -1034,32 +699,6 @@ function rCoverHtml(m, logo){
   </div>
   <div class="cv-foot"><div>高雄市仁武區仁孝路282號<br>07-3739496 ・ LINE @muzichengan</div><div class="r">本報告僅供臨床參考，<br>檢查結果請與主治醫師討論。</div></div>
 </section>`;
-}
-
-// 診所 logo 原檔是金色線稿：在畫布上改成指定顏色並放大，邊緣重新銳化，封面浮水印放大五倍也不糊
-const R_LOGO_CACHE = {};
-async function rLogo(color, w, crop){
-  const key = color + w + (crop ? 'c' : '');
-  if(R_LOGO_CACHE[key]) return R_LOGO_CACHE[key];
-  const im = new Image();
-  im.src = CLINIC_LOGO_DATA_URI;
-  const ok = await new Promise(r=>{ im.onload = ()=> r(true); im.onerror = ()=> r(false); if(im.complete && im.naturalWidth) r(true); setTimeout(()=> r(im.naturalWidth > 0), 3000); });
-  if(!ok) return CLINIC_LOGO_DATA_URI;
-  const [sx, sy, sw, sh] = crop ? [33, 52, 169, 194] : [0, 0, im.width, im.height];
-  const H = Math.round(w * sh / sw);
-  const c = document.createElement('canvas');
-  c.width = w; c.height = H;
-  const x = c.getContext('2d');
-  x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
-  x.drawImage(im, sx, sy, sw, sh, 0, 0, w, H);
-  const d = x.getImageData(0, 0, w, H), p = d.data;
-  const rgb = [1, 3, 5].map(i=> parseInt(color.slice(i, i + 2), 16));
-  for(let i = 0; i < p.length; i += 4){
-    const a = Math.max(0, Math.min(255, (p[i + 3] - 128) * 3 + 128));
-    p[i] = rgb[0]; p[i + 1] = rgb[1]; p[i + 2] = rgb[2]; p[i + 3] = a;
-  }
-  x.putImageData(d, 0, 0);
-  return (R_LOGO_CACHE[key] = c.toDataURL('image/png'));
 }
 
 function rTocHtml(m){

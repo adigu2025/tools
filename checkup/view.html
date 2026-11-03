@@ -96,6 +96,13 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 .g0{color:#3F6E4D;} .g1{color:#8A5F1F;} .g2{color:#A8352F;} .gna{color:var(--k-faint); font-weight:400;}
 .k-empty{padding:18px; text-align:center; color:var(--k-muted); font-size:15px;}
 .k-note{font-size:13.5px; color:var(--k-muted); margin-top:8px;}
+.k-rec{width:100%; border-collapse:collapse; font-size:14.5px;}
+.k-rec th, .k-rec td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--k-line, #E4DED3);}
+.k-rec th{font-weight:600; color:var(--k-muted); font-size:13.5px;}
+.k-rec td.act{white-space:nowrap; text-align:right;}
+.k-rec td.act .k-btn + .k-btn{margin-left:6px;}
+.k-btn.danger{color:var(--k-red); border-color:var(--k-red);}
+.k-recmsg{font-size:13px; color:var(--k-muted); margin:8px 0 0; line-height:1.6;}
 .k-att{margin:8px 0 12px;}
 .k-att .k-adrop{border:1.5px dashed var(--k-line2); border-radius:10px; padding:10px 14px; font-size:14.5px; color:var(--k-muted); cursor:pointer; background:#FBFAF6;}
 .k-att .k-adrop b{color:var(--k-ink); margin-right:8px;}
@@ -130,7 +137,9 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 .k-tbc{display:inline-block; font-size:12px; color:#8A5A12; background:#FBF0DC; border-radius:6px; padding:0 6px; margin-left:6px;}
 
 /* 判讀重點：輸入時即時更新 */
-.k-find > div{display:grid; grid-template-columns:56px 1fr; gap:10px; font-size:15px; padding:6px 0; border-bottom:1px solid var(--k-line);}
+.k-find > div{display:grid; grid-template-columns:56px 1fr auto; gap:10px; font-size:15px; padding:6px 0; border-bottom:1px solid var(--k-line);}
+.k-find > div.off > span:nth-child(2){color:var(--k-faint); text-decoration:line-through;}
+.k-fin{display:flex; align-items:center; gap:4px; font-size:13px; color:var(--k-muted); white-space:nowrap; cursor:pointer;}
 
 /* 報告預覽 */
 .k-ov{position:absolute; inset:0; z-index:50; background:#E7E3DC; display:flex; flex-direction:column;}
@@ -158,14 +167,15 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
     <a data-sec="pub"><span class="d"></span>公費提醒</a>
     <a data-sec="plan"><span class="d"></span>追蹤時程</a>
     <a data-sec="comment"><span class="d"></span>醫師評語</a>
+    <a data-sec="records"><span class="d"></span>病人紀錄</a>
     <div class="k-actions">
       <button class="k-btn gold" id="k-preview">預覽報告</button>
       <button class="k-btn" id="k-print">列印／輸出 PDF</button>
       <button class="k-btn ghost" id="k-line">LINE 摘要圖</button>
-      <button class="k-btn ghost" id="k-export">匯出備份</button>
-      <button class="k-btn ghost" id="k-import">匯入備份</button>
-      <input type="file" id="k-import-file" accept=".json,application/json" hidden>
+      <button class="k-btn ghost" id="k-save">儲存紀錄</button>
+      <button class="k-btn ghost" id="k-new">下一位病人</button>
     </div>
+    <p class="k-recmsg" id="k-rec-msg" hidden></p>
     <div class="k-rev" id="k-rev"></div>
   </nav>
 
@@ -341,7 +351,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 
       <h3>① 心血管風險評估</h3>
       <div class="k-grid">
-        <label class="k-f"><span>脂蛋白(a)<i>mg/dL</i></span><input type="number" step="0.1" data-k="mod.lpa"></label>
+        <label class="k-f"><span>Lp(a) 脂蛋白(a)<i>mg/dL</i></span><input type="number" step="0.1" data-k="mod.lpa"></label>
         <label class="k-f"><span>ApoB<i>mg/dL</i></span><input type="number" step="0.1" data-k="mod.apob"></label>
         <label class="k-f"><span>hs-CRP<i>mg/L</i></span><input type="number" step="0.01" data-k="mod.hscrp"></label>
       </div>
@@ -410,6 +420,17 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
         <button class="k-btn ghost" id="k-draft">產生草稿</button>
       </div>
       <p class="k-note">文字框可用【小標】、• 項目、※ 附註三種格式，報告會照格式排版。</p>
+    </section>
+
+    <section class="k-card" id="k-sec-records">
+      <h2>已儲存的病人紀錄<small>按左側「儲存紀錄」存成一筆，之後可在這裡載入；系統也會自動暫存草稿，關閉分頁不會遺失</small></h2>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <button class="k-btn ghost" id="k-export">匯出備份</button>
+        <button class="k-btn ghost" id="k-import">匯入備份</button>
+        <input type="file" id="k-import-file" accept=".json,application/json" hidden>
+      </div>
+      <p class="k-note">紀錄只存在這台電腦的瀏覽器裡，清除瀏覽器資料或換電腦就會消失，請定期匯出備份。原始報告圖片不存進紀錄，匯出備份時會帶著目前畫面上這位病人的圖片。匯入時與本機紀錄合併，不會刪除既有紀錄。<br>紀錄含姓名與生日，打開這台電腦瀏覽器的人都看得到；共用電腦請匯出備份後刪除不再需要的紀錄。備份檔含病人個資，請存在診所電腦或加密隨身碟，不要用 LINE 或電子郵件傳送。<br><b id="k-backup"></b></p>
+      <div id="k-records" style="margin-top:12px"></div>
     </section>
   </main>
 </div>

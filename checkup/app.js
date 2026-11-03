@@ -1,7 +1,7 @@
 /* 健檢報告：輸入畫面與判讀整合。檢驗項目、優品 PDF 擷取與單項判讀規則在 ../lab/lab.js（與減重報告共用）；報告排版在 report.js。
    畫面在 view.html（裝進 #checkup-host 的 shadow root），一律用 KD 找元素、KB 處理捲動，不可直接用 document。
    所有全域名稱都以 ck／CK 開頭，避免和同一頁的減重報告、臨床計算撞名。 */
-const CK_REVISION = '2026-11-04';
+const CK_REVISION = REVISION.checkup;  // 日期集中在 revision.js
 const CK_DRAFT = 'checkup_draft_v1';
 
 /* ---------- 資料 ----------
@@ -9,7 +9,7 @@ const CK_DRAFT = 'checkup_draft_v1';
    CK.manual：沒有 PDF 時手動輸入的檢驗列。PDF 轉出的頁面圖片只放記憶體（CK_PAGES），不存進暫存。 */
 let CK = ckBlank();
 const CK_PAGES = {};
-function ckBlank(){ return {info:{}, body:{}, hx:{}, us:{}, mod:{}, att:[], fu:{}, fuAdd:[], comment:'', reports:[], manual:null, warn:null}; }
+function ckBlank(){ return {info:{}, body:{}, hx:{}, us:{}, mod:{}, att:[], fu:{}, fuAdd:[], comment:'', reports:[], manual:null, warn:null, hide:[]}; }
 
 /* 舊存檔的家族史有各別癌症按鈕，現在合併成「癌症」＋自由輸入 */
 const CK_OLD_FAM_CANCER = {gastric:'胃癌', crc:'大腸癌', liver:'肝癌', lung:'肺癌', breast:'乳癌'};
@@ -53,30 +53,30 @@ function ckBodyJudge(P){
   const h = ckNum(b.h), w = ckNum(b.w);
   if(h && w){
     const bmi = w / Math.pow(h / 100, 2);
-    out.bmi = {v: bmi, ...(bmi < 18.5 ? {g:1, cat:'體重過輕', adv:'underweight'} : bmi < 24 ? {g:0, cat:'正常'} : bmi < 27 ? {g:1, cat:'過重', adv:'weight'} : {g:2, cat:'肥胖', adv:'weight'})};
+    const g = kBmiGrade(bmi);
+    out.bmi = {v: bmi, g, ...(bmi < 18.5 ? {cat:'體重過輕', adv:'underweight'} : bmi < 24 ? {cat:'正常'} : bmi < 27 ? {cat:'過重', adv:'weight'} : {cat:'肥胖', adv:'weight'})};
   }
+  // 判讀標準在 ../kit/report-kit.js（kBmiGrade、kWaistGrade、kBpGrade、BODY_META），與減重報告同一份
   const wa = ckNum(b.waist);
-  // 腰圍、體脂肪率達標判「異常」，與減重報告相同
-  if(wa != null){ const cut = P.male ? 90 : 80; out.waist = {v: wa, cut, g: wa >= cut ? 2 : 0, adv: 'weight'}; }
+  if(wa != null) out.waist = {v: wa, cut: kWaistCut(P.male), g: kWaistGrade(wa, P.male), adv: 'weight'};
   const s = ckNum(b.sbp), d = ckNum(b.dbp);
-  if(s != null && d != null){
-    // 說明只寫實際達標的那一項（rBpTxt 在減重報告 report.js）
-    out.bp = {s, d, ...(s >= 140 || d >= 90 ? {g:2, cat: rBpTxt(s, d, 140, 90)} : s >= 130 || d >= 80 ? {g:1, cat: rBpTxt(s, d, 130, 80)} : {g:0, cat:'正常'}), adv:'bp'};
-  }
+  if(s != null && d != null) out.bp = {s, d, g: kBpGrade(s, d), cat: kBpTxt(s, d), adv:'bp'};
+  const meta = {};
+  BODY_META(P.male).forEach(x=> meta[x.id.replace('t-', '')] = x);
+  const gOf = (k, v)=> rGrade(v, meta[k].cuts);
   const fat = ckNum(b.fat);
-  if(fat != null){ const cut = P.male ? 25 : 30; out.fat = {v: fat, cut, g: fat >= cut ? 2 : 0, adv:'weight'}; }
+  if(fat != null) out.fat = {v: fat, cut: meta.fat.cuts[0][0], g: gOf('fat', fat), adv:'weight'};
   const vf = ckNum(b.visceral);
-  if(vf != null) out.visceral = {v: vf, g: vf >= 15 ? 2 : vf >= 10 ? 1 : 0, adv:'weight'};
-  // 下列判讀標準與減重報告相同（weight/report.js rBodyMeta）：SMI 依 AWGS 2019 生物電阻抗切點
+  if(vf != null) out.visceral = {v: vf, g: gOf('visceral', vf), adv:'weight'};
   const smi = ckNum(b.smi);
-  if(smi != null){ const cut = P.male ? 7.0 : 5.7; out.smi = {v: smi, cut, g: smi < cut ? 1 : 0, adv:'smi'}; }
+  if(smi != null) out.smi = {v: smi, cut: meta.smi.cuts[0][0], g: gOf('smi', smi), adv:'smi'};
   const pa = ckNum(b.phaseangle);
-  if(pa != null) out.phase = {v: pa, g: pa < 4.5 ? 1 : 0, adv:'phase'};
+  if(pa != null) out.phase = {v: pa, g: gOf('phaseangle', pa), adv:'phase'};
   const wt = ckNum(b.water);
-  if(wt != null){ const lo = P.male ? 50 : 45, hi = P.male ? 65 : 60; out.water = {v: wt, lo, hi, g: wt < lo || wt > hi ? 1 : 0}; }
+  if(wt != null){ const lo = P.male ? 50 : 45, hi = P.male ? 65 : 60; out.water = {v: wt, lo, hi, g: gOf('water', wt)}; }
   const ba = ckNum(b.bodyage);
   if(ba != null) out.bodyage = {v: ba, g: P.age != null && ba > P.age ? 1 : 0};
-  // 身體組成分型與訓練主軸：沿用減重報告的分型規則
+  // 身體組成分型與訓練主軸：共用的分型規則
   if(out.bmi && typeof classifyExercisePhenotype === 'function'){
     try{
       const p = classifyExercisePhenotype(P.male ? 'M' : 'F', out.bmi.v, fat == null ? NaN : fat, smi == null ? NaN : smi, pa == null ? NaN : pa);
@@ -564,7 +564,7 @@ function ckRenderAtt(){
   });
 }
 
-/* TANITA：和減重報告共用同一份判讀（tanitaParse，在 weight/app.js），擷取結果是關鍵字比對，帶入後欄位要人工核對。
+/* TANITA：和減重報告共用同一份判讀（tanitaParse，在 kit/report-kit.js），擷取結果是關鍵字比對，帶入後欄位要人工核對。
    帶入規則和減重報告相同：欄位空白、或目前的值本來就是上傳帶入的（CK.bodySrc 有記錄）才寫入，自己輸入或改過的值不覆蓋。
    有多份時以量測日期最新的為準（CK.tanitaDate 記錄已帶入那份的日期），比它舊的報告只附圖、不帶數值。
    姓名不從 TANITA 帶入：報表印的是「名 姓」順序，姓名維持從抽血報告帶入。 */
@@ -932,7 +932,7 @@ const CK_ADV = {
   nodfu:    {when:'y1', t:'甲狀腺結節建議 1 年後超音波追蹤，比較大小與特徵。'},
   fna:      {when:'now', t:'甲狀腺結節建議安排細針穿刺，確認細胞性質。'},
   usother:  {when:'m3', t:'超音波有其他發現，請回診討論後續追蹤。'},
-  lpa:      {when:'y1', t:'脂蛋白(a) 主要由遺傳決定，一生驗一次即可；數值高的人，其他危險因子要控制得更嚴格，也建議一等親檢查。'},
+  lpa:      {when:'y1', t:'Lp(a) 脂蛋白(a) 是一種主要由遺傳決定的膽固醇顆粒，一生驗一次即可；數值高的人，其他危險因子要控制得更嚴格，也建議一等親檢查。'},
   crp:      {when:'y1', t:'hs-CRP 偏高代表血管有慢性發炎，戒菸、減重與規律運動可以降低；會和其他危險因子一起評估。'},
   crp10:    {when:'m3', t:'hs-CRP 明顯升高多半是急性發炎，感冒或受傷恢復 2 週後再驗一次才準確。'},
   hbvvac:   {when:'m6', t:'B 型肝炎表面抗體陰性，代表沒有保護力，可以接種 B 型肝炎疫苗。'},
@@ -949,7 +949,7 @@ const CK_ADV = {
   egdpolyp: {when:'m3', t:'胃鏡瘜肉的追蹤依病理報告決定，請回診看病理結果。'},
   egdtumor: {when:'now', t:'胃鏡有疑似腫瘤的病灶，請盡快回診看病理報告並安排後續治療。'},
   egdother: {when:'m3', t:'胃鏡有其他發現，請回診討論後續追蹤。'},
-  barrett:  {when:'long', t:'巴瑞特食道的追蹤依長度與病理決定：沒有分化不良時，長度小於 3 公分每 5 年、3 公分以上每 3 年做一次胃鏡（2022 年美國腸胃科醫學會指引）。'},
+  barrett:  {when:'long', t:'巴瑞特食道的追蹤依長度與病理決定：沒有分化不良時，長度小於 3 公分每 5 年、3 公分以上每 3 年做一次胃鏡（2022 年美國胃腸病學院 ACG 指引）。'},
   erosive:  {when:'m3', t:'糜爛性胃炎常和止痛藥、酒精與幽門桿菌有關，請減少止痛藥與飲酒，症狀持續請回診。'},
   egdadenoma:{when:'now', t:'胃腺瘤或分化不良屬於癌前病變，請回診討論是否需要內視鏡切除，以及之後的胃鏡追蹤時間。'},
   hemorrhoid:{when:'y1', t:'痔瘡多數靠多喝水、多吃蔬菜與避免久坐久蹲就能改善；反覆出血或脫垂時，可以回診討論治療方式。'},
@@ -1013,6 +1013,12 @@ function ckCollect(){
   mod.forEach(u=> add(u.g, `<b>${u.area}：${ckEsc(u.t)}</b>${u.d ? '，' + u.d : ''}`, u.adv));
   findings.forEach((x, i)=> x.i = i);
   findings.sort((a, b)=> b.g - a.g || a.i - b.i);
+  // 判讀確認：醫師在「判讀重點」取消勾選的項目不印在報告上，也不產生建議。
+  // 以「項目＋數值」當識別（例如「BMI 27.5」），數值改了就要重新確認
+  const hide = CK.hide || [];
+  findings.forEach(x=>{ x.key = x.html.replace(/<[^>]+>/g, '').split('，')[0]; x.off = hide.includes(x.key); });
+  const findingsAll = findings.slice();
+  findings.splice(0, findings.length, ...findingsAll.filter(x=> !x.off));
   // 建議事項：異常與注意項目的建議，依時間分組，同類只列一次
   const advSeen = new Set(), advice = [];
   // B 肝帶原者表面抗體本來就是陰性，不建議打疫苗
@@ -1040,7 +1046,7 @@ function ckCollect(){
   });
   (CK.fuAdd || []).forEach((x, i)=> advice.push({key:'add' + i, add: i, when: CK_WHEN[x.when] ? x.when : 'm3', t: String(x.t || '').trim(), edited: true}));
   const reps = ckSortedReports();
-  return {P, rows, body, us, mod, fib4, cv, pub, findings, adviceAll: advice, advice: advice.filter(a=> !a.off && a.t), reports: reps, current: reps[0] || null};
+  return {P, rows, body, us, mod, fib4, cv, pub, findings, findingsAll, adviceAll: advice, advice: advice.filter(a=> !a.off && a.t), reports: reps, current: reps[0] || null};
 }
 
 /* ---------- 畫面 ---------- */
@@ -1149,8 +1155,10 @@ function ckRenderLab(){
 function ckRenderFind(){
   const d = ckCollect();
   const box = ckEl('k-find');
-  if(!d.findings.length){ box.innerHTML = '<div class="k-empty" style="display:block">目前沒有判讀為「注意」或「異常」的項目。</div>'; }
-  else box.innerHTML = d.findings.map(x=> `<div><span class="g${x.g}">${x.g === 2 ? '異常' : '注意'}</span><span>${x.html}</span></div>`).join('');
+  if(!d.findingsAll.length){ box.innerHTML = '<div class="k-empty" style="display:block">目前沒有判讀為「注意」或「異常」的項目。</div>'; }
+  else box.innerHTML = '<p class="k-note" style="margin:0 0 4px">系統自動判讀的結果，請逐項確認；取消勾選的項目不會印在報告上，也不會產生建議。</p>' +
+    d.findingsAll.map(x=> `<div class="${x.off ? 'off' : ''}"><span class="g${x.g}">${x.g === 2 ? '異常' : '注意'}</span><span>${x.html}</span>` +
+      `<label class="k-fin"><input type="checkbox" data-fin="${ckEsc(x.key)}"${x.off ? '' : ' checked'}> 列入報告</label></div>`).join('');
   if(d.fib4 && d.fib4.miss) box.insertAdjacentHTML('beforeend', `<div><span class="gna">提醒</span><span>FIB-4 無法計算：缺${d.fib4.miss.join('、')}。</span></div>`);
   const b = d.body.bmi;
   ckEl('k-bmi').innerHTML = b ? `BMI <b>${b.v.toFixed(1)}</b>　<span class="g${b.g}">${b.cat}</span>` : '';
@@ -1263,9 +1271,97 @@ function ckSaveNow(){
 }
 // 打完字 0.4 秒內就關頁，還沒存的立刻存；工作台「全部清除」重新載入時不存，免得清掉的資料又寫回去
 window.addEventListener('pagehide', ()=>{ if(ckSaveTimer && !window.HUB_RELOADING) ckSaveNow(); });
-/* ---------- 備份 ----------
-   一位病人一個檔：姓名_健檢_檢查日期_備份.json。app 標記為 muzi-checkup，
-   和減重的備份（muzi-weight、多筆紀錄）互不相認，匯錯檔會被擋下來；原始報告圖片一起帶著 */
+/* ---------- 病人紀錄與備份（做法與減重報告相同） ----------
+   按「儲存紀錄」存成一筆，放在這台電腦的瀏覽器（checkup_records_v1）；原始報告圖片太大，不存進紀錄。
+   匯出備份：所有紀錄＋目前畫面上這位病人的原始報告圖片。app 標記為 muzi-checkup，和減重的備份（muzi-weight）互不相認。
+   舊版備份（version 1，一位病人一個檔）仍可匯入。 */
+const CK_RECORDS = 'checkup_records_v1';
+const CK_BACKUP_AT = 'checkup_backup_at';
+function ckLoadRecords(){
+  try{ const r = JSON.parse(localStorage.getItem(CK_RECORDS)); return Array.isArray(r) ? r : []; }catch(e){ return []; }
+}
+function ckPersistRecords(list){
+  try{ localStorage.setItem(CK_RECORDS, JSON.stringify(list)); return true; }
+  catch(e){ alert('儲存失敗：' + e.message + '\n瀏覽器儲存空間可能已滿，請先匯出備份並刪除舊紀錄。'); return false; }
+}
+function ckRecKey(ck){ const i = ck.info || {}; return [i.name || '', i.birth || '', i.date || ''].map(s=> String(s).trim()).join('||'); }
+function ckRecLabel(ck){
+  const i = ck.info || {};
+  return (String(i.name || '').trim() || '（未填姓名）') + (i.birth ? '（' + i.birth + '）' : '') + '｜' + (i.date || '未填日期');
+}
+// 有沒有填過東西（和草稿判斷相同：和空白資料不一樣就算有）
+function ckHasData(){ return JSON.stringify(CK) !== JSON.stringify(ckBlank()); }
+let ckDirty = false;
+function ckSaveRecord(){
+  if(!String(CK.info.name || '').trim()){ alert('請先在「基本資料」填寫姓名，再儲存紀錄。'); return; }
+  const list = ckLoadRecords(), key = ckRecKey(CK);
+  const i = list.findIndex(r=> r.key === key);
+  const rec = {key, label: ckRecLabel(CK), savedAt: new Date().toISOString(), ck: JSON.parse(JSON.stringify(CK))};
+  if(i >= 0){
+    if(!confirm('已有同姓名、同生日與同檢查日期的紀錄：\n' + rec.label + '\n\n要覆蓋更新嗎？')) return;
+    list[i] = rec;
+  }else list.unshift(rec);
+  if(!ckPersistRecords(list)) return;
+  ckDirty = false;
+  ckRenderRecords();
+  ckToast('已儲存 ' + rec.label);
+}
+function ckLoadRecord(key){
+  const rec = ckLoadRecords().find(r=> r.key === key);
+  if(!rec){ alert('找不到該筆紀錄'); return; }
+  if(ckDirty && ckHasData() && !confirm('目前畫面上的資料還沒儲存，載入其他紀錄會覆蓋掉。要繼續嗎？')) return;
+  ckReset(Object.assign(ckBlank(), JSON.parse(JSON.stringify(rec.ck))));
+  ckToast('已載入 ' + rec.label + '。紀錄不含原始報告檔，要附在報告後面請重新上傳。');
+}
+function ckDeleteRecord(key){
+  const list = ckLoadRecords(), rec = list.find(r=> r.key === key);
+  if(!rec || !confirm('確定刪除這筆紀錄？\n' + rec.label + '\n\n刪除後無法復原。')) return;
+  ckPersistRecords(list.filter(r=> r.key !== key));
+  ckRenderRecords();
+}
+// 換成另一位病人的資料（空白或載入的紀錄）：上傳的圖片一起清掉，免得附到別人的報告後面
+function ckReset(ck){
+  clearTimeout(ckSaveTimer);
+  const bar = KD.querySelector('.k-draft');
+  if(bar){ ckDraftPending = false; bar.remove(); }
+  CK = ck;
+  Object.keys(CK_PAGES).forEach(k=> delete CK_PAGES[k]);
+  ckPagesUnsaved = false;
+  ckDirty = false;
+  ckMigrate();
+  ckSaveNow();
+  ckRenderAll();
+  KB.scrollTo(0, 0);
+}
+function ckNewPatient(){
+  if(ckDirty && ckHasData() && !confirm('目前的資料還沒儲存成紀錄，清空後就找不回來。要開始下一位病人嗎？')) return;
+  if(ckPagesUnsaved && Object.keys(CK_PAGES).length && !confirm('上傳的原始報告圖片還沒匯出備份，清空後要重新上傳。要繼續嗎？')) return;
+  ckReset(ckBlank());
+}
+function ckToast(msg){
+  const box = ckEl('k-rec-msg');
+  if(!box) return;
+  box.textContent = msg; box.hidden = false;
+  clearTimeout(ckToast.t); ckToast.t = setTimeout(()=> box.hidden = true, 6000);
+}
+function ckRenderRecords(){
+  const box = ckEl('k-records');
+  if(!box) return;
+  const list = ckLoadRecords();
+  let t = null;
+  try{ t = localStorage.getItem(CK_BACKUP_AT); }catch(e){}
+  const at = t ? new Date(t) : null, days = at && !isNaN(at) ? Math.floor((Date.now() - at) / 86400000) : null;
+  const st = ckEl('k-backup');
+  st.textContent = days === null ? '這台電腦還沒有匯出過備份。' : '上次匯出備份：' + at.toLocaleDateString('zh-TW') + '（' + (days === 0 ? '今天' : days + ' 天前') + '）';
+  // 有紀錄卻超過兩週沒備份，用紅字提醒（與減重報告相同）
+  st.style.color = list.length && (days === null || days >= 14) ? 'var(--k-red)' : '';
+  if(!list.length){ box.innerHTML = '<p class="k-note">尚無儲存的紀錄。填寫姓名後按左側「儲存紀錄」即可建立。</p>'; return; }
+  box.innerHTML = '<table class="k-rec"><tr><th>病人｜檢查日期</th><th>儲存時間</th><th></th></tr>' + list.map(r=>{
+    const d = new Date(r.savedAt), ts = isNaN(d) ? '' : d.toLocaleDateString('zh-TW') + ' ' + d.toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
+    return `<tr><td>${ckEsc(r.label)}</td><td>${ckEsc(ts)}</td><td class="act"><button type="button" class="k-btn ghost sm" data-rec="load" data-key="${ckEsc(r.key)}">載入</button>` +
+      `<button type="button" class="k-btn ghost sm danger" data-rec="del" data-key="${ckEsc(r.key)}">刪除</button></td></tr>`;
+  }).join('') + '</table>';
+}
 // 原始報告圖片只在記憶體裡（不進暫存），重新整理或關掉就要重新上傳。
 // 有圖片、而且上傳後還沒匯出備份時，離開前提醒；工作台「全部清除」重新載入時（HUB_RELOADING）不提醒
 let ckPagesUnsaved = false;
@@ -1275,16 +1371,21 @@ window.addEventListener('beforeunload', e=>{
   e.returnValue = '';
 });
 function ckExport(){
+  const list = ckLoadRecords();
+  if(!list.length && !ckHasData()){ alert('目前沒有紀錄可以匯出。'); return; }
   ckPagesUnsaved = false;
   const pages = {};
   [...CK.reports, ...CK.att].forEach(x=>{ if(CK_PAGES[x.id]) pages[x.id] = CK_PAGES[x.id]; });
-  const data = {app:'muzi-checkup', version:1, exportedAt:new Date().toISOString(), ck:CK, pages};
+  // current：匯出時畫面上的病人（含還沒按儲存的內容），原始報告圖片屬於這一位
+  const data = {app:'muzi-checkup', version:2, exportedAt:new Date().toISOString(), records:list, current: ckHasData() ? CK : null, pages};
   const url = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'}));
   const a = document.createElement('a');
   a.href = url;
-  a.download = ckFilename() + '_備份.json';
+  a.download = '健檢紀錄備份_' + ckToday() + '.json';
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=> URL.revokeObjectURL(url), 2000);
+  try{ localStorage.setItem(CK_BACKUP_AT, new Date().toISOString()); }catch(e){}
+  ckRenderRecords();
 }
 async function ckImport(input){
   const file = input.files && input.files[0];
@@ -1293,22 +1394,43 @@ async function ckImport(input){
   let data;
   try{ data = JSON.parse(await file.text()); }
   catch(e){ alert('無法讀取這個檔案，請確認是健檢報告匯出的備份檔（.json）。'); return; }
-  if(!data || data.app !== 'muzi-checkup' || !data.ck || typeof data.ck !== 'object'){
+  const v1 = data && data.app === 'muzi-checkup' && data.ck && typeof data.ck === 'object';
+  const v2 = data && data.app === 'muzi-checkup' && Array.isArray(data.records);
+  if(!v1 && !v2){
     alert(data && data.app === 'muzi-weight' ? '這是減重報告的備份檔，請到減重報告匯入。' : '這不是健檢報告的備份檔。');
     return;
   }
-  const cur = CK.info.name || CK.reports.length || CK.manual;
-  if(cur && !confirm('匯入會取代目前畫面上的健檢資料' + (CK.info.name ? '（' + CK.info.name + '）' : '') + '，確定要匯入嗎？')) return;
-  CK = Object.assign(ckBlank(), data.ck);
-  Object.keys(CK_PAGES).forEach(k=> delete CK_PAGES[k]);
-  Object.assign(CK_PAGES, data.pages || {});
-  ckMigrate();
-  ckSave();
-  ckRenderAll();
-  alert('已匯入' + (CK.info.name ? ' ' + CK.info.name + ' ' : '') + '的健檢資料。');
+  // 紀錄合併：備份裡沒有的新增；兩邊都有的保留儲存時間較新的一份。本機紀錄不會被刪除
+  const incoming = v2 ? data.records.filter(r=> r && typeof r.key === 'string' && r.ck && typeof r.ck === 'object')
+    : (String((data.ck.info || {}).name || '').trim() ? [{key: ckRecKey(data.ck), label: ckRecLabel(data.ck), savedAt: data.exportedAt || new Date().toISOString(), ck: data.ck}] : []);
+  const list = ckLoadRecords();
+  let added = 0, updated = 0;
+  incoming.forEach(r=>{
+    const i = list.findIndex(x=> x.key === r.key);
+    if(i < 0){ list.push(r); added++; }
+    else if(new Date(r.savedAt) > new Date(list[i].savedAt)){ list[i] = r; updated++; }
+  });
+  list.sort((a, b)=> String(b.savedAt).localeCompare(String(a.savedAt)));
+  if(incoming.length && !ckPersistRecords(list)) return;
+  ckRenderRecords();
+  // 匯出時畫面上的那一位（含原始報告圖片）可以直接載回畫面
+  const cur = v1 ? data.ck : data.current;
+  const msg = '匯入完成：新增 ' + added + ' 筆，更新 ' + updated + ' 筆紀錄。';
+  if(cur && typeof cur === 'object'){
+    const who = String((cur.info || {}).name || '').trim() || '未填姓名的資料';
+    const n = Object.keys(data.pages || {}).length;
+    if(confirm(msg + '\n\n要把備份裡「' + who + '」' + (n ? '（含原始報告圖片）' : '') + '載入畫面嗎？' + (ckHasData() ? '目前畫面上的資料會被取代。' : ''))){
+      ckReset(Object.assign(ckBlank(), cur));
+      Object.assign(CK_PAGES, data.pages || {});
+      ckRenderAll();
+    }
+    return;
+  }
+  alert(msg);
 }
 
 function ckChanged(opts){
+  ckDirty = true;
   ckSave();
   ckRenderFields();
   if(!opts || !opts.keepLab) ckRenderLab();
@@ -1474,6 +1596,20 @@ async function ckAddFiles(files){
   ckEl('k-preview').addEventListener('click', ()=> ckPreview());
   ckEl('k-print').addEventListener('click', ()=> ckPrint());
   ckEl('k-export').addEventListener('click', ckExport);
+  ckEl('k-save').addEventListener('click', ckSaveRecord);
+  ckEl('k-new').addEventListener('click', ckNewPatient);
+  ckEl('k-records').addEventListener('click', e=>{
+    const b = e.target.closest('[data-rec]'); if(!b) return;
+    if(b.dataset.rec === 'load') ckLoadRecord(b.dataset.key); else ckDeleteRecord(b.dataset.key);
+  });
+  ckRenderRecords();
+  // 判讀確認：取消勾選的項目記在 CK.hide，報告與建議都不列
+  ckEl('k-find').addEventListener('change', e=>{
+    const c = e.target.closest('[data-fin]'); if(!c) return;
+    CK.hide = (CK.hide || []).filter(k=> k !== c.dataset.fin);
+    if(!c.checked) CK.hide.push(c.dataset.fin);
+    ckChanged({keepLab: true});
+  });
   ckEl('k-import').addEventListener('click', ()=> ckEl('k-import-file').click());
   ckEl('k-import-file').addEventListener('change', e=> ckImport(e.target));
 

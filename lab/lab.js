@@ -59,7 +59,7 @@ const CK_LAB = [
   ['ubact',  /^BACTERIA/,                '細菌',             '尿液',     '/HPF'],
   ['ucrys',  /^CRYSTAL/,                 '結晶體',           '尿液',     '/HPF'],
   ['ucast',  /^CAST/,                    '圓柱體',           '尿液',     '/LPF'],
-  ['lpa',    /^LP\(?A\)?/,               '脂蛋白(a)',        '心血管風險', 'mg/dL'],
+  ['lpa',    /^LP\(?A\)?/,               'Lp(a) 脂蛋白(a)',  '心血管風險', 'mg/dL'],
   ['apob',   /^APO-?B/,                  'ApoB',             '心血管風險', 'mg/dL'],
   ['hscrp',  /^HS-?CRP|^CRP/,            'hs-CRP',           '心血管風險', 'mg/L'],
   ['scc',    /^SCC/,                     'SCC',              '腫瘤標記', 'ng/mL'],

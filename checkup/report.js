@@ -1,5 +1,5 @@
 /* 健檢報告：章節內容、A4 排版、預覽與列印。
-   版面沿用減重報告：REPORT_CSS、RPT_FONTS、rLogo、rPill、rBar、rBlock、rCallout、rRich、rBr 都來自 weight/report.js，
+   版面沿用減重報告：REPORT_CSS、RPT_FONTS、rLogo、rPill、rBar、rBlock、rCallout、rRich、rBr 都來自共用的 kit/report-kit.js，
    排版流程（ckLayout）照 layoutReport 改寫，只換掉頁首、封面、目錄與頁尾，減重報告本身不受影響。 */
 
 const CK_RPT_CSS = `
@@ -39,7 +39,7 @@ function ckSecName(s){ return String(s || '其他').replace(/檢查$/, '') || '�
 // 各檢驗分組的一句說明，放在表格下方
 const CK_SEC_NOTE = [
   [/肝炎/,     'B 肝表面抗原陽性代表帶原；表面抗體陽性代表有保護力；C 肝抗體陽性要再驗病毒量，確認是否仍有感染。'],
-  [/心血管/,   '脂蛋白(a) 主要由遺傳決定；ApoB 反映會造成動脈硬化的脂蛋白顆粒數；hs-CRP 反映血管的慢性發炎。'],
+  [/心血管/,   'Lp(a) 脂蛋白(a) 是一種主要由遺傳決定的膽固醇顆粒，偏高會增加心血管疾病風險；ApoB 反映會造成動脈硬化的脂蛋白顆粒數；hs-CRP 反映血管的慢性發炎。'],
   [/肝/,      'AST、ALT 反映肝細胞有沒有受損，脂肪肝、病毒性肝炎、飲酒與部分藥物都會讓數值上升。'],
   [/脂/,       'LDL-C 是主要的心血管風險指標；HDL-C 越高越好。是否需要用藥，要合併年齡、血壓、血糖與吸菸一起評估。'],
   [/糖/,       '糖化血色素反映過去 2 至 3 個月的平均血糖。HOMA-IR 由空腹血糖與胰島素算出，數值越高代表胰島素阻抗越明顯。'],
@@ -118,7 +118,7 @@ function ckChBody(d){
   ].filter(r=> r[2]);
   if(comp.length){
     const trs = comp.map(([zh, en, x, u, ref, sc, cuts])=> `<tr class="ru"><td class="nm">${zh}<span class="en">${en}</span></td>` +
-      `<td class="n">${x.v}${u ? `<span class="u">${u}</span>` : ''}</td><td class="ref">${ref}</td>` +
+      `<td class="n">${x.v}${u ? `<span class="u">${u}</span>` : ''}</td><td class="ref">${kRange(ref)}</td>` +
       `<td>${sc ? rBar(x.v, sc, cuts, 118) : ''}</td><td class="g">${x.g != null ? ckPill(x.g) : ''}</td></tr>`).join('');
     const ph = b.pheno && b.pheno.hasComp ? `<div class="pheno"><span class="muted">身體組成分型</span><b>${ckEsc(b.pheno.t)}</b></div>` +
       (b.pheno.focus ? `<p class="note-line" style="margin-top:2px">${rBr('訓練主軸：' + b.pheno.focus, 40)}</p>` : '') +
@@ -202,7 +202,7 @@ function ckChLab(d){
         `<td class="n">${ckEsc(r.raw)}${ar}${r.unit ? `<span class="u">${ckEsc(r.unit)}</span>` : ''}</td>` +
         (hasPrev ? `<td class="prev">${pv ? ckEsc(pv.raw) : '—'}</td>` : '') +
         // 「（見報告說明）」指的是檢驗所報告的附註，這份報告沒有那一段，所以拿掉
-        `<td class="ref">${ckEsc(String(r.ref || '').replace(/\s*[（(]見(報告)?說明[)）]/g, ''))}</td>` +
+        `<td class="ref">${ckEsc(kRange(String(r.ref || '').replace(/\s*[（(]見(報告)?說明[)）]/g, '')))}</td>` +
         `<td>${bd && v != null ? rBar(v, bd.scale, bd.cuts, cols[4] - 12) : ''}</td>` +
         `<td class="g">${ckPill(r.j.g, r.j.pill)}</td></tr>`;
     };
@@ -663,6 +663,11 @@ function ckClosePreview(){ const ov = KD.getElementById('k-ov'); if(ov) ov.remov
 // 列印：在隱藏的 iframe 裡排好版再叫出列印對話框；頁首頁尾由 @page margin:0 去掉
 async function ckPrint(){
   if(ckNeedSex()) return;
+  // 判讀確認：列印前列出會印在「優先處理事項」的項目，確認後才列印（取消勾選的在「判讀重點」）
+  const chk = ckCollect(), off = chk.findingsAll.length - chk.findings.length;
+  if(chk.findings.length && !confirm('以下 ' + chk.findings.length + ' 項會列在報告的「優先處理事項」：\n\n' +
+    chk.findings.map(x=> '• ' + (x.g === 2 ? '異常　' : '注意　') + x.html.replace(/<[^>]+>/g, '')).join('\n') +
+    (off ? '\n\n另有 ' + off + ' 項已取消勾選，不會印出。' : '') + '\n\n確認無誤後列印？要修改請按取消，到「判讀重點」調整。')) return;
   const m = ckBuildModel();
   const title = ckFilename();
   const frame = document.createElement('iframe');
