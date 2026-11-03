@@ -36,7 +36,7 @@ setTimeout(()=>{
 // NAVIGATION（版面與健檢報告一致：一頁捲到底，左側目錄點了捲到該區）
 // ============================================================
 // 最後改版日期：每次改版請一併更新，顯示於工作台底部
-const W_REVISION = '2026-10-29';
+const W_REVISION = '2026-11-04';
 const W_SECS = ['upload', 'basic', 'body', 'history', 'lab', 'image', 'treat', 'calorie', 'diet', 'track', 'report'];
 let currentScreen = 'upload';
 
@@ -456,7 +456,7 @@ function calcBMI(silent){
       `階段目標：減 5%　<b>${m5} kg</b>　·　減 10%　<b>${m10} kg</b>` +
       `<div class="hint" style="margin-top:4px">長期參考：BMI 24 相當於 ${targetW.toFixed(1)} kg</div>`;
   } else {
-    WD.getElementById('target-loss').textContent = '目前BMI已在正常範圍，建議以維持為主';
+    WD.getElementById('target-loss').textContent = bmi < 18.5 ? '目前 BMI 屬體重過輕，不建議減重，應增加營養與肌力訓練' : '目前 BMI 已在正常範圍，建議以維持為主';
   }
 
   const waist = parseFloat(WD.getElementById('b-waist').value);
@@ -497,9 +497,9 @@ function updateHba1cReadout(){
   const el = WD.getElementById('ms-hba1c-readout');
   if(!el) return;
   const hba1c = parseFloat(WD.getElementById('ms-hba1c').value);
-  if(isNaN(hba1c)){ el.innerHTML = '5.7% 至 6.4% 為糖尿病前期，符合獨立診斷條件'; return; }
+  if(isNaN(hba1c)){ el.innerHTML = '5.7% 至 6.4% 為糖尿病前期，另外標示，不算進代謝症候群五項'; return; }
   const preDM = hba1c >= 5.7 && hba1c <= 6.4;
-  el.innerHTML = preDM ? `<span class="flag high">5.7% 至 6.4%，符合糖尿病前期，符合獨立診斷條件</span>` : `<span class="flag low">未達 5.7% 至 6.4% 範圍</span>`;
+  el.innerHTML = preDM ? `<span class="flag high">5.7% 至 6.4%，屬糖尿病前期</span>` : `<span class="flag low">未達 5.7% 至 6.4% 範圍</span>`;
 }
 // 代謝症候群五項可由已輸入的腰圍、血壓、血糖、TG、HDL 直接判定。
 // 預設依實測值自動帶入；醫師手動改過的項目（例如已用藥治療）以手動為準，
@@ -595,12 +595,13 @@ function calcMetabolic(){
   renderMsBasis();
   const hba1c = parseFloat(WD.getElementById('ms-hba1c').value);
   const hba1cFlag = !isNaN(hba1c) && hba1c >= 5.7 && hba1c <= 6.4;
-  const positive = count >= 3 || hba1cFlag;
+  // 代謝症候群只看五項；糖尿病前期另外標示，不算進代謝症候群
+  const positive = count >= 3;
   updateHba1cReadout();
   const box = WD.getElementById('metabolic-result');
   box.style.display = 'block';
   box.innerHTML = `符合項目：<b>${count}</b> / 5` +
-    (hba1cFlag ? `<br>另符合糖尿病前期（HbA1c 5.7% 至 6.4%）診斷條件` : '') +
+    (hba1cFlag ? `<br>另屬糖尿病前期（HbA1c 5.7% 至 6.4%）` : '') +
     `<br>` +
     (positive ? `<span class="flag high">符合代謝症候群診斷</span>` : `<span class="flag low">未達代謝症候群診斷標準</span>`);
 }
@@ -1810,7 +1811,7 @@ function genDocComment(silent){
   if(d.bmi != null) head.push(`BMI ${d.bmi.toFixed(1)}（${d.bmiCat}）`);
   if(d.waist != null) head.push(`腰圍 ${d.waist} 公分`);
   if(head.length || d.msAny){
-    const ms = d.msAny ? (d.msPositive ? `符合代謝症候群（五項符合 ${d.msCount} 項${d.msHba1c ? '，另 HbA1c 屬糖尿病前期' : ''}）` : `未達代謝症候群診斷標準（五項符合 ${d.msCount} 項）`) : '';
+    const ms = d.msAny ? (d.msPositive ? `符合代謝症候群（五項符合 ${d.msCount} 項）` : `未達代謝症候群診斷標準（五項符合 ${d.msCount} 項）`) : '';
     s.push('本次評估 ' + head.join('，') + (head.length && ms ? '；' : '') + ms + '。');
   }
 

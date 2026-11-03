@@ -114,6 +114,12 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .goal{display:grid; grid-template-columns:repeat(4,1fr); position:relative;}
 .goal::before{content:''; position:absolute; left:7px; width:50%; top:6px; height:2px; background:#24292B;}
 .goal::after{content:''; position:absolute; left:calc(50% + 7px); width:25%; top:6px; height:0; border-top:2px dashed #9A6E2A;}
+.goal.n3{grid-template-columns:repeat(3,1fr);}
+.goal.n3::before{width:33.3%;}
+.goal.n3::after{left:calc(33.3% + 7px); width:33.3%;}
+.goal.n2{grid-template-columns:repeat(2,1fr);}
+.goal.n2::before{display:none;}
+.goal.n2::after{left:7px; width:50%;}
 .goal .st{position:relative; padding-right:8px;}
 .goal .pt{width:14px; height:14px; border-radius:50%; background:#fff; border:3px solid #24292B; position:relative; z-index:1;}
 .goal .st.end .pt{border-color:#9A6E2A; background:#9A6E2A;}
@@ -357,6 +363,8 @@ function rAddMonths(base, m){
   return rYmd(t);
 }
 function rYmd(t){ return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); }
+// 血壓超標的說明：只寫實際達標的那一項（例如 130/70 只有收縮壓達 130）
+function rBpTxt(s, d, hs, hd){ return s >= hs && d >= hd ? `達 ${hs}/${hd} 以上` : s >= hs ? `收縮壓達 ${hs} 以上` : `舒張壓達 ${hd} 以上`; }
 function rDateZh(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? `${m[1]} 年 ${+m[2]} 月 ${+m[3]} 日` : (s || ''); }
 
 // ---------- 判讀標準 ----------
@@ -428,7 +436,8 @@ function rCollect(){
   d.msCount = ms.filter(id=> chk(id)).length;
   const hb = rN('ms-hba1c');
   d.msHba1c = hb != null && hb >= 5.7 && hb <= 6.4;
-  d.msPositive = d.msCount >= 3 || d.msHba1c;
+  // 代謝症候群只看五項（符合 3 項以上）；HbA1c 5.7 至 6.4 屬糖尿病前期，另外列出，不算進代謝症候群
+  d.msPositive = d.msCount >= 3;
   d.msAny = d.msCount > 0 || hb != null || ['b-waist', 'b-sbp', 'lab-ac', 'lab-tg', 'lab-hdl'].some(id=> rS(id));
   // 睡眠：問卷沒有勾任何一題、也沒手動輸入分數時，視為未評估（系統自動加的年齡、性別、BMI 分數不單獨成立）
   const sbAnswered = STOPBANG_ITEMS.some(it=> chk(it.id)) || rS('stopbang-manual') !== '';
@@ -464,10 +473,12 @@ function rFindings(d){
   const f = [];
   const add = (g, html)=>{ if(g >= 1) f.push({g, html}); };
   if(d.bmi != null) add(d.gBmi, `<b>BMI ${d.bmi.toFixed(1)}</b>，屬${d.bmiCat}`);
-  if(d.waist != null) add(d.gWaist, `<b>腰圍 ${d.waist} 公分</b>，超過${d.male ? '男' : '女'}性標準 ${d.waistCut} 公分，屬腹部肥胖`);
-  if(d.gBp >= 1) add(d.gBp, `<b>血壓 ${d.sbp}/${d.dbp} mmHg</b>，${d.gBp === 2 ? '達 140/90 以上' : '高於 130/80'}`);
-  if(d.msPositive) add(2, `<b>符合代謝症候群</b>（五項指標符合 ${d.msCount} 項${d.msHba1c ? '，另 HbA1c 屬糖尿病前期' : ''}）`);
+  if(d.waist != null) add(d.gWaist, `<b>腰圍 ${d.waist} 公分</b>，達${d.male ? '男' : '女'}性腹部肥胖標準 ${d.waistCut} 公分`);
+  if(d.gBp >= 1) add(d.gBp, `<b>血壓 ${d.sbp}/${d.dbp} mmHg</b>，${d.gBp === 2 ? rBpTxt(d.sbp, d.dbp, 140, 90) : rBpTxt(d.sbp, d.dbp, 130, 80)}`);
+  if(d.msPositive) add(2, `<b>符合代謝症候群</b>（五項指標符合 ${d.msCount} 項）`);
   const L = d.lab;
+  // HbA1c 只填在代謝症候群頁、檢驗頁沒有數值時，仍列出糖尿病前期
+  if(L.hba1c.v == null && d.msHba1c) add(1, `<b>HbA1c ${rN('ms-hba1c')}%</b>，屬糖尿病前期範圍`);
   if(L.hba1c.v != null) add(L.hba1c.g, `<b>HbA1c ${L.hba1c.v}%</b>，${L.hba1c.v >= 6.5 ? '達糖尿病診斷值' : '屬糖尿病前期範圍'}`);
   if(L.ac.v != null) add(L.ac.g, `<b>空腹血糖 ${L.ac.v} mg/dL</b>，${L.ac.v >= 126 ? '達糖尿病診斷值' : '高於正常值'}`);
   ['ldl', 'tg', 'tcho'].forEach(k=>{ if(L[k].v != null) add(L[k].g, `<b>${L[k].zh} ${L[k].v} mg/dL</b>，偏高`); });
@@ -483,7 +494,7 @@ function rFindings(d){
   if(d.fib4 && d.fib4.v != null) add(d.fib4.g, `<b>FIB-4 ${d.fib4.v.toFixed(2)}</b>，${d.fib4.d}`);
   if(d.gThyUs >= 1) add(1, `<b>甲狀腺超音波：${wEsc(d.thyUs)}</b>，使用腸泌素類藥物前需確認性質`);
   const B = d.body;
-  if(B['t-fat'].v != null) add(B['t-fat'].g, `<b>體脂肪率 ${B['t-fat'].v}%</b>，超過${d.male ? '男' : '女'}性標準 ${d.male ? 25 : 30}%`);
+  if(B['t-fat'].v != null) add(B['t-fat'].g, `<b>體脂肪率 ${B['t-fat'].v}%</b>，達${d.male ? '男' : '女'}性偏高標準 ${d.male ? 25 : 30}%`);
   if(B['t-visceral'].v != null) add(B['t-visceral'].g, `<b>內臟脂肪等級 ${B['t-visceral'].v}</b>，${B['t-visceral'].g === 2 ? '過高' : '偏高'}`);
   if(B['t-smi'].v != null) add(B['t-smi'].g, `<b>SMI ${B['t-smi'].v} kg/m²</b>，低於肌少症切點，減重時需保留肌肉`);
   if(B['t-phaseangle'].v != null) add(B['t-phaseangle'].g, `<b>相位角 ${B['t-phaseangle'].v}°</b>，偏低`);
@@ -545,15 +556,17 @@ function rChSummary(d){
     if(d.bmi >= 24){
       const endW = tgt != null ? tgt : 24 * hM * hM;
       const pct = (d.w - endW) / d.w * 100;
-      const st = [
-        ['目前', d.w, ''],
-        ['第一階段　減 5%', d.w * .95, ''],
-        ['第二階段　減 10%', d.w * .90, ''],
-        [tgt != null ? '目標體重' : '長期參考　BMI 24', endW, 'end'],
-      ];
-      goal = `<div class="goal">${st.map(([l, w, c])=> `<div class="st ${c}"><div class="pt"></div><div class="lbl">${l}</div>` +
+      // 目標體重比減 5% 或減 10% 還重時，那一階段不列，時間軸才不會倒退
+      const st = [['目前', d.w, '']];
+      if(d.w * .95 > endW) st.push(['第一階段　減 5%', d.w * .95, '']);
+      if(d.w * .90 > endW) st.push(['第二階段　減 10%', d.w * .90, '']);
+      st.push([tgt != null ? '目標體重' : '長期參考　BMI 24', endW, 'end']);
+      if(endW >= d.w) goal = `<p>目標體重 ${endW.toFixed(1)} kg 不低於目前體重 ${d.w.toFixed(1)} kg，請確認「目標體重」欄位。</p>`;
+      else goal = `<div class="goal n${st.length}">${st.map(([l, w, c])=> `<div class="st ${c}"><div class="pt"></div><div class="lbl">${l}</div>` +
         `<div class="w">${w.toFixed(1)}<small>kg</small></div><div class="b">BMI ${bmiOf(w)}</div></div>`).join('')}</div>` +
         `<p class="note-line">${tgt != null ? `目標體重需減少約 ${pct.toFixed(1)}%。<br>` : ''}<span class="mark">先以 3 至 6 個月內減少初始體重 5% 至 10% 為階段目標</span>；<br>減重 5% 以上，血糖、血壓、血脂與脂肪肝就會開始改善。</p>`;
+    } else if(d.bmi < 18.5){
+      goal = `<p>目前 BMI ${d.bmi.toFixed(1)}，屬體重過輕（低於 18.5）。<br>不建議減重，應增加熱量與蛋白質攝取，配合肌力訓練。</p>`;
     } else {
       goal = `<p>目前 BMI ${d.bmi.toFixed(1)}，已在正常範圍（18.5 至 24）。<br>建議以維持體重、增加肌肉量為主。</p>`;
     }

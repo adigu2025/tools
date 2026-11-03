@@ -1,7 +1,7 @@
 /* 健檢報告：輸入畫面與判讀整合。檢驗項目、優品 PDF 擷取與單項判讀規則在 ../lab/lab.js（與減重報告共用）；報告排版在 report.js。
    畫面在 view.html（裝進 #checkup-host 的 shadow root），一律用 KD 找元素、KB 處理捲動，不可直接用 document。
    所有全域名稱都以 ck／CK 開頭，避免和同一頁的減重報告、臨床計算撞名。 */
-const CK_REVISION = '2026-10-29';
+const CK_REVISION = '2026-11-04';
 const CK_DRAFT = 'checkup_draft_v1';
 
 /* ---------- 資料 ----------
@@ -56,13 +56,15 @@ function ckBodyJudge(P){
     out.bmi = {v: bmi, ...(bmi < 18.5 ? {g:1, cat:'體重過輕', adv:'underweight'} : bmi < 24 ? {g:0, cat:'正常'} : bmi < 27 ? {g:1, cat:'過重', adv:'weight'} : {g:2, cat:'肥胖', adv:'weight'})};
   }
   const wa = ckNum(b.waist);
-  if(wa != null){ const cut = P.male ? 90 : 80; out.waist = {v: wa, cut, g: wa >= cut ? 1 : 0, adv: 'weight'}; }
+  // 腰圍、體脂肪率達標判「異常」，與減重報告相同
+  if(wa != null){ const cut = P.male ? 90 : 80; out.waist = {v: wa, cut, g: wa >= cut ? 2 : 0, adv: 'weight'}; }
   const s = ckNum(b.sbp), d = ckNum(b.dbp);
   if(s != null && d != null){
-    out.bp = {s, d, ...(s >= 140 || d >= 90 ? {g:2, cat:'達 140/90 以上'} : s >= 130 || d >= 80 ? {g:1, cat:'達 130/80 以上'} : {g:0, cat:'正常'}), adv:'bp'};
+    // 說明只寫實際達標的那一項（rBpTxt 在減重報告 report.js）
+    out.bp = {s, d, ...(s >= 140 || d >= 90 ? {g:2, cat: rBpTxt(s, d, 140, 90)} : s >= 130 || d >= 80 ? {g:1, cat: rBpTxt(s, d, 130, 80)} : {g:0, cat:'正常'}), adv:'bp'};
   }
   const fat = ckNum(b.fat);
-  if(fat != null){ const cut = P.male ? 25 : 30; out.fat = {v: fat, cut, g: fat >= cut ? 1 : 0, adv:'weight'}; }
+  if(fat != null){ const cut = P.male ? 25 : 30; out.fat = {v: fat, cut, g: fat >= cut ? 2 : 0, adv:'weight'}; }
   const vf = ckNum(b.visceral);
   if(vf != null) out.visceral = {v: vf, g: vf >= 15 ? 2 : vf >= 10 ? 1 : 0, adv:'weight'};
   // 下列判讀標準與減重報告相同（weight/report.js rBodyMeta）：SMI 依 AWGS 2019 生物電阻抗切點
@@ -884,7 +886,8 @@ function ckPublic(P){
   if((age >= 45 && age <= 74) || (age >= 40 && age < 45 && ckFamCancer(/大腸|結腸|直腸/)))
     add('糞便潛血檢查', age < 45 ? '一等親有大腸癌，40 至 44 歲每 2 年 1 次' : '45 至 74 歲每 2 年 1 次', (m.cHist || (m.cDx || []).length) ? '本次已做大腸鏡，依大腸鏡追蹤時程即可' : m.fit ? '本次已做' : '');
   if(P.female && age >= 40 && age <= 74) add('乳房攝影', '40 至 74 歲女性每 2 年 1 次');
-  if(age >= 30 && (smoke === 'current' || smoke === 'former')) add('口腔黏膜檢查', '30 歲以上吸菸或嚼檳榔（含已戒）每 2 年 1 次');
+  const betel = CK.hx.betel === 'current' || CK.hx.betel === 'former';
+  if(age >= 30 && (smoke === 'current' || smoke === 'former' || betel)) add('口腔黏膜檢查', '30 歲以上吸菸或嚼檳榔（含已戒）每 2 年 1 次');
   if(age >= 45 && age <= 74) add('幽門桿菌糞便抗原檢查', '45 至 74 歲一生 1 次（2026 年起）', m.ubt ? '本次已做呼氣檢查' : '', true);
   const hepDone = m.hbsag || m.antihcv || ckCurrentRows().some(r=> (r.key === 'hbsag' || r.key === 'antihcv') && String(r.raw || '').trim());
   if(age <= 79 && ((by && by <= 1986) || (!by && age >= 40))) add('B、C 型肝炎篩檢', '民國 75 年以前出生、79 歲以下一生 1 次', hepDone ? '本次已驗' : '', true);
@@ -1002,7 +1005,7 @@ function ckCollect(){
     add(r.j.g, `<b>${ckEsc(name)} ${ckEsc(r.raw)}${ckEsc(unit)}</b>，${r.j.d}`, r.j.adv);
   });
   if(fib4 && fib4.v != null) add(fib4.g, `<b>FIB-4 ${fib4.v.toFixed(2)}</b>，${fib4.d}`, fib4.adv);
-  if(body.fat) add(body.fat.g, `<b>體脂肪率 ${body.fat.v}%</b>，高於${P.male ? '男' : '女'}性標準 ${body.fat.cut}%`, 'weight');
+  if(body.fat) add(body.fat.g, `<b>體脂肪率 ${body.fat.v}%</b>，達${P.male ? '男' : '女'}性偏高標準 ${body.fat.cut}%`, 'weight');
   if(body.visceral) add(body.visceral.g, `<b>內臟脂肪等級 ${body.visceral.v}</b>，${body.visceral.g === 2 ? '過高' : '偏高'}`, 'weight');
   if(body.smi) add(body.smi.g, `<b>四肢骨骼肌指數 ${body.smi.v} kg/m²</b>，低於${P.male ? '男' : '女'}性肌少症切點 ${body.smi.cut}`, 'smi');
   if(body.phase) add(body.phase.g, `<b>相位角 ${body.phase.v}°</b>，低於 4.5°`, 'phase');
@@ -1252,8 +1255,10 @@ function ckSave(){
   clearTimeout(ckSaveTimer);
   ckSaveTimer = setTimeout(ckSaveNow, 400);
 }
+let ckDraftPending = false;
 function ckSaveNow(){
   clearTimeout(ckSaveTimer); ckSaveTimer = null;
+  if(ckDraftPending) return;
   try{ localStorage.setItem(CK_DRAFT, JSON.stringify(CK)); }catch(e){}
 }
 // 打完字 0.4 秒內就關頁，還沒存的立刻存；工作台「全部清除」重新載入時不存，免得清掉的資料又寫回去
@@ -1479,10 +1484,13 @@ async function ckAddFiles(files){
     bar.className = 'k-draft';
     bar.innerHTML = `<span>偵測到未完成的健檢報告草稿${who ? `（${who}）` : ''}，要接續填寫嗎？</span>` +
       '<button type="button" class="k-btn sm" data-d="load">載入草稿</button><button type="button" class="k-btn ghost sm" data-d="drop">捨棄</button>';
+    // 還沒選「載入」或「捨棄」之前不寫入暫存，先打字也不會把舊草稿蓋掉
+    ckDraftPending = true;
     bar.addEventListener('click', e=>{
       const b = e.target.closest('[data-d]'); if(!b) return;
+      ckDraftPending = false;
       if(b.dataset.d === 'load'){ CK = Object.assign(ckBlank(), draft); ckMigrate(); ckSave(); ckRenderAll(); }
-      else { try{ localStorage.removeItem(CK_DRAFT); }catch(err){} }
+      else { try{ localStorage.removeItem(CK_DRAFT); }catch(err){} ckSaveNow(); }
       bar.remove();
     });
     KB.insertBefore(bar, KB.querySelector('.k-wrap'));

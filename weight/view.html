@@ -643,7 +643,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
   </div>
   <div class="card">
     <h2>代謝症候群評估</h2>
-    <div class="hint">符合下列 5 項指標中任 3 項以上，即符合代謝症候群診斷；或符合糖尿病前期者（HbA1c 5.7%–6.4%）<br>系統會依「基本資料」與本頁已輸入的數值自動勾選；若因已用藥治療等原因需人工調整，直接點選即可，該項會改以手動為準。</div>
+    <div class="hint">符合下列 5 項指標中任 3 項以上，即符合代謝症候群診斷；糖尿病前期（HbA1c 5.7% 至 6.4%）另外標示，不算進五項<br>系統會依「基本資料」與本頁已輸入的數值自動勾選；若因已用藥治療等原因需人工調整，直接點選即可，該項會改以手動為準。</div>
     <div class="ms-grid">
       <label class="ms-item w3" style="cursor:pointer">
         <input type="checkbox" id="ms-waist">
@@ -669,7 +669,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
     <div class="btnrow" style="margin-top:4px"><button class="btn outline" onclick="resetMsAuto()">依實測值重新帶入</button></div>
     <div class="ms-divider">或符合糖尿病前期者</div>
     <div class="field" style="max-width:280px"><label>糖化血紅素 HbA1c (%)</label><input id="ms-hba1c" type="number" min="3" max="20" step="0.1"></div>
-    <div class="hint" id="ms-hba1c-readout" style="margin-top:8px">5.7%–6.4% 為糖尿病前期，符合獨立診斷條件</div>
+    <div class="hint" id="ms-hba1c-readout" style="margin-top:8px">5.7% 至 6.4% 為糖尿病前期，另外標示，不算進代謝症候群五項</div>
     <div class="summary-box" id="metabolic-result" style="margin-top:14px; display:none"></div>
     <div class="field" style="margin-top:12px"><label>代謝症候群備註</label><textarea id="metabolic-note"></textarea></div>
   </div>
