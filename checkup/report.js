@@ -133,7 +133,7 @@ function ckChBody(d){
 
 /* ---------- 歷年趨勢 ----------
    上傳兩份以上報告時，常用項目畫成小折線圖；虛線是判讀切點（取 ckBarDef 第一個分界），最後一點依本次判讀上色。 */
-const CK_TREND = [['ldl', 'LDL-C'], ['tc', '總膽固醇'], ['tg', '三酸甘油脂'], ['hdl', 'HDL-C'], ['a1c', '糖化血色素'], ['glu', '飯前血糖'],
+const CK_TREND = [['ldl', 'LDL-C'], ['tc', '總膽固醇'], ['tg', '三酸甘油酯'], ['hdl', 'HDL-C'], ['a1c', '糖化血色素'], ['glu', '飯前血糖'],
   ['alt', 'ALT'], ['ast', 'AST'], ['egfr', 'eGFR'], ['ua', '尿酸'], ['hgb', '血色素'], ['plt', '血小板']];
 const CK_G_COLOR = ['#5E8A63', '#C08A2E', '#B4543A'];
 function ckTrendSeries(d){

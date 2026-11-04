@@ -439,7 +439,8 @@ function updateHba1cReadout(){
   const hba1c = parseFloat(WD.getElementById('ms-hba1c').value);
   if(isNaN(hba1c)){ el.innerHTML = '5.7% 至 6.4% 為糖尿病前期，另外標示，不算進代謝症候群五項'; return; }
   const preDM = hba1c >= 5.7 && hba1c <= 6.4;
-  el.innerHTML = preDM ? `<span class="flag high">5.7% 至 6.4%，屬糖尿病前期</span>` : `<span class="flag low">未達 5.7% 至 6.4% 範圍</span>`;
+  el.innerHTML = hba1c >= 6.5 ? `<span class="flag high">6.5% 以上，已達糖尿病診斷值</span>`
+    : preDM ? `<span class="flag high">5.7% 至 6.4%，屬糖尿病前期</span>` : `<span class="flag low">低於 5.7%，正常範圍</span>`;
 }
 // 代謝症候群五項可由已輸入的腰圍、血壓、血糖、TG、HDL 直接判定。
 // 預設依實測值自動帶入；醫師手動改過的項目（例如已用藥治療）以手動為準，
@@ -457,19 +458,13 @@ function msSuggestions(){
   const gender = WD.getElementById('p-gender').value;
   const waist = num('b-waist'), sbp = num('b-sbp'), dbp = num('b-dbp');
   const ac = num('lab-ac'), tg = num('lab-tg'), hdl = num('lab-hdl');
-  const hM = getHeightM(), wt = num('b-weight');
-  const bmi = (hM && wt) ? wt/(hM*hM) : null;
 
-  let waistHit = null, waistText = '未輸入腰圍與 BMI';
-  if(waist !== null || bmi !== null){
+  // 腹部肥胖依國健署標準只看腰圍（男 ≥ 90、女 ≥ 80 cm），BMI 不算進代謝症候群
+  let waistHit = null, waistText = '未輸入腰圍';
+  if(waist !== null){
     const cutoff = gender === 'M' ? 90 : 80;
-    const byWaist = waist !== null && gender ? waist >= cutoff : false;
-    const byBmi = bmi !== null ? bmi >= 27 : false;
-    waistHit = byWaist || byBmi;
-    const parts = [];
-    if(waist !== null) parts.push(gender ? `腰圍 ${waist} cm（標準 ≥${cutoff}）` : `腰圍 ${waist} cm（選擇性別後判定）`);
-    if(bmi !== null) parts.push(`BMI ${bmi.toFixed(1)}（標準 ≥27）`);
-    waistText = parts.join('，');
+    waistHit = gender ? waist >= cutoff : null;
+    waistText = gender ? `腰圍 ${waist} cm（標準 ≥${cutoff}）` : `腰圍 ${waist} cm（選擇性別後判定）`;
   }
   const mk = (val, hit, text) => ({hit: val === null ? null : hit, text: val === null ? text : null, val});
   return {
@@ -1327,7 +1322,7 @@ function genExercise(){
 const MED_EDU = {
   '': '【生活型態介入為主】\n目前階段以飲食調整、運動、行為改變與睡眠管理為核心，暫不使用藥物治療。若 3 至 6 個月效果不足，或 BMI／共病已達介入標準，可與醫師討論藥物治療選項。',
   'rybelsus': '【Rybelsus 瑞倍適 用藥衛教】\n每日早上空腹服用，配不超過120mL的白開水整顆吞服，服藥後至少等30分鐘再進食、喝水或服用其他口服藥物。切勿壓碎、剝半、咀嚼。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
-  'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在4天（96小時）內盡快補打；\n超過4天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
+  'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在5天（120小時）內盡快補打；\n超過5天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
   'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在4天（96小時）內盡快補打；\n超過4天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
 };
 // 依複選結果合併衛教內容；沒有選任何項目時清空
@@ -1606,6 +1601,17 @@ function genDocComment(silent){
 
 makeTagPicker('comment-tags', 'doc-comment', COMMENT_TAGS, []);
 
+// 「高蛋白策略」的蛋白質量和「熱量與營養素」用同一個數字（依身體組成分型計算），報告上才不會出現兩種建議
+const EDU_PROTEIN_OLD = '每日攝取【體重 × 1.2 至 1.5】公克蛋白質';
+function eduProteinLine(){
+  let c = null;
+  try{ c = computeCalorie(); }catch(e){}
+  return c && !c.error ? `每日約 ${Math.round(c.proteinG)} 公克蛋白質（${c.perKg} g/kg，依身體組成分型計算）` : '每日蛋白質目標依身體組成分型計算，請見「熱量與營養素」';
+}
+function eduTopicText(topic){
+  const t = EDU_TEXT[topic] || '';
+  return topic === '高蛋白策略' ? t.replace(EDU_PROTEIN_OLD, eduProteinLine()) : t;
+}
 const EDU_PRESELECTED = ['減重飲食基本原則','控制飢餓技巧','家庭支持與共餐策略'];
 function initEdu(){
   const box = WD.getElementById('edu-tags');
@@ -1618,13 +1624,18 @@ function initEdu(){
       tag.classList.toggle('selected');
       const ta = WD.getElementById('edu-text');
       if(tag.classList.contains('selected')){
-        ta.value += (ta.value ? '\n\n' : '') + EDU_TEXT[topic];
+        ta.value += (ta.value ? '\n\n' : '') + eduTopicText(topic);
+      } else {
+        // 取消：拿掉這個主題的段落（醫師改過的段落比對不到，就留著）
+        [EDU_TEXT[topic], eduTopicText(topic)].forEach(t=>{ if(t) ta.value = ta.value.split(t).join(''); });
+        ta.value = ta.value.replace(/\n{3,}/g, '\n\n').replace(/^\s+|\s+$/g, '');
       }
+      if(typeof autoGrow === 'function') autoGrow(ta);
     };
     if(EDU_PRESELECTED.includes(topic)){
       tag.classList.add('selected');
       const ta = WD.getElementById('edu-text');
-      ta.value += (ta.value ? '\n\n' : '') + EDU_TEXT[topic];
+      ta.value += (ta.value ? '\n\n' : '') + eduTopicText(topic);
     }
     box.appendChild(tag);
   });
@@ -2058,6 +2069,8 @@ function collectState(){
   state._catSel = JSON.parse(JSON.stringify(categorySelections));
   state._src = Object.assign({}, FIELD_SRC);
   state._warn = wWarn;
+  // 代謝症候群醫師手動改過的項目（例如已服藥），載入時以勾選為準，不被實測值蓋回去
+  state._msManual = Object.keys(MS_MANUAL).filter(k=> MS_MANUAL[k]);
   return state;
 }
 function applyState(state){
@@ -2067,6 +2080,8 @@ function applyState(state){
   }
   // 單選按鈕列的「已點選」標記先清掉，載入後再依值判斷
   WD.querySelectorAll('select.as-buttons').forEach(s=> s.dataset.picked = '');
+  // 單選鈕（飲食與活動分類、PHQ-9）先全部取消，免得留著上一位病人的選項
+  WD.querySelectorAll('input[type="radio"]').forEach(r=> r.checked = false);
   wWarn = state && state._warn != null ? String(state._warn) : null;
   Object.keys(state).forEach(id=>{
     if(id === '_track'){ Object.assign(trackData, state._track || {body:[],lab:[]}); renderTrackTable('body'); renderTrackTable('lab'); return; }
@@ -2086,6 +2101,7 @@ function applyState(state){
       });
       return;
     }
+    if(id === '_msManual') return;
     if(id === '_src'){
       Object.keys(FIELD_SRC).forEach(k=> delete FIELD_SRC[k]);
       Object.assign(FIELD_SRC, state._src || {});
@@ -2134,9 +2150,20 @@ function applyState(state){
   ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
   ['cv-dm','cv-bptx','cv-statin','cv-cvd'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).checked = false; });
   refreshChoiceButtons();
+  wRestoreMsManual(state);
   renderLabRows();
   renderNav();
   wSexUi();
+}
+// 還原代謝症候群的手動勾選。舊紀錄沒有這項記錄：存檔的勾選和實測判定不同的項目，視為醫師手動改過
+function wRestoreMsManual(state){
+  Object.keys(MS_MANUAL).forEach(k=> delete MS_MANUAL[k]);
+  if(Array.isArray(state._msManual)){ state._msManual.forEach(k=> MS_MANUAL[k] = true); return; }
+  const sug = msSuggestions();
+  Object.keys(MS_BASIS).forEach(id=>{
+    // 腰圍沒有「已服藥」的例外，舊紀錄勾了卻和實測不同，多半是舊版把 BMI ≥ 27 也算進去，改依實測判定
+    if(id !== 'ms-waist' && typeof state[id] === 'boolean' && sug[id].hit !== null && state[id] !== sug[id].hit) MS_MANUAL[id] = true;
+  });
 }
 // ============================================================
 // 病人紀錄：多筆儲存、草稿自動暫存、離開提醒

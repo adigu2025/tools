@@ -229,7 +229,7 @@ const EXERCISE_PRESCRIPTIONS = {
     focus: '最大化熱量消耗，改善胰島素敏感度與心血管健康',
     aerobic: {type:'快走、慢跑、划船機、階梯機', intensity:'Zone 2 連續有氧為主，體能建立後每週加入 1 次無氧間歇（HIIT）', frequency:'每週 4 至 5 次，每次 45 至 60 分鐘'},
     resistance: {type:'全身性多關節動作（深蹲、硬舉），可採循環訓練模式', intensity:'中高重量 8 至 12 RM，縮短組間休息維持心率', frequency:'每週 2 至 3 次'},
-    nutrition: {strategy:'嚴格熱量控管（每日赤字 500 至 750 大卡）', protein:'維持正常 1.0 至 1.2g/kg 即可', notes:'限制精緻糖與加工食品，可導入 168 斷食，每日蔬菜需達 400g 以上'},
+    nutrition: {strategy:'嚴格熱量控管（每日赤字 500 至 750 大卡）', protein:'維持正常 1.0 至 1.2g/kg 即可', notes:'限制精緻糖與加工食品，每日蔬菜需達 400g 以上'},
   },
   '健康／表現強化型': {
     proteinPerKg: 1.75,

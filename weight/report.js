@@ -381,12 +381,12 @@ function rChLab(d){
 
   if(d.msAny){
     const sug = (typeof msSuggestions === 'function') ? msSuggestions() : {};
-    const items = [['ms-waist', '腹部肥胖', `腰圍 男 ≥ 90／女 ≥ 80 cm，或 BMI ≥ 27`], ['ms-bp', '血壓偏高', '≥ 130/85 mmHg，或已服藥（國健署標準）'],
+    const items = [['ms-waist', '腹部肥胖', `腰圍 男 ≥ 90／女 ≥ 80 cm`], ['ms-bp', '血壓偏高', '≥ 130/85 mmHg，或已服藥（國健署標準）'],
       ['ms-glucose', '空腹血糖偏高', '≥ 100 mg/dL，或已服藥'], ['ms-tg', '三酸甘油酯偏高', '≥ 150 mg/dL，或已服藥'], ['ms-hdl', 'HDL-C 偏低', '男 < 40／女 < 50 mg/dL，或已服藥']];
     // 本次數值：標準已寫在左欄，這裡只列數值
     const lab = k=> rN('lab-' + k);
     const vals = {
-      'ms-waist': [d.waist != null ? `腰圍 ${d.waist} cm` : '', d.bmi != null ? `BMI ${d.bmi.toFixed(1)}` : ''].filter(Boolean).join('<br>'),
+      'ms-waist': d.waist != null ? `腰圍 ${d.waist} cm` : '',
       'ms-bp': (d.sbp != null && d.dbp != null) ? `${d.sbp}/${d.dbp} mmHg` : '',
       'ms-glucose': lab('ac') != null ? `${lab('ac')} mg/dL` : '',
       'ms-tg': lab('tg') != null ? `${lab('tg')} mg/dL` : '',
@@ -515,7 +515,7 @@ function rChPlan(d){
 
   const ex = rRichBlock('運動處方', 'EXERCISE PRESCRIPTION', rS('ex-text'));
   if(ex) blocks.push(ex);
-  const diet = rRichBlock('飲食建議', 'NUTRITION GUIDANCE', rS('edu-text'));
+  const diet = rRichBlock('飲食建議', 'NUTRITION GUIDANCE', rS('edu-text').split(EDU_PROTEIN_OLD).join(eduProteinLine()));
   if(diet) blocks.push(diet);
   return blocks;
 }

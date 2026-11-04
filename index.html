@@ -142,15 +142,33 @@ body.q-max .hub-main{height:100dvh;}
 .rep-head{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; padding:10px 4px 18px;}
 .rep-head h1{font-family:var(--serif); font-size:26px; margin:0; letter-spacing:.03em;}
 .rep-head p{margin:0; color:var(--muted); font-size:15px;}
-.rep-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:18px;}
-.rep-card{display:flex; flex-direction:column; align-items:flex-start; gap:10px; text-align:left; padding:26px 28px 24px;
-  transition:transform .15s, box-shadow .15s;}
-.rep-card:hover{transform:translateY(-2px); box-shadow:0 2px 4px rgba(31,30,29,.05), 0 12px 32px rgba(31,30,29,.10);}
-.rep-card .ico{width:48px; height:48px; border-radius:12px; display:grid; place-items:center; background:var(--acc-soft); color:var(--acc-fg);}
-.rep-card b{font-family:var(--serif); font-size:24px; letter-spacing:.04em;}
-.rep-card small{font-size:15px; color:var(--muted); line-height:1.6;}
-.rep-card .tag{font-size:12.5px; padding:2px 10px; border-radius:999px; background:var(--sunken); color:var(--muted);}
-.rep-card.soon .ico{background:var(--sunken); color:var(--faint);}
+/* 報告種類卡片：接近方形，上半部是一疊 A4 報告的縮圖（看得出會產出什麼），下半部是名稱與說明。
+   不用底色方塊圖示，也不用有色陰影；靜止時只有細框線，滑過時框線加深、最上面那一頁略微抬起 */
+.rep-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,340px)); gap:22px;}
+.rep-card{display:flex; flex-direction:column; text-align:left; padding:0; overflow:hidden;
+  background:var(--surface); border:1px solid var(--line); border-radius:14px; transition:border-color .2s;}
+.rep-card:hover{border-color:var(--faint);}
+.rep-art{height:200px; background:var(--surface-alt); border-bottom:1px solid var(--line); display:grid; place-items:center;}
+.rep-art svg{width:220px; height:180px; display:block; overflow:visible;}
+.rep-art .sheet{fill:#fff; stroke:var(--line-strong); stroke-width:1;}
+.rep-art .back{transform-box:fill-box; transform-origin:50% 100%; transform:rotate(5deg); transition:transform .3s ease;}
+.rep-art .front{transition:transform .3s ease;}
+.rep-art .ink{fill:var(--ink-2);} .rep-art .mute{fill:var(--line-strong);} .rep-art .faint{fill:var(--sunken);}
+.rep-art .acc{fill:var(--acc-text);} .rep-art .acc-l{stroke:var(--acc-text); fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+.rep-art .ring{fill:none; stroke:var(--line-strong); stroke-width:1;}
+@media (prefers-reduced-motion:no-preference){
+  .rep-card:hover .front{transform:translateY(-5px);}
+  .rep-card:hover .back{transform:rotate(8deg);}
+}
+.rep-txt{padding:20px 24px 0; display:flex; flex-direction:column; gap:6px; flex:1;}
+.rep-txt b{font-family:var(--serif); font-size:23px; letter-spacing:.04em; color:var(--ink);}
+.rep-txt small{font-size:14.5px; color:var(--muted); line-height:1.65;}
+.rep-foot{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:18px 24px 0; padding:12px 0 16px;
+  border-top:1px solid var(--line); font-size:13.5px; color:var(--faint);}
+.rep-foot .go{color:var(--ink-2); font-weight:600; white-space:nowrap;}
+.rep-foot .go i{font-style:normal; display:inline-block; margin-left:4px; transition:transform .2s;}
+.rep-card:hover .rep-foot .go i{transform:translateX(3px);}
+@media (max-width:700px){ .rep-grid{grid-template-columns:1fr;} }
 .rep-empty{padding:48px 32px; text-align:center; color:var(--muted);}
 .rep-empty b{display:block; font-family:var(--serif); font-size:24px; color:var(--ink); margin-bottom:8px;}
 .hub-main[data-view="quote"]  #pane-quote,
@@ -348,15 +366,15 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
       <div class="rep-wrap">
         <div class="rep-head"><h1>製作報告</h1><p>選擇要製作的報告。</p></div>
         <div class="rep-grid">
-          <button class="rep-card card" data-rep="weight">
-            <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V10m6 10V4m6 16v-7"/></svg></span>
-            <b>減重報告</b>
-            <small>基本資料、病史、身體組成、檢驗、生活型態到治療計畫，填完產生 PDF 報告。</small>
+          <button class="rep-card" data-rep="weight">
+            <span class="rep-art"><svg viewBox="0 0 220 180" aria-hidden="true"><g transform="translate(76 34)"><g class="back"><rect class="sheet" x="0" y="0" width="84" height="118" rx="3"/></g></g><g transform="translate(68 28)"><g class="front"><rect class="sheet" x="0" y="0" width="84" height="118" rx="3"/><rect class="ink" x="9" y="10" width="20" height="3" rx="1.5"/><rect class="mute" x="60" y="10" width="15" height="3" rx="1.5"/><rect class="ink" x="9" y="21" width="44" height="5" rx="1.5"/><rect class="mute" x="9" y="30" width="30" height="2.5" rx="1.2"/><rect class="faint" x="9" y="40" width="66" height="34" rx="2"/><polyline class="acc-l" points="15,49 26,53 37,52 48,60 59,63 69,67"/><circle class="acc" cx="15" cy="49" r="1.8"/><circle class="acc" cx="69" cy="67" r="1.8"/><rect class="mute" x="9" y="82" width="66" height="2.5" rx="1.2"/><rect class="mute" x="9" y="89" width="58" height="2.5" rx="1.2"/><rect class="mute" x="9" y="96" width="62" height="2.5" rx="1.2"/><rect class="mute" x="9" y="103" width="40" height="2.5" rx="1.2"/></g></g></svg></span>
+            <span class="rep-txt"><b>減重報告</b><small>基本資料、病史、身體組成、檢驗、生活型態到治療計畫，填完產生 PDF 報告。</small></span>
+            <span class="rep-foot"><span class="meta" data-rep-meta="obesity_records_v1"></span><span class="go">開始製作<i>→</i></span></span>
           </button>
-          <button class="rep-card card" data-rep="checkup">
-            <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 11h6M9 15h4"/></svg></span>
-            <b>健檢報告</b>
-            <small>上傳優品檢驗報告 PDF，加上身體測量與超音波，產生含判讀與追蹤建議的 PDF 報告。</small>
+          <button class="rep-card" data-rep="checkup">
+            <span class="rep-art"><svg viewBox="0 0 220 180" aria-hidden="true"><g transform="translate(76 34)"><g class="back"><rect class="sheet" x="0" y="0" width="84" height="118" rx="3"/></g></g><g transform="translate(68 28)"><g class="front"><rect class="sheet" x="0" y="0" width="84" height="118" rx="3"/><rect class="ink" x="9" y="10" width="20" height="3" rx="1.5"/><rect class="mute" x="60" y="10" width="15" height="3" rx="1.5"/><rect class="ink" x="9" y="21" width="44" height="5" rx="1.5"/><rect class="mute" x="9" y="30" width="30" height="2.5" rx="1.2"/><circle class="ring" cx="12" cy="45" r="2.2"/><rect class="mute" x="18" y="44" width="40" height="2.5" rx="1.2"/><rect class="mute" x="66" y="44" width="9" height="2.5" rx="1.2"/><circle class="ring" cx="12" cy="54" r="2.2"/><rect class="mute" x="18" y="53" width="48" height="2.5" rx="1.2"/><rect class="mute" x="66" y="53" width="9" height="2.5" rx="1.2"/><circle class="acc" cx="12" cy="63" r="2.2"/><rect class="mute" x="18" y="62" width="36" height="2.5" rx="1.2"/><rect class="mute" x="66" y="62" width="9" height="2.5" rx="1.2"/><circle class="ring" cx="12" cy="72" r="2.2"/><rect class="mute" x="18" y="71" width="44" height="2.5" rx="1.2"/><rect class="mute" x="66" y="71" width="9" height="2.5" rx="1.2"/><circle class="ring" cx="12" cy="81" r="2.2"/><rect class="mute" x="18" y="80" width="40" height="2.5" rx="1.2"/><rect class="mute" x="66" y="80" width="9" height="2.5" rx="1.2"/><circle class="ring" cx="12" cy="90" r="2.2"/><rect class="mute" x="18" y="89" width="46" height="2.5" rx="1.2"/><rect class="mute" x="66" y="89" width="9" height="2.5" rx="1.2"/><circle class="ring" cx="12" cy="99" r="2.2"/><rect class="mute" x="18" y="98" width="34" height="2.5" rx="1.2"/><rect class="mute" x="66" y="98" width="9" height="2.5" rx="1.2"/></g></g></svg></span>
+            <span class="rep-txt"><b>健檢報告</b><small>上傳優品檢驗報告 PDF，加上身體測量與超音波，產生含判讀與追蹤建議的 PDF 報告。</small></span>
+            <span class="rep-foot"><span class="meta" data-rep-meta="checkup_records_v1"></span><span class="go">開始製作<i>→</i></span></span>
           </button>
         </div>
       </div>
@@ -637,12 +655,21 @@ function setRep(r){
 }
 function syncRep(){
   const v = main.dataset.view, r = main.dataset.rep;
+  if(v === 'weight' && r === 'home') renderRepMeta();
   document.getElementById('btn-rep-back').hidden = !(v === 'weight' && r !== 'home');
   const hint = v === 'weight' ? (r === 'home' ? 'report' : r) : v;
   document.getElementById('foot-hint').textContent = FOOT_HINT[hint] || FOOT_HINT.calc;
   // 減重報告的方向鍵與 ESC 快捷鍵要在焦點位於報告畫面內時才有作用
   if(v === 'weight' && r === 'weight' && WB) WB.focus({preventScroll:true});
   if(v === 'weight' && r === 'checkup' && KB) KB.focus({preventScroll:true});
+}
+// 報告種類卡片底部：這台電腦已儲存幾筆病人紀錄（讀不到就不顯示）
+function renderRepMeta(){
+  document.querySelectorAll('[data-rep-meta]').forEach(el=>{
+    let n = null;
+    try{ const r = JSON.parse(localStorage.getItem(el.dataset.repMeta)); n = Array.isArray(r) ? r.length : 0; }catch(err){}
+    el.textContent = n == null ? '' : n ? '已儲存 ' + n + ' 筆紀錄' : '尚無儲存紀錄';
+  });
 }
 // 只綁報告種類的按鈕。<main> 本身也有 data-rep（記錄目前在哪個報告），綁到它的話報告裡任何一次點擊
 // 都會觸發 setRep → syncRep → 把焦點搶回報告容器，輸入欄位一放開滑鼠就失去游標
@@ -890,7 +917,8 @@ function updateChips(){
   }catch(err){ cw.hidden = true; }
 }
 // 頂端列病人看得到，姓名只露第一個字
-function maskName(n){ return esc(n.charAt(0)) + '○'.repeat(Math.max(1, Math.min(2, n.length - 1))); }
+// 姓名中間遮成○，頭尾留著（王○明、兩個字是王○），與健檢 LINE 摘要圖的 ckMaskName 相同；正式報告印全名
+function maskName(n){ const s = [...String(n)]; return esc(s.length <= 1 ? s.join('') : s.length === 2 ? s[0] + '○' : s[0] + '○'.repeat(s.length - 2) + s[s.length - 1]); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ── 全部清除 ── */

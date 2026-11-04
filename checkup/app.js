@@ -113,14 +113,14 @@ const CK_ABD = {
 };
 const CK_THY = {
   normal:{t:'正常', g:0, c:'未發現甲狀腺結節。'}, nodule:{t:'甲狀腺結節', g:1, c:'甲狀腺結節。'},
-  cyst:{t:'甲狀腺囊腫', g:0, d:'單純囊腫屬良性變化', c:'甲狀腺囊腫。'}, goiter:{t:'甲狀腺腫大', g:1, adv:'thyroid', c:'甲狀腺腫大。'},
-  atrophy:{t:'甲狀腺萎縮', g:1, adv:'thyroid', c:'甲狀腺萎縮。'},
-  hetero:{t:'甲狀腺實質回音不均', g:1, adv:'thyroid', c:'甲狀腺實質回音不均。'},
-  hashimoto:{t:'橋本氏甲狀腺炎型態', g:1, adv:'thyroid', c:'甲狀腺實質回音不均且血流增加，符合橋本氏甲狀腺炎型態。'},
-  graves:{t:'葛瑞夫茲病型態', g:1, adv:'thyroid', c:'甲狀腺血流瀰漫性增加，符合葛瑞夫茲病（Graves disease）型態。'},
+  cyst:{t:'甲狀腺囊腫', g:0, d:'單純囊腫屬良性變化', adv:'thyus', c:'甲狀腺囊腫。'}, goiter:{t:'甲狀腺腫大', g:1, adv:'thyus', c:'甲狀腺腫大。'},
+  atrophy:{t:'甲狀腺萎縮', g:1, adv:'thyus', c:'甲狀腺萎縮。'},
+  hetero:{t:'甲狀腺實質回音不均', g:1, adv:'thyus', c:'甲狀腺實質回音不均。'},
+  hashimoto:{t:'橋本氏甲狀腺炎型態', g:1, adv:'thyus', c:'甲狀腺實質回音不均且血流增加，符合橋本氏甲狀腺炎型態。'},
+  graves:{t:'葛瑞夫茲病型態', g:1, adv:'thyus', c:'甲狀腺血流瀰漫性增加，符合葛瑞夫茲病（Graves disease）型態。'},
   postop:{t:'甲狀腺切除術後', g:0, c:'甲狀腺切除術後，甲狀腺床無特殊發現。'},
-  lymph:{t:'頸部淋巴結腫大', g:1, adv:'usother', c:'頸部淋巴結腫大。'},
-  other:{t:'其他', g:1, adv:'usother', c:''}
+  lymph:{t:'頸部淋巴結腫大', g:1, adv:'thyother', c:'頸部淋巴結腫大。'},
+  other:{t:'其他', g:1, adv:'thyother', c:''}
 };
 // 頸動脈超音波（加選模組）：診斷按鈕、發現與結論和腹部同一套做法
 const CK_CAR = {
@@ -295,8 +295,8 @@ function ckUsJudge(){
       const mm = ckNum(u.gbpolyp);
       if(mm == null) it = {...it, g:1, d:'請補上大小，追蹤間隔依大小決定', adv:'gbpolyp'};
       else if(mm >= 10) it = {...it, t:`膽囊瘜肉 ${mm} mm`, g:2, d:'達 10 mm 以上', adv:'gbpolyp10'};
-      else if(mm >= 6) it = {...it, t:`膽囊瘜肉 ${mm} mm`, g:1, d:'6 至 9 mm', adv:'gbpolyp6'};
-      else it = {...it, t:`膽囊瘜肉 ${mm} mm`, g:0, d:'5 mm 以下，多數不需要特別追蹤', adv:''};
+      else if(mm > 5) it = {...it, t:`膽囊瘜肉 ${mm} mm`, g:1, d:'大於 5 mm、未達 10 mm', adv:'gbpolyp6'};
+      else it = {...it, t:`膽囊瘜肉 ${mm} mm`, g:0, d:'5 mm 以下，6 個月後超音波確認大小', adv:'gbpolyp5'};
     }
     if(k === 'hemangioma' && ckNum(u.hemangioma) != null) it.t = `肝血管瘤 ${ckNum(u.hemangioma)} cm`;
     if(k === 'other') it.t = u.abdOther ? String(u.abdOther) : '其他發現';
@@ -311,10 +311,11 @@ function ckUsJudge(){
       it.t = `甲狀腺結節${tr ? ' TR' + tr : ''}${cm != null ? ' ' + cm + ' cm' : ''}`;
       const lim = {3:[2.5, 1.5], 4:[1.5, 1.0], 5:[1.0, .5]}[tr];
       if(!tr || cm == null) it = {...it, g:1, d:'請補上 TI-RADS 分級與大小', adv:'nodfu'};
-      else if(tr <= 2) it = {...it, g:0, d:'良性特徵，不需要穿刺', adv:''};
+      else if(tr <= 2) it = {...it, g:0, d:'良性特徵，不需要穿刺', adv:'nodfu'};
       else if(cm >= lim[0]) it = {...it, g:2, d:`依 TI-RADS，TR${tr} 達 ${lim[0]} cm 建議細針穿刺`, adv:'fna'};
       else if(cm >= lim[1]) it = {...it, g:1, d:`依 TI-RADS，TR${tr} 達 ${lim[1]} cm 建議超音波追蹤`, adv:'nodfu'};
-      else it = {...it, g: tr >= 5 ? 1 : 0, d:'未達追蹤大小', adv: tr >= 5 ? 'nodfu' : ''};
+      else if(tr >= 5) it = {...it, g:1, d:'未達 TI-RADS 追蹤大小（0.5 cm），但屬高度可疑特徵，建議 6 個月後超音波複查', adv:'nodfu'};
+      else it = {...it, g:0, d:'未達 TI-RADS 追蹤大小', adv:'nodfu'};
     }
     if(k === 'other') it.t = u.thyOther ? String(u.thyOther) : '其他發現';
     out.push(it);
@@ -550,7 +551,7 @@ function ckInitAtt(){
       delete CK_PAGES[id];
       // TANITA 全部移除後，下一份上傳的不論日期都可以帶入
       if(!CK.att.some(a=> a.kind === 'tanita')) delete CK.tanitaDate;
-      ckSave(); ckRenderAtt();
+      ckDirty = true; ckSave(); ckRenderAtt();
     });
   });
 }
@@ -905,7 +906,7 @@ const CK_ADV = {
   sugar2:   {when:'now', t:'請回診再驗一次血糖與糖化血色素，確認是否為糖尿病並討論治療。'},
   homa:     {when:'m6', t:'胰島素阻抗會隨減重與規律運動改善，3 至 6 個月後可複查。'},
   lipid:    {when:'m3', t:'減少油炸、肥肉與加工肉品，3 個月後複查血脂；是否需要用藥，會依心血管風險一起評估。'},
-  tg500:    {when:'now', t:'三酸甘油脂過高有急性胰臟炎風險，請盡快回診討論用藥，並暫停飲酒。'},
+  tg500:    {when:'now', t:'三酸甘油酯過高有急性胰臟炎風險，請盡快回診討論用藥，並暫停飲酒。'},
   liver:    {when:'m3', t:'肝指數升高的原因包括脂肪肝、B／C 型肝炎、藥物與飲酒，請回診找原因，3 個月後複查。'},
   fib4:     {when:'m3', t:'FIB-4 落在無法判定的區間，建議做肝臟纖維化掃描（FibroScan）或超音波彈性檢查，確認肝臟硬度。'},
   fib4h:    {when:'now', t:'FIB-4 高於 2.67，晚期肝纖維化的可能性高，請回診做進一步評估。'},
@@ -925,11 +926,14 @@ const CK_ADV = {
   fatty:    {when:'m6', t:'脂肪肝會隨減重改善，減少體重 7% 至 10% 效果最明顯，6 至 12 個月後追蹤肝功能與超音波。'},
   gbstone:  {when:'y1', t:'沒有症狀的膽結石通常不需要處理；如果出現右上腹痛、發燒或黃疸，請盡快就醫。'},
   gbpolyp:  {when:'m6', t:'膽囊瘜肉的追蹤間隔依大小決定，請回診確認。'},
-  gbpolyp6: {when:'m6', t:'6 至 9 mm 的膽囊瘜肉，建議 6 個月後超音波追蹤，之後每年追蹤。'},
+  gbpolyp5: {when:'m6', t:'5 mm 以下的膽囊瘜肉，先在 6 個月後做超音波確認大小沒有變化，之後再依大小決定追蹤間隔。'},
+  gbpolyp6: {when:'m6', t:'大於 5 mm、未達 10 mm 的膽囊瘜肉，建議 6 個月後超音波追蹤，之後每年追蹤。'},
   gbpolyp10:{when:'now', t:'膽囊瘜肉達 10 mm 以上，建議轉介外科評估手術。'},
   hemangioma:{when:'y1', t:'肝血管瘤屬良性，建議下次健檢超音波確認大小穩定。'},
   kstone:   {when:'y1', t:'腎結石請多喝水，每天尿量 2000 mL 以上；出現腰痛或血尿請就醫。'},
-  nodfu:    {when:'y1', t:'甲狀腺結節建議 1 年後超音波追蹤，比較大小與特徵。'},
+  nodfu:    {when:'m6', t:'甲狀腺結節建議 6 個月後超音波追蹤，比較大小與特徵。'},
+  thyus:    {when:'m6', t:'甲狀腺超音波有變化，建議回診驗甲狀腺功能，並在 6 個月後超音波追蹤。'},
+  thyother: {when:'m6', t:'甲狀腺或頸部超音波有其他發現，建議 6 個月後超音波追蹤。'},
   fna:      {when:'now', t:'甲狀腺結節建議安排細針穿刺，確認細胞性質。'},
   usother:  {when:'m3', t:'超音波有其他發現，請回診討論後續追蹤。'},
   lpa:      {when:'y1', t:'Lp(a) 脂蛋白(a) 是一種主要由遺傳決定的膽固醇顆粒，一生驗一次即可；數值高的人，其他危險因子要控制得更嚴格，也建議一等親檢查。'},
@@ -1460,6 +1464,7 @@ async function ckAddFiles(files){
   }
   drop.innerHTML = orig;
   CK.manual = null;
+  ckDirty = true;
   // 基本資料以本次（日期最新）的報告帶入，已經填過的欄位不覆蓋
   const cur = ckSortedReports()[0];
   if(cur){
@@ -1495,14 +1500,17 @@ async function ckAddFiles(files){
       // 出生日期或檢查日期改了，重算年齡
       if(el.dataset.k === 'info.birth' || el.dataset.k === 'info.date'){
         const a = ckAgeAt(CK.info.birth, CK.info.date);
-        if(a != null){ CK.info.age = String(a); const ag = KD.querySelector('[data-k="info.age"]'); if(ag) ag.value = a; }
+        const ag = KD.querySelector('[data-k="info.age"]');
+        if(a != null){ CK.info.age = String(a); if(ag) ag.value = a; }
+        // 出生日期清空：年齡一起清掉，報告才不會出現「出生日期 --」卻印著舊年齡
+        else if(el.dataset.k === 'info.birth' && !String(CK.info.birth || '').trim()){ CK.info.age = ''; if(ag) ag.value = ''; }
       }
       if(el.tagName === 'TEXTAREA') ckGrow(el);
       el.classList.toggle('has-val', !!el.value);
       ckChanged();
     } else if(el.dataset.row != null){
       const rows = ckCurrentRows(), r = rows[+el.dataset.row];
-      if(r){ r.raw = el.value; ckSave(); ckRenderFind(); ckRenderNav(); }
+      if(r){ r.raw = el.value; ckDirty = true; ckSave(); ckRenderFind(); ckRenderNav(); }
     }
   });
   // 檢驗值改完離開欄位時，才重畫表格（↑↓ 與判讀），輸入中不打斷
@@ -1540,7 +1548,7 @@ async function ckAddFiles(files){
     if(!id) return;
     CK.reports = CK.reports.filter(r=> r.id !== id);
     delete CK_PAGES[id];
-    ckSave(); ckRenderAll();
+    ckDirty = true; ckSave(); ckRenderAll();
   });
   ckEl('k-lab-manual').addEventListener('click', ()=>{
     if(CK.reports.length && !confirm('已經有上傳的報告。改成手動輸入會清掉上傳的報告，確定嗎？')) return;
@@ -1550,7 +1558,7 @@ async function ckAddFiles(files){
       const ref = Array.isArray(rf) ? rf[CK.info.sex === 'F' ? 1 : 0] : (rf || '');
       return {key: k, code: '', zh: x[2], raw: '', ref, unit: x[4], sec: x[3], labFlag: ''};
     });
-    ckSave(); ckRenderAll();
+    ckDirty = true; ckSave(); ckRenderAll();
   });
   ckInitPlan();
   ckEl('k-warn-reset').addEventListener('click', ()=>{ if(String(CK.warn || '').trim() && !confirm('會取代目前的提早就醫內容，確定嗎？')) return; CK.warn = CK_WARN_DEFAULT; ckChanged(); });

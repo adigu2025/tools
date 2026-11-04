@@ -18,7 +18,7 @@ const CK_LAB = [
   ['ast',    /^S?-?GOT|^AST/,            'AST（GOT）',      '肝臟功能', 'U/L'],
   ['alt',    /^S?-?GPT|^ALT/,            'ALT（GPT）',      '肝臟功能', 'U/L'],
   ['tc',     /^CHOLESTEROL$|^T-?CHO/,    '總膽固醇',         '血脂肪',   'mg/dL'],
-  ['tg',     /^TRIGLYCERIDE|^TG$/,       '三酸甘油脂',       '血脂肪',   'mg/dL'],
+  ['tg',     /^TRIGLYCERIDE|^TG$/,       '三酸甘油酯',       '血脂肪',   'mg/dL'],
   ['hdl',    /^HDL/,                     '高密度膽固醇',     '血脂肪',   'mg/dL'],
   ['ldl',    /^LDL/,                     '低密度膽固醇',     '血脂肪',   'mg/dL'],
   ['ratio',  /^CHO\/HDL|^TC\/HDL/,       '總膽固醇／HDL',    '血脂肪',   ''],
