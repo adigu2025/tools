@@ -185,11 +185,11 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 }
 .tab .tab-en{font-size:10px;font-weight:600;letter-spacing:.6px;opacity:.65;text-transform:uppercase;}
 .tab:hover{border-color:var(--teal);color:var(--teal);}
+/* 選取中：淡底＋深色字，不加有色陰影（與工作台頂端分頁同一種做法） */
 .tab[aria-selected="true"]{
-  background:var(--teal);border-color:var(--teal);color:#fff;
-  box-shadow:0 3px 12px rgba(62,106,124,.28);
+  background:var(--teal-soft);border-color:var(--teal);color:var(--teal-dark);
 }
-.tab[aria-selected="true"] .tab-en{opacity:.8;}
+.tab[aria-selected="true"] .tab-en{opacity:.75;}
 
 /* ==========================================================
    Panels
@@ -353,8 +353,8 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
   background:var(--surface-alt);font:inherit;color:inherit;
   transition:border-color .18s var(--ease),background .18s var(--ease),transform .18s var(--ease),box-shadow .18s var(--ease);
 }
-.bristol-card:hover{border-color:var(--teal);background:var(--teal-soft);transform:translateY(-2px);box-shadow:0 6px 16px rgba(62,106,124,.15);}
-.bristol-card[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft);box-shadow:0 6px 16px rgba(62,106,124,.22);}
+.bristol-card:hover{border-color:var(--teal);background:var(--teal-soft);}
+.bristol-card[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft);box-shadow:inset 0 0 0 1px var(--teal);}
 .bristol-card[aria-pressed="true"] .bristol-num{background:var(--teal);color:#fff;}
 .bristol-num{
   font-size:10.5px;font-weight:700;color:var(--teal);letter-spacing:.4px;
