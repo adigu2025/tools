@@ -617,7 +617,7 @@ const FORMS_CSS = `
   padding:3px 11px; border-radius:5px; margin:8px 0 4px; display:inline-block;}
 .qs-sec .note{font-weight:400; font-size:11.5px; opacity:.88; margin-left:6px;}
 .qs-cat{font-size:13px; font-weight:700; color:var(--navy);
-  margin:0 0 3px; padding-left:7px; border-left:3.5px solid var(--primary);}
+  margin:0 0 3px;}
 .qs-opt{display:flex; align-items:flex-start; gap:6px;
   font-size:11.5px; line-height:1.4; margin-bottom:2px;}
 .qs-opt svg{flex-shrink:0; width:11.5px; height:11.5px; margin-top:2px;}

@@ -1885,7 +1885,7 @@ function renderCompleteness(){
   const missingCount = COMPLETENESS_RULES.filter(r=>{ try{ return (r.check()||[]).length > 0; }catch(e){ return false; } }).length;
   const head = missingCount === 0
     ? '<div class="summary-box" style="margin-bottom:12px">所有主要項目皆已填寫。</div>'
-    : `<div class="summary-box" style="margin-bottom:12px; background:var(--amber-pale); border-left-color:var(--primary)">尚有 <b>${missingCount}</b> 個區塊未完成。未填欄位不會阻擋報告產生，報告中會標示為「未測」或「未檢驗」。</div>`;
+    : `<div class="summary-box" style="margin-bottom:12px; background:var(--amber-pale); border-color:color-mix(in srgb,var(--primary) 30%,transparent)">尚有 <b>${missingCount}</b> 個區塊未完成。未填欄位不會阻擋報告產生，報告中會標示為「未測」或「未檢驗」。</div>`;
   box.innerHTML = head + '<div class="tt-wrap"><table class="dtable"><tr><th>區塊</th><th>狀態</th><th></th></tr>' + rows + '</table></div>';
 }
 

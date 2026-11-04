@@ -700,10 +700,8 @@
   function rxBadge(st, label){
     return '<span class="rx-status st-' + st + '">' + esc(label || RX_LABEL[st] || '') + '</span>';
   }
-  var RX_ACCENT = { yes:'var(--green)', no:'var(--red)', wait:'var(--amber)', part:'var(--amber)', na:'var(--line)' };
   function rxCard(st, title, bodyHtml, why, lead){
-    var accent = lead ? 'var(--teal)' : (RX_ACCENT[st] || 'var(--line)');
-    return '<div class="rx-card' + (lead ? ' lead' : '') + '" style="border-left-color:' + accent + '">' +
+    return '<div class="rx-card' + (lead ? ' lead' : '') + '">' +
       '<div class="rx-card-head"><h4>' + esc(title) + '</h4>' + (st ? rxBadge(st) : '') + '</div>' +
       '<p>' + bodyHtml + '</p>' +
       (why ? '<div class="rx-why">' + esc(why) + '</div>' : '') +
