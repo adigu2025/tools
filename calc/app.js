@@ -1176,7 +1176,7 @@
     hits.sort(function(a, b){ return a.s - b.s; });
     return hits.map(function(h, i){ return { k: h.k, seg: line.slice(h.e, i + 1 < hits.length ? hits[i + 1].s : undefined) }; });
   }
-  // 報告上的參考值上限：數值後面的「0-40」「5～35」「<40」「≦40」
+  // 報告上的參考值上限：數值後面的「0-40」「5～35」「<40」「≦40」「≤40」
   function ocrRef(lines, k, keys){
     for (var i = 0; i < lines.length; i++) {
       var segs = ocrSegs(lines[i], keys);
@@ -1188,7 +1188,10 @@
         var m = rest.match(/(\d+(?:\.\d+)?)\s*[-–~～]\s*(\d+(?:\.\d+)?)/);
         var hi = m ? parseFloat(m[2]) : NaN;
         if (m && parseFloat(m[1]) >= hi) hi = NaN;
-        if (!m) { m = rest.match(/[<≦≤]\s*=?\s*(\d+(?:\.\d+)?)/); if (m) hi = parseFloat(m[1]); }
+        // 「≦」「≤」實際辨識常變成 £、€、=、«、<I、<l 等，一併接受
+        if (!m) { m = rest.match(/(?:[<≦≤≲⩽£€=«‹]|\bS(?=\d))\s*[=_Il|!]?\s*(\d+(?:\.\d+)?)/); if (m) hi = parseFloat(m[1]); }
+        // 符號整個漏掉：數值後面只有單位，再接一個數字（例如「52 U/L 35」）
+        if (!m) { m = rest.match(/^\s*[HLhl*↑↓]?\s*(?:I?U\s*\/?\s*L|IU|mg\/dL)\s+(\d+(?:\.\d+)?)\s*$/i); if (m) hi = parseFloat(m[1]); }
         if (hi >= 5 && hi <= 1000) return hi;
       }
     }
