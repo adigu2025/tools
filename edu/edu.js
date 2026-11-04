@@ -1,42 +1,66 @@
-/* 工作台的衛教圖卡：圖卡與列印表單的資料、左側清單、縮放與拖曳。
+/* 工作台的衛教圖卡：圖卡與列印表單的資料、左側清單、縮放與拖曳、多份一起列印。
    由 index.html 以一般 script 載入，放在工作台主程式（分頁、BASE、recall、main）之後、啟動程式之前；
-   列印表單的畫面在 forms/view.js，列印共用的 loadImg、printHtml 也在那裡。 */
+   列印表單的畫面在 forms/view.js，列印共用的 loadImg、printImages、printHtml 也在那裡。 */
 /* ── 衛教圖卡與列印表單的資料 ──
-   衛教依用途分類。減重治療類的清單即時讀減重系統（以後在減重系統新增圖片，這裡自動出現）；
-   傷口照護與檢查類的圖片放在工作台自己的 img/。
-   每份衛教可以有多頁（pages），每頁可以是兩頁並列的圖（split = 2，列印時拆成兩張 A4）。 */
-// 減重衛教與表單的圖片已移到工作台的 img/，路徑與其他圖片相同
+   衛教依用途分類，同一類再依圖卡角落的系列與編號分小節（例如減重的「療程 01 至 04」），側欄順序與圖卡編號一致。
+   清單只在這裡維護一份；側欄名稱一律用圖卡上的標題，在診間口頭說「點那張」時對得上。
+   每份衛教可以有多頁（pages），每頁可以是兩頁並列的圖（split = 2，列印時拆成兩張 A4）。
+   圖卡原始檔：減重「用藥 02」與「檢查與治療」類自製圖卡的版面在 edu-src/，改文字後重新輸出圖片。 */
 const W = p=> BASE + p;
 const EDU_GROUPS = [
   {key:'weight', label:'減重治療'},
+  {key:'exam',   label:'檢查與治療'},
   {key:'wound',  label:'傷口照護'},
-  {key:'exam',   label:'檢查'},
 ];
-const ICON_DOC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>';
-const ICON_BANDAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><rect x="2.5" y="8" width="19" height="8" rx="4" transform="rotate(-45 12 12)"/><path d="M10.5 10.5h.01M13.5 13.5h.01M13.5 10.5h.01M10.5 13.5h.01"/></svg>';
-const ICON_HEAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M7 20v-3.5A7 7 0 1 1 18.5 11l1.5 3.5h-2v2.5a2 2 0 0 1-2 2h-2V20"/></svg>';
-const ICON_US = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M8 3h8l-1.5 6h-5z"/><path d="M5 14a7 7 0 0 0 14 0"/><path d="M8 14a4 4 0 0 0 8 0"/></svg>';
-const LOCAL_EDU = [
-  {group:'wound', label:'傷口處理衛教', icon:ICON_BANDAGE, pages:[{src:'img/edu-wound-care-1.webp'}, {src:'img/edu-wound-care-2.webp'}]},
-  {group:'wound', label:'頭部傷口衛教', icon:ICON_HEAD,    pages:[{src:'img/edu-head-injury-1.webp'}, {src:'img/edu-head-injury-2.webp'}]},
-  {group:'exam',  label:'腹部超音波衛教', icon:ICON_US,    pages:[{src:'img/edu-abdominal-us-1.webp'}, {src:'img/edu-abdominal-us-2.webp'}]},
+const svgIcon = d=> `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true">${d}</svg>`;
+const ICON_DOC = svgIcon('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>');
+const ICON = {
+  assess:   svgIcon('<path d="M5 3v6a4 4 0 0 0 8 0V3"/><path d="M3.5 3H5M13 3h1.5"/><path d="M9 13v2a5 5 0 0 0 9 3"/><circle cx="19" cy="16" r="2.5"/>'),
+  path:     svgIcon('<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>'),
+  scope:    svgIcon('<path d="M15 3c-3.9 0-6.5 2.6-6.5 6.5 0 2.5-1 3.2-2.4 4.1C4.7 14.5 3.5 15.6 3.5 18A3 3 0 0 0 9 19.7"/><path d="M9.5 9.5H19a2 2 0 0 1 2 2v3a6 6 0 0 1-6 6h-2"/>'),
+  calendar: svgIcon('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+  scale:    svgIcon('<path d="M12 4v17M8.5 21h7M4 7l8-2 8 2"/><path d="M4 7l-2 5a2.5 2.5 0 0 0 5 0z"/><path d="M20 7l-2 5a2.5 2.5 0 0 0 5 0z" transform="translate(-1 0)"/>'),
+  globe:    svgIcon('<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/>'),
+  dna:      svgIcon('<path d="M7 3c0 6 10 6 10 12M17 3c0 6-10 6-10 12"/><path d="M7 21c0-2 10-2 10 0M8 7h8M8.5 17h7"/>'),
+  light:    svgIcon('<rect x="7" y="2" width="10" height="16" rx="3"/><circle cx="12" cy="6" r="1.3"/><circle cx="12" cy="10" r="1.3"/><circle cx="12" cy="14" r="1.3"/><path d="M12 18v4"/>'),
+  pill:     svgIcon('<rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M8.5 8.5l7 7"/>'),
+  book:     svgIcon('<path d="M12 6.5C10.5 5 8.5 4.5 6 4.5H3v14h3c2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2h3v-14h-3c-2.5 0-4.5.5-6 2z"/><path d="M12 6.5v14"/>'),
+  pen:      svgIcon('<path d="M17.5 3.5l3 3"/><path d="M19 8l-3-3L5.5 15.5 4 20l4.5-1.5z"/><path d="M13 7l4 4"/>'),
+  bandage:  svgIcon('<rect x="2.5" y="8" width="19" height="8" rx="4" transform="rotate(-45 12 12)"/><path d="M10.5 10.5h.01M13.5 13.5h.01M13.5 10.5h.01M10.5 13.5h.01"/>'),
+  head:     svgIcon('<path d="M7 20v-3.5A7 7 0 1 1 18.5 11l1.5 3.5h-2v2.5a2 2 0 0 1-2 2h-2V20"/>'),
+  us:       svgIcon('<path d="M8 3h8l-1.5 6h-5z"/><path d="M5 14a7 7 0 0 0 14 0"/><path d="M8 14a4 4 0 0 0 8 0"/>'),
+  stomach:  svgIcon('<path d="M9 3v3c0 2-2 3-3.5 4.5A6 6 0 0 0 11 20c4 0 8-2.5 8-7 0-3-2-4.5-4.5-4.5-1.5 0-2.5.8-3 2"/><path d="M9 3h3"/>'),
+  polyp:    svgIcon('<path d="M3 17c3-1 4-4 9-4s6 3 9 4"/><circle cx="12" cy="9" r="3"/><path d="M12 12v1"/>'),
+  germ:     svgIcon('<ellipse cx="12" cy="12" rx="6" ry="4" transform="rotate(-30 12 12)"/><path d="M17 8.5c1.5-1 2.5-1 3.5-.5M7 15.5c-1.5 1-2.5 1-3.5.5M16 6c.5-1.5 1.5-2.5 3-3"/>'),
+  snow:     svgIcon('<path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11"/><path d="M9.5 3.5L12 6l2.5-2.5M9.5 20.5L12 18l2.5 2.5"/>'),
+  band:     svgIcon('<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v4M12 18v4"/>'),
+};
+// sec：圖卡角落的系列名稱，同一系列在側欄排在一起並加上小標
+const EDU_LIST = [
+  ['weight', '療程',     '第一次來減重門診', ICON.assess,   ['img/edu-clinical-assessment.webp']],
+  ['weight', '療程',     '治療一步一步來',   ICON.path,     ['img/edu-treatment-pathway.webp']],
+  ['weight', '療程',     '內視鏡減重治療',   ICON.scope,    ['img/edu-endoscopic-treatment.webp']],
+  ['weight', '療程',     '回診時程',         ICON.calendar, ['img/edu-follow-up-schedule.webp']],
+  ['weight', '認識肥胖', '肥胖與代謝症候群', ICON.scale,    ['img/edu-obesity-metabolic-syndrome.webp']],
+  ['weight', '認識肥胖', '肥胖越來越常見',   ICON.globe,    ['img/edu-obesity-trend.webp']],
+  ['weight', '認識肥胖', '為什麼會胖？',     ICON.dna,      ['img/edu-obesity-causes.webp']],
+  ['weight', '認識肥胖', '什麼時候該開始治療', ICON.light,  ['img/edu-when-to-intervene.webp']],
+  ['weight', '用藥',     '減重藥物怎麼選',   ICON.pill,     ['img/edu-medication-options.webp']],
+  ['weight', '用藥',     '用藥注意事項',     ICON.book,     ['img/edu-medication-guide.webp']],
+  ['weight', '用藥',     '針劑注射與保存',   ICON.pen,      [{src:'img/edu-glp1-injection-storage.webp', split:2}]],
+  ['exam',   '檢查前',   '胃鏡檢查前注意事項', ICON.stomach, ['img/edu-gastroscopy-prep.webp']],
+  ['exam',   '檢查前',   '腹部超音波衛教',   ICON.us,       ['img/edu-abdominal-us-1.webp', 'img/edu-abdominal-us-2.webp']],
+  ['exam',   '治療後',   '瘜肉切除術後',     ICON.polyp,    ['img/edu-polypectomy-after.webp']],
+  ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-het-after.webp']],
+  ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-arbl-after.webp']],
+  ['exam',   '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-hp-eradication.webp']],
+  ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
+  ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
 ];
-function weightEdu(list){
-  return reorderEdu(list.map(([label, src, split, icon])=>({group:'weight', label, icon: icon || '', pages:[{src: W(src), split: split || 1}]})));
-}
-let EDU = weightEdu([
-  ['臨床評估','img/edu-clinical-assessment.webp'],
-  ['肥胖與代謝症候群','img/edu-obesity-metabolic-syndrome.webp'],
-  ['肥胖是日漸嚴重的問題','img/edu-obesity-trend.webp'],
-  ['肥胖的成因','img/edu-obesity-causes.webp'],
-  ['何時介入與改善方式','img/edu-when-to-intervene.webp'],
-  ['治療流程','img/edu-treatment-pathway.webp'],
-  ['藥物選擇','img/edu-medication-options.webp'],
-  ['用藥衛教','img/edu-medication-guide.webp'],
-  ['內視鏡減重','img/edu-endoscopic-treatment.webp'],
-  ['針劑注射與保存','img/edu-glp1-injection-storage.webp', 2],
-  ['追蹤與監測時程','img/edu-follow-up-schedule.webp']
-]).concat(LOCAL_EDU);
+const EDU = EDU_LIST.map(([group, sec, label, icon, pages])=> ({group, sec, label, icon,
+  pages: pages.map(p=> typeof p === 'string' ? {src: W(p), split: 1} : {src: W(p.src), split: p.split || 1})}));
+// 實際印出的 A4 張數（兩頁並列的圖算兩張）
+const sheetCount = p=> p.pages.reduce((n, pg)=> n + (pg.split || 1), 0);
 
 // 列印表單：依用途分組。問卷與健康紀錄表由 forms/forms.js 產生空白表（與減重系統共用版面）；
 // 地中海飲食、腸泌素同意書、管藥與麻醉紀錄、檢查同意書都是圖片，放在工作台的 img/（檢查同意書由 consent-src/ 輸出）。
@@ -73,35 +97,17 @@ let eduGroup = recall('hub-edu-group', 'weight');
 if(!EDU_GROUPS.some(g=> g.key === eduGroup)) eduGroup = 'weight';
 const eduKey = p=> p.group + '|' + p.label;
 
-function reorderEdu(list){
-  const out = list.slice();
-  EDU_AFTER.forEach(([move, after])=>{
-    const i = out.findIndex(p=> p.label === move);
-    if(i < 0 || !out.some(p=> p.label === after)) return;
-    const [item] = out.splice(i, 1);
-    out.splice(out.findIndex(p=> p.label === after) + 1, 0, item);
-  });
-  return out;
-}
 
-function pullWeightData(){
-  try{
-    const list = EDU_PDF_PAGES;
-    if(Array.isArray(list) && list.length){
-      const cur = EDU[eduIdx] && eduKey(EDU[eduIdx]);
-      EDU = weightEdu(list.map(p=> [p.label, p.src, p.printSplit, p.icon])).concat(LOCAL_EDU);
-      const keep = EDU.findIndex(p=> eduKey(p) === cur);
-      eduIdx = keep >= 0 ? keep : 0;
-      renderRail();
-    }
-  }catch(err){}
-}
+// 多份一起列印：勾選模式下，點清單是勾選或取消，不切換圖卡；可以跨分類勾選，依清單順序印出
+let pickMode = false;
+const picked = new Set();
 
-// 側欄：上方是分類切換，下方列出該類的衛教；多頁的衛教標示頁數
+// 側欄：上方是分類切換，下方列出該類的衛教（依系列分小標），最下方是多份列印
 let railFirst = true;
 function renderRail(){
+  const prevIdx = eduIdx;
   if(railFirst){
-    // 第一次顯示時回到上次看的那份
+    // 第一次顯示時回到上次看的那份（舊版名稱已改，找不到就從該類第一份開始）
     const last = recall('hub-edu-key', '');
     const i = EDU.findIndex(p=> eduKey(p) === last);
     if(i >= 0){ eduIdx = i; eduGroup = EDU[i].group; }
@@ -115,20 +121,56 @@ function renderRail(){
   const rail = document.getElementById('edu-rail');
   const tabs = EDU_GROUPS.map(g=>{
     const n = EDU.filter(p=> p.group === g.key).length;
-    return `<button class="edu-group press" data-g="${g.key}" aria-pressed="${g.key === eduGroup}">${esc(g.label)}<span class="n">${n}</span></button>`;
+    const k = EDU.filter(p=> p.group === g.key && picked.has(eduKey(p))).length;
+    return `<button class="edu-group press" data-g="${g.key}" aria-pressed="${g.key === eduGroup}">${esc(g.label)}` +
+      `<span class="n">${pickMode && k ? '已選 ' + k : n}</span></button>`;
   }).join('');
-  const items = EDU.map((p, i)=> p.group !== eduGroup ? '' :
-    `<button class="edu-item press" data-i="${i}" aria-current="${i === eduIdx}"><span class="ico">${p.icon || ICON_DOC}</span>` +
-    `<span class="lb">${esc(p.label)}</span>${p.pages.length > 1 ? `<span class="pg">${p.pages.length} 頁</span>` : ''}</button>`
-  ).join('');
-  rail.innerHTML = `<div class="edu-groups" role="tablist" aria-label="衛教分類">${tabs}</div><div class="edu-list">${items}</div>`;
+  let sec = null;
+  const items = EDU.map((p, i)=>{
+    if(p.group !== eduGroup) return '';
+    const head = (p.sec && p.sec !== sec) ? `<div class="edu-sec">${esc(p.sec)}</div>` : '';
+    sec = p.sec;
+    const n = sheetCount(p);
+    const on = picked.has(eduKey(p));
+    const lead = pickMode ? `<span class="ck" aria-hidden="true">${on ? '✓' : ''}</span>` : `<span class="ico">${p.icon || ICON_DOC}</span>`;
+    return head + `<button class="edu-item press${pickMode ? ' picking' : ''}" data-i="${i}" aria-current="${!pickMode && i === eduIdx}"` +
+      (pickMode ? ` aria-pressed="${on}"` : '') + `>${lead}<span class="lb">${esc(p.label)}</span>${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
+  }).join('');
+  rail.innerHTML = `<div class="edu-groups" role="tablist" aria-label="衛教分類">${tabs}</div><div class="edu-list">${items}</div>` +
+    `<div class="edu-pick">${pickBar()}</div>`;
   rail.querySelectorAll('.edu-group').forEach(b=> b.addEventListener('click', ()=>{
     eduGroup = b.dataset.g;
     store('hub-edu-group', eduGroup);
     renderRail();
   }));
-  rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> showEdu(+b.dataset.i, 0)));
-  showEdu(eduIdx, eduPage);
+  rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=>{
+    const i = +b.dataset.i;
+    if(!pickMode){ showEdu(i, 0); return; }
+    const k = eduKey(EDU[i]);
+    picked.has(k) ? picked.delete(k) : picked.add(k);
+    renderRail();
+  }));
+  const on = document.getElementById('pick-on');
+  if(on) on.addEventListener('click', ()=>{ pickMode = true; renderRail(); });
+  const cancel = document.getElementById('pick-cancel');
+  if(cancel) cancel.addEventListener('click', ()=>{ pickMode = false; picked.clear(); renderRail(); });
+  const go = document.getElementById('pick-print');
+  if(go) go.addEventListener('click', printPicked);
+  // 勾選模式下只重畫清單；切換分類（目前圖卡換了）時才換圖
+  if(!pickMode || eduIdx !== prevIdx || !eduView.querySelector('img')) showEdu(eduIdx, eduPage);
+}
+function pickBar(){
+  if(!pickMode) return `<button class="tbtn" id="pick-on" title="勾選幾份衛教，一次印出">多份一起列印</button>`;
+  const list = EDU.filter(p=> picked.has(eduKey(p)));
+  const sheets = list.reduce((n, p)=> n + sheetCount(p), 0);
+  return `<div class="sum">${list.length ? `已選 ${list.length} 份，共 ${sheets} 張 A4` : '點選要一起列印的衛教'}</div>` +
+    `<div class="acts"><button class="tbtn" id="pick-cancel">取消</button>` +
+    `<button class="tbtn pri" id="pick-print"${list.length ? '' : ' disabled'}>列印</button></div>`;
+}
+function printPicked(){
+  const list = EDU.filter(p=> picked.has(eduKey(p)));
+  if(!list.length) return;
+  printImages(list.flatMap(p=> p.pages), list.length === 1 ? list[0].label : '衛教圖卡 ' + list.length + ' 份');
 }
 function showEdu(i, page){
   eduIdx = (i + EDU.length) % EDU.length;
@@ -136,10 +178,16 @@ function showEdu(i, page){
   eduPage = Math.max(0, Math.min(page || 0, p.pages.length - 1));
   const inGroup = EDU.filter(x=> x.group === p.group);
   const pos = inGroup.indexOf(p) + 1;
+  const n = sheetCount(p);
   document.getElementById('edu-title').textContent = p.label;
+  // 多頁的衛教顯示目前第幾頁；兩頁並列的圖（一張圖印成兩張 A4）標示列印張數
   document.getElementById('edu-count').textContent = pos + '／' + inGroup.length +
-    (p.pages.length > 1 ? `　第 ${eduPage + 1}／${p.pages.length} 頁` : '');
-  document.querySelectorAll('#edu-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(+b.dataset.i === eduIdx)));
+    (p.pages.length === 1 && n > 1 ? `　列印 ${n} 張` : '');
+  // 多頁的衛教在標題旁列出每一頁的按鈕，不必知道要按「›」才看得到第 2 頁
+  const pages = document.getElementById('edu-pages');
+  pages.innerHTML = p.pages.length > 1 ? p.pages.map((_, k)=> `<button data-p="${k}" aria-pressed="${k === eduPage}">第 ${k + 1} 頁</button>`).join('') : '';
+  pages.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=> showEdu(eduIdx, +b.dataset.p)));
+  document.querySelectorAll('#edu-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(!pickMode && +b.dataset.i === eduIdx)));
   store('hub-edu-key', eduKey(p));
   const src = p.pages[eduPage].src;
   const shown = main.dataset.view === 'edu';

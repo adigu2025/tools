@@ -206,6 +206,20 @@ body.q-max .hub-main{height:100dvh;}
 .edu-group[aria-pressed="true"]{background:var(--acc); border-color:var(--acc); color:var(--acc-fg);}
 .edu-group[aria-pressed="true"] .n{background:rgba(255,255,255,.18); color:#fff;}
 .edu-item[aria-current="true"] .ico{color:var(--acc-text);}
+/* 系列小標（療程、認識肥胖、用藥……），對應圖卡角落的編號 */
+.edu-sec{font-size:12.5px; letter-spacing:.12em; color:var(--faint); font-weight:600; margin:12px 12px 4px;}
+.edu-list > .edu-sec:first-child{margin-top:2px;}
+/* 多份一起列印：勾選模式 */
+.edu-item .ck{width:20px; height:20px; flex:none; display:inline-flex; align-items:center; justify-content:center;
+  border:1.5px solid var(--line-strong); border-radius:6px; font-size:13px; color:var(--acc-fg); background:var(--surface);}
+.edu-item.picking[aria-pressed="true"]{background:var(--acc-soft); color:var(--acc-text);}
+.edu-item.picking[aria-pressed="true"] .ck{background:var(--acc); border-color:var(--acc);}
+.edu-pick{position:sticky; bottom:-12px; background:var(--surface); border-top:1px solid var(--line); margin:10px -10px -12px; padding:10px;}
+.edu-pick > .tbtn{width:100%;}
+.edu-pick .sum{font-size:13.5px; color:var(--muted); margin:0 2px 8px;}
+.edu-pick .acts{display:flex; gap:8px;}
+.edu-pick .acts .tbtn{flex:1;}
+.edu-pick .tbtn:disabled{opacity:.45; cursor:default;}
 .edu-stage{display:grid; grid-template-rows:auto 1fr; min-height:0; min-width:0; overflow:hidden;}
 .edu-tools{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
 .edu-tools h1{font-family:var(--serif); font-size:24px; font-weight:700; margin:0 0 0 4px; letter-spacing:.03em;}
@@ -241,6 +255,9 @@ body.q-max .hub-main{height:100dvh;}
   box-shadow:0 2px 10px rgba(31,30,29,.10);}
 .edu-head{display:flex; align-items:baseline; gap:10px; padding:7px 14px; min-width:0;}
 .edu-head h1{font-size:17px; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.edu-pages{display:inline-flex; gap:4px;}
+.edu-pages button{border:1px solid var(--line-strong); background:var(--surface); border-radius:8px; padding:3px 10px; font-size:13.5px; color:var(--ink-2);}
+.edu-pages button[aria-pressed="true"]{background:var(--acc-soft); border-color:var(--acc); color:var(--acc-text); font-weight:600;}
 .edu-head .edu-count{margin-right:0; font-size:13px; white-space:nowrap;}
 .edu-ctrl{display:flex; align-items:center; gap:6px; padding:5px; flex-wrap:wrap; justify-content:flex-end;}
 .edu-ctrl .grp > *{padding:6px 11px; font-size:14px; min-width:36px;}
@@ -391,6 +408,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
         <div class="edu-head">
           <h1 id="edu-title">衛教圖卡</h1>
           <span class="edu-count" id="edu-count"></span>
+          <span class="edu-pages" id="edu-pages"></span>
         </div>
         <div class="edu-ctrl">
         <div class="grp">
@@ -494,9 +512,6 @@ const CLEAR_KEYS = {
   checkup: [['local','checkup_draft_v1']]
 };
 
-/* 衛教圖卡順序：工作台裡把「針劑注射與保存」接在「藥物選擇」後面 */
-const EDU_AFTER = [['針劑注射與保存', '藥物選擇']];
-
 const main = document.getElementById('hub-main');
 
 /* 報價。QD、QB 是報價程式共用的全域變數；工作台外觀 quote/hub.css 只在這裡加上 */
@@ -542,7 +557,6 @@ async function mountWeight(){
   weightReady = true;
   const upd = ()=> setTimeout(updateChips, 30);
   ['input','change','click'].forEach(t=> WD.addEventListener(t, upd, true));
-  pullWeightData();
   updateChips();
   host.classList.remove('loading');
   syncRep();
@@ -681,8 +695,16 @@ document.getElementById('btn-split').addEventListener('click', e=>{
   const on = main.dataset.split !== '1';
   main.dataset.split = on ? '1' : '0';
   e.currentTarget.setAttribute('aria-pressed', String(on));
+  // 圖卡區與計算區的寬度都變了：重新算圖卡的「整頁／寬度」大小與計算區倍率
+  setTimeout(()=>{ applyZoom(); if(calcReady) fitCalc(); }, 0);
 });
 
+// 焦點是否在輸入欄位裡。臨床計算等工具放在 shadow root，文件層收到的 e.target 只是外框（#calc-host），
+// 要用 composedPath() 的第一個元素才是真正按鍵的欄位
+function typingInField(e){
+  const t = e.composedPath()[0];
+  return !!(t && t.closest && (t.closest('input,textarea,select') || t.isContentEditable));
+}
 function onHubKey(e){
   if(e.altKey && !e.ctrlKey && !e.metaKey){
     const v = {'1':'quote','2':'calc','3':'edu','4':'weight','5':'print'}[e.key];
@@ -702,7 +724,7 @@ document.addEventListener('keydown', e=>{
   }
   if(e.key === 'Escape' && !qrOverlay.hidden){ qrOverlay.hidden = true; return; }
   if(main.dataset.view === 'print' && !e.ctrlKey && !e.metaKey && !e.altKey){
-    if(e.target.closest && e.target.closest('input,textarea,select')) return;
+    if(typingInField(e)) return;
     const k = e.key, canScroll = formView.classList.contains('pannable');
     if(k === 'ArrowLeft' || (k === 'ArrowUp' && !canScroll)){ e.preventDefault(); stepForm(-1); }
     else if(k === 'ArrowRight' || (k === 'ArrowDown' && !canScroll)){ e.preventDefault(); stepForm(1); }
@@ -714,7 +736,8 @@ document.addEventListener('keydown', e=>{
     return;
   }
   if(main.dataset.view !== 'edu' || e.ctrlKey || e.metaKey || e.altKey) return;
-  if(e.target.closest && e.target.closest('input,textarea,select')) return;
+  // 並排計算時，焦點在右側臨床計算裡的按鍵都留給計算（打數字、方向鍵選項），不當成換張或縮放
+  if(typingInField(e) || e.composedPath().includes(document.getElementById('calc-host'))) return;
   // 圖片放大後可捲動時，上下鍵留給捲動，換張只用左右鍵
   const canScroll = eduView.classList.contains('pannable');
   const k = e.key;
@@ -986,7 +1009,7 @@ try{ if(sessionStorage.getItem('hub-cleared')){ sessionStorage.removeItem('hub-c
 /* ── 離線快取（sw.js）：診所斷網時工作台仍可開啟。本機 file:// 開啟時不使用 ── */
 if('serviceWorker' in navigator && !IS_FILE){
   navigator.serviceWorker.register('sw.js').then(()=> navigator.serviceWorker.ready).then(reg=>{
-    // 等減重系統的衛教清單讀進來後，在背景預存所有衛教與表單圖片，斷網時也能顯示與列印
+    // 開啟 8 秒後（不搶開頁的頻寬），在背景預存所有衛教與表單圖片，斷網時也能顯示與列印
     setTimeout(()=>{
       const urls = [...new Set([...EDU.flatMap(p=> p.pages.map(g=> g.src)), ...FORMS.flatMap(f=> f.pages)])]
         .map(u=> new URL(u, location.href).href);

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>減重衛教圖卡局部修改</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<style>body{background:#9AA5AA;margin:0;padding:20px;font-family:'Noto Sans TC'} canvas{display:block;margin:0 auto 20px;width:620px;background:#fff}</style>
+</head>
+<body>
+<!-- 減重衛教「療程」與「用藥 01」沒有版面原始檔（當初另外排版輸出），只能在原圖上蓋白再寫字。
+     座標以原圖 1241 × 1755 像素為準；每一筆：蓋掉的區域（x、y、寬、高），接著寫的文字（x、基線 y、字型、顏色、文字）。
+     以後若重做這幾張，請改用 cards.html 的版型整張重排。 -->
+<script>
+const SANS = (w, s)=> `${w} ${s}px 'Noto Sans TC'`;
+const SERIF = s=> `900 ${s}px 'Noto Serif TC'`;
+const INK = '#2f3437', DARK = '#1f2a2e', SUB = '#6b6f71';
+const PATCHES = {
+  // 用藥 01：SELECT 研究的對象是已有心血管疾病的人
+  'edu-medication-options': [
+    {cover:[530, 762, 285, 160], text:[
+      [537, 797, SANS(400, 24.5), INK, '已有心血管疾病的人，'],
+      [537, 837, SANS(400, 24.5), INK, '大型研究證實可降低'],
+      [537, 877, SANS(400, 24.5), INK, '心血管事件；'],
+      [537, 917, SANS(400, 24.5), INK, '12 歲以上青少年可用'],
+    ]},
+  ],
+  // 療程 04：5% 評估改到「維持劑量用滿約 3 個月」，與療程 01、02 一致（週纖達第 17 週才到維持劑量）
+  'edu-follow-up-schedule': [
+    {cover:[380, 795, 748, 140], text:[
+      [388, 828, SANS(700, 25), DARK, '抽血與階段檢視'],
+      [388, 873, SANS(400, 25), INK, '抽血看血糖、血脂、肝腎功能；'],
+      [388, 918, SANS(400, 25), INK, '確認體重變化與目前劑量是否合適。'],
+    ]},
+    {cover:[380, 995, 748, 140], text:[
+      [388, 1028, SANS(700, 25), DARK, '療效評估與腹部超音波'],
+      [388, 1073, SANS(400, 25), INK, '維持劑量用滿約 3 個月，確認減重是否達 5%；'],
+      [388, 1118, SANS(400, 25), INK, '超音波看脂肪肝改善多少，追蹤共病指標。'],
+    ]},
+  ],
+  // 療程 03：ESG 的追蹤年數與出處一致；適用條件依 ASGE／ESGE 2024；肉毒不列 BMI 門檻
+  'edu-endoscopic-treatment': [
+    {cover:[850, 862, 278, 100], text:[
+      [855, 898, SANS(400, 25), INK, '隨機試驗追蹤 2 年，'],
+      [855, 940, SANS(400, 25), INK, '多數人仍維持減重效果'],
+    ]},
+    {cover:[240, 1172, 888, 100], text:[
+      [245, 1216, SANS(400, 24), INK, '依個別狀況討論'],
+      [550, 1220, SERIF(32), DARK, 'BMI ≥ 30'],
+      [550, 1254, SANS(400, 18), SUB, '或 BMI ≥ 27 合併共病'],
+      [855, 1220, SERIF(32), DARK, 'BMI ≥ 30'],
+      [855, 1254, SANS(400, 18), SUB, '或 BMI ≥ 27 合併共病'],
+    ]},
+    {cover:[318, 1310, 600, 46], text:[
+      [323, 1342, SANS(400, 25), INK, '胃內肉毒注射屬於藥品適應症外使用，證據仍有限。'],
+    ], bg:[1100, 1333]},
+    {cover:[108, 1490, 900, 36], text:[
+      [113, 1515, SANS(400, 17.5), SUB, '資料來源：MERIT，Lancet 2022；ASGE／ESGE 內視鏡減重治療指引，2024。'],
+    ]},
+  ],
+};
+const loadImg = src=> new Promise((ok, no)=>{ const i = new Image(); i.onload = ()=> ok(i); i.onerror = no; i.src = src; });
+async function build(){
+  await document.fonts.load(SANS(400, 20)); await document.fonts.load(SANS(700, 20)); await document.fonts.load(SERIF(30));
+  await document.fonts.ready;
+  const out = [];
+  for(const [name, list] of Object.entries(PATCHES)){
+    // 一律從 git 裡的原圖開始改，重跑不會疊加
+    const img = await loadImg('orig/' + name + '.webp');
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth; c.height = img.naturalHeight; c.dataset.out = name;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    for(const p of list){
+      // bg 給座標時，取原圖該點的顏色（例如米色提示框），蓋上去才不會出現色塊
+      if(Array.isArray(p.bg)){ const d = g.getImageData(p.bg[0], p.bg[1], 1, 1).data; g.fillStyle = `rgb(${d[0]},${d[1]},${d[2]})`; }
+      else g.fillStyle = p.bg || '#fff';
+      g.fillRect(...p.cover);
+      for(const [x, y, font, color, s] of p.text){ g.font = font; g.fillStyle = color; g.fillText(s, x, y); }
+    }
+    // 頁尾版本日期改成這次修改的月份
+    g.fillStyle = '#fff'; g.fillRect(455, 1672, 110, 36);
+    g.font = SANS(400, 17.5); g.fillStyle = SUB; g.fillText('v. 2026/11', 462, 1697);
+    document.body.appendChild(c);
+    out.push(c);
+  }
+  return out;
+}
+async function saveAll(){
+  for(const c of document.querySelectorAll('canvas')){
+    const webp = await new Promise(r=> c.toBlob(r, 'image/webp', 0.9));
+    await fetch('/__save?name=' + c.dataset.out + '.webp', {method:'POST', body: webp});
+  }
+  return 'ok';
+}
+build();
+</script>
+</body>
+</html>
