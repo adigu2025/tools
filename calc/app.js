@@ -1149,6 +1149,64 @@
   }
 
   var OCR_NUM = /(\d+(?:\.\d+)?)/;
+
+  // 依報告表頭欄位判讀：找到含「結果」與「參考／單位」的表頭列，用各欄標題的左右位置切出欄界，
+  // 表頭下方每一列的文字依水平位置歸到對應欄，再重組成「項目 結果 參考值 單位」交給後面的判讀。
+  // 這樣不論各檢驗所欄位順序怎麼排、中文名稱被認成什麼亂碼，都以表頭對照為準。
+  // 找不到表頭（截圖沒截到、表頭辨識失敗）就回傳空字串，改用原本依「結果、參考值、單位」順序的判讀
+  var OCR_COLS = [
+    ['item', /項目|^項$|Item|Test/i],
+    ['name', /中文|名稱|^稱$|Name/i],
+    ['res',  /結果|^結$|^果$|Result|Value/i],
+    ['ref',  /參考|^參$|^考$|區間|範圍|Ref|Range|Normal/i],
+    ['unit', /單位|^單$|^位$|Unit/i]
+  ];
+  function ocrTable(data){
+    var lines = (data && data.lines) || [];
+    function words(l){ return (l.words || []).filter(function(w){ return w.bbox && /[^\s|｜│_\-—.,]/.test(w.text); }); }
+    for (var h = 0; h < lines.length; h++) {
+      var ws = words(lines[h]), col = {}, kw = [];
+      ws.forEach(function(w){
+        for (var i = 0; i < OCR_COLS.length; i++) if (OCR_COLS[i][1].test(w.text)) { kw.push({ w: w, k: OCR_COLS[i][0] }); return; }
+      });
+      kw.forEach(function(x){ col[x.k] = 1; });
+      if (!col.res || !(col.ref || col.unit)) continue;
+      // 沒有關鍵字的表頭字（例如「檢驗」「判讀」）歸到距離最近的關鍵字那一欄
+      var span = {};
+      ws.forEach(function(w){
+        var best = null, gap = Infinity;
+        kw.forEach(function(x){
+          var g = x.w === w ? -1 : Math.max(0, Math.max(x.w.bbox.x0, w.bbox.x0) - Math.min(x.w.bbox.x1, w.bbox.x1));
+          if (g < gap) { gap = g; best = x.k; }
+        });
+        var s = span[best] || (span[best] = { k: best, x0: Infinity, x1: -Infinity });
+        s.x0 = Math.min(s.x0, w.bbox.x0); s.x1 = Math.max(s.x1, w.bbox.x1);
+      });
+      var cols = Object.keys(span).map(function(k){ return span[k]; }).sort(function(a, b){ return a.x0 - b.x0; });
+      for (var c = 0; c < cols.length; c++) cols[c].cut = c + 1 < cols.length ? (cols[c].x1 + cols[c + 1].x0) / 2 : Infinity;
+      var top = lines[h].bbox ? lines[h].bbox.y1 : -Infinity;
+      var out = lines.map(function(l, li){
+        if (li <= h || (l.bbox && l.bbox.y0 < top)) return l.text.trim();
+        var cell = { left: [], res: [], ref: [], unit: [], other: [] };
+        words(l).forEach(function(w){
+          var cx = (w.bbox.x0 + w.bbox.x1) / 2, c = 0;
+          while (cx > cols[c].cut) c++;
+          var k = cols[c].k === 'item' || cols[c].k === 'name' ? 'left' : cols[c].k;
+          if (k === 'left' && /^[\d.,:;]+$/.test(w.text)) return;   // 名稱欄裡單獨的數字是中文名稱辨識成的亂碼
+          (cell[k] || cell.other).push(w.text);
+        });
+        var res = cell.res.join(' ').match(OCR_NUM);
+        if (!res || !cell.left.length) return l.text.trim();
+        var refTxt = cell.ref.join(' '), ref = '';
+        var r = refTxt.match(/(\d+(?:\.\d+)?)\s*[-–~～]\s*(\d+(?:\.\d+)?)/);
+        if (r) ref = r[1] + '-' + r[2];
+        else if ((r = refTxt.match(OCR_NUM))) ref = (/[>≧≥]/.test(refTxt) ? '>' : '≦') + r[1];
+        return [cell.left.join(' '), res[1], ref, cell.unit.join(' ')].join(' ').replace(/\s+/g, ' ').trim();
+      });
+      return out.join('\n');
+    }
+    return '';
+  }
   // 每個檢驗項目：名稱的寫法、合理範圍；同一行出現多項時，各取名稱後面到下一個名稱之前的第一個數字
   var OCR_KEYS = {
     tc:  { re: /\bTC\b|T[-.\s]?CHO(?:L)?\b|Total\s*Chol\w*|\bCholesterol\b|\bCHOL\b|總膽固醇/ig, lo: 50, hi: 800 },
@@ -1575,7 +1633,7 @@
       return Promise.all([ocrGetWorker(), ocrPrepare(job.file)]).then(function(r){
         var worker = r[0], texts = [];
         return r[1].reduce(function(p, c){
-          return p.then(function(){ pass = texts.length; return worker.recognize(c); }).then(function(res){ texts.push(res.data.text || ''); });
+          return p.then(function(){ pass = texts.length; return worker.recognize(c); }).then(function(res){ texts.push(ocrTable(res.data) || res.data.text || ''); });
         }, Promise.resolve()).then(function(){
           if (job.gen !== ocrGen[t]) return;
           var text = ocrNormalize(texts.join('\n'));
