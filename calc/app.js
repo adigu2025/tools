@@ -1177,11 +1177,30 @@
     return hits.map(function(h, i){ return { k: h.k, seg: line.slice(h.e, i + 1 < hits.length ? hits[i + 1].s : undefined) }; });
   }
   // 報告上的參考值上限：數值後面的「0-40」「5～35」「<40」「≦40」「≤40」
+  // 依報告欄位順序「結果 →（↑↓ 旗標）→ 參考區間 → 單位」拆一列：單位前最後一個數字（或範圍）是參考值，
+  // 再往前一個是結果。中文名稱常被認成夾帶數字的亂碼（例如「44.70 SE 48」），從單位往回找就不受影響。
+  // ↑ 常被認成「1」，夾在結果與參考值中間的單獨「1」當成旗標略過
+  var OCR_UNIT = /I?U\s*\/\s*L\b|\bI?UL\b|\bIU\b|m?g\s*\/\s*[dm]?L\b|mmol\s*\/\s*L\b|10\s*\^?\s*[39]\s*\/\s*[uµ]?L|\/\s*[uµ]L\b/i;
+  function ocrRow(seg){
+    var u = seg.search(OCR_UNIT);
+    if (u < 0) return null;
+    var toks = seg.slice(0, u).match(/\d+(?:\.\d+)?(?:\s*[-–~～]\s*\d+(?:\.\d+)?)?/g);
+    if (!toks || toks.length < 2) return null;
+    var ref = toks.pop(), r = ref.match(/(\d+(?:\.\d+)?)(?:\s*[-–~～]\s*(\d+(?:\.\d+)?))?/);
+    var hi = r[2] ? parseFloat(r[2]) : parseFloat(r[1]);
+    if (r[2] && parseFloat(r[1]) >= hi) hi = NaN;
+    if (toks.length >= 2 && toks[toks.length - 1] === '1') toks.pop();
+    var last = toks[toks.length - 1];
+    if (/[-–~～]/.test(last)) return null;
+    return { v: parseFloat(last), hi: hi };
+  }
   function ocrRef(lines, k, keys){
     for (var i = 0; i < lines.length; i++) {
       var segs = ocrSegs(lines[i], keys);
       for (var j = 0; j < segs.length; j++) {
         if (segs[j].k !== k) continue;
+        var row = ocrRow(segs[j].seg);
+        if (row && row.hi >= 5 && row.hi <= 1000) return row.hi;
         var seg = segs[j].seg, v = seg.match(OCR_NUM);
         if (!v) continue;
         var rest = seg.slice(v.index + v[0].length);
@@ -1199,14 +1218,30 @@
   }
 
   function ocrPick(lines, keys){
-    var out = {};
-    function accept(k, v){
+    var out = {}, sure = {};
+    function fix(k, v){
       var spec = OCR_KEYS[k];
       if (spec.plt && v > 2000) v = v / 1000;   // 以 /µL 表示的血小板換算成 ×10³/µL
       if (spec.alb && v > 7) v = v / 10;        // 以 g/L 表示的白蛋白換算成 g/dL
-      if (spec.alb && (v < 1 || v > 7)) return;
-      if (v >= spec.lo && v <= spec.hi && !(k in out)) out[k] = v;
+      if (spec.alb && (v < 1 || v > 7)) return NaN;
+      return v >= spec.lo && v <= spec.hi ? v : NaN;
     }
+    function accept(k, v){
+      v = fix(k, v);
+      if (!isNaN(v) && !(k in out)) out[k] = v;
+    }
+    // 先找「結果、參考值、單位」排得完整的列；兩次辨識結果不同時取出現較多次的
+    lines.forEach(function(line){
+      ocrSegs(line, keys).forEach(function(s){
+        var row = ocrRow(s.seg), v = row ? fix(s.k, row.v) : NaN;
+        if (!isNaN(v)) (sure[s.k] = sure[s.k] || []).push(v);
+      });
+    });
+    Object.keys(sure).forEach(function(k){
+      var n = {};
+      sure[k].forEach(function(v){ n[v] = (n[v] || 0) + 1; });
+      out[k] = sure[k].reduce(function(a, b){ return n[b] > n[a] ? b : a; });
+    });
     lines.forEach(function(line, li){
       var hits = [];
       keys.forEach(function(k){
