@@ -1,11 +1,11 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// 共用的頁首、頁尾與簽名欄由這裡填入，八份同意書格式一致；頁首加 data-noinfo 就不顯示科別（腸泌素同意書）
+// 共用的頁首、頁尾與簽名欄由這裡填入，九份同意書格式一致；頁首加 data-noinfo 就不顯示科別（腸泌素同意書）
 const VER = 'v. 2026/10';
 document.querySelectorAll('.head').forEach(h=>{
-  h.innerHTML = '<div class="brand"><img src="crop/muzi-mark-bw.png" alt="木子澄安診所標誌"><div><b>木子澄安診所</b><small>MUZI CHENG AN CLINIC</small></div></div>'
-    + '<div class="info">' + (h.hasAttribute('data-noinfo') ? '' : '消化內科｜肝膽胃腸科<br>') + '高雄市仁武區仁孝路282號｜07-3739496</div>';
+  h.innerHTML = '<div class="brand"><img src="crop/muzi-mark-bw.png" alt="木子澄安診所標誌"><div><b>木子澄安診所</b><small>MUZI CHENG&#39;AN CLINIC</small></div></div>'
+    + '<div class="info">' + (h.hasAttribute('data-noinfo') ? '' : '消化內科｜肝膽胃腸科<br>') + '高雄市仁武區仁孝路 282 號｜07-3739496</div>';
 });
 document.querySelectorAll('.foot').forEach(f=>{
   f.innerHTML = '<span>' + f.dataset.name + '</span><span>' + f.dataset.pg + '　　' + VER + '</span>';
@@ -19,7 +19,7 @@ const ROWS = {
 };
 document.querySelectorAll('.final[data-kind]').forEach(b=>{
   const rows = (ROWS[b.dataset.kind] || []).concat([
-    [L('同意人簽名：'), L(b.dataset.kind === 'drug' ? '關係：使用人之' : '關係：受檢人之')],
+    [L('同意人簽名：'), L('關係：' + ({drug:'使用人之', treat:'病人之'}[b.dataset.kind] || '受檢人之'))],
     [L('身分證字號：'), L('出生年月日：')],
     [L('說明醫師：'), '<div class="f"></div>'],
   ]);

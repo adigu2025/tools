@@ -18,7 +18,7 @@ const PHQ9_ITEMS = [
   '食慾不振或吃太多',
   '覺得自己很糟，或覺得自己很失敗，或讓自己或家人失望',
   '對事物專注有困難，例如閱讀報紙或看電視時',
-  '動作或說話速度緩慢到別人已注意到，或正好相反－煩躁、坐立不安、動來動去更甚於平常',
+  '動作或說話速度緩慢到別人已注意到，或正好相反，煩躁、坐立不安、動來動去更甚於平常',
   '有不如死掉，或用某種方式傷害自己的念頭',
 ];
 const PHQ9_OPTS = ['完全沒有','好幾天','超過一半天數','幾乎每天'];
@@ -267,7 +267,7 @@ function formScalesHtml(d){
     <div class="qs-q"><span class="num">1</span>目前或過去曾被診斷的疾病<span class="hint">可複選</span></div>
     <div class="qs-3col">
       ${qsOpt('目前沒有')}
-      ${COMORBID_TAGS.map(t=> qsOpt(t)).join('')}
+      ${COMORBID_TAGS.map(t=> qsOpt(t.replace(/第(\d)型/, '第 $1 型'))).join('')}
       ${qsOpt('甲狀腺功能低下')}
       ${qsOther('其他', 96)}
     </div>

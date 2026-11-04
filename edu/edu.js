@@ -64,6 +64,7 @@ let FORMS = [
   {label:'輕中度鎮靜同意書', file:'sedation',    pages:2},
   {label:'麻醉同意書',       file:'anesthesia',  pages:3},
   {label:'冷凝刀同意書',     file:'het',         pages:2},
+  {label:'抗逆流結紮術同意書', file:'arbl',        pages:2},
   {label:'甲狀腺穿刺同意書', file:'thyroid-fna', pages:1},
 ].map(n=> ({group:'consent', label:n.label, note:`共 ${n.pages} 頁`, pages:C(n), kind:'img'})));
 
