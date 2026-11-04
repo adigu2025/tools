@@ -971,7 +971,7 @@
 /* ─── Print ──────────────────────────────────────────────────────── */
 @page { margin: 0; size: A4; }
 
-.cart-notes-print { display: none; }
+.cart-notes-print, .cart-item-note { display: none; }
 
 @media print {
   /* ═══ 報價單列印版（2026-10 改版）══════════════════════════════
@@ -1134,6 +1134,24 @@
     margin: 1mm 0 0 !important; text-align: right !important; font-family: "Noto Sans TC", sans-serif;
     font-size: 7.5pt !important; color: #8A97A0 !important; line-height: 1.4 !important;
   }
+
+  /* 項目說明：小字接在名稱後面 */
+  .cart-item-note {
+    display: inline !important; margin-left: 2.2mm;
+    font-family: "Noto Sans TC", sans-serif; font-size: 8.4pt; font-weight: 400;
+    color: #5D6C75; letter-spacing: 0.01em;
+  }
+  /* 較長的說明另起一行，不接在名稱後面硬擠 */
+  .cart-item-note.long { display: block !important; margin: 0.8mm 0 0 !important; line-height: 1.6; }
+  /* 鏡種底下的子項目（鏡頭、代餐、鎮靜）縮排、字級略小，和主項目分出層次 */
+  .cart-item.cart-sub {
+    padding: 1.3mm 0 1.3mm 5mm !important;
+    border-bottom: 0.5pt dotted #D8E0E5 !important;
+  }
+  .cart-item.cart-sub .cart-item-name { font-size: 9.8pt !important; font-weight: 500 !important; }
+  .cart-item.cart-sub .cart-item-price { font-size: 10pt !important; font-weight: 500 !important; }
+  /* 金額為 0 的折扣與已付列不印 */
+  .sub-total-row.print-zero { display: none !important; }
 
   #endoNote, #hcNote, #extPayNote { display: none !important; }
   #endoNote.active, #hcNote.active, #extPayNote.active { display: block !important; }
@@ -1364,7 +1382,8 @@
     <p>※ 實際醫療內容將依醫師診察與檢查結果調整，如有額外必要醫療處置，將事前充分說明。</p>
     <p id="hcNote">※ 健檢項目都可以單獨選擇；符合國民健康署公費篩檢資格的項目，本診所會先協助您使用公費。</p>
     <p id="extPayNote">※ 低劑量肺部電腦斷層由本診所協助安排，依榮總定價，於榮總檢查當日繳費，不列入本院應收總額；報告回到本診所，與其他項目一起說明。</p>
-    <p id="endoNote">※ 此為內視鏡預估費用，如檢查過程中發現出血或內視鏡處置高風險病灶時，<br>醫師會依臨床需求使用注射針以及止血藥物（1,500 元）、止血夾（每支 1,000 元）。</p>
+    <p id="endoNote"></p>
+    <p id="validNote"></p>
   </div>
   <p class="letter-contact">若您有任何問題，歡迎與我們聯繫。</p>
   <p class="letter-sign">木子澄安診所 敬上</p>

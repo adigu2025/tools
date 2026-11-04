@@ -54,11 +54,11 @@ const ICONS = {
    ═══════════════════════════════════════════════════════════════════ */
 const ITEM_NOTES = {
   hc_base:`血液常規（紅血球、白血球、血小板）\n飯前血糖、糖化血色素、胰島素阻抗\n肝功能 AST、ALT（附 FIB-4 肝纖維化指數）\n腎功能 BUN、肌酸酐，尿酸\n總膽固醇、三酸甘油酯、高密度及低密度膽固醇\n甲狀腺功能 TSH、free T4\n尿液一般檢查\n腹部超音波、甲狀腺超音波\nTANITA 身體組成分析`,
-  hc_m1:`Lp(a) 脂蛋白(a)\nApoB 載脂蛋白 B\nhs-CRP 高敏感度 C 反應蛋白\n心電圖`,
+  hc_m1:`Lp(a) 脂蛋白(a)\nApoB 載脂蛋白 B\nhs-CRP 高敏感度 C 反應蛋白\nECG 12 導程心電圖`,
   hc_m3:`B 型肝炎表面抗原\nB 型肝炎表面抗體\nC 型肝炎抗體`,
   hc_m7f:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n女性：CA125、CA153\n數值僅供參考，不能取代影像與內視鏡檢查`,
   hc_m7m:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n男性：PSA、free-PSA\n數值僅供參考，不能取代影像與內視鏡檢查`,
-  hc_m6:`胃鏡＋大腸鏡，同一次麻醉完成\n完全自費，不留健保紀錄\n切片、瘜肉切除與病理檢查依實際處置另計`,
+  hc_m6:`費用包含自費胃鏡、自費大腸鏡與麻醉，同一次完成\n含日本製造代餐與清腸藥物、標準胃鏡（經口）\n檢查中如需切片或瘜肉切除，可選擇以健保申報處置與病理檢查，或全額自費\n有任何不清楚的地方，歡迎隨時與醫師討論`,
   lb01:`(H14 + UR)
 AC sugar
 AST, ALT
@@ -89,13 +89,13 @@ urine routine`,
   lb05:`(H20)
 HBsAg, anti-HBs, anti-HCV`,
   lb06:`(MAS)
-AC sugar, HbA1, HOMA-IR
+AC sugar, HbA1c, HOMA-IR
 AST, ALT
 BUN, Cr, uric acid
 TC, TG, HDL, LDL
 TSH, free T4`,
   lb07:`(MAD)
-AC sugar, HbA1, HOMA-IR
+AC sugar, HbA1c, HOMA-IR
 BUN, Cr
 U-ACr`,
   lb08:`(UAC)
@@ -106,19 +106,19 @@ iron, TIBC`,
   lb10:`(MAC)
 AC sugar
 TC, TG, HDL, LDL, TC/HDL ratio
-hsCRP, homocysteine, NT-proBNP, CPK`,
+hs-CRP, homocysteine, NT-proBNP, CPK`,
   lb11:`(15U)
 T3, freeT4, TSH`,
   lb12:`(MAG)
-FSH, LH, E2, TSH, prostaglandin, progesterone, chlamydia IgG`,
+FSH, LH, E2, TSH, prolactin, progesterone, chlamydia IgG`,
   lb13:`(KKJ)
 anti-HIV, N-gono DNA, RPR/VDRL, HSVI-IgG, HSVII-IgG, treponemal, trachomatis DNA`,
   lb14:`(MAK)
 alb, Zn, ferritin, cortisol, vit D3, homocysteine, TSH, fT4`,
   lb15:`CEA、AFP、CA125、CA153、CA199、SCC、Cyfra 21-1`,
-  lb16:`CEA、AFP、CA125、CA153、CA199、SCC、Cyfra 21-1、CA-724、Pro-GRP、β-HCG、EV-VCA-IgA`,
+  lb16:`CEA、AFP、CA125、CA153、CA199、SCC、Cyfra 21-1、CA-724、Pro-GRP、β-HCG、EB-VCA-IgA`,
   lb17:`CEA、AFP、CA199、PSA、SCC、Cyfra 21-1`,
-  lb18:`CEA、AFP、CA199、PSA、SCC、Cyfra 21-1、CA-724、Pro-GRP、β-HCG、free-PSA、EV-VCA-IgA`,
+  lb18:`CEA、AFP、CA199、PSA、SCC、Cyfra 21-1、CA-724、Pro-GRP、β-HCG、free-PSA、EB-VCA-IgA`,
   // ex1-ex5: 檢查項目無備註
 };
 
@@ -145,12 +145,12 @@ const CATEGORIES = [
       { id:'hc_s1', type:'section', name:'基礎套組' },
       { id:'hc_base', name:'基礎套組', desc:'血液常規、血糖代謝、肝腎功能、\n尿酸、血脂肪、甲狀腺功能、尿液、\n腹部超音波、甲狀腺超音波、TANITA', price:3000 },
       { id:'hc_s2', type:'section', name:'加選模組（每項都可單獨選擇）' },
-      { id:'hc_m1', name:'① 心血管風險評估', desc:'Lp(a) 脂蛋白(a)、ApoB、hs-CRP、心電圖', price:1900 },
+      { id:'hc_m1', name:'① 心血管風險評估', desc:'Lp(a) 脂蛋白(a)、ApoB、hs-CRP、ECG 12 導程心電圖', price:1900 },
       { id:'hc_m2', name:'② 頸動脈超音波', desc:'與 ① 合選優惠 NT$ 400', price:600 },
       { id:'hc_m3', name:'③ B、C 型肝炎篩檢', desc:'B 肝表面抗原與抗體、C 肝抗體', price:500 },
       { id:'hc_m4', name:'④ 幽門桿菌呼氣檢查', desc:'碳 13 尿素呼氣測試', price:1200 },
       { id:'hc_m5', name:'⑤ 糞便潛血檢查', desc:'免疫法（FIT）', price:400 },
-      { id:'hc_m6', name:'⑥ 麻醉胃鏡＋大腸鏡', desc:'健檢專案，完全自費', price:10000 },
+      { id:'hc_m6', name:'⑥ 麻醉胃鏡＋大腸鏡', desc:'自費胃鏡與大腸鏡，含麻醉、日本製代餐與標準胃鏡', price:10000 },
       { id:'hc_s3', type:'section', name:'⑦ 11 項腫瘤標記（男女項目不同，擇一）' },
       { id:'hc_m7f', name:'⑦ 11 項腫瘤標記（女）', desc:'共同 9 項＋CA125、CA153', price:4000 },
       { id:'hc_m7m', name:'⑦ 11 項腫瘤標記（男）', desc:'共同 9 項＋PSA、free-PSA', price:4000 },
@@ -191,11 +191,11 @@ const CATEGORIES = [
       { id:'lb_01029', name:'Apo B 載脂蛋白B', price:600 },
       { id:'lb_01008', name:'BUN 血中尿素氮', price:70 },
       { id:'lb_01009', name:'UA (Uric Acid) 尿酸', price:70 },
-      { id:'lb_01010', name:'Cr (Creatinine)  肌酸肝', price:70 },
-      { id:'lb_01011', name:'AST (GOT) 麩草轉氨基脢', price:70 },
-      { id:'lb_01012', name:'ALT (GPT) 麩丙銅轉氨基脢', price:70 },
-      { id:'lb_01013', name:'r-GT 丙麩氨轉脢', price:100 },
-      { id:'lb_01014', name:'Alk-P (ALP) 鹼性磷酸脢', price:70 },
+      { id:'lb_01010', name:'Cr (Creatinine) 肌酸酐', price:70 },
+      { id:'lb_01011', name:'AST (GOT) 麩草轉氨基酶', price:70 },
+      { id:'lb_01012', name:'ALT (GPT) 麩丙酮轉氨基酶', price:70 },
+      { id:'lb_01013', name:'r-GT 丙麩氨轉酶', price:100 },
+      { id:'lb_01014', name:'Alk-P (ALP) 鹼性磷酸酶', price:70 },
       { id:'lb_01015', name:'Total Bilirubin  膽紅素總量', price:70 },
       { id:'lb_01016', name:'Direct Bilirubin 直接膽紅素', price:70 },
       { id:'lb_01017', name:'Micro Bilirubin 新生兒黃疸', price:120 },
@@ -203,14 +203,14 @@ const CATEGORIES = [
       { id:'lb_01019', name:'Globulin 球蛋白', price:70 },
       { id:'lb_01020', name:'T-P (Total-protein)全蛋白', price:70 },
       { id:'lb_ag', name:'A/G ratio 蛋白比值', price:0 },
-      { id:'lb_01021', name:'Amylase 澱粉脢', price:150 },
-      { id:'lb_01022', name:'Lipase 解脂脢', price:250 },
-      { id:'lb_01023', name:'CPK 肌酸激脢', price:150 },
-      { id:'lb_01024', name:'LDH 乳酸脫氫脢', price:150 },
-      { id:'lb_01025', name:'CK-MB 肌酸磷酸脢', price:200 },
-      { id:'lb_01026', name:'Cholinesterase 膽素脂脢', price:350 },
+      { id:'lb_01021', name:'Amylase 澱粉酶', price:150 },
+      { id:'lb_01022', name:'Lipase 解脂酶', price:250 },
+      { id:'lb_01023', name:'CPK 肌酸激酶', price:150 },
+      { id:'lb_01024', name:'LDH 乳酸脫氫酶', price:150 },
+      { id:'lb_01025', name:'CK-MB 肌酸磷酸酶', price:200 },
+      { id:'lb_01026', name:'Cholinesterase 膽鹼酯酶', price:350 },
       { id:'lb_01027', name:'Ammonia 血氨', price:500 },
-      { id:'lb_01028', name:'VMA 香莢杏仁酸定量', price:500 },
+      { id:'lb_01028', name:'VMA 香草扁桃酸定量', price:500 },
       { id:'lb_s1', type:'section', name:'肝炎病毒檢查' },
       { id:'lb_02001', name:'HBcrAg 合併 HBs quant', price:2000 },
       { id:'lb_02002', name:'HBsAg quant', price:500 },
@@ -229,9 +229,9 @@ const CATEGORIES = [
       { id:'lb_s2', type:'section', name:'糖尿病檢查' },
       { id:'lb_03001', name:'HbA1C  醣化血色素', price:300 },
       { id:'lb_03002', name:'Insulin 胰島素血清檢驗', price:400 },
-      { id:'lb_03003', name:'C-Peptide C-胜鍊胰島素', price:300 },
+      { id:'lb_03003', name:'C-Peptide C-胜肽', price:300 },
       { id:'lb_03004', name:'GA(Glycated Albumin) 醣化白蛋白', price:400 },
-      { id:'lb_03005', name:'GAD Ab 穀醯酸脫梭脢抗體', price:1000 },
+      { id:'lb_03005', name:'GAD Ab 麩胺酸脫羧酶抗體', price:1000 },
       { id:'lb_03006', name:'IA2 Ab 胰島細胞抗原-2抗體', price:2400 },
       { id:'lb_s3', type:'section', name:'甲狀腺檢查' },
       { id:'lb_04001', name:'T3 三碘甲狀腺素', price:250 },
@@ -242,8 +242,8 @@ const CATEGORIES = [
       { id:'lb_04006', name:'T3 Uptake三碘腺攝取率', price:500 },
       { id:'lb_04007', name:'Thyroglobulin甲狀腺球蛋白', price:200 },
       { id:'lb_04008', name:'ATA甲狀腺球蛋白抗體', price:400 },
-      { id:'lb_04009', name:'TSH recepter結合體抗體', price:700 },
-      { id:'lb_04010', name:'Anti-TPO甲狀腺過氧化脢', price:400 },
+      { id:'lb_04009', name:'TSH receptor結合體抗體', price:700 },
+      { id:'lb_04010', name:'Anti-TPO甲狀腺過氧化酶', price:400 },
       { id:'lb_s4', type:'section', name:'副甲狀腺檢查' },
       { id:'lb_05001', name:'Intact-PTH 副甲狀腺素', price:800 },
       { id:'lb_05002', name:'Calcitonin 降血鈣素', price:600 },
@@ -258,7 +258,7 @@ const CATEGORIES = [
       { id:'lb_06008', name:'AFP 甲型胎兒蛋白', price:350 },
       { id:'lb_06009', name:'CEA 癌胚胎抗原', price:400 },
       { id:'lb_06010', name:'β-HCG人類絨毛膜激素', price:400 },
-      { id:'lb_06011', name:'β2-Microglobaline 骨髓癌', price:600 },
+      { id:'lb_06011', name:'β2-Microglobulin 多發性骨髓瘤', price:600 },
       { id:'lb_06012', name:'CA125 腫瘤標記', price:500 },
       { id:'lb_06013', name:'CA153 腫瘤標記', price:500 },
       { id:'lb_06014', name:'CA199 腫瘤標記', price:500 },
@@ -274,13 +274,13 @@ const CATEGORIES = [
       { id:'lb_s7', type:'section', name:'特殊檢查' },
       { id:'lb_08001', name:'UBT 碳-13尿素呼氣測試(幽門桿菌)', price:1200 },
       { id:'lb_08002', name:'CTC循環腫瘤細胞檢測', price:10000 },
-      { id:'lb_08003', name:'SOD-RBC超氧化物歧化脢', price:1400 },
+      { id:'lb_08003', name:'SOD-RBC超氧化物歧化酶', price:1400 },
       { id:'lb_s8', type:'section', name:'常見尿液.糞便.痰液檢查' },
       { id:'lb_09001', name:'Urine Routine 尿一般檢查', price:100 },
       { id:'lb_09002', name:'尿生化檢查', price:100 },
       { id:'lb_09003', name:'Urine Protein 定量尿蛋白', price:70 },
       { id:'lb_09004', name:'Microalbumin 微量蛋白', price:300 },
-      { id:'lb_09005', name:'Urine Creatinine 尿肌肝酸', price:70 },
+      { id:'lb_09005', name:'Urine Creatinine 尿肌酸酐', price:70 },
       { id:'lb_09006', name:'Pregnancy test懷孕試驗', price:100 },
       { id:'lb_09007', name:'Amoeba    阿米巴檢查', price:400 },
       { id:'lb_09008', name:'Stool Routine  糞便常規', price:100 },
@@ -292,8 +292,8 @@ const CATEGORIES = [
       { id:'lb_s9', type:'section', name:'一般血液檢查' },
       { id:'lb_10001', name:'CBC (全套血液檢查8項)', price:250 },
       { id:'lb_10002', name:'D/C (WBC 分類計數)', price:250 },
-      { id:'lb_10003', name:'PT  凝血脢原時間', price:200 },
-      { id:'lb_10004', name:'APTT 部份凝血活脢時間', price:300 },
+      { id:'lb_10003', name:'PT  凝血酶原時間', price:200 },
+      { id:'lb_10004', name:'APTT 部份凝血活酶時間', price:300 },
       { id:'lb_10005', name:'Blood Type 血型', price:50 },
       { id:'lb_10006', name:'RH因子', price:100 },
       { id:'lb_10007', name:'Crossmatching test 核血試驗', price:500 },
@@ -309,7 +309,7 @@ const CATEGORIES = [
       { id:'lb_11007', name:'Hb-EP  血紅素電泳', price:500 },
       { id:'lb_s11', type:'section', name:'電解質.重金屬檢查' },
       { id:'lb_12001', name:'Na (Sodium) 鈉', price:70 },
-      { id:'lb_12002', name:'K (Potasium) 鉀', price:70 },
+      { id:'lb_12002', name:'K (Potassium) 鉀', price:70 },
       { id:'lb_12003', name:'Cl (Chloride) 氯', price:70 },
       { id:'lb_12004', name:'Ca (Calcium) 鈣', price:70 },
       { id:'lb_12005', name:'P (Phosphorous) 磷', price:70 },
@@ -325,14 +325,14 @@ const CATEGORIES = [
       { id:'lb_s12', type:'section', name:'心肌梗塞檢查' },
       { id:'lb_13001', name:'D-Dimer test', price:750 },
       { id:'lb_13002', name:'Troponin-I心肌旋轉蛋白-I', price:800 },
-      { id:'lb_13003', name:'hsCRP高靈敏度C反應蛋白', price:360 },
+      { id:'lb_13003', name:'hs-CRP高靈敏度C反應蛋白', price:360 },
       { id:'lb_13004', name:'Homocysteine同半胱胺酸', price:800 },
       { id:'lb_13005', name:'NT-proBNP 心臟標記', price:1200 },
       { id:'lb_s13', type:'section', name:'血清免疫學檢查' },
       { id:'lb_14001', name:'RA 類風濕因子(比濁法)', price:300 },
       { id:'lb_14002', name:'CRP C反應蛋白(比濁法)', price:300 },
       { id:'lb_14003', name:'H.pylori Ab 幽門桿菌抗體', price:500 },
-      { id:'lb_14004', name:'HpSA 幽門桿菌糞便抗原', price:800 },
+      { id:'lb_14004', name:'HpSA 幽門桿菌糞便抗原', price:500 },
       { id:'lb_14005', name:'ASLO 抗連鎖球溶解素', price:250 },
       { id:'lb_14006', name:'IgG 免疫球蛋白 G', price:300 },
       { id:'lb_14007', name:'IgA 免疫球蛋白 A', price:300 },
@@ -341,8 +341,8 @@ const CATEGORIES = [
       { id:'lb_14010', name:'IgE 免疫球蛋白 E', price:400 },
       { id:'lb_14011', name:'C3  補體-3', price:300 },
       { id:'lb_14012', name:'C4  補體-4', price:300 },
-      { id:'lb_14013', name:'Rubella IgG  德國痳疹', price:300 },
-      { id:'lb_14014', name:'Rubella IgM  德國痳疹', price:600 },
+      { id:'lb_14013', name:'Rubella IgG  德國麻疹', price:300 },
+      { id:'lb_14014', name:'Rubella IgM  德國麻疹', price:600 },
       { id:'lb_s14', type:'section', name:'自體免疫檢查' },
       { id:'lb_15001', name:'ANA 抗細胞核抗體', price:500 },
       { id:'lb_15002', name:'Anti-ds DNA  DNA抗體', price:400 },
@@ -352,7 +352,7 @@ const CATEGORIES = [
       { id:'lb_15006', name:'ANCA 抗嗜中性球細胞質抗體', price:800 },
       { id:'lb_15007', name:'AchR Ab 乙醯膽鹼抗體', price:1800 },
       { id:'lb_15008', name:'ASMA 平滑肌抗體', price:400 },
-      { id:'lb_15009', name:'Mitochondrial Ab 抗粒腺體', price:500 },
+      { id:'lb_15009', name:'Mitochondrial Ab 抗粒線體', price:500 },
       { id:'lb_15010', name:'Cardiolipin IgG 心脂抗體', price:900 },
       { id:'lb_15011', name:'Cardiolipin IgM 心脂抗體', price:800 },
       { id:'lb_15012', name:'Anti-β2-GPI IgG', price:700 },
@@ -364,8 +364,8 @@ const CATEGORIES = [
       { id:'lb_16002', name:'Mycoplasma IgM 黴漿菌', price:400 },
       { id:'lb_16003', name:'CMV-IgG 巨細胞病毒', price:1000 },
       { id:'lb_16004', name:'CMV-IgM 巨細胞病毒', price:600 },
-      { id:'lb_16005', name:'Meales Virus-IgG 麻疹', price:360 },
-      { id:'lb_16006', name:'Meales Virus-IgM 麻疹', price:1200 },
+      { id:'lb_16005', name:'Measles Virus-IgG 麻疹', price:360 },
+      { id:'lb_16006', name:'Measles Virus-IgM 麻疹', price:1200 },
       { id:'lb_16007', name:'MumpsVirus-IgG 腮腺炎', price:500 },
       { id:'lb_16008', name:'MumpsVirus-IgM 腮腺炎', price:1200 },
       { id:'lb_16009', name:'V-Zoster IgG 水痘', price:1000 },
@@ -377,23 +377,23 @@ const CATEGORIES = [
       { id:'lb_s16', type:'section', name:'生殖功能荷爾蒙' },
       { id:'lb_17001', name:'AMH 抗穆勒氏管荷爾蒙', price:1000 },
       { id:'lb_17002', name:'SHBG 套檢', price:1200 },
-      { id:'lb_17003', name:'P4 (Progesteron) 黃體脂酮', price:350 },
+      { id:'lb_17003', name:'P4 (Progesterone) 黃體素', price:350 },
       { id:'lb_17004', name:'GH 生長激素', price:500 },
       { id:'lb_17005', name:'Cortisol(8AM) 皮質素', price:400 },
       { id:'lb_17006', name:'Cortisol(4PM) 皮質素', price:400 },
-      { id:'lb_17007', name:'Aldosterone 醛類脂醇酵素', price:800 },
+      { id:'lb_17007', name:'Aldosterone 醛固酮', price:800 },
       { id:'lb_17008', name:'PRL (Prolactin) 泌乳素', price:350 },
       { id:'lb_17009', name:'Testosterone 睪固酮', price:300 },
       { id:'lb_17010', name:'FSH 濾泡激素', price:350 },
       { id:'lb_17011', name:'LH 黃體激素', price:350 },
-      { id:'lb_17012', name:'E2 (Estradiol)  雌二素', price:350 },
+      { id:'lb_17012', name:'E2 (Estradiol)  雌二醇', price:350 },
       { id:'lb_17013', name:'β-HCG人類絨毛膜激素', price:400 },
       { id:'lb_17014', name:'IGF-1類胰島素成長因子', price:1000 },
       { id:'lb_17015', name:'DHEA-S 異雄固酮', price:500 },
       { id:'lb_17016', name:'ACTH 促腎上腺皮質素', price:1200 },
       { id:'lb_17017', name:'Renin Activity(PRA)', price:1000 },
       { id:'lb_17018', name:'5-HIAA 5-氫氧靛基醋酸', price:1500 },
-      { id:'lb_17019', name:'Catecholamine 兒茶酚氨測定', price:2000 },
+      { id:'lb_17019', name:'Catecholamine 兒茶酚胺測定', price:2000 },
       { id:'lb_s17', type:'section', name:'過敏原檢查' },
       { id:'lb_18001', name:'IgE 免疫球蛋白 E', price:400 },
       { id:'lb_18002', name:'Phadiatop (吸入性過敏)', price:600 },
@@ -405,12 +405,12 @@ const CATEGORIES = [
       { id:'lb_s18', type:'section', name:'藥物.毒物檢查' },
       { id:'lb_19001', name:'Carbamazepine(Tegretol)', price:400 },
       { id:'lb_19002', name:'Phenytoin (Dilantin)', price:400 },
-      { id:'lb_19003', name:'Theophylline/Aminophyline', price:400 },
+      { id:'lb_19003', name:'Theophylline/Aminophylline', price:400 },
       { id:'lb_19004', name:'Valproic acid (Depakene)', price:400 },
       { id:'lb_19005', name:'Digoxin  長葉毛地黃', price:400 },
       { id:'lb_19006', name:'Phenobarbital(Luminal)', price:400 },
       { id:'lb_19007', name:'Morphine 嗎啡', price:400 },
-      { id:'lb_19008', name:'Amphetamin 安非他命', price:400 },
+      { id:'lb_19008', name:'Amphetamine 安非他命', price:400 },
       { id:'lb_19009', name:'Heroin 海洛因', price:400 },
       { id:'lb_19010', name:'MDMA 搖頭丸', price:1000 },
       { id:'lb_19011', name:'Ketamine K他命', price:1000 },
@@ -459,8 +459,8 @@ const CATEGORIES = [
       { id:'lb_24007', name:'Wound/Pus culture(厭氧)', price:360 },
       { id:'lb_24008', name:'Water Culture 水質培養', price:500 },
       { id:'lb_24009', name:'Sputum Culture 痰液培養', price:500 },
-      { id:'lb_24010', name:'Gram’s Stain 革蘭氏染', price:100 },
-      { id:'lb_24011', name:'Acid-FastStain抗酸菌染', price:250 },
+      { id:'lb_24010', name:'Gram’s Stain 革蘭氏染色', price:100 },
+      { id:'lb_24011', name:'Acid-Fast Stain 抗酸菌染色', price:250 },
       { id:'lb_24012', name:'TB Culture 結核桿菌', price:600 },
       { id:'lb_s24', type:'section', name:'骨質疏鬆症' },
       { id:'lb_25001', name:'關節囊液分析', price:200 },
@@ -493,7 +493,7 @@ const CATEGORIES = [
       { id:'ex_g6', name:'超音波導引 + 腹腔穿刺 + 腹腔液體分析', desc:'', price:2400 },
       { id:'ex_g7', name:'超音波導引 + 甲狀腺穿刺 + 薄片細胞學檢查', desc:'', price:3300 },
       { id:'ex_so', type:'section', name:'其他檢查' },
-      { id:'ex4', name:'心電圖', desc:'基礎的心臟狀態篩檢', price:300 },
+      { id:'ex4', name:'ECG 12 導程心電圖', desc:'基礎的心臟狀態篩檢', price:300 },
       { id:'ex5', name:'TANITA身體組成', desc:'了解身體組成與平衡狀態', price:500 },
     
     ]
@@ -506,12 +506,12 @@ const CATEGORIES = [
   {
     id: 'drip', label: '點滴', desc: '靜脈注射功能性點滴療程',
     items: [
-      { id:'dr1', name:'術後全效\n組織修復', desc:'強力抗氧化、護肝排毒與抗發炎。著重於深度疲勞修復與過敏體質調理。',                                         price:2000 },
+      { id:'dr1', name:'術後全效\n組織修復', desc:'抗氧化、護肝與抗發炎。著重於深度疲勞修復與過敏體質調理。',                                         price:2000 },
       { id:'dr2', name:'晨曦抗氧\n保肝修護', desc:'精神提振、細胞修復、溫和保肝。各成分劑量均衡，提供即時的體力與能量代謝補充。',                           price:1800 },
-      { id:'dr3', name:'循環代謝\n全效配方', desc:'改善微循環、神經抗老、極高劑量抗氧化。針對頭暈耳鳴、用腦過度與末梢冰冷。',                               price:600  },
-      { id:'dr4', name:'元素原力\n全效修復', desc:'神經痛/麻修復、抗炎止血、皮膚亮白。提供頂級的術後傷口修復與全方位微量元素補給。',                       price:2000 },
-      { id:'dr5', name:'微量元素\n體力補充', desc:'急性腸胃炎/腸痙攣止痛、高濃度腸道黏膜修復與全靜脈營養補給。',                                           price:800  },
-      { id:'dr6', name:'賦活原生\n組織修復', desc:'基礎體力補充、能量代謝與抗氧化。配方精簡、高效直接。',                                                   price:1000 },
+      { id:'dr3', name:'循環代謝\n全效配方', desc:'微循環、神經營養與高劑量抗氧化。適合用腦過度、末梢冰冷者。',                               price:600  },
+      { id:'dr4', name:'元素原力\n全效修復', desc:'神經修復、抗發炎與皮膚保養，術後傷口修復與微量元素補充。',                       price:2000 },
+      { id:'dr5', name:'微量元素\n體力補充', desc:'急性腸胃炎、腸痙攣不適時使用，補充水分、電解質與腸道黏膜修復所需營養。',                                           price:800  },
+      { id:'dr6', name:'賦活原生\n組織修復', desc:'基礎體力補充、能量代謝與抗氧化，配方精簡。',                                                   price:1000 },
     ]
   }
 ];
@@ -548,7 +548,7 @@ const ENDO_TREE = {
       ],
       layer3:[{id:'en_gi_w',name:'清醒',addPrice:0},{id:'en_gi_l',name:'輕中度鎮靜',addPrice:4500},{id:'en_gi_a',name:'麻醉',addPrice:6500}]
     },
-    { id:'en_gc_self',  name:'胃鏡＋大腸鏡（完全自費）',   desc:'完全自費表示完全不留健保紀錄，但是內視鏡檢查過程中相關處置及茈材皆需要自費', basePrice:4100,
+    { id:'en_gc_self',  name:'胃鏡＋大腸鏡（完全自費）',   desc:'完全自費表示完全不留健保紀錄，但是內視鏡檢查過程中相關處置及耗材皆需要自費', basePrice:4100,
       layer2:[
         {id:'en_gs_s',  name:'標準胃鏡 (直徑約0.9cm) 經口', desc:'使用拋棄式咬口器',                              addPrice:100},
         {id:'en_gs_to', name:'極細胃鏡 (直徑約0.5cm) 經口', desc:'使用拋棄式咬口器',                              addPrice:700},
@@ -567,14 +567,14 @@ const ENDO_TREE = {
   ],
   selfPay:[
     {id:'en_sp_g',    name:'胃鏡',                          desc:'',                                          price:1600},
-    {id:'en_sp_ghp',  name:'胃鏡 + 驗幽門桿菌',             desc:'快速尿素測試及拋棄式切片鉗',               price:2900},
+    {id:'en_sp_ghp',  name:'胃鏡 + 驗幽門桿菌',             desc:'含幽門桿菌測試卡與拋棄式切片鉗',               price:2900},
     {id:'en_sp_gb',   name:'胃鏡 + 切片',                   desc:'使用拋棄式切片鉗，不含病理檢查',           price:2600},
     {id:'en_sp_gp',   name:'胃鏡 + 瘜肉切除術',             desc:'使用拋棄式切除環，不含病理檢查',           price:7000},
     {id:'en_sp_c',    name:'大腸鏡',                          desc:'',                                          price:2500},
     {id:'en_sp_cb',   name:'大腸鏡 + 切片',                   desc:'使用拋棄式切片鉗，不含病理檢查',           price:3500},
     {id:'en_sp_cp1',  name:'大腸鏡 + 瘜肉切除術(1-3個)',      desc:'使用拋棄式切除環，不含病理檢查',           price:5000},
     {id:'en_sp_cp2',  name:'大腸鏡 + 瘜肉切除術(4-9個)',      desc:'使用拋棄式切除環，不含病理檢查',           price:6000},
-    {id:'en_sp_cp3',  name:'大腸鏡 + 瘜肉切除術(>10個)',      desc:'使用拋棄式切除環，不含病理檢查',           price:8500},
+    {id:'en_sp_cp3',  name:'大腸鏡 + 瘜肉切除術(10個以上)',      desc:'使用拋棄式切除環，不含病理檢查',           price:8500},
     /* 耗材：視臨床需要使用，以件數計價（qty:true） */
     {id:'en_sp_path',    name:'病理檢查費',        desc:'每一項檢體',              price:2000, qty:true},
     {id:'en_sp_forceps', name:'切片鉗',            desc:'拋棄式，每支',            price:1000, qty:true},
@@ -860,8 +860,8 @@ function runSearch(q){
   CATEGORIES.forEach(cat=>{
     if(cat.id==='endo') return; /* 內視鏡另行處理（多層選項） */
     cat.items.forEach(item=>{
-      if(item.type==='section') return;
-      const haystack = (item.name+' '+item.desc+' '+(ITEM_NOTES[item.id]||'')).toLowerCase();
+      if(item.type==='section' || SAME_TEST[item.id]) return;
+      const haystack = (item.name+' '+(item.desc||'')+' '+(ITEM_NOTES[item.id]||'')).toLowerCase();
       if(haystack.includes(ql)){
         hits.push({ catId:cat.id, catLabel:cat.label, item, nav:false });
       }
@@ -1311,7 +1311,7 @@ function toggleScopeTypeItem(l1obj,l2obj){
   renderCart(); if(currentCat) buildItemsGrid(currentCat);
 }
 
-/* 鎨靜/麻醉直接切換（三選一互斥） */
+/* 鎮靜/麻醉直接切換（三選一互斥） */
 function isSedationL3(l3id){ return l3id.endsWith('_w')||l3id.endsWith('_l')||l3id.endsWith('_a'); }
 function toggleSedationItem(l1obj,l3obj){
   var l3fid=l1obj.id+'|'+l3obj.id;
@@ -1338,51 +1338,6 @@ function toggleSedationItem(l1obj,l3obj){
     cart.push({id:l3fid,name:l3obj.name,catLabel:'內視鏡',
                price:l3obj.addPrice,mode:'self',priceEdited:false});
     showToast('✓ 已加入：'+l3obj.name);
-  }
-  renderCart(); if(currentCat) buildItemsGrid(currentCat);
-}
-
-/* L3 點選：鎨頭類型及代餐選項加入清單（幽門桿菌不走此路） */
-/* 鏡頭類型三選一；幽門桿菌可額外加；代餐二選一；各群組獨立互斥 */
-function addL3Item(l1obj,l2obj,l3obj){
-  var fid=l1obj.id+'|'+l2obj.id+'|'+l3obj.id;
-  var fname=l2obj.name+' / '+l3obj.name;
-  var l2l3price=l2obj.addPrice+l3obj.addPrice;
-  var existIdx=cart.findIndex(function(x){return x.id===fid;});
-  if(existIdx!==-1){
-    /* 再點一次：移除；若 L1 是自動加入且無其他子項，一併移除 */
-    cart.splice(existIdx,1);
-    var l1Idx=cart.findIndex(function(x){return x.id===l1obj.id&&x._autoAdded;});
-    if(l1Idx!==-1){
-      var hasOtherSubs=cart.some(function(x){return x.id.startsWith(l1obj.id+'|');});
-      if(!hasOtherSubs) cart.splice(l1Idx,1);
-    }
-    showToast('已移除：'+l3obj.name);
-  } else {
-    /* 清除其他鏡種 */
-    cart=cart.filter(function(x){
-      var xp=SCOPE_PFX.find(function(p){return x.id===p||x.id.startsWith(p+'|');});
-      return !xp||xp===l1obj.id;
-    });
-    /* 依群組互斥清除同鏡種舊選項；幽門桿菌（HP）永遠保留 */
-    var newIsScopeType=isScopeTypeL2(l2obj.id);
-    var newIsColonPrep=isColonPrepL2(l2obj.id);
-    cart=cart.filter(function(x){
-      if(!x.id.startsWith(l1obj.id+'|')) return true;
-      var xL2id=x.id.split('|')[1];
-      if(isHpL2(xL2id)) return true;          /* HP 永遠保留 */
-      if(newIsScopeType) return !isScopeTypeL2(xL2id); /* 鏡頭互斥 */
-      if(newIsColonPrep) return !isColonPrepL2(xL2id); /* 代餐互斥 */
-      return false;
-    });
-    /* 自動加入 L1 */
-    if(!cart.find(function(x){return x.id===l1obj.id;})){
-      cart.push({id:l1obj.id,name:l1obj.name,catLabel:'內視鏡',
-                 price:l1obj.basePrice,mode:'self',priceEdited:false,
-                 _autoAdded:true,_basePrice:l1obj.basePrice});
-    }
-    cart.push({id:fid,name:fname,catLabel:'內視鏡',price:l2l3price,mode:'self',priceEdited:false});
-    showToast('✓ 已加入（自費）：'+l3obj.name);
   }
   renderCart(); if(currentCat) buildItemsGrid(currentCat);
 }
@@ -1471,7 +1426,7 @@ function buildEndoGrid(){
         l2g.appendChild(l2c);
       });
       l2row.appendChild(l2g); grid.appendChild(l2row);
-      /* ── L3 層：鎨靜/麻醉，永遠顯示，三選一互斥 ── */
+      /* ── L3 層：鎮靜/麻醉，永遠顯示，三選一互斥 ── */
       var l3row=document.createElement('div'); l3row.className='endo-sub-row l3';
       var l3g=document.createElement('div'); l3g.className='endo-sub-grid';
       l1.layer3.forEach(function(l3){
@@ -1977,6 +1932,96 @@ function revertPrice(itemId){
 /* ═══════════════════════════════════════════════════════════════════
    RENDER CART
    ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   報價單項目說明：列印時以小字接在項目名稱後面
+   套組的內含項目（ITEM_NOTES）另以「包含項目」區塊列出，不在這裡重複。
+   ═══════════════════════════════════════════════════════════════════ */
+const HP_NOTE   = '含幽門桿菌測試卡與拋棄式切片鉗';
+const PREP_NOTE = '含代餐、清腸藥物、拋棄式檢查褲與大腸鏡二氧化碳充氣';
+const NOTE_BY_ID = {
+  en_gc_ins:  '健保同日只給付胃鏡或大腸鏡其中一項，另一項以自費計價',
+  en_gc_self: '不使用健保，不留健保紀錄',
+  en_sp_ghp:  HP_NOTE,
+  en_sp_gb:   '含拋棄式切片鉗，病理檢查費另計',
+  en_sp_cb:   '含拋棄式切片鉗，病理檢查費另計',
+  en_sp_gp:   '含拋棄式切除環，病理檢查費另計',
+  en_sp_cp1:  '含拋棄式切除環，病理檢查費另計',
+  en_sp_cp2:  '含拋棄式切除環，病理檢查費另計',
+  en_sp_cp3:  '含拋棄式切除環，病理檢查費另計',
+  en_capsule: '含台灣製造代餐與清腸藥物',
+  en_arbl:    '需同時安排胃鏡與鎮靜或麻醉，費用另列',
+  en_het:     '需同時安排大腸鏡與鎮靜或麻醉，費用另列',
+  hc_m2:      '頸部動脈血管超音波',
+  hc_m4:      '碳 13 尿素呼氣測試',
+  hc_m5:      '免疫法（FIT）',
+  hc_m8:      '於榮總檢查，報告回到本診所說明'
+};
+/* 內含項目是完整句子的套組，列印時不分兩欄 */
+const NOTE_NO_COLS = new Set(['hc_m6']);
+
+function cartRoot(id){ return String(id).split('|')[0]; }
+
+function itemNote(item){
+  const id=item.id;
+  if(NOTE_BY_ID[id]) return NOTE_BY_ID[id];
+  if(QTY_IDS.has(id)){
+    const d=ENDO_TREE.selfPay.find(x=>x.id===id);
+    return d.desc+' NT$ '+fmtPrice(item.unitPrice||d.price);
+  }
+  if(id.indexOf('|')!==-1){
+    const sub=id.split('|').pop();
+    if(/_hp$/.test(sub))     return HP_NOTE;
+    if(/_(j|t)$/.test(sub))  return PREP_NOTE;
+    if(/_(s|to)$/.test(sub)) return '含拋棄式咬口器';
+    if(/_tn$/.test(sub))     return '經鼻插入，不需咬口器';
+    return '';
+  }
+  if(ITEM_NOTES[id]) return '';
+  if(ITEM_DESCS[id]) return ITEM_DESCS[id];
+  const def=ITEM_BY_ID[id];
+  if(def && def.desc && /^(ex|dr)/.test(id)) return def.desc.replace(/\n/g,'');
+  return '';
+}
+
+/* 鎮靜那一列加上鏡種，印出來才分得出是哪個鏡的麻醉 */
+const SCOPE_LABEL = { en_gastro:'胃鏡', en_colon:'大腸鏡', en_gc_ins:'胃鏡＋大腸鏡', en_gc_self:'胃鏡＋大腸鏡' };
+function scopeLabel(root){
+  if(SCOPE_LABEL[root]) return SCOPE_LABEL[root];
+  if(/^en_sp_g/.test(root)) return '胃鏡';
+  if(/^en_sp_c/.test(root)) return '大腸鏡';
+  return '';
+}
+function cartDisplayName(item){
+  const name=String(item.name).replace(/\n/g,' ');
+  if(item.id.indexOf('|')===-1) return name;
+  if(/_(w|l|a)$/.test(item.id.split('|').pop())){
+    const lb=scopeLabel(cartRoot(item.id));
+    return lb ? lb+' '+name : name;
+  }
+  return name;
+}
+
+/* 同一個鏡種的子項目（鏡種、代餐、鎮靜）緊接在該鏡種後面，不因點選順序而散開 */
+function orderedCart(){
+  const out=[], seen=new Set();
+  cart.forEach(it=>{
+    const r=cartRoot(it.id);
+    if(seen.has(r)) return;
+    seen.add(r);
+    cart.forEach(x=>{ if(x.id===r) out.push(x); });
+    cart.forEach(x=>{ if(x.id!==r && cartRoot(x.id)===r) out.push(x); });
+  });
+  return out;
+}
+
+/* 列印時金額為 0 的「優惠折扣」「已付金額」列不印 */
+function markZeroRows(disc, paid){
+  const d=QD.getElementById('discountDisplay'), p=QD.getElementById('paidDisplay');
+  const dr=d&&d.closest('.sub-total-row'), pr=p&&p.closest('.sub-total-row');
+  if(dr) dr.classList.toggle('print-zero', !(disc>0));
+  if(pr) pr.classList.toggle('print-zero', !(paid>0));
+}
+
 function renderCart(){
   const cartList=QD.getElementById('cartList');
   const discountBlock=QD.getElementById('discountBlock');
@@ -1986,6 +2031,11 @@ function renderCart(){
   cartList.innerHTML=''; discountBlock.innerHTML='';
 
   if(cart.length===0){
+    /* 清單逐項刪空＝這位病人結束，已付與手動折扣一併歸零，以免帶到下一位病人 */
+    if(!_restoring){
+      paidAmount=0; manualDiscountOverride=null; dismissedDiscounts=new Set();
+      const pd0=QD.getElementById('paidDisplay'); if(pd0&&pd0.tagName==='SPAN') pd0.textContent='— NT$ 0';
+    }
     emptyState.style.display='';
     cartCount.textContent='0'; cartCount.classList.add('zero');
     QD.getElementById('selfTotal').textContent='NT$ 0';
@@ -2003,16 +2053,18 @@ function renderCart(){
 
   // Group by category
   const groups={};
-  cart.forEach(item=>{ if(!groups[item.catLabel]) groups[item.catLabel]=[]; groups[item.catLabel].push(item); });
+  orderedCart().forEach(item=>{ if(!groups[item.catLabel]) groups[item.catLabel]=[]; groups[item.catLabel].push(item); });
 
   Object.entries(groups).forEach(([cat,items])=>{
     if(cat){ const lbl=document.createElement('div'); lbl.className='cart-group-label'; lbl.textContent=cat; cartList.appendChild(lbl); }
     items.forEach(item=>{
-      const row=document.createElement('div'); row.className='cart-item';
+      const isSub=item.id.indexOf('|')!==-1;
+      const row=document.createElement('div'); row.className='cart-item'+(isSub?' cart-sub':'');
       row.dataset.cid=item.id;
       /* ITEM_NOTES 是套組內含項目，ITEM_DESCS 是單項備註，標題不同 */
       const isPack=!!ITEM_NOTES[item.id];
-      const notes=ITEM_NOTES[item.id]||ITEM_DESCS[item.id]||'';
+      const notes=ITEM_NOTES[item.id]||'';
+      const note=itemNote(item);
 
       let priceEl;
       if(item.mode==='ins'){
@@ -2035,8 +2087,8 @@ function renderCart(){
 
       // Notes block for print
       const notesBlock = notes
-        ? `<div class="cart-notes-print${isPack&&notes.split('\n').length>=4?' cols':''}">
-             <div class="cart-notes-print-title">${isPack?'包含項目':'備註'}</div>
+        ? `<div class="cart-notes-print${!NOTE_NO_COLS.has(item.id)&&notes.split('\n').length>=4?' cols':''}">
+             <div class="cart-notes-print-title">包含項目</div>
              ${notes.split('\n').map(l=>`• ${esc(l)}`).join('<br>')}
            </div>`
         : '';
@@ -2053,12 +2105,13 @@ function renderCart(){
         : '';
       row.innerHTML=`
         <div class="cart-item-body">
-          <div class="cart-item-name">${esc(item.name).replace(/\n/g,' ')}${qtyLabel}</div>
+          <div class="cart-item-name">${esc(cartDisplayName(item))}${qtyLabel}</div>
           <div class="cart-item-meta">
             <span class="cart-badge ${item.mode==='ins'?'ins':'self'}">${item.mode==='ins'?'免自費':'自費'}</span>
             <span class="cart-item-cat">${esc(catDisplay)}</span>
             ${qtyCtrl}
           </div>
+          ${note?`<span class="cart-item-note${note.length>26?' long':''}">${esc(note)}</span>`:''}
           ${notesBlock}
         </div>
         <div class="cart-price-wrap">${priceEl}</div>
@@ -2086,6 +2139,8 @@ function renderCart(){
         const it=cart.find(c=>c.id===item.id);
         if(!it) return;
         it.mode = it.mode==='ins' ? 'self' : 'ins';
+        /* 胃鏡／大腸鏡以免自費加入時價格存成 0，切回自費要補回定價，否則會變成「自費 NT$ 0」 */
+        if(it.mode==='self' && !it.price && it._basePrice) it.price=it._basePrice;
         showToast(`切換為${it.mode==='ins'?'免自費':'自費'}：${it.name}`);
         renderCart();
         if(currentCat) buildItemsGrid(currentCat);
@@ -2148,6 +2203,7 @@ function renderCart(){
   /* 已付金額只負責顯示，編輯由 .panel-foot 的委派處理 */
   var pdEl=QD.getElementById('paidDisplay');
   if(pdEl&&pdEl.tagName==='SPAN') pdEl.textContent='— NT$ '+fmtPrice(paidAmount);
+  markZeroRows(displayDiscount, paidAmount);
   (function(){
     var hasEndo=cart.some(function(c){return c.catLabel==='內視鏡';});
     var hasHcDE=cart.some(function(c){return c.id==='hc_m6';});
@@ -2165,20 +2221,19 @@ function renderCart(){
    ═══════════════════════════════════════════════════════════════════ */
 /* ─ 成分代號 → 可單獨加選的品項 id ─────────────────────────────────
    只收錄在「檢驗／檢查」分類中真的能單選的品項。
-   找不到對應單選品項者一律不納入（CBC 的 DC 分類計數、TC/HDL 比值、
-   Total Protein、progesterone、prostaglandin 等），寧可少提醒也不誤報。 */
+   找不到對應單選品項者一律不納入（目前只有 TC/HDL 比值、HOMA-IR 本身），寧可少提醒也不誤報。 */
 const P = {
   acSugar:'lb_01001', hba1c:'lb_03001', insulin:'lb_03002',   /* HOMA-IR 需測胰島素 */
   ast:'lb_01011', alt:'lb_01012', bun:'lb_01008', cr:'lb_01010', ua:'lb_01009',
   tc:'lb_01004', tg:'lb_01003', hdl:'lb_01005', ldl:'lb_01006', lpa:'lb_01007',
   tbil:'lb_01015', dbil:'lb_01016', alkp:'lb_01014', rgt:'lb_01013',
-  alb:'lb_01018', glob:'lb_01019', amylase:'lb_01021', cpk:'lb_01023',
+  alb:'lb_01018', glob:'lb_01019', tp:'lb_01020', amylase:'lb_01021', cpk:'lb_01023',
   tsh:'lb_04003', ft4:'lb_04004', t3:'lb_04001',
   urine:'lb_09001', microalb:'lb_09004', ucr:'lb_09005',
-  cbc:'lb_10001', fe:'lb_11001', tibc:'lb_11002', ferritin:'lb_11006',
+  cbc:'lb_10001', dc:'lb_10002', fe:'lb_11001', tibc:'lb_11002', ferritin:'lb_11006',
   hbsag:'lb_02006', hbsab:'lb_02007', hcv:'lb_02014',
   hscrp:'lb_13003', apob:'lb_01029', homocys:'lb_13004', probnp:'lb_13005',
-  fsh:'lb_17010', lh:'lb_17011', e2:'lb_17012', cortisol:'lb_17005',
+  fsh:'lb_17010', lh:'lb_17011', e2:'lb_17012', cortisol:'lb_17005', p4:'lb_17003', prl:'lb_17008',
   zn:'lb_12011', vitd:'lb_25003',
   hiv:'lb_21003', gono:'lb_21015', vdrl:'lb_21001', tpha:'lb_21002',
   hsv1:'lb_21008', hsv2:'lb_21009', chlaIgG:'lb_21005', chlaDNA:'lb_21013',
@@ -2192,20 +2247,20 @@ const P = {
 const PANEL_PARTS = {
   /* 檢驗套組 */
   lb01:[P.acSugar,P.ast,P.alt,P.bun,P.cr,P.ua,P.tc,P.tg,P.hdl,P.ldl,P.urine],
-  lb02:[P.cbc,P.acSugar,P.hba1c,P.ast,P.alt,P.bun,P.cr,P.ua,P.tc,P.tg,P.hdl,P.ldl,P.urine],
-  lb03:[P.cbc,P.acSugar,P.hba1c,P.ast,P.alt,P.tbil,P.dbil,P.alkp,P.rgt,P.alb,P.glob,P.amylase,
+  lb02:[P.cbc,P.dc,P.acSugar,P.hba1c,P.ast,P.alt,P.bun,P.cr,P.ua,P.tc,P.tg,P.hdl,P.ldl,P.urine],
+  lb03:[P.cbc,P.dc,P.acSugar,P.hba1c,P.ast,P.alt,P.tbil,P.dbil,P.alkp,P.rgt,P.alb,P.glob,P.tp,P.amylase,
         P.bun,P.cr,P.ua,P.tc,P.tg,P.hdl,P.ldl,P.urine],
-  lb04:[P.cbc,P.acSugar,P.hba1c,P.ast,P.alt,P.hbsag,P.hbsab,P.hcv,
+  lb04:[P.cbc,P.dc,P.acSugar,P.hba1c,P.ast,P.alt,P.hbsag,P.hbsab,P.hcv,
         P.bun,P.cr,P.ua,P.tc,P.tg,P.hdl,P.ldl,P.urine],
   lb05:[P.hbsag,P.hbsab,P.hcv],
   lb06:[P.acSugar,P.hba1c,P.insulin,P.ast,P.alt,P.bun,P.cr,P.ua,
         P.tc,P.tg,P.hdl,P.ldl,P.tsh,P.ft4],
   lb07:[P.acSugar,P.hba1c,P.insulin,P.bun,P.cr,P.microalb,P.ucr],
   lb08:[P.microalb,P.ucr],
-  lb09:[P.cbc,P.fe,P.tibc],
+  lb09:[P.cbc,P.dc,P.fe,P.tibc],
   lb10:[P.acSugar,P.tc,P.tg,P.hdl,P.ldl,P.hscrp,P.homocys,P.probnp,P.cpk],
   lb11:[P.t3,P.ft4,P.tsh],
-  lb12:[P.fsh,P.lh,P.e2,P.tsh,P.chlaIgG],
+  lb12:[P.fsh,P.lh,P.e2,P.tsh,P.prl,P.p4,P.chlaIgG],
   lb13:[P.hiv,P.gono,P.vdrl,P.hsv1,P.hsv2,P.tpha,P.chlaDNA],
   lb14:[P.alb,P.zn,P.ferritin,P.cortisol,P.vitd,P.homocys,P.tsh,P.ft4],
   lb15:[P.cea,P.afp,P.ca125,P.ca153,P.ca199,P.scc,P.cyfra],
@@ -2226,6 +2281,20 @@ PANEL_PARTS.hc_m7f = PANEL_PARTS.lb16;                               /* 與檢�
 PANEL_PARTS.hc_m7m = PANEL_PARTS.lb18;                               /* 與檢驗「完整腫瘤指標(男)」同內容 */
 
 const HC_WITH_ENDO = { hc_m6:'⑥ 麻醉胃鏡＋大腸鏡' };
+
+/* 同一項檢驗在兩個分類各列一次（方便從不同分類找到）：分身 id → 本尊 id
+   搜尋只列本尊；重複計費比對時視為同一項。 */
+const SAME_TEST = { lb_14004:'lb_09009', lb_18001:'lb_14010', lb_17013:'lb_06010' };
+function canonId(id){ return SAME_TEST[id]||id; }
+
+/* 有胃鏡／大腸鏡（含組合鏡、自費系列、健檢 ⑥）且有鎮靜或麻醉 */
+const GASTRO_ROOTS = ['en_gastro','en_gc_ins','en_gc_self','en_sp_g','en_sp_ghp','en_sp_gb','en_sp_gp'];
+const COLON_ROOTS  = ['en_colon','en_gc_ins','en_gc_self','en_sp_c','en_sp_cb','en_sp_cp1','en_sp_cp2','en_sp_cp3'];
+function hasScope(c, roots){ return c.some(x=>roots.indexOf(cartRoot(x.id))!==-1) || c.some(x=>x.id==='hc_m6'); }
+function hasScopeSedation(c, roots){
+  return c.some(x=>x.id==='hc_m6') ||
+    c.some(x=>roots.indexOf(cartRoot(x.id))!==-1 && x.id.indexOf('|')!==-1 && /_(l|a)$/.test(x.id));
+}
 
 /* id → 品項定義，供顯示重複成分的名稱 */
 const ITEM_BY_ID = (function(){
@@ -2253,7 +2322,7 @@ function renderConflictWarning(){
   items.forEach(p=>{
     if(!isPanel(p.id)) return;
     const parts=PANEL_PARTS[p.id];
-    const dup=items.filter(x=>x!==p&&!isPanel(x.id)&&parts.indexOf(x.id)!==-1);
+    const dup=items.filter(x=>x!==p&&!isPanel(x.id)&&parts.indexOf(canonId(x.id))!==-1);
     if(!dup.length) return;
     const sum=dup.reduce((s,x)=>s+(x.price||0),0);
     warns.push(esc(p.name)+'已包含 '+dupList(dup.map(x=>esc(x.name)))
@@ -2285,12 +2354,36 @@ function renderConflictWarning(){
     }
   }
 
-  if(!warns.length) return;
-  const div=document.createElement('div');
-  div.className='warn-block';
-  div.innerHTML='<div class="warn-title">請確認是否重複計費</div>'
-    + warns.map(w=>'<div class="warn-text">'+w+'</div>').join('');
-  box.appendChild(div);
+  /* ④ 同一項檢驗選了兩次（兩個分類各有一張卡） */
+  items.forEach(x=>{
+    if(SAME_TEST[x.id] && items.some(y=>y.id===SAME_TEST[x.id]))
+      warns.push(esc(x.name)+' 與 '+esc(ITEM_BY_ID[SAME_TEST[x.id]].name)+' 是同一項檢驗，清單中選了兩次。');
+  });
+
+  /* 健保與前提條件 */
+  const rules=[];
+  if(cart.some(c=>c.id==='en_gastro'&&c.mode==='ins') && cart.some(c=>c.id==='en_colon'&&c.mode==='ins'))
+    rules.push('胃鏡與大腸鏡都設為免自費。健保規定同日只給付其中一項，同日檢查請改選「胃鏡＋大腸鏡（部分健保）」；不同日檢查可忽略此提醒。');
+  if(cart.some(c=>c.id==='en_arbl') && !hasScopeSedation(cart, GASTRO_ROOTS))
+    rules.push('ARBL 抗逆流結紮術需同時安排胃鏡與鎮靜或麻醉，清單中還沒有。');
+  if(cart.some(c=>c.id==='en_het') && !hasScopeSedation(cart, COLON_ROOTS))
+    rules.push('HET 微創痔瘡冷凝刀需同時安排大腸鏡與鎮靜或麻醉，清單中還沒有。');
+
+  /* 臨床重複 */
+  const clin=[];
+  if(items.some(c=>c.id==='hc_m5'||c.id==='lb_09010') && hasScope(items, COLON_ROOTS))
+    clin.push('已安排大腸鏡，同時做糞便潛血檢查的意義不大，請確認是否需要。');
+  if(hasHpTest(items) && items.some(c=>['hc_m4','lb_08001','lb_09009','lb_14004','lb_14003'].indexOf(c.id)!==-1))
+    clin.push('胃鏡已加驗幽門桿菌，另有幽門桿菌呼氣、糞便抗原或抗體檢查，請確認是否重複。');
+
+  [['請確認是否重複計費',warns],['健保規定與前提條件',rules],['臨床提醒',clin]].forEach(([title,list])=>{
+    if(!list.length) return;
+    const div=document.createElement('div');
+    div.className='warn-block';
+    div.innerHTML='<div class="warn-title">'+title+'</div>'
+      + list.map(w=>'<div class="warn-text">'+w+'</div>').join('');
+    box.appendChild(div);
+  });
 }
 
 /* 新加入的項目：捲入可視範圍並短暫標示（長清單時才看得出加了什麼） */
@@ -2320,9 +2413,12 @@ function removeItem(id){
   const item=cart.find(c=>c.id===id);
   if(!item){ return; }
   const snapshot=cart.slice();
+  const snapMoney={paid:paidAmount, disc:manualDiscountOverride, dismissed:new Set(dismissedDiscounts)};
   cart=cart.filter(c=>c.id!==id);
   showToast(`已移除：${item.name}`, '復原', ()=>{
     cart=snapshot; _prevCartIds=cart.map(c=>c.id);
+    paidAmount=snapMoney.paid; manualDiscountOverride=snapMoney.disc; dismissedDiscounts=snapMoney.dismissed;
+    const pdu=QD.getElementById('paidDisplay'); if(pdu&&pdu.tagName==='SPAN') pdu.textContent='— NT$ '+fmtPrice(paidAmount);
     renderCart();
     if(!refreshCards([id]) && currentCat) buildItemsGrid(currentCat);
     showToast(`已復原：${item.name}`);
@@ -2375,8 +2471,18 @@ QD.getElementById('btnPrint').addEventListener('click',()=>{
    日後對帳或費用爭議時可回推當時適用的價目表；程式或排版改版不動它
    ═══════════════════════════════════════════════════════════════════ */
 const Q_REVISION = REVISION.quote;
-const Q_PRICE_VERSION = '2026-10-31';
+const Q_PRICE_VERSION = '2026-11-04';
 window.Q_REVISION = Q_REVISION;
+
+function renderEndoNote(){
+  const el=QD.getElementById('endoNote');
+  if(!el) return;
+  const p=id=>{ const d=QTY_DEFS.find(x=>x.id===id); return d?fmtPrice(d.price):''; };
+  /* 走健保時切片鉗、切除環由健保給付，大部分情況下只有止血夾與注射針要自費（YT 2026-11-04） */
+  el.textContent='※ 以上為內視鏡預估費用。如需切片、瘜肉切除或止血，會依實際使用另計切片鉗、切除環、止血夾、注射針等耗材費用；'
+    +'自費病理檢查每項檢體 '+p('en_sp_path')+' 元。';
+}
+renderEndoNote();
 
 function renderAppRevision(){
   const el = QD.getElementById('appRevision');
@@ -2389,8 +2495,12 @@ renderAppRevision();
 /* ═══════════════════════════════════════════════════════════════════
    BANNER DATE
    ═══════════════════════════════════════════════════════════════════ */
+const QUOTE_VALID_DAYS = 30;   /* 報價單有效天數 */
 function updateDate(){
   const n=new Date();
+  const v=new Date(n.getFullYear(), n.getMonth(), n.getDate()+QUOTE_VALID_DAYS);
+  const vn=QD.getElementById('validNote');
+  if(vn) vn.textContent='※ 本費用說明有效期限至 '+v.getFullYear()+' 年 '+(v.getMonth()+1)+' 月 '+v.getDate()+' 日，逾期請以當時價目為準。';
   QD.getElementById('bannerDate').innerHTML=
     n.toLocaleDateString('zh-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 }
