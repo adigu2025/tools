@@ -30,7 +30,7 @@ body{margin:0;background:#EDF2F4;}
 let CD = null, CB = null;
 mountView(document.getElementById('calc-host'), 'view.html', {
   onRoot: root=>{ CD = root; CB = root.getElementById('c-body'); },
-  scripts: ['app.js']
+  scripts: ['rules.js', 'app.js']
 }).catch(err=>{
   console.error(err);
   document.getElementById('calc-host').innerHTML = '<p style="padding:24px">載入失敗，請重新整理頁面。</p>';

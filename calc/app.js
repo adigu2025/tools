@@ -575,7 +575,8 @@
     $('fib-status').textContent = status;
     $('fib-status').style.color = color;
     $('fib-interp').textContent = interp;
-    markRow('fib4-table', senior ? null : band);
+    // ≥65 歲下限改 2.0：只有 1.30 至 2.0 之間與對照表分級不同，那一段不標示
+    markRow('fib4-table', senior && fib4 >= 1.30 && fib4 < loCut ? null : band);
 
     COPY.fib4 = 'FIB-4 = ' + fib4.toFixed(2) + '（' + status + '）｜年齡 ' + age +
                 '、AST ' + ast + '、ALT ' + alt + '、PLT ' + plt + ' ×10⁹/L' +
@@ -669,7 +670,8 @@
     $('cp-grade').style.color = color;
     $('cp-interp').textContent = interp;
 
-    var parts = CP_FIELDS.map(function(f, i){ return f.label + ' ' + vals[i] + ' 分'; });
+    // 由截圖帶入的分數附上原始數值（例如「總膽紅素 2.4 mg/dL」），手動改過就只寫分數
+    var parts = CP_FIELDS.map(function(f, i){ var raw = $(f.id).dataset.raw; return (raw ? raw.replace(/^INR/, 'PT／INR') : f.label) + ' ' + vals[i] + ' 分'; });
     $('cp-detail').textContent = '各項得分：' + parts.join('　');
     markRow('childpugh-table', band);
 
@@ -966,14 +968,14 @@
       if (!six) add('na', 'HBeAg 陽性（第 3 項）', '需 HBsAg（＋）超過 6 個月（或 IgM anti-HBc 陰性）。');
       else if (isNum(x1) && x1 >= 5) add('yes', 'HBeAg 陽性：ALT ≥5X（第 3(1) 項）', '療程：治療至 e 抗原轉陰，再給付最多 12 個月。');
       else if (isNum(x1) && x1 >= 2 && dna >= 20000) add('yes', 'HBeAg 陽性：2X ≤ALT <5X，DNA ≥20,000（第 3(2) 項）', '療程：治療至 e 抗原轉陰，再給付最多 12 個月。');
-      else if (F3 && x1 > 1 && x2 > 1 && ck('hb-gap3') && dna >= 20000) add('yes', 'HBeAg 陽性：纖維化 ≥F3（第 3(3) 項）', '半年內兩次 ALT >ULN（間隔 >3 個月）、DNA ≥20,000。療程：至 e 抗原轉陰再 12 個月。');
+      else if (F3 && x1 > 1 && x2 > 1 && ck('hb-gap3') && dna >= 20000) add('yes', 'HBeAg 陽性：纖維化 ≥F3（第 3(3) 項）', '半年內兩次 ALT >ULN（間隔滿 3 個月）、DNA ≥20,000。療程：至 e 抗原轉陰再 12 個月。');
       else add('no', 'HBeAg 陽性（第 3 項）', (function(){
         var r = [];
         if (!isNum(x1)) r.push('缺 ALT');
         else if (x1 < 2) r.push('ALT ' + x1.toFixed(2) + 'X <2X');
         else if (dna < 20000 || !isNum(dna)) r.push('DNA 未達 20,000');
         if (isNum(x1) && x1 > 1 && dna >= 20000 && !F3) r.push('纖維化未達 F3');
-        if (F3 && !(x2 > 1 && ck('hb-gap3'))) r.push('F3 條款需半年內兩次 ALT >ULN 且間隔 >3 個月');
+        if (F3 && !(x2 > 1 && ck('hb-gap3'))) r.push('F3 條款需半年內兩次 ALT >ULN 且間隔滿 3 個月');
         return r.join('；') + '。';
       })());
     }
@@ -996,7 +998,7 @@
         if (isNum(x1) && x1 >= 2 && !(dna >= 2000)) r.push('DNA 未達 2,000');
         if (isNum(x1) && x1 > 1 && x1 < 2) {
           if (!F2) r.push('纖維化未達 F2');
-          if (!(x2 > 1 && ck('hb-gap3'))) r.push('需半年內兩次 ALT >ULN 且間隔 >3 個月');
+          if (!(x2 > 1 && ck('hb-gap3'))) r.push('需半年內兩次 ALT >ULN 且間隔滿 3 個月');
           if (!(dna >= 20000)) r.push('DNA 未達 20,000');
         }
         return (r.join('；') || '未符合') + '。';
@@ -1055,11 +1057,11 @@
 
   var HB_FIELDS = ['hb-age','hb-uln','hb-alt1','hb-alt2','hb-ast','hb-plt','hb-dna','hb-fs','hb-arfi','hb-bx','hb-bil','hb-pt','hb-eag',
     'hb-hbsag','hb-hbsag6','hb-gap3','hb-dnaUnd','hb-usLc','hb-usVar','hb-usSpl','hb-ctLc','hb-preg','hb-hcc','hb-immuno'];
-  // 兩次檢驗日期都填了，就依間隔自動勾選「間隔超過 3 個月（半年內）」；之後仍可手動改勾
+  // 兩次檢驗日期都填了，就依間隔自動勾選「間隔滿 3 個月（半年內）」；之後仍可手動改勾
   ['hb-date1', 'hb-date2'].forEach(function(id){
     $(id).addEventListener('input', function(){
       var g = rxMonths(rxDate('hb-date2'), rxDate('hb-date1'));
-      if (isNum(g)) $('hb-gap3').checked = g > 3 && g <= 6;
+      if (isNum(g)) $('hb-gap3').checked = g >= 3 && g <= 6;
       calcHbvRx();
     });
   });
@@ -1142,7 +1144,8 @@
       .replace(/LDL\s*\/\s*HDL\w*/ig, ' RATIO ')
       .replace(/\b(HDL|LDL)[-\s]*C(?:hol(?:esterol)?)?\b/ig, ' $1 ')
       .replace(/\bALT\s*[\/(]\s*S?GPT\s*\)?|\bS?GPT\s*[\/(]\s*ALT\s*\)?/ig, ' ALT ')
-      .replace(/\bAST\s*[\/(]\s*S?GOT\s*\)?|\bS?GOT\s*[\/(]\s*AST\s*\)?/ig, ' AST ');
+      .replace(/\bAST\s*[\/(]\s*S?GOT\s*\)?|\bS?GOT\s*[\/(]\s*AST\s*\)?/ig, ' AST ')
+      .replace(/Alb(?:umin)?\s*\/\s*Glob\w*(?:\s*ratio)?|\bA\s*\/\s*G(?:\s*ratio)?\b/ig, ' AGRATIO ');   // A/G 比值不能當成白蛋白
   }
 
   var OCR_NUM = /(\d+(?:\.\d+)?)/;
@@ -1156,14 +1159,49 @@
     alt: { re: /\bALT\b|\bS?GPT\b/ig, lo: 1, hi: 5000 },
     ast: { re: /\bAST\b|\bS?GOT\b/ig, lo: 1, hi: 5000 },
     plt: { re: /\bPLT\b|Platelets?|血小板/ig, lo: 1, hi: 1500, plt: true },
-    bil: { re: /T[-.\s]?BIL\w*|Total\s*Bil\w*|Bilirubin\s*[,(]?\s*total|總膽紅素/ig, lo: 0.1, hi: 40 }
+    bil: { re: /T[-.\s]?BIL\w*|Total\s*Bil\w*|Bilirubin\s*[,(]?\s*total|總膽紅素/ig, lo: 0.1, hi: 40 },
+    alp: { re: /\bALP\b|\bAlk(?:aline)?[-.\s]*P(?:hos\w*)?\b|鹼性磷酸\S*/ig, lo: 5, hi: 5000 },
+    alb: { re: /\bAlb(?:umin)?\b|白蛋白/ig, lo: 1, hi: 70, alb: true },
+    inr: { re: /\bINR\b/ig, lo: 0.5, hi: 15 }
   };
+
+  // 同一行裡每個項目名稱後面那一段文字（到下一個項目名稱為止）
+  function ocrSegs(line, keys){
+    var hits = [];
+    keys.forEach(function(k){
+      var re = OCR_KEYS[k].re; re.lastIndex = 0;
+      var m;
+      while ((m = re.exec(line))) hits.push({ k: k, s: m.index, e: m.index + m[0].length });
+    });
+    hits.sort(function(a, b){ return a.s - b.s; });
+    return hits.map(function(h, i){ return { k: h.k, seg: line.slice(h.e, i + 1 < hits.length ? hits[i + 1].s : undefined) }; });
+  }
+  // 報告上的參考值上限：數值後面的「0-40」「5～35」「<40」「≦40」
+  function ocrRef(lines, k, keys){
+    for (var i = 0; i < lines.length; i++) {
+      var segs = ocrSegs(lines[i], keys);
+      for (var j = 0; j < segs.length; j++) {
+        if (segs[j].k !== k) continue;
+        var seg = segs[j].seg, v = seg.match(OCR_NUM);
+        if (!v) continue;
+        var rest = seg.slice(v.index + v[0].length);
+        var m = rest.match(/(\d+(?:\.\d+)?)\s*[-–~～]\s*(\d+(?:\.\d+)?)/);
+        var hi = m ? parseFloat(m[2]) : NaN;
+        if (m && parseFloat(m[1]) >= hi) hi = NaN;
+        if (!m) { m = rest.match(/[<≦≤]\s*=?\s*(\d+(?:\.\d+)?)/); if (m) hi = parseFloat(m[1]); }
+        if (hi >= 5 && hi <= 1000) return hi;
+      }
+    }
+    return NaN;
+  }
 
   function ocrPick(lines, keys){
     var out = {};
     function accept(k, v){
       var spec = OCR_KEYS[k];
       if (spec.plt && v > 2000) v = v / 1000;   // 以 /µL 表示的血小板換算成 ×10³/µL
+      if (spec.alb && v > 7) v = v / 10;        // 以 g/L 表示的白蛋白換算成 g/dL
+      if (spec.alb && (v < 1 || v > 7)) return;
       if (v >= spec.lo && v <= spec.hi && !(k in out)) out[k] = v;
     }
     lines.forEach(function(line, li){
@@ -1291,6 +1329,20 @@
       v.sag = ocrAntigen(lines, /HBs\s*Ag/i); v.eag = ocrAntigen(lines, /HBe\s*Ag/i);
       v.dna = ocrDna(lines); v.fs = ocrFibroscan(text);
       return v;
+    },
+    fib4: function(text, lines){
+      var v = ocrPick(lines, ['alt', 'ast', 'plt']);
+      v.age = ocrAge(text);
+      return v;
+    },
+    rfactor: function(text, lines){
+      var keys = ['alt', 'ast', 'alp', 'bil'];
+      var v = ocrPick(lines, ['alt', 'alp']);
+      v.altU = ocrRef(lines, 'alt', keys); v.alpU = ocrRef(lines, 'alp', keys);
+      return v;
+    },
+    childpugh: function(text, lines){
+      return ocrPick(lines, ['bil', 'alb', 'inr']);
     }
   };
   function ocrClean(v){
@@ -1356,7 +1408,7 @@
       var cands = groups.slice(1).filter(function(g){ return 'alt' in g.v; });
       cands.forEach(function(g){
         var m = rxMonths(rxYmd(g.date), rxYmd(cur.date));
-        if (!prev && m > 3 && m <= 6) prev = g;
+        if (!prev && m >= 3 && m <= 6) prev = g;
       });
       if (!prev) prev = cands[0] || null;
       function from(x){ return x.date && x.date !== cur.date ? '（取自 ' + x.date + '）' : ''; }
@@ -1394,11 +1446,48 @@
       var fs = ocrFirst(groups, 'fs');
       if (fs) r.put('hb-fs', fs.val, 'Fibroscan ' + fs.val + from(fs));
       return r;
+    },
+    // 單次計算的工具：各項取最近一次有的數值，不是同一天的會標出日期
+    fib4: function(groups){
+      var r = ocrResult();
+      [['age', 'fib-age', '年齡'], ['ast', 'fib-ast', 'AST'], ['alt', 'fib-alt', 'ALT'], ['plt', 'fib-plt', '血小板']].forEach(function(f){
+        var x = ocrFirst(groups, f[0]);
+        if (x) r.put(f[1], Math.round(x.val), f[2] + ' ' + Math.round(x.val) + ocrFrom(x, groups));
+        else r.miss.push(f[2]);
+      });
+      return r;
+    },
+    rfactor: function(groups){
+      var r = ocrResult();
+      [['alt', 'rf-alt', 'ALT'], ['alp', 'rf-alp', 'ALP'], ['altU', 'rf-alt-uln', 'ALT 正常上限'], ['alpU', 'rf-alp-uln', 'ALP 正常上限']].forEach(function(f){
+        var x = ocrFirst(groups, f[0]);
+        if (x) r.put(f[1], Math.round(x.val), f[2] + ' ' + Math.round(x.val) + ocrFrom(x, groups));
+        else r.miss.push(f[2] + (/U$/.test(f[0]) ? '（報告上沒有參考值，請依檢驗所填寫）' : ''));
+      });
+      return r;
+    },
+    childpugh: function(groups){
+      var r = ocrResult();
+      [['bil', 'cp-bili', '總膽紅素', 'mg/dL', function(v){ return v < 2 ? 1 : v <= 3 ? 2 : 3; }],
+       ['alb', 'cp-alb', '白蛋白', 'g/dL', function(v){ return v > 3.5 ? 1 : v >= 2.8 ? 2 : 3; }],
+       ['inr', 'cp-pt', 'INR', '', function(v){ return v < 1.7 ? 1 : v <= 2.3 ? 2 : 3; }]].forEach(function(f){
+        var x = ocrFirst(groups, f[0]);
+        if (!x) { r.miss.push(f[2]); return; }
+        var v = Math.round(x.val * 100) / 100, pts = f[4](v), el = $(f[1]);
+        var raw = f[2] + ' ' + v + (f[3] ? ' ' + f[3] : '');
+        if (!el.dataset.manual) el.dataset.raw = raw;
+        r.put(f[1], String(pts), raw + ' → ' + pts + ' 分' + ocrFrom(x, groups));
+      });
+      var todo = [['cp-ascites', '腹水'], ['cp-enceph', '肝性腦病變']].filter(function(f){ return !$(f[0]).value; }).map(function(f){ return f[1]; });
+      if (todo.length) r.note = '請再選擇' + todo.join('與') + '，才會算出總分。';
+      return r;
     }
   };
+  function ocrFrom(x, groups){ return x.date && groups.length > 1 && x.i > 0 ? '（取自 ' + x.date + '）' : ''; }
 
   // 已辨識的截圖依工具累加，直到按「重設」；gen 用來丟掉重設前還在辨識的結果
-  var ocrRecs = { lipidrx: [], hbvrx: [] }, ocrGen = { lipidrx: 0, hbvrx: 0 }, ocrQueue = [];
+  var ocrRecs = {}, ocrGen = {}, ocrQueue = [];
+  Object.keys(OCR_READ).forEach(function(t){ ocrRecs[t] = []; ocrGen[t] = 0; });
   function ocrSay(tool, cls, html){
     var box = CD.querySelector('.rx-ocr[data-ocr="' + tool + '"]');
     box.className = 'rx-ocr ' + cls;
@@ -1421,7 +1510,8 @@
       (r.got.length ? '已帶入（黃底欄位）：<b>' + esc(r.got.join('、')) + '</b>。' : '') +
       (r.kept.length ? '保留手動修改的欄位（辨識值未帶入）：' + esc(r.kept.join('、')) + '。' : '') +
       (r.miss.length ? '未辨識：' + esc(r.miss.join('、')) + '。' : '') +
-      (recs.some(function(x){ return !x.date; }) ? '有截圖沒辨識到檢驗日期，已併入最近一次，請核對日期欄位。' : '') +
+      (r.note ? '<b>' + esc(r.note) + '</b>' : '') +
+      (recs.some(function(x){ return !x.date; }) && $('panel-' + tool).querySelector('input[type=date]') ? '有截圖沒辨識到檢驗日期，已併入最近一次，請核對日期欄位。' : '') +
       '所有欄位都可以直接修改，改過的欄位之後上傳也不會被蓋掉；再上傳的截圖會累加，換病人請先按「重設」。');
   }
 
@@ -1492,7 +1582,7 @@
     function manual(e){
       if (!e.isTrusted || !e.target.classList || e.target.type === 'file') return;
       e.target.classList.remove('ocr-filled');
-      if (e.target.id) e.target.dataset.manual = '1';
+      if (e.target.id) { e.target.dataset.manual = '1'; delete e.target.dataset.raw; }
       var flag = e.target.closest('.flag'); if (flag) flag.classList.remove('ocr-filled');
     }
     panel.addEventListener('input', manual);
@@ -1503,6 +1593,7 @@
       ocrRecs[tool] = []; ocrGen[tool]++;
       ocrQueue = ocrQueue.filter(function(q){ return q.tool !== tool; });
       panel.querySelectorAll('[data-manual]').forEach(function(el){ delete el.dataset.manual; });
+      panel.querySelectorAll('[data-raw]').forEach(function(el){ delete el.dataset.raw; });
       ocrClearMarks(panel); box.className = 'rx-ocr'; msg.innerHTML = msg0;
     });
   });
@@ -1512,11 +1603,43 @@
     var items = (e.clipboardData && e.clipboardData.items) || [], files = [];
     for (var i = 0; i < items.length; i++) if (items[i].kind === 'file' && /^image\//.test(items[i].type)) files.push(items[i].getAsFile());
     if (!files.length) return;
-    var panel = CD.querySelector('.rx-panel.active');
-    if (!panel) return;
+    var panel = CD.querySelector('.tool-panel.active');
+    if (!panel || !panel.querySelector('.rx-ocr')) return;
     e.preventDefault();
     ocrRun(panel.querySelector('.rx-ocr').dataset.ocr, files);
   });
+
+  /* ======================================================
+     給付規定視窗：內容在 rules.js（RX_RULES），含規定生效日與最後查核日
+     ====================================================== */
+  (function(){
+    var overlay = $('rule-overlay'), closeBtn = $('rule-close'), opener = null;
+    if (!overlay) return;
+    function open(tool, btn){
+      var r = typeof RX_RULES !== 'undefined' && RX_RULES[tool];
+      if (!r) return;
+      opener = btn;
+      $('rule-title').textContent = r.title + '（' + r.code + '）';
+      $('rule-meta').innerHTML =
+        '<b>規定生效日：</b>' + esc(r.effective) + '　｜　<b>最後查核：</b>' + esc(r.checked) +
+        '（查核當天健保署未見更新的修訂）' +
+        (r.change ? '<br><b>這一版改了什麼：</b>' + esc(r.change) : '') +
+        (r.source ? '<br><b>出處：</b><a href="' + esc(r.source.url) + '" target="_blank" rel="noopener">' + esc(r.source.label) + '</a>' :
+          '<br><b>出處：</b>健保署' + esc(r.code));
+      $('rule-body').innerHTML = r.sections.map(function(s){ return '<h4>' + esc(s.h) + '</h4>' + s.html; }).join('') +
+        '<p class="rule-foot">以上是本工具判定時採用的條文重點，不是條文全文；申報前請以健保署公告與個案審查為準。</p>';
+      overlay.hidden = false;
+      $('rule-body').scrollTop = 0;
+      closeBtn.focus();
+    }
+    function close(){ overlay.hidden = true; if (opener) opener.focus(); }
+    CD.querySelectorAll('[data-rule]').forEach(function(btn){
+      btn.addEventListener('click', function(){ open(btn.dataset.rule, btn); });
+    });
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function(e){ if (e.target === overlay) close(); });
+    CD.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) { e.stopPropagation(); close(); } });
+  })();
 
   /* ======================================================
      Bristol Stool Scale

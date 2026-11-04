@@ -14,7 +14,7 @@
   [['quote/view.html','fetch'],['quote/hub.css','fetch'],['quote/app.js','script'],
    ['calc/view.html','fetch'],['weight/view.html','fetch'],['checkup/view.html','fetch'],['calc/hub.css','fetch'],
    ['lab/lab.js','script'],['kit/report-kit.js','script'],['weight/app.js','script'],['weight/report.js','script'],
-   ['checkup/app.js','script'],['checkup/report.js','script'],['calc/app.js','script']].forEach(function(p){
+   ['checkup/app.js','script'],['checkup/report.js','script'],['calc/rules.js','script'],['calc/app.js','script']].forEach(function(p){
     var l = document.createElement('link');
     l.rel = 'preload'; l.href = base + p[0]; l.as = p[1];
     if(p[1] === 'fetch') l.crossOrigin = 'anonymous';
@@ -558,7 +558,7 @@ async function mountCalc(){
     await mountView(host, BASE + 'calc/view.html', {
       css: [BASE + 'calc/hub.css'],
       onRoot: root=>{ CD = root; CB = root.getElementById('c-body'); },
-      scripts: [BASE + 'calc/app.js']
+      scripts: [BASE + 'calc/rules.js', BASE + 'calc/app.js']
     });
   }catch(err){ mountFailed(host, '臨床計算', err); return; }
   calcReady = true;
