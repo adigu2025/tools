@@ -5,6 +5,8 @@
    衛教依用途分類，同一類再依圖卡角落的系列與編號分小節（例如減重的「療程 01 至 04」），側欄順序與圖卡編號一致。
    清單只在這裡維護一份；側欄名稱一律用圖卡上的標題，在診間口頭說「點那張」時對得上。
    每份衛教可以有多頁（pages），每頁可以是兩頁並列的圖（split = 2，列印時拆成兩張 A4）。
+   第 6 欄寫 'A5' 的是 A5 衛教單：圖是 A4 上半部（210 × 148.5 mm），列印時印在 A4 直式紙的上半部、下半部空白；
+   紙匣放 A5 紙、長邊先進紙，印出來就是一張 A5。側欄與標題都會註記 A4 或 A5。A5 版面原始檔在 edu-src/a5.html。
    圖卡原始檔：減重「用藥 02」與「檢查與治療」類自製圖卡的版面在 edu-src/，改文字後重新輸出圖片。 */
 const W = p=> BASE + p;
 const EDU_GROUPS = [
@@ -49,18 +51,32 @@ const EDU_LIST = [
   ['weight', '用藥',     '用藥注意事項',     ICON.book,     ['img/edu-medication-guide.webp']],
   ['weight', '用藥',     '針劑注射與保存',   ICON.pen,      [{src:'img/edu-glp1-injection-storage.webp', split:2}]],
   ['exam',   '檢查前',   '胃鏡檢查前注意事項', ICON.stomach, ['img/edu-gastroscopy-prep.webp']],
+  ['exam',   '檢查前',   '胃鏡檢查前注意事項', ICON.stomach, ['img/edu-a5-gastroscopy-prep.webp'], 'A5'],
+  // 大腸鏡清腸說明：現行紙本的備份（保可淨用法與飲食控制），原檔是 PDF，不修改
+  ['exam',   '檢查前',   '大腸鏡清腸說明（保可淨）', ICON.scope, ['img/edu-colonoscopy-bowel-prep-1.webp', 'img/edu-colonoscopy-bowel-prep-2.webp']],
+  ['exam',   '檢查前',   '大腸鏡檢查前注意事項', ICON.scope,  ['img/edu-a5-colonoscopy-prep.webp'], 'A5'],
   ['exam',   '檢查前',   '腹部超音波衛教',   ICON.us,       ['img/edu-abdominal-us-1.webp', 'img/edu-abdominal-us-2.webp']],
+  ['exam',   '檢查前',   '腹部超音波衛教',   ICON.us,       ['img/edu-a5-abdominal-us.webp'], 'A5'],
+  ['exam',   '檢查後',   '胃鏡、大腸鏡檢查後', ICON.scope,    ['img/edu-a5-endoscopy-after.webp'], 'A5'],
   ['exam',   '治療後',   '瘜肉切除術後',     ICON.polyp,    ['img/edu-polypectomy-after.webp']],
+  ['exam',   '治療後',   '瘜肉切除術後',     ICON.polyp,    ['img/edu-a5-polypectomy-after.webp'], 'A5'],
   ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-het-after.webp']],
+  ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-a5-het-after.webp'], 'A5'],
   ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-arbl-after.webp']],
+  ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-a5-arbl-after.webp'], 'A5'],
   ['exam',   '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-hp-eradication.webp']],
+  ['exam',   '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
   ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
   ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
 ];
-const EDU = EDU_LIST.map(([group, sec, label, icon, pages])=> ({group, sec, label, icon,
-  pages: pages.map(p=> typeof p === 'string' ? {src: W(p), split: 1} : {src: W(p.src), split: p.split || 1})}));
-// 實際印出的 A4 張數（兩頁並列的圖算兩張）
+const EDU = EDU_LIST.map(([group, sec, label, icon, pages, size])=>{
+  const a5 = size === 'A5';
+  return {group, sec, label, icon, size: a5 ? 'A5' : 'A4',
+    pages: pages.map(p=> typeof p === 'string' ? {src: W(p), split: 1, a5} : {src: W(p.src), split: p.split || 1, a5})};
+});
+// 實際印出的張數（兩頁並列的圖算兩張）
 const sheetCount = p=> p.pages.reduce((n, pg)=> n + (pg.split || 1), 0);
+const sizeTag = p=> `<span class="sz${p.size === 'A5' ? ' a5' : ''}">${p.size}</span>`;
 
 // 列印表單：依用途分組。問卷與健康紀錄表由 forms/forms.js 產生空白表（與減重系統共用版面）；
 // 地中海飲食、腸泌素同意書、管藥與麻醉紀錄、檢查同意書都是圖片，放在工作台的 img/（檢查同意書由 consent-src/ 輸出）。
@@ -95,7 +111,8 @@ let FORMS = [
 let eduIdx = 0, eduPage = 0;
 let eduGroup = recall('hub-edu-group', 'weight');
 if(!EDU_GROUPS.some(g=> g.key === eduGroup)) eduGroup = 'weight';
-const eduKey = p=> p.group + '|' + p.label;
+// 同名的 A4、A5 兩版要分得開，鍵值帶紙張大小
+const eduKey = p=> p.group + '|' + p.label + '|' + p.size;
 
 
 // 多份一起列印：勾選模式下，點清單是勾選或取消，不切換圖卡；可以跨分類勾選，依清單順序印出
@@ -134,7 +151,7 @@ function renderRail(){
     const on = picked.has(eduKey(p));
     const lead = pickMode ? `<span class="ck" aria-hidden="true">${on ? '✓' : ''}</span>` : `<span class="ico">${p.icon || ICON_DOC}</span>`;
     return head + `<button class="edu-item press${pickMode ? ' picking' : ''}" data-i="${i}" aria-current="${!pickMode && i === eduIdx}"` +
-      (pickMode ? ` aria-pressed="${on}"` : '') + `>${lead}<span class="lb">${esc(p.label)}</span>${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
+      (pickMode ? ` aria-pressed="${on}"` : '') + `>${lead}<span class="lb">${esc(p.label)}</span>${sizeTag(p)}${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
   }).join('');
   rail.innerHTML = `<div class="edu-groups" role="tablist" aria-label="衛教分類">${tabs}</div><div class="edu-list">${items}</div>` +
     `<div class="edu-pick">${pickBar()}</div>`;
@@ -162,8 +179,12 @@ function renderRail(){
 function pickBar(){
   if(!pickMode) return `<button class="tbtn" id="pick-on" title="勾選幾份衛教，一次印出">多份一起列印</button>`;
   const list = EDU.filter(p=> picked.has(eduKey(p)));
-  const sheets = list.reduce((n, p)=> n + sheetCount(p), 0);
-  return `<div class="sum">${list.length ? `已選 ${list.length} 份，共 ${sheets} 張 A4` : '點選要一起列印的衛教'}</div>` +
+  const count = size=> list.filter(p=> p.size === size).reduce((n, p)=> n + sheetCount(p), 0);
+  const a4 = count('A4'), a5 = count('A5');
+  const sheets = [a4 ? a4 + ' 張 A4' : '', a5 ? a5 + ' 張 A5' : ''].filter(Boolean).join('、');
+  // A4 與 A5 用不同的紙，混在同一次列印會從同一個紙匣出紙
+  const mixed = a4 && a5 ? '<br>A4 與 A5 紙不同，建議分開印' : '';
+  return `<div class="sum">${list.length ? `已選 ${list.length} 份，共 ${sheets}${mixed}` : '點選要一起列印的衛教'}</div>` +
     `<div class="acts"><button class="tbtn" id="pick-cancel">取消</button>` +
     `<button class="tbtn pri" id="pick-print"${list.length ? '' : ' disabled'}>列印</button></div>`;
 }
@@ -179,7 +200,7 @@ function showEdu(i, page){
   const inGroup = EDU.filter(x=> x.group === p.group);
   const pos = inGroup.indexOf(p) + 1;
   const n = sheetCount(p);
-  document.getElementById('edu-title').textContent = p.label;
+  document.getElementById('edu-title').innerHTML = esc(p.label) + sizeTag(p);
   // 多頁的衛教顯示目前第幾頁；兩頁並列的圖（一張圖印成兩張 A4）標示列印張數
   document.getElementById('edu-count').textContent = pos + '／' + inGroup.length +
     (p.pages.length === 1 && n > 1 ? `　列印 ${n} 張` : '');

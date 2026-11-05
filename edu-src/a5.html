@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>A5 衛教單原始檔</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* A5 衛教單：版面是 A4 上半部 210 × 148.5 mm（794 × 561 px），輸出 1241 × 877 WebP。
+   列印時印在 A4 直式紙的上半部，下半部空白；印表機紙匣放 A5 紙、長邊先進紙，印出來就是一張 A5。
+   安全邊界：上、左、右 10 mm，下 13 mm。 */
+:root{--ink:#1F2A2E; --body:#2B2E30; --sub:#5E6366; --gold:#9C7A3C; --red:#B0432E;
+  --line:#E6E2DA; --beige:#F7F4EC; --pink:#FAF0EC; --hl:#F0E1C3;}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{background:#9AA5AA; font-family:'Noto Sans TC',sans-serif; color:var(--body); text-spacing-trim:space-all;}
+.page{width:210mm; height:148.5mm; margin:20px auto; background:#fff; padding:10mm 10mm 13mm; display:flex; flex-direction:column;}
+.top{display:flex; justify-content:space-between; align-items:baseline; font-size:9.5px; letter-spacing:.12em; color:#6A6E70;}
+.top .no{letter-spacing:.06em; color:#3A3F42;}
+.top .no b{font-family:'Noto Serif TC',serif; font-weight:900; color:var(--gold); font-size:12.5px; margin-left:6px;}
+.head{display:flex; align-items:baseline; gap:14px; margin-top:4px;}
+h1{font-family:'Noto Serif TC',serif; font-weight:900; font-size:27px; line-height:1.3; color:var(--ink); white-space:nowrap;}
+.lead{font-size:14px; color:var(--sub); line-height:1.5;}
+.rule{border-top:1.2px solid #2A3438; margin-top:5px;}
+.cols{display:grid; grid-template-columns:1fr 1fr; column-gap:22px;}
+.col{min-width:0;}
+.row{padding:6px 0 5px; border-bottom:1px solid var(--line);}
+.col > .row:last-child{border-bottom:0;}
+.k{display:flex; align-items:baseline; gap:8px;}
+.k small{font-family:'Noto Serif TC',serif; font-weight:900; color:var(--gold); font-size:11px; letter-spacing:.12em;}
+.k b{font-family:'Noto Serif TC',serif; font-weight:900; font-size:16.5px; color:var(--ink); line-height:1.4;}
+.v{font-size:15px; line-height:1.5; margin-top:1px;}
+ul.d{list-style:none;}
+ul.d li{position:relative; padding-left:12px;}
+ul.d li::before{content:''; position:absolute; left:1px; top:.7em; width:4.5px; height:4.5px; background:var(--gold);}
+/* 名詞不跨行：用 <span class="nw"> 包住，換行時整個詞一起移到下一行 */
+.nw{white-space:nowrap;}
+b.s{font-weight:700; color:var(--ink);}
+.red{color:var(--red); font-weight:700;}
+.hl{font-weight:700; color:var(--ink); background:linear-gradient(transparent 58%, var(--hl) 58%); padding:0 1px;}
+.box{background:var(--beige); padding:5px 10px; margin-top:6px;}
+.box.alert{background:var(--pink);}
+.box .t{font-family:'Noto Serif TC',serif; font-weight:900; font-size:16.5px; color:var(--gold); line-height:1.5;}
+.box.alert .t{color:var(--red);}
+.box .c{font-size:15px; line-height:1.5;}
+table.tb{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:3px;}
+table.tb th{text-align:left; font-weight:700; color:var(--ink); border-bottom:1.2px solid #2A3438; padding:2px 4px;}
+table.tb td{border-bottom:1px solid var(--line); padding:3px 4px; line-height:1.45; vertical-align:top;}
+table.tb th:last-child, table.tb td:last-child{white-space:nowrap;}
+table.tb td:last-child{font-weight:700; color:var(--ink);}
+.src{font-size:9.5px; color:#7A7E80; margin-top:4px; line-height:1.5;}
+/* 頁尾：左邊地址電話與版本，右下角診所標誌與官方 LINE QR code */
+.foot{margin-top:auto; border-top:1px solid #E0DCD4; padding-top:5px; display:flex; justify-content:space-between; align-items:flex-end;}
+.foot .addr{font-size:9.5px; color:#6A6E70; line-height:1.6;}
+.foot .addr span{margin-left:10px;}
+.brand{display:flex; align-items:flex-end; gap:12px;}
+.logo{width:85px; height:29px; overflow:hidden; position:relative; margin-bottom:3px;}
+.logo img{position:absolute; width:635px; left:-490px; top:-845px;}
+.qr{display:flex; flex-direction:column; align-items:center;}
+.qr img{width:15mm; height:15mm; display:block;}
+.qr span{font-size:8.5px; color:#6A6E70; letter-spacing:.06em; margin-top:1px; white-space:nowrap;}
+.fit-bad{outline:3px solid #C0392B;}
+</style>
+</head>
+<body>
+
+<!-- ───────── 檢查前 01 胃鏡 ───────── -->
+<section class="page" data-out="edu-a5-gastroscopy-prep">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">檢查前<b>01</b></span></div>
+  <div class="head"><h1>胃鏡檢查前要準備什麼？</h1><p class="lead">胃裡沒有食物，看得清楚，檢查也比較安全。</p></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>禁食禁水</b></div>
+        <div class="v"><p>檢查前<span class="hl">至少 8 小時不吃東西</span>，<br><span class="hl">2 小時內不喝水</span>。<br>前一天晚餐清淡，不喝酒。</p></div></div>
+      <div class="row"><div class="k"><small>02</small><b>平常吃的藥</b></div>
+        <div class="v"><ul class="d">
+          <li><b class="s">血壓、心臟藥</b>：當天早上照常吃，<br>配一小口水。</li>
+          <li><b class="s">降血糖藥、胰島素</b>：禁食時先不用，<br>帶來診所，檢查完吃東西後再用。</li>
+          <li><b class="s">抗血小板藥、抗凝血劑</b>：事先告知，<br>由醫師評估，<span class="red">不要自行停藥</span>。</li>
+          <li><b class="s">腸泌素類藥物</b>（週纖達、猛健樂、瑞倍適）：<br><span class="nw">胃排空</span>會變慢，預約時請告知。</li>
+        </ul></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>03</small><b>檢查當天</b></div>
+        <div class="v"><ul class="d">
+          <li>帶健保卡、用藥清單、以前的胃鏡報告。</li>
+          <li>穿寬鬆衣物，取下活動假牙與眼鏡。</li>
+          <li>舒眠胃鏡要有家人陪同，<br><span class="hl">當天不可開車、騎車</span>。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>04</small><b>檢查後</b></div>
+        <div class="v"><ul class="d">
+          <li>喉嚨麻藥約 1 小時後消退。<br>先喝一小口水，沒有嗆到再吃東西。</li>
+          <li>有做切片：當天吃溫涼、軟質的食物。</li>
+        </ul></div></div>
+      <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便、劇烈腹痛或發燒，<br>請立即回診或至急診。</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<!-- ───────── 檢查前 02 大腸鏡 ───────── -->
+<section class="page" data-out="edu-a5-colonoscopy-prep">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">檢查前<b>02</b></span></div>
+  <div class="head"><h1>大腸鏡檢查前要準備什麼？</h1><p class="lead">腸子清乾淨，才看得到小瘜肉。</p></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>前兩天：低渣飲食</b></div>
+        <div class="v"><ul class="d">
+          <li>只吃白稀飯、白麵條、白吐司、白饅頭、<br>蒸蛋、去皮魚肉。</li>
+          <li><span class="red">避免蔬果、油炸、豆類與奶類</span>。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>02</small><b>前一天：低渣代餐</b></div>
+        <div class="v"><ul class="d">
+          <li>早餐 07:00 白吐司或白饅頭，<br>午餐 12:00、晚餐 16:00 吃代餐。</li>
+          <li>可以喝白開水、運動飲料、無渣清湯。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>03</small><b>清腸藥分兩次喝</b></div>
+        <div class="v"><ul class="d">
+          <li>前一天 17:00、檢查前 5 小時各一包，<br>每次喝完再喝水 <span class="hl">1500 至 2000 mL</span>。</li>
+          <li>時間與泡法依「清腸衛教單」，<br><span class="red">不可直接吞藥粉</span>。</li>
+        </ul></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>04</small><b>平常吃的藥</b></div>
+        <div class="v"><ul class="d">
+          <li><b class="s">血壓、心臟藥</b>：照常吃，配一小口水。</li>
+          <li><b class="s">降血糖藥、胰島素</b>：飲食控制期間<br>容易低血糖，請先問醫師怎麼調整。</li>
+          <li><b class="s">抗血小板藥、抗凝血劑、腸泌素類藥物</b>：<br>預約時請告知，<span class="red">不要自行停藥</span>。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>05</small><b>檢查當天</b></div>
+        <div class="v"><ul class="d">
+          <li>檢查前 <span class="hl">2 小時禁水</span>。</li>
+          <li>大便是淡黃色清水、沒有渣，<br>就是清乾淨了。</li>
+          <li>舒眠大腸鏡要有家人陪同，<br><span class="hl">當天不可開車、騎車</span>。</li>
+        </ul></div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<!-- ───────── 檢查前 03 腹部超音波 ───────── -->
+<section class="page" data-out="edu-a5-abdominal-us">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">檢查前<b>03</b></span></div>
+  <div class="head"><h1>腹部超音波前要準備什麼？</h1><p class="lead">空腹時膽囊脹滿、腸氣較少，才看得清楚。</p></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>禁食禁水</b></div>
+        <div class="v"><p>檢查前<span class="hl">至少 8 小時不吃東西</span>，<br><span class="hl">2 小時內不喝水</span>。<br>前一天晚餐清淡，避免油膩。</p></div></div>
+      <div class="row"><div class="k"><small>02</small><b>減少脹氣</b></div>
+        <div class="v"><p>容易脹氣的人，檢查前 1 至 2 天少吃<br>豆類、洋蔥、奶製品、碳酸飲料與氣泡水。</p></div></div>
+      <div class="row"><div class="k"><small>03</small><b>平常吃的藥</b></div>
+        <div class="v"><ul class="d">
+          <li>糖尿病、高血壓等慢性病用藥，<br>請先問醫師當天怎麼吃。</li>
+          <li>胃藥、止瀉藥、腸胃蠕動藥，<br>依醫師指示決定是否暫停。</li>
+        </ul></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>04</small><b>穿著</b></div>
+        <div class="v"><p>穿<span class="hl">兩截式寬鬆衣物</span>，方便露出腹部。<br>避免連身裙、緊身衣物與金屬腰帶。</p></div></div>
+      <div class="row"><div class="k"><small>05</small><b>請先告知</b></div>
+        <div class="v"><ul class="d">
+          <li>同時檢查腎臟、膀胱、前列腺或子宮，<br>有時需要憋尿，請依預約時的說明。</li>
+          <li>曾接受腸胃道手術、懷孕或可能懷孕，<br>請事先告知醫師。</li>
+        </ul></div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<!-- ───────── 檢查後 01 腸胃鏡 ───────── -->
+<section class="page" data-out="edu-a5-endoscopy-after">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">檢查後<b>01</b></span></div>
+  <div class="head"><h1>胃鏡、大腸鏡做完要注意什麼？</h1></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>舒眠之後</b></div>
+        <div class="v"><ul class="d">
+          <li>要有家人陪同回家。</li>
+          <li><span class="hl">當天不可開車、騎車</span>、操作機器，<br>不簽重要文件。</li>
+          <li>頭暈想睡是藥效未退，休息就會好。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>02</small><b>飲食</b></div>
+        <div class="v"><ul class="d">
+          <li><b class="s">胃鏡</b>：喉嚨麻藥約 1 小時後消退，<br>先喝一小口水，沒有嗆到再吃東西。</li>
+          <li><b class="s">大腸鏡</b>：從清淡、少量開始吃。</li>
+          <li><b class="s">有切片或切瘜肉</b>：當天吃溫涼軟質，<br>一週內不喝酒。</li>
+        </ul></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>03</small><b>常見的不適</b></div>
+        <div class="v"><p>胃鏡後喉嚨痛、脹氣；大腸鏡後腹脹、<br>排氣多。走動、排氣後會改善，<br>通常一兩天內恢復。</p></div></div>
+      <div class="row"><div class="k"><small>04</small><b>報告與回診</b></div>
+        <div class="v"><ul class="d">
+          <li>病理報告約 1 至 2 週出爐，<br>請依約回診看報告。</li>
+          <li>抗凝血劑何時恢復，依醫師指示。</li>
+        </ul></div></div>
+      <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便或大量血便、腹痛加劇、<br>發燒、頭暈心悸，請立即回診或至急診。</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<!-- ───────── 治療後 01 瘜肉切除 ───────── -->
+<section class="page" data-out="edu-a5-polypectomy-after">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">治療後<b>01</b></span></div>
+  <div class="head"><h1>瘜肉切除後要注意什麼？</h1><p class="lead">傷口約 1 至 2 週癒合，這段時間仍可能出血。</p></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>飲食</b></div>
+        <div class="v"><p>當天吃清淡、好消化的食物；<br>隔天沒有不適，就恢復平常飲食。<br>一週內不喝酒。</p></div></div>
+      <div class="row"><div class="k"><small>02</small><b>活動</b></div>
+        <div class="v"><p>1 至 2 週內避免劇烈運動、提重物與<br>長途旅行，實際天數醫師會另外告訴你。</p></div></div>
+      <div class="row"><div class="k"><small>03</small><b>用藥</b></div>
+        <div class="v"><ul class="d">
+          <li>抗血小板藥、抗凝血劑<br><span class="hl">何時恢復，依醫師指示</span>。</li>
+          <li>止痛先用乙醯胺酚（普拿疼）；<br>阿斯匹靈、布洛芬會增加出血，先問醫師。</li>
+        </ul></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>04</small><b>回診看病理報告</b></div>
+        <div class="v"><p>約 1 至 2 週出爐，下次大腸鏡依結果決定：</p>
+          <table class="tb">
+            <tr><th>病理結果</th><th>下次大腸鏡</th></tr>
+            <tr><td><b class="s">低風險</b>：1 至 2 顆腺瘤，都小於 1 公分，<br>沒有絨毛狀變化或高度化生不良</td><td>3 至 5 年</td></tr>
+            <tr><td><b class="s">高風險</b>：3 顆以上，或任一顆 1 公分以上，<br>或有絨毛狀變化、高度化生不良</td><td>3 年內</td></tr>
+          </table></div></div>
+      <div class="box alert"><div class="t">立即就醫</div><div class="c">解大量鮮血或血塊、頭暈心悸、腹痛加劇、<br><span class="nw">發燒</span>。糞便帶少量血絲一兩次，通常不必擔心。</div></div>
+      <p class="src">以清腸乾淨、完整切除為前提。資料來源：台灣消化系醫學會、國民健康署。</p>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<!-- ───────── 治療後 02 冷凝刀 ───────── -->
+<section class="page" data-out="edu-a5-het-after">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">治療後<b>02</b></span></div>
+  <div class="head"><h1>冷凝刀治療後怎麼照顧？</h1><p class="lead">幾天內可能有脹感或少量出血，通常會逐漸改善。</p></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>排便</b></div>
+        <div class="v"><ul class="d">
+          <li>多喝水、多吃蔬果，讓大便保持柔軟。</li>
+          <li><span class="hl">不要用力、不要久蹲</span>，上廁所不滑手機。</li>
+          <li>兩三天沒排便或大便很硬，<br>依處方使用軟便藥。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>02</small><b>清潔與舒緩</b></div>
+        <div class="v"><ul class="d">
+          <li>便後用溫水沖洗，輕拍擦乾。</li>
+          <li>溫水坐浴每次約 10 分鐘，一天 2 至 3 次。</li>
+          <li>疼痛時依處方使用止痛藥。</li>
+        </ul></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>03</small><b>活動</b></div>
+        <div class="v"><ul class="d">
+          <li>當天可正常走動。<br>有做鎮靜：<span class="hl">當天不可開車、騎車</span>。</li>
+          <li>1 至 2 週內避免提重物、劇烈運動與<br>長時間騎車。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>04</small><b>可能出現的狀況</b></div>
+        <div class="v"><p>肛門脹感、輕微疼痛、排便時少量出血，<br>會逐漸改善。痔瘡日後仍可能復發，<br>好的排便習慣最重要。</p></div></div>
+      <div class="box alert"><div class="t">立即就醫</div><div class="c">大量出血、劇烈疼痛、發燒，或無法排尿，<br>請立即回診或至急診。</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<!-- ───────── 治療後 03 抗逆流結紮 ───────── -->
+<section class="page" data-out="edu-a5-arbl-after">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">治療後<b>03</b></span></div>
+  <div class="head"><h1>抗逆流結紮術後怎麼吃？</h1><p class="lead">結紮處黏膜 1 至 2 週內脫落、癒合。</p></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>飲食</b></div>
+        <div class="v"><ul class="d">
+          <li>治療當天：溫涼的流質。</li>
+          <li>之後約一週：軟質食物，<br>例如粥、蒸蛋、豆腐、煮軟的麵。</li>
+          <li>避免堅硬、大塊、過燙或刺激性食物，<br><span class="hl">小口、慢慢吃</span>。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>02</small><b>用藥</b></div>
+        <div class="v"><p>制酸藥幫助傷口癒合，請依指示服用，<br><span class="red">不要自行停藥</span>。</p></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>03</small><b>生活習慣</b></div>
+        <div class="v"><ul class="d"><li>睡前 3 小時不進食，吃完不馬上躺下。</li><li>夜間症狀明顯，可以把床頭墊高。</li><li>減重、戒菸、少喝酒，都能減少逆流。</li></ul></div></div>
+      <div class="row"><div class="k"><small>04</small><b>可能出現的狀況</b></div>
+        <div class="v"><p>胸口悶痛或灼熱、吞嚥卡卡、喉嚨痛，<br>多在數天內減輕。<br>約 1 至 3 個月後回診評估。</p></div></div>
+      <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便、劇烈胸痛或腹痛、發燒，<br>或完全無法吞嚥。</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<!-- ───────── 用藥 01 幽門桿菌 ───────── -->
+<section class="page" data-out="edu-a5-hp-eradication">
+  <div class="top"><span>木子澄安診所　檢查與治療衛教</span><span class="no">用藥<b>01</b></span></div>
+  <div class="head"><h1>幽門桿菌除菌藥怎麼吃？</h1><p class="lead">整個療程按時吃完，是除菌成功最重要的一步。</p></div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="col">
+      <div class="row"><div class="k"><small>01</small><b>怎麼吃</b></div>
+        <div class="v"><ul class="d">
+          <li>依藥袋時間服用，<span class="hl">10 至 14 天全部吃完</span>，<br>症狀好了也不停藥。</li>
+          <li>忘記吃：想到就補；接近下一次就跳過，<br><span class="red">不要一次吃兩份</span>。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>02</small><b>可能的副作用</b></div>
+        <div class="v"><ul class="d">
+          <li>口苦、噁心、軟便，吃完藥就會改善。</li>
+          <li>處方含鉍劑時，大便會變黑，這是正常的。</li>
+          <li>皮疹、嚴重腹瀉或血便：先停藥並回診。</li>
+        </ul></div></div>
+      <div class="row"><div class="k"><small>03</small><b>不要喝酒</b></div>
+        <div class="v"><p>服藥期間與吃完後 3 天內不喝酒，<br>部分抗生素遇到酒精會噁心、臉潮紅。</p></div></div>
+    </div>
+    <div class="col">
+      <div class="row"><div class="k"><small>04</small><b>確認除菌成功</b></div>
+        <div class="v"><ul class="d">
+          <li>吃完藥<span class="hl">至少 4 週後</span>，<br>回診做碳 13 尿素呼氣測試。</li>
+          <li>測試前 2 週停用制酸藥，以免假陰性。</li>
+          <li>沒有成功，醫師會換另一組藥再治療。</li>
+        </ul></div></div>
+      <div class="box"><div class="t">除菌之後</div><div class="c">已有<span class="nw">胃黏膜萎縮</span>或<span class="nw">腸化生</span>，<br>除菌後仍要定期做胃鏡。<br>同住家人也可以一起檢查。</div></div>
+      <p class="src">資料來源：Maastricht VI／Florence 共識，Gut 2022；Taipei Global Consensus，Gut 2020。</p>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+</section>
+
+<script>
+/* 每張剩餘空間（px）：兩欄中較高的一欄到頁尾的距離，大於 0 代表沒有壓到頁尾 */
+function fitReport(){
+  return [...document.querySelectorAll('.page')].map(p=>{
+    const foot = p.querySelector('.foot');
+    const bottom = Math.max(...[...p.querySelectorAll('.col')].map(c=> c.getBoundingClientRect().bottom));
+    const room = Math.round(foot.getBoundingClientRect().top - bottom);
+    p.classList.toggle('fit-bad', room < 4);
+    return p.dataset.out + '：' + room;
+  }).join('\n');
+}
+/* 自動換行的位置：列出每個「不是 <br> 造成」的換行，前後各兩個字，用來檢查名詞有沒有被切斷 */
+function breakReport(){
+  const out = [];
+  document.querySelectorAll('.page').forEach(p=>{
+    p.querySelectorAll('.v, .c, .lead, td, .src').forEach(el=>{
+      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let prev = null, n;
+      const r = document.createRange();
+      while((n = w.nextNode())){
+        for(let i = 0; i < n.length; i++){
+          r.setStart(n, i); r.setEnd(n, i + 1);
+          const rect = r.getClientRects()[0];
+          if(!rect || !n.data[i].trim()) continue;
+          if(prev && rect.top > prev.top + 4 && !prev.brAfter) out.push(p.dataset.out + '：' + prev.ctx + '｜' + n.data.slice(i, i + 3));
+          prev = {top: rect.top, ctx: n.data.slice(Math.max(0, i - 2), i + 1), brAfter: false};
+        }
+        // 文字後面緊接 <br>，下一行開頭是刻意的換行
+        let s = n.nextSibling, par = n.parentNode;
+        while(!s && par && par !== el){ s = par.nextSibling; par = par.parentNode; }
+        if(prev && s && s.nodeName === 'BR') prev.brAfter = true;
+      }
+    });
+  });
+  return out.join('\n') || '沒有自動換行';
+}
+/* 輸出 WebP（1241 × 877），存到 edu-src/out/ */
+async function renderAll(only){
+  await document.fonts.ready;
+  const done = [];
+  for(const el of document.querySelectorAll('.page')){
+    if(only && !only.includes(el.dataset.out)) continue;
+    el.classList.remove('fit-bad');
+    const canvas = await html2canvas(el, {scale: 1241 / 794, backgroundColor:'#ffffff', useCORS:true, logging:false});
+    const webp = await new Promise(r=> canvas.toBlob(r, 'image/webp', 0.9));
+    await fetch('/__save?name=' + el.dataset.out + '.webp', {method:'POST', body: webp});
+    done.push(el.dataset.out);
+  }
+  return done;
+}
+</script>
+</body>
+</html>
