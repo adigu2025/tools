@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-/* A5 衛教單：版面是 A4 上半部 210 × 148.5 mm（794 × 561 px），輸出 1241 × 877 WebP。
-   列印時工作台自動用 A4 橫式紙、放滿整張；紙匣放 A5 紙時由印表機縮成 A5。
+/* A5 衛教單：版面是 A4 上半部 210 × 148.5 mm（794 × 561 px），輸出整張 A4 直式 1241 × 1755 WebP（內容在上半頁，下半頁留白）。
+   列印時就是一般 A4 直式紙，內容在上半頁；紙匣放 A5 紙、長邊先進紙，印出來就是一張 A5。
    安全邊界：上、左、右 10 mm，下 13 mm。 */
 :root{--ink:#1F2A2E; --body:#2B2E30; --sub:#5E6366; --gold:#9C7A3C; --red:#B0432E;
   --line:#E6E2DA; --beige:#F7F4EC; --pink:#FAF0EC; --hl:#F0E1C3;}
@@ -373,14 +373,20 @@ function breakReport(){
   });
   return out.join('\n') || '沒有自動換行';
 }
-/* 輸出 WebP（1241 × 877），存到 edu-src/out/ */
+/* 輸出 WebP（整張 A4 直式 1241 × 1755，內容在上半頁），存到 edu-src/out/ */
 async function renderAll(only){
   await document.fonts.ready;
   const done = [];
   for(const el of document.querySelectorAll('.page')){
     if(only && !only.includes(el.dataset.out)) continue;
     el.classList.remove('fit-bad');
-    const canvas = await html2canvas(el, {scale: 1241 / 794, backgroundColor:'#ffffff', useCORS:true, logging:false});
+    const half = await html2canvas(el, {scale: 1241 / 794, backgroundColor:'#ffffff', useCORS:true, logging:false});
+    // 輸出整張 A4 直式（1241 × 1755）：內容畫在上半頁，下半頁留白，列印時就是一般 A4 直式紙
+    const canvas = document.createElement('canvas');
+    canvas.width = 1241; canvas.height = 1755;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(half, 0, 0, 1241, Math.round(1241 * half.height / half.width));
     const webp = await new Promise(r=> canvas.toBlob(r, 'image/webp', 0.9));
     await fetch('/__save?name=' + el.dataset.out + '.webp', {method:'POST', body: webp});
     done.push(el.dataset.out);

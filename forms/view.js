@@ -136,8 +136,7 @@ function printForm(t){
 }
 
 /* ── 列印：A4、邊界 0。直式或橫式依圖片比例自動判斷；兩頁並列的圖（split = 2）拆成兩張紙。
-   A5 衛教單的圖是橫的（210 × 148.5 mm），和其他圖一樣自動用 A4 橫式紙、放滿整張；紙匣放 A5 紙時由印表機縮成 A5。
-   不可改成「印在 A4 直式紙上半部」：2026-11-05 實測放 A5 紙會印出空白 ── */
+   A5 衛教單的圖本身就是整張 A4 直式（內容在上半頁、下半頁留白），和一般 A4 圖一樣列印，不另外處理 ── */
 function loadImg(src){
   return new Promise((ok, bad)=>{ const im = new Image(); im.onload = ()=> ok(im); im.onerror = bad; im.src = src; });
 }
