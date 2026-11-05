@@ -50,16 +50,14 @@ table.tb td{border-bottom:1px solid var(--line); padding:3px 4px; line-height:1.
 table.tb th:last-child, table.tb td:last-child{white-space:nowrap;}
 table.tb td:last-child{font-weight:700; color:var(--ink);}
 .src{font-size:9.5px; color:#7A7E80; margin-top:4px; line-height:1.5;}
-/* 頁尾：左邊地址電話與版本，右下角診所標誌與官方 LINE QR code */
-.foot{margin-top:auto; border-top:1px solid #E0DCD4; padding-top:5px; display:flex; justify-content:space-between; align-items:flex-end;}
+/* 頁尾：左邊地址電話與版本，右下角官方 LINE QR code。
+   QR code 疊在頁尾右側往上突出，頁尾高度只由地址決定，左欄可以多用一些高度；右欄內容不可壓到 QR code（見 fitReport） */
+.foot{margin-top:auto; border-top:1px solid #E0DCD4; padding-top:5px; position:relative;}
 .foot .addr{font-size:9.5px; color:#6A6E70; line-height:1.6;}
 .foot .addr span{margin-left:10px;}
-.brand{display:flex; align-items:flex-end; gap:12px;}
-.logo{width:85px; height:29px; overflow:hidden; position:relative; margin-bottom:3px;}
-.logo img{position:absolute; width:635px; left:-490px; top:-845px;}
-.qr{display:flex; flex-direction:column; align-items:center;}
-.qr img{width:15mm; height:15mm; display:block;}
-.qr span{font-size:8.5px; color:#6A6E70; letter-spacing:.06em; margin-top:1px; white-space:nowrap;}
+.qr{position:absolute; right:0; bottom:0; display:flex; flex-direction:column; align-items:flex-end; background:#fff; padding:4px 0 0 10px;}
+.qr img{width:19mm; height:19mm; display:block;}
+.qr span{font-size:9px; color:#6A6E70; letter-spacing:.04em; margin-top:1px; white-space:nowrap;}
 .fit-bad{outline:3px solid #C0392B;}
 </style>
 </head>
@@ -97,7 +95,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便、劇烈腹痛或發燒，<br>請立即回診或至急診。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 檢查前 02 大腸鏡 ───────── -->
@@ -138,7 +136,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
         </ul></div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 檢查前 03 腹部超音波 ───────── -->
@@ -168,7 +166,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
         </ul></div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 檢查後 01 腸胃鏡 ───────── -->
@@ -202,7 +200,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便或大量血便、腹痛加劇、<br>發燒、頭暈心悸，請立即回診或至急診。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 治療後 01 瘜肉切除 ───────── -->
@@ -234,7 +232,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <p class="src">以清腸乾淨、完整切除為前提。資料來源：台灣消化系醫學會、國民健康署。</p>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 治療後 02 冷凝刀 ───────── -->
@@ -268,7 +266,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">大量出血、劇烈疼痛、發燒，或無法排尿，<br>請立即回診或至急診。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 治療後 03 抗逆流結紮 ───────── -->
@@ -295,7 +293,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便、劇烈胸痛或腹痛、發燒，<br>或完全無法吞嚥。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 用藥 01 幽門桿菌 ───────── -->
@@ -330,18 +328,24 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <p class="src">資料來源：Maastricht VI／Florence 共識，Gut 2022；Taipei Global Consensus，Gut 2020。</p>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="brand"><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE</span></div></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <script>
-/* 每張剩餘空間（px）：兩欄中較高的一欄到頁尾的距離，大於 0 代表沒有壓到頁尾 */
+/* 每張剩餘空間（px）：左欄量到頁尾、右欄量到 QR code 上緣，取兩者較小的值，大於 0 代表沒有壓到 */
 function fitReport(){
   return [...document.querySelectorAll('.page')].map(p=>{
-    const foot = p.querySelector('.foot');
-    const bottom = Math.max(...[...p.querySelectorAll('.col')].map(c=> c.getBoundingClientRect().bottom));
-    const room = Math.round(foot.getBoundingClientRect().top - bottom);
+    const foot = p.querySelector('.foot').getBoundingClientRect();
+    const qr = p.querySelector('.qr').getBoundingClientRect();
+    const rooms = [...p.querySelectorAll('.col')].map(c=>{
+      const r = c.getBoundingClientRect();
+      const bottom = Math.max(...[...c.children].map(k=> k.getBoundingClientRect().bottom));
+      const limit = r.right > qr.left ? Math.min(foot.top, qr.top) : foot.top;
+      return Math.round(limit - bottom);
+    });
+    const room = Math.min(...rooms);
     p.classList.toggle('fit-bad', room < 4);
-    return p.dataset.out + '：' + room;
+    return p.dataset.out + '：' + rooms.join('，');
   }).join('\n');
 }
 /* 自動換行的位置：列出每個「不是 <br> 造成」的換行，前後各兩個字，用來檢查名詞有沒有被切斷 */

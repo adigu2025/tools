@@ -186,7 +186,8 @@ body.q-max .hub-main{height:100dvh;}
 
 /* ── 衛教圖卡：圖片盡量放大，病人坐在對面也看得清楚 ── */
 #pane-edu{display:grid; grid-template-columns:290px 1fr; gap:18px; padding:18px; height:100%;}
-.edu-rail{overflow:auto; padding:12px 10px;}
+/* 捲軸位置固定保留：項目少的分類（管藥與麻醉、傷口照護）沒有捲軸時，側欄內容寬度才不會跟著變 */
+.edu-rail{overflow:auto; padding:12px 10px; scrollbar-gutter:stable;}
 .edu-item{position:relative; display:flex; gap:10px; align-items:center; width:100%; text-align:left; border:0;
   background:transparent; padding:11px 12px; border-radius:10px; color:var(--ink-2); font-size:16.5px; line-height:1.4;}
 .edu-item:hover{background:var(--sunken);}
@@ -221,8 +222,13 @@ body.q-max .hub-main{height:100dvh;}
 /* 問卷與健康紀錄表是即時產生的 HTML，不能和圖片一起印，勾選模式下變淡 */
 .edu-item.nopick{opacity:.45; cursor:not-allowed;}
 .edu-item .ck.off{border-style:dashed;}
-.edu-pick{position:sticky; bottom:-12px; background:var(--surface); border-top:1px solid var(--line); margin:10px -10px -12px; padding:10px;}
+/* 多份一起列印：側欄最上方，捲動時固定在頂端；用學院色淡底＋粗字，比分類按鈕醒目 */
+.edu-pick{position:sticky; top:-12px; z-index:2; background:var(--surface); border-bottom:1px solid var(--line); margin:-12px -10px 10px; padding:10px;}
 .edu-pick > .tbtn{width:100%;}
+.edu-pick .pick-on{display:flex; align-items:center; justify-content:center; gap:8px; background:var(--acc-soft); border:1.5px solid var(--acc); color:var(--acc-text); font-weight:700;}
+.edu-pick .pick-on:hover{background:var(--acc); color:var(--acc-fg);}
+.edu-pick.on{background:var(--acc-soft);}
+.edu-pick #pick-print:not(:disabled){background:var(--acc); color:var(--acc-fg); font-weight:700;}
 .edu-pick .sum{font-size:13.5px; color:var(--muted); margin:0 2px 8px;}
 .edu-pick .acts{display:flex; gap:8px;}
 .edu-pick .acts .tbtn{flex:1;}
@@ -353,6 +359,7 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   #pane-edu > .edu-stage{grid-column:1; grid-row:2;}
   .edu-rail{display:flex; flex-direction:column; overflow-x:auto; padding:6px;}
   .edu-groups{flex-direction:row; overflow-x:auto;}
+  .edu-pick{position:static; margin:0 0 6px; padding:0 0 6px;}
   .edu-list{display:flex; overflow-x:auto;}
   .edu-rail .sec-title{display:none;}
   .edu-item{white-space:nowrap; width:auto;}

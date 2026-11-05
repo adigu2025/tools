@@ -20,6 +20,7 @@ const EDU_GROUPS = [
 ];
 const svgIcon = d=> `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true">${d}</svg>`;
 const ICON_DOC = svgIcon('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>');
+const ICON_PRINT = svgIcon('<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/>');
 const ICON = {
   assess:   svgIcon('<path d="M5 3v6a4 4 0 0 0 8 0V3"/><path d="M3.5 3H5M13 3h1.5"/><path d="M9 13v2a5 5 0 0 0 9 3"/><circle cx="19" cy="16" r="2.5"/>'),
   path:     svgIcon('<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>'),
@@ -161,8 +162,9 @@ function renderRail(){
       (pickMode ? ` aria-pressed="${on}"` : '') + (pickMode && !ok ? ' title="這份表單由系統產生，請單獨列印"' : '') +
       `>${lead}<span class="lb">${esc(it.label)}</span>${sizeTag(it)}${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
   }).join('');
-  rail.innerHTML = `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類">${tabs}</div><div class="edu-list">${items}</div>` +
-    `<div class="edu-pick">${pickBar()}</div>`;
+  // 多份一起列印放在最上方，捲動清單時固定在側欄頂端
+  rail.innerHTML = `<div class="edu-pick${pickMode ? ' on' : ''}">${pickBar()}</div>` +
+    `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類">${tabs}</div><div class="edu-list">${items}</div>`;
   rail.querySelectorAll('.edu-group').forEach(b=> b.addEventListener('click', ()=>{
     eduGroup = b.dataset.g;
     store('hub-edu-group', eduGroup);
@@ -186,7 +188,7 @@ function renderRail(){
   if(!pickMode || cur !== prev || shownKey !== itemKey(ITEMS[cur])) showItem(cur, eduPage);
 }
 function pickBar(){
-  if(!pickMode) return `<button class="tbtn" id="pick-on" title="勾選幾份衛教或表單，一次印出">多份一起列印</button>`;
+  if(!pickMode) return `<button class="tbtn pick-on" id="pick-on" title="勾選幾份衛教或表單，一次印出">${ICON_PRINT}多份一起列印</button>`;
   const list = ITEMS.filter(it=> picked.has(itemKey(it)));
   const count = size=> list.filter(it=> it.size === size).reduce((n, it)=> n + itemSheets(it), 0);
   const a4 = count('A4'), a5 = count('A5');
