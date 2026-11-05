@@ -6,7 +6,8 @@
 <title>木子澄安診所</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<!-- 標題字型不擋畫面：先用系統字型顯示，下載好再換上，Google 字型連線慢時不會整頁白畫面 -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script>
 /* 開頁就同時下載四個工具的畫面與程式，不必等前一個裝好才開始抓下一個（減重與健檢報告共用的 lab/lab.js、kit/report-kit.js 先執行） */
 (function(){

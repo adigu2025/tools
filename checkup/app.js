@@ -477,17 +477,24 @@ function ckEnsureOcr(){
   if(window.Tesseract) return Promise.resolve();
   return ckOcrLoad || (ckOcrLoad = new Promise((ok, no)=>{
     const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js';
+    // 與臨床計算用同一個網址，任一邊下載過，另一邊就直接用快取
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
     s.onload = ok; s.onerror = ()=>{ ckOcrLoad = null; no(new Error('影像辨識元件載入失敗，請確認網路')); };
     document.head.appendChild(s);
   }));
 }
+// 辨識元件啟動要好幾秒，連續附加多份報告時沿用同一個；閒置 2 分鐘才關掉，釋放記憶體
+let ckOcrWorker = null, ckOcrIdle = null;
 async function ckOcr(srcs){
   await ckEnsureOcr();
-  const w = await Tesseract.createWorker('eng');
+  clearTimeout(ckOcrIdle);
+  if(!ckOcrWorker) ckOcrWorker = Tesseract.createWorker('eng').catch(err=>{ ckOcrWorker = null; throw err; });
+  const w = await ckOcrWorker;
   let t = '';
   try{ for(const s of srcs) t += (await w.recognize(s)).data.text + '\n'; }
-  finally{ await w.terminate(); }
+  finally{
+    ckOcrIdle = setTimeout(()=>{ const p = ckOcrWorker; ckOcrWorker = null; if(p) p.then(x=> x.terminate()).catch(()=>{}); }, 120000);
+  }
   return t;
 }
 async function ckAttach(kind, files){

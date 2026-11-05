@@ -324,7 +324,9 @@ function ckFib4(rows, P){
   const get = k=> { const r = rows.find(x=> x.key === k); return r ? ckNum(r.raw) : null; };
   const ast = get('ast'), alt = get('alt'), plt = get('plt'), age = P.age;
   if(ast == null && alt == null) return null;
-  const miss = [age == null && '年齡', ast == null && 'AST', alt == null && 'ALT', plt == null && '血小板'].filter(Boolean);
+  // 填 0 或負數（例如誤植）一樣當作缺值，否則會算出 NaN 或無限大，還被判成「正常」
+  const ok = x=> x != null && x > 0;
+  const miss = [!ok(age) && '年齡', !ok(ast) && 'AST', !ok(alt) && 'ALT', !ok(plt) && '血小板'].filter(Boolean);
   if(miss.length) return {miss};
   const v = age * ast / (plt * Math.sqrt(alt));
   const low = age >= 65 ? 2.0 : 1.3;

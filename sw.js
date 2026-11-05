@@ -6,8 +6,10 @@
    以前先顯示快取再背景更新，同意書改版後會先看到舊圖，列印時容易印到舊版。
    外部程式庫與字型（網址含版本號，不會變）：有快取就直接用。
    檢驗截圖辨識（Tesseract.js）從 jsDelivr 載入，用過一次後斷網也能辨識。
-   工作台開啟後會把所有衛教與表單圖片預先存下，斷網時也能顯示與列印。 */
-const CACHE = 'tools-v56';
+   工作台開啟後會把所有衛教與表單圖片預先存下，斷網時也能顯示與列印。
+   網路很慢（伺服器 3 秒內沒回應，圖片 6 秒）時先用快取開啟，背景照樣把新版存下，下次開啟就是新版；
+   以前會一直等到連線逾時，網路卡住時整個工作台白畫面。 */
+const CACHE = 'tools-v57';
 const CORE = [
   './', 'index.html',
   'mount.js', 'revision.js',
@@ -38,7 +40,7 @@ self.addEventListener('fetch', e=>{
   const url = new URL(req.url);
   if(CDN.test(url.hostname)) return e.respondWith(cacheFirst(req));
   if(url.origin !== location.origin) return;
-  e.respondWith(networkFirst(req));
+  e.respondWith(networkFirst(req, e));
 });
 
 // 工作台開啟後傳來衛教與表單圖片清單，還沒存過的逐一存下
@@ -60,18 +62,28 @@ async function cacheFirst(req){
   return res;
 }
 
-async function networkFirst(req){
-  try{
-    // 沒有改版時伺服器只回 304，不會重新下載整個檔案。
-    // 開啟網頁（navigate）的請求不能帶參數重建，否則會丟出錯誤而一直退回舊快取，所以改用網址重新發出請求
+async function networkFirst(req, e){
+  // 沒有改版時伺服器只回 304，不會重新下載整個檔案。
+  // 開啟網頁（navigate）的請求不能帶參數重建，否則會丟出錯誤而一直退回舊快取，所以改用網址重新發出請求
+  const net = (async()=>{
     let res = await fetch(req.url, {cache:'no-cache', credentials:'same-origin'});
     // 網頁被轉址時，重新發出的請求結果不能直接交給瀏覽器，改用原本的請求
     if(res.redirected && req.mode === 'navigate') res = await fetch(req);
-    if(res.ok) (await caches.open(CACHE)).put(req, res.clone());
+    if(res.ok){ const copy = res.clone(); e.waitUntil(caches.open(CACHE).then(c=> c.put(req, copy))); }
     return res;
+  })();
+  const wait = req.destination === 'image' ? 6000 : 3000;
+  try{
+    const res = await Promise.race([net, new Promise(r=> setTimeout(r, wait, null))]);
+    if(res) return res;
   }catch(err){
     const hit = await caches.match(req, {ignoreSearch:true});
     if(hit) return hit;
     throw err;
   }
+  // 逾時：有快取就先用，網路那邊繼續跑完並更新快取；沒有快取只好繼續等
+  const hit = await caches.match(req, {ignoreSearch:true});
+  if(!hit) return net;
+  e.waitUntil(net.catch(()=>{}));
+  return hit;
 }
