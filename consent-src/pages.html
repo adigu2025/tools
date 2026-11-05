@@ -345,7 +345,7 @@
     <li>本診所提供兩種舒眠檢查／治療方式：「輕中度鎮靜」與「靜脈麻醉」。規劃時以病人安全為第一原則，採專業分工的雙軌制度。</li>
     <li>不論選擇哪一種，負責鎮靜或麻醉的醫師都受過完整的急救與呼吸道處置訓練，能在第一時間處理鎮靜相關的風險：
       <div class="two" style="margin:5px 0 2px;gap:12px">
-        <div class="boxed" style="text-align:center"><span class="k">輕中度鎮靜</span>由<span class="k">急診專科醫師</span>執行</div>
+        <div class="boxed" style="text-align:center"><span class="k">輕中度鎮靜</span>由<span class="k">急診專科或內科專科醫師</span>執行</div>
         <div class="boxed" style="text-align:center"><span class="k">靜脈麻醉</span>由<span class="k">麻醉專科醫師</span>執行</div>
       </div>
     </li>
@@ -362,7 +362,7 @@
     <tr><th>拮抗藥物</th><td>flumazenil（可逆轉）</td><td>無拮抗劑（自然代謝）</td></tr>
     <tr><th>呼吸抑制風險</th><td>較低</td><td>較高，需全程監測呼吸</td></tr>
     <tr><th>舒適度</th><td>中度，可能有輕微感覺</td><td>高，過程通常沒有感覺</td></tr>
-    <tr><th>執行醫師</th><td>急診專科醫師</td><td>麻醉專科醫師</td></tr>
+    <tr><th>執行醫師</th><td>急診專科或內科專科醫師</td><td>麻醉專科醫師</td></tr>
     <tr><th>同意書</th><td>本同意書</td><td>另簽麻醉同意書</td></tr>
   </table>
 
@@ -475,7 +475,7 @@
     <tr><th>項目</th><th>內容</th><th style="width:22%">費用</th></tr>
     <tr><td>大腸鏡</td><td class="l">治療前評估</td><td>健保給付</td></tr>
     <tr><td>大腸鏡自費選項</td><td class="l">拋棄式檢查褲、二氧化碳充氣、日本製造代餐與清腸藥</td><td>1500 元</td></tr>
-    <tr><td>輕中度鎮靜</td><td class="l">由急診專科醫師執行，另簽鎮靜同意書</td><td>2500 元</td></tr>
+    <tr><td>輕中度鎮靜</td><td class="l">由急診專科或內科專科醫師執行，另簽鎮靜同意書</td><td>2500 元</td></tr>
     <tr><td>冷凝刀治療</td><td class="l">痔瘡能量治療</td><td>35500 元</td></tr>
     <tr><th colspan="2" style="text-align:right">合計</th><th style="font-size:16px">39500 元</th></tr>
   </table>
@@ -551,7 +551,7 @@
     <tr><th>項目</th><th>內容</th><th style="width:22%">費用</th></tr>
     <tr><td>胃鏡</td><td class="l">治療前評估</td><td>健保給付</td></tr>
     <tr><td>胃鏡自費選項</td><td class="l">標準胃鏡，經口，拋棄式咬口器</td><td>100 元</td></tr>
-    <tr><td>輕中度鎮靜</td><td class="l">由急診專科醫師執行，另簽鎮靜同意書</td><td>2000 元</td></tr>
+    <tr><td>輕中度鎮靜</td><td class="l">由急診專科或內科專科醫師執行，另簽鎮靜同意書</td><td>2000 元</td></tr>
     <tr><td>抗逆流結紮術</td><td class="l">內視鏡抗逆流結紮術（ARBL）</td><td>16000 元</td></tr>
     <tr><th colspan="2" style="text-align:right">合計</th><th style="font-size:16px">18100 元</th></tr>
   </table>
@@ -723,7 +723,7 @@ const ROWS = {
 };
 document.querySelectorAll('.final[data-kind]').forEach(b=>{
   const rows = (ROWS[b.dataset.kind] || []).concat([
-    [L('同意人簽名：'), L('關係：' + ({drug:'使用人之', treat:'病人之'}[b.dataset.kind] || '受檢人之'))],
+    [L('同意人簽名：'), L('關係：' + ({drug:'使用人之', treat:'接受治療者之'}[b.dataset.kind] || '受檢人之'))],
     [L('身分證字號：'), L('出生年月日：')],
     [L('說明醫師：'), '<div class="f"></div>'],
   ]);

@@ -2,7 +2,7 @@
    工作台（index.html）與臨床計算病人版（calc/index.html）都先載入這份，各工具再從 REVISION 讀自己的日期。
    報價單上的「價目版本」不在這裡：價格有變才改，見 quote/app.js 的 Q_PRICE_VERSION。 */
 const REVISION = {
-  hub:     '2026-11-04',
+  hub:     '2026-11-05',
   quote:   '2026-11-04',
   calc:    '2026-11-04',
   weight:  '2026-11-04',
