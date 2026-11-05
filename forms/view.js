@@ -159,6 +159,12 @@ async function printImages(pages, title){
       }
     });
   }catch(err){ toast('圖片載入失敗，無法列印。'); return; }
+  // 有 A5 衛教單時先提醒取消雙面列印（開了雙面，A5 紙會印出空白；A4 不受影響）。
+  // 網頁無法替使用者取消雙面，Chrome 會記住上一次的設定。提醒先顯示 1.2 秒再打開列印視窗，否則會被列印視窗蓋住
+  if(pages.some(pg=> pg.a5)){
+    toast('請確認未勾選『雙面列印』', 'warn', 8000);
+    await new Promise(r=> setTimeout(r, 1200));
+  }
   printHtml(html, title, landscape);
 }
 
