@@ -136,7 +136,8 @@ function printForm(t){
 }
 
 /* ── 列印：A4、邊界 0。直式或橫式依圖片比例自動判斷；兩頁並列的圖（split = 2）拆成兩張紙。
-   A5 衛教單（a5 = true）一律用 A4 直式紙，圖印在上半部 210 × 148.5 mm、下半部空白；紙匣放 A5 紙時印出來就是一張 A5 ── */
+   A5 衛教單的圖是橫的（210 × 148.5 mm），和其他圖一樣自動用 A4 橫式紙、放滿整張；紙匣放 A5 紙時由印表機縮成 A5。
+   不可改成「印在 A4 直式紙上半部」：2026-11-05 實測放 A5 紙會印出空白 ── */
 function loadImg(src){
   return new Promise((ok, bad)=>{ const im = new Image(); im.onload = ()=> ok(im); im.onerror = bad; im.src = src; });
 }
@@ -146,13 +147,9 @@ async function printImages(pages, title){
     const loaded = [];
     for(const pg of pages){ loaded.push({pg, img: await loadImg(pg.src)}); }
     // 每一張紙的長寬比；全部都是橫的才用橫式紙
-    landscape = loaded.every(({pg, img})=> !pg.a5 && (img.naturalWidth / (pg.split || 1)) > img.naturalHeight);
+    landscape = loaded.every(({pg, img})=> (img.naturalWidth / (pg.split || 1)) > img.naturalHeight);
     const PW = landscape ? 297 : 210, PH = landscape ? 210 : 297;
     loaded.forEach(({pg, img})=>{
-      if(pg.a5){
-        html += `<div class="pg" style="align-items:flex-start"><img src="${pg.src}" style="display:block;width:210mm;height:148.5mm"></div>`;
-        return;
-      }
       const n = pg.split || 1;
       const ar = (img.naturalWidth / n) / img.naturalHeight;
       let w = PW, h = PW / ar;
