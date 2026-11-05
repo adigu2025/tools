@@ -323,7 +323,7 @@
 
   function calcBMI(){
     var h = num('height'), w = num('weight');
-    if (!isNum(h) || !isNum(w)) { bmiBase = ''; show('bmi', false); calcTarget(); return; }
+    if (!isNum(h) || !isNum(w)) { bmiBase = ''; show('bmi', false); markRow('bmi-table', null); calcTarget(); return; }
 
     var hm = h / 100;
     var bmi = w / (hm * hm);
@@ -336,6 +336,7 @@
     badge.style.background = s.bg;
     badge.style.color = s.color;
     $('bmi-note').textContent = s.note;
+    markRow('bmi-table', String(BMI_STATUS.indexOf(s)));
 
     var lo = (18.5 * hm * hm).toFixed(1);
     var hi = (24 * hm * hm).toFixed(1);
@@ -541,12 +542,30 @@
 
   function fmtInt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
+  // 判讀色帶：依切點畫出分段色帶與刻度，val 為 null 時只畫色帶不放標記
+  function drawScale(id, cuts, labels, val, color){
+    var el = $(id);
+    if (!el) return;
+    var lo = parseFloat(el.dataset.min), hi = parseFloat(el.dataset.max), tones = el.dataset.tones.split(',');
+    var pos = function(x){ return Math.max(0, Math.min(100, (x - lo) / (hi - lo) * 100)); };
+    var edges = [lo].concat(cuts, [hi]), bar = '', ticks = '';
+    for (var i = 0; i < tones.length; i++) bar += '<i class="s-' + tones[i] + '" style="flex:' + (edges[i + 1] - edges[i]).toFixed(3) + '"></i>';
+    cuts.forEach(function(c, i){ ticks += '<span style="left:' + pos(c).toFixed(2) + '%">' + labels[i] + '</span>'; });
+    el.innerHTML = '<div class="scale-bar">' + bar + '</div>' +
+      (val == null ? '' : '<div class="scale-mark" style="left:' + pos(val).toFixed(2) + '%;color:' + color + '"></div>') +
+      '<div class="scale-ticks"><span class="scale-end">' + el.dataset.lo + '</span>' + ticks + '<span class="scale-end r">' + el.dataset.hi + '</span></div>';
+  }
+  function fibScale(v, c, senior){ drawScale('fib-scale', [senior ? 2.0 : 1.30, 2.67], [senior ? '2.0' : '1.30', '2.67'], v, c); }
+  function rfScale(v, c){ drawScale('rf-scale', [2, 5], ['2', '5'], v, c); }
+  function cpScale(v, c){ drawScale('cp-scale', [6.5, 9.5], ['A｜B', 'B｜C'], v, c); }
+  fibScale(null); rfScale(null); cpScale(null);
+
   /* ======================================================
      FIB-4
      ====================================================== */
   function calcFIB4(){
     var age = num('fib-age'), ast = num('fib-ast'), alt = num('fib-alt'), plt = num('fib-plt');
-    if (!isNum(age) || !isNum(ast) || !isNum(alt) || !isNum(plt)) { show('fib4', false); markRow('fib4-table', null); return; }
+    if (!isNum(age) || !isNum(ast) || !isNum(alt) || !isNum(plt)) { show('fib4', false); markRow('fib4-table', null); fibScale(null); return; }
 
     var fib4 = (age * ast) / (plt * Math.sqrt(alt));
     var senior = age >= 65;
@@ -575,6 +594,7 @@
     $('fib-status').textContent = status;
     $('fib-status').style.color = color;
     $('fib-interp').textContent = interp;
+    fibScale(fib4, color, senior);
     // ≥65 歲下限改 2.0：只有 1.30 至 2.0 之間與對照表分級不同，那一段不標示
     markRow('fib4-table', senior && fib4 >= 1.30 && fib4 < loCut ? null : band);
 
@@ -591,7 +611,7 @@
      ====================================================== */
   function calcRF(){
     var alt = num('rf-alt'), altULN = num('rf-alt-uln'), alp = num('rf-alp'), alpULN = num('rf-alp-uln');
-    if (!isNum(alt) || !isNum(altULN) || !isNum(alp) || !isNum(alpULN)) { show('rfactor', false); markRow('rfactor-table', null); return; }
+    if (!isNum(alt) || !isNum(altULN) || !isNum(alp) || !isNum(alpULN)) { show('rfactor', false); markRow('rfactor-table', null); rfScale(null); return; }
 
     var r = (alt / altULN) / (alp / alpULN);
     var label, color, bg, band, interp, detail;
@@ -620,6 +640,7 @@
     badge.style.border = '1.5px solid ' + color;
     $('rf-interp').textContent = interp;
     $('rf-detail').textContent = detail;
+    rfScale(r, color);
     markRow('rfactor-table', band);
 
     COPY.rfactor = 'R factor = ' + r.toFixed(2) + '（' + label + '）｜ALT ' + alt + '／ULN ' + altULN +
@@ -647,6 +668,7 @@
     if (filled < CP_FIELDS.length) {
       show('childpugh', false);
       markRow('childpugh-table', null);
+      cpScale(null);
       return;
     }
 
@@ -669,6 +691,7 @@
     $('cp-grade').textContent = 'Child-Pugh ' + grade;
     $('cp-grade').style.color = color;
     $('cp-interp').textContent = interp;
+    cpScale(total, color);
 
     // 由截圖帶入的分數附上原始數值（例如「總膽紅素 2.4 mg/dL」），手動改過就只寫分數
     var parts = CP_FIELDS.map(function(f, i){ var raw = $(f.id).dataset.raw; return (raw ? raw.replace(/^INR/, 'PT／INR') : f.label) + ' ' + vals[i] + ' 分'; });
@@ -1736,31 +1759,259 @@
   })();
 
   /* ======================================================
+     糞便示意圖（Bristol 七型與糞便顏色共用）
+     形狀依 Lewis SJ & Heaton KW（Scand J Gastroenterol 1997）的原始描述繪製；
+     用固定亂數種子產生，每次畫出來都一樣。顏色取自然的褐色系，加上明暗、表面紋理與落地陰影。
+     寫成函式宣告（會提升），自我評估模組在檔案前段建立時就能呼叫。
+     ====================================================== */
+  function stoolArt(kind, opt){
+    opt = opt || {};
+    stoolArt.n = (stoolArt.n || 0) + 1;
+    var id = 'st' + stoolArt.n, seed = 7;
+    function rnd(){ seed = seed * 16807 % 2147483647; return (seed - 1) / 2147483646; }
+    function f(p){ return p[0].toFixed(1) + ',' + p[1].toFixed(1); }
+    function mix(hex, to, k){
+      var a = parseInt(hex.slice(1), 16), b = parseInt(to.slice(1), 16), o = '#';
+      [16, 8, 0].forEach(function(s){
+        var x = Math.round(((a >> s) & 255) * (1 - k) + ((b >> s) & 255) * k);
+        o += (x < 16 ? '0' : '') + x.toString(16);
+      });
+      return o;
+    }
+    // 封閉平滑曲線（Catmull-Rom 轉貝茲）
+    function smooth(P){
+      var n = P.length, d = 'M' + f(P[0]);
+      for (var i = 0; i < n; i++){
+        var a = P[(i - 1 + n) % n], b = P[i], c = P[(i + 1) % n], e = P[(i + 2) % n];
+        d += 'C' + f([b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6]) + ' ' +
+             f([c[0] - (e[0] - b[0]) / 6, c[1] - (e[1] - b[1]) / 6]) + ' ' + f(c);
+      }
+      return d + 'Z';
+    }
+    // 不規則團塊
+    function blob(cx, cy, rx, ry, n, jit, rot){
+      var P = [], ca = Math.cos(rot || 0), sa = Math.sin(rot || 0);
+      for (var i = 0; i < n; i++){
+        var t = i / n * Math.PI * 2, k = 1 + (rnd() - .5) * 2 * jit;
+        var x = Math.cos(t) * rx * k, y = Math.sin(t) * ry * k;
+        P.push([cx + x * ca - y * sa, cy + x * sa + y * ca]);
+      }
+      return smooth(P);
+    }
+    // 長條：沿中心線往兩側外推，兩端圓頭；N 指向畫面上方
+    function logPts(C, w, jit){
+      var m = C.length - 1, N = [], W = [], top = [], bot = [], i;
+      for (i = 0; i <= m; i++){
+        var a = C[Math.max(0, i - 1)], b = C[Math.min(m, i + 1)];
+        var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+        N.push([dy / L, -dx / L]);
+        W.push(w * (0.8 + 0.2 * Math.sin(Math.PI * i / m)));
+      }
+      for (i = 0; i <= m; i++){
+        var k1 = 1 + (rnd() - .5) * jit, k2 = 1 + (rnd() - .5) * jit;
+        top.push([C[i][0] + N[i][0] * W[i] * k1, C[i][1] + N[i][1] * W[i] * k1]);
+        bot.push([C[i][0] - N[i][0] * W[i] * k2, C[i][1] - N[i][1] * W[i] * k2]);
+      }
+      function cap(c, n, ww, s){
+        var T = [-n[1], n[0]], out = [];
+        for (var k = 1; k < 4; k++){
+          var th = k / 4 * Math.PI, cs = Math.cos(th), sn = Math.sin(th);
+          out.push([c[0] + s * (n[0] * cs + T[0] * sn) * ww, c[1] + s * (n[1] * cs + T[1] * sn) * ww]);
+        }
+        return out;
+      }
+      var P = top.concat(cap(C[m], N[m], W[m], 1), bot.reverse(), cap(C[0], N[0], W[0], -1));
+      return { d: smooth(P), N: N, W: W };
+    }
+    function curve(x0, x1, y, amp, waves, n){
+      var C = [];
+      for (var i = 0; i <= n; i++){
+        var t = i / n;
+        C.push([x0 + (x1 - x0) * t, y + amp * Math.sin(t * Math.PI * 2 * waves)]);
+      }
+      return C;
+    }
+    function line(P){ return 'M' + P.map(f).join('L'); }
+
+    var base = opt.color || '#6B4423';
+    var pal = { light: mix(base, '#FFFFFF', .22), base: base, dark: mix(base, '#000000', .38), edge: mix(base, '#000000', .55) };
+    var defs =
+      '<linearGradient id="' + id + 'g" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="' + pal.light + '"/><stop offset=".5" stop-color="' + pal.base + '"/>' +
+        '<stop offset="1" stop-color="' + pal.dark + '"/></linearGradient>' +
+      '<filter id="' + id + 't" x="0" y="0" width="100%" height="100%">' +
+        '<feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="' + (opt.seed || 3) + '"/>' +
+        '<feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 2.4 -1.05"/>' +
+        '<feComposite in2="SourceAlpha" operator="in"/></filter>' +
+      '<filter id="' + id + 'b" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>' +
+      '<filter id="' + id + 'h" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="1.6"/></filter>';
+    // 邊緣起伏：用雜訊位移整組形狀，輪廓才不會是電腦畫的完美曲線
+    var DISP = { 1:2.6, 2:3.2, 3:1.8, 4:1.2, 5:1.4, 6:7, 7:2.4 }[kind] || 1.2;
+    defs += '<filter id="' + id + 'd" x="-5%" y="-15%" width="110%" height="130%">' +
+      '<feTurbulence type="fractalNoise" baseFrequency="' + (kind === 6 ? '.11' : '.07') + '" numOctaves="2" seed="' + ((opt.seed || 3) + 11) + '" result="n"/>' +
+      '<feDisplacementMap in="SourceGraphic" in2="n" scale="' + DISP + '" xChannelSelector="R" yChannelSelector="G"/></filter>';
+    var under = '', body = '';
+    function shadow(cx, cy, rx, ry){
+      under += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="#3A2A1C" opacity=".15" filter="url(#' + id + 'b)"/>';
+    }
+    function piece(d, tex, edgeOp){
+      body += '<path d="' + d + '" fill="url(#' + id + 'g)" stroke="' + pal.edge + '" stroke-width=".9" stroke-opacity="' + (edgeOp == null ? .45 : edgeOp) + '"/>';
+      if (tex) body += '<path d="' + d + '" fill="#1A0F06" opacity="' + tex + '" filter="url(#' + id + 't)"/>';
+    }
+    // 霧面反光：寬、淡、模糊，避免塑膠感
+    function shine(d, w, op){
+      body += '<path d="' + d + '" fill="none" stroke="' + mix(base, '#FFFFFF', .55) + '" stroke-width="' + w + '" stroke-linecap="round" opacity="' + op + '" filter="url(#' + id + 'h)"/>';
+    }
+    function lump(cx, cy, rx, ry, jit, tex){
+      piece(blob(cx, cy, rx, ry, 11, jit, (rnd() - .5) * .8), tex);
+      body += '<ellipse cx="' + (cx - rx * .28).toFixed(1) + '" cy="' + (cy - ry * .4).toFixed(1) + '" rx="' + (rx * .42).toFixed(1) +
+              '" ry="' + (ry * .22).toFixed(1) + '" fill="' + pal.light + '" opacity=".35" filter="url(#' + id + 'h)"/>';
+    }
+    function smoothLog(C, w, jit, tex, gloss){
+      var L = logPts(C, w, jit);
+      shadow(110, 72, 92, 7);
+      piece(L.d, tex);
+      shine(line(C.slice(2, -2).map(function(c, i){ var j = i + 2; return [c[0] + L.N[j][0] * L.W[j] * .42, c[1] + L.N[j][1] * L.W[j] * .42]; })),
+            w * .42, gloss);
+      return L;
+    }
+
+    switch (kind){
+      case 1: // 分開的硬塊，像堅果
+        [[24, 50, 13, 12], [56, 45, 14, 13], [89, 53, 12, 11], [121, 46, 15, 13], [156, 53, 13, 12], [190, 47, 12, 11]].forEach(function(b){
+          shadow(b[0], 66, b[2] + 2, 3.5);
+          lump(b[0], b[1], b[2], b[3], .16, .4);
+        });
+        break;
+      case 2: // 香腸狀，由硬塊黏成、表面凹凸
+        shadow(110, 70, 94, 7);
+        curve(26, 194, 46, 5, .5, 8).forEach(function(c){
+          lump(c[0] + (rnd() - .5) * 4, c[1] + (rnd() - .5) * 5, 15 + rnd() * 4, 14 + rnd() * 3, .14, .36);
+        });
+        break;
+      case 3: { // 香腸狀，表面有裂痕
+        var C3 = curve(18, 202, 46, 4, .5, 22), L3 = smoothLog(C3, 17, .08, .3, .3);
+        // 裂痕：位置、角度、長短都不規則，從上緣往下裂；另有細小的分岔
+        [2.6, 5.2, 7.4, 10.3, 12.6, 15.5, 18.4].forEach(function(jf){
+          var j = Math.round(jf), c = C3[j], n = L3.N[j], w = L3.W[j];
+          // 鋸齒狀裂縫：上寬下窄，深度 0.6 至 1.5 倍半徑，往左右歪斜
+          var depth = .6 + rnd() * .9, steps = 4, P = [], lean = (rnd() - .5) * 10;
+          for (var q = 0; q <= steps; q++){
+            var t = q / steps, k = 1.02 - depth * t;
+            P.push([c[0] + n[0] * w * k + lean * t + (q && q < steps ? (rnd() - .5) * 5 : 0), c[1] + n[1] * w * k]);
+          }
+          var dark = mix(base, '#000000', .72);
+          body += '<path d="M' + f(P[0]) + 'L' + f(P[1]) + 'L' + f(P[2]) + '" fill="none" stroke="' + dark + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".72"/>';
+          body += '<path d="M' + P.slice(2).map(f).join('L') + '" fill="none" stroke="' + dark + '" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>';
+          body += '<path d="M' + f([P[0][0] + 1.6, P[0][1] + .6]) + 'L' + f([P[1][0] + 1.6, P[1][1] + .6]) + '" fill="none" stroke="' + pal.light + '" stroke-width=".8" opacity=".55"/>';
+          if (rnd() > .45) body += '<path d="M' + f(P[2]) + 'l' + (lean > 0 ? -5 : 5) + ',' + (1.5 + rnd() * 3).toFixed(1) + '" fill="none" stroke="' + dark + '" stroke-width=".8" stroke-linecap="round" opacity=".55"/>';
+        });
+        break;
+      }
+      case 4: // 香腸或蛇形，光滑柔軟
+        smoothLog(curve(16, 204, 44, 9, .9, 16), 14.5, .03, .16, .32);
+        break;
+      case 5: // 邊緣清楚的軟塊
+        [[34, 49, 22, 14, -.15], [84, 45, 21, 13, .1], [133, 50, 20, 13, -.05], [182, 46, 19, 13, .18]].forEach(function(b){
+          shadow(b[0], 64, b[2] + 1, 3.5);
+          piece(blob(b[0], b[1], b[2], b[3], 12, .06, b[4]), .16);
+          body += '<ellipse cx="' + (b[0] - 5) + '" cy="' + (b[1] - 6) + '" rx="' + (b[2] * .5).toFixed(1) + '" ry="3.4" fill="' + pal.light + '" opacity=".5" filter="url(#' + id + 'h)"/>';
+        });
+        break;
+      case 6: { // 蓬鬆糊狀、邊緣破碎：幾團軟糊疊在一起，外圍有濕痕
+        under += '<path d="' + blob(110, 57, 96, 21, 26, .1) + '" fill="' + pal.base + '" opacity=".2" filter="url(#' + id + 'b)"/>';
+        shadow(108, 66, 82, 6);
+        [[60, 52, 30, 14], [98, 47, 34, 16], [140, 52, 30, 14], [176, 55, 20, 10], [34, 56, 18, 9], [118, 58, 26, 9]].forEach(function(b){
+          piece(blob(b[0], b[1], b[2], b[3], 18, .14, (rnd() - .5) * .3), .32, .25);
+        });
+        [[200, 46, 6, 4], [16, 46, 5, 3.5], [150, 33, 6, 4], [70, 35, 5, 3.4]].forEach(function(b){
+          piece(blob(b[0], b[1], b[2], b[3], 10, .2), .3, .25);
+        });
+        shine('M70,42 Q104,35 140,42', 6, .3);
+        break;
+      }
+      case 7: { // 水狀，沒有固體
+        var gid = id + 'w';
+        defs += '<radialGradient id="' + gid + '" cx=".45" cy=".4" r=".7">' +
+          '<stop offset="0" stop-color="' + pal.base + '" stop-opacity=".85"/><stop offset=".7" stop-color="' + pal.base + '" stop-opacity=".62"/>' +
+          '<stop offset="1" stop-color="' + pal.light + '" stop-opacity=".35"/></radialGradient>';
+        body += '<path d="' + blob(110, 54, 94, 22, 30, .13) + '" fill="url(#' + gid + ')" stroke="' + pal.dark + '" stroke-opacity=".35" stroke-width="1"/>';
+        shine('M58,47 Q92,41 128,45', 3.5, .35);
+        shine('M140,58 Q160,55 176,58', 2.5, .28);
+        [[22, 36, 4], [198, 40, 3.5], [184, 72, 3], [40, 74, 2.6]].forEach(function(b){
+          body += '<path d="' + blob(b[0], b[1], b[2], b[2] * .8, 8, .1) + '" fill="url(#' + gid + ')" stroke="' + pal.dark + '" stroke-opacity=".35"/>';
+        });
+        break;
+      }
+      case 'blood': { // 成形糞便表面附著鮮血，旁邊有血滴
+        var CBL = curve(22, 198, 46, 6, .7, 14), LB = smoothLog(CBL, 15, .05, .2, .24);
+        var streak = CBL.slice(3, 11).map(function(c, i){ var j = i + 3; return [c[0] + LB.N[j][0] * LB.W[j] * .5, c[1] + LB.N[j][1] * LB.W[j] * .5 + (i % 2 ? 2 : -1)]; });
+        body += '<path d="' + line(streak) + '" fill="none" stroke="#9E1620" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".88"/>';
+        body += '<path d="' + line(streak) + '" fill="none" stroke="#D2454B" stroke-width="1.4" stroke-linecap="round" opacity=".55"/>';
+        [[132, 76, 4.5], [148, 80, 3.2], [92, 78, 3.6]].forEach(function(b){
+          under += '<path d="' + blob(b[0], b[1], b[2], b[2] * .7, 9, .1) + '" fill="#9E1620" opacity=".9"/>' +
+                   '<ellipse cx="' + (b[0] - 1.2) + '" cy="' + (b[1] - 1) + '" rx="1.2" ry=".8" fill="#fff" opacity=".45"/>';
+        });
+        break;
+      }
+      default: // 糞便顏色：同一個成形長條，只換顏色
+        smoothLog(curve(18, 202, 45, 7, .8, 16), 15, .04, opt.tex == null ? .2 : opt.tex, opt.gloss || .24);
+    }
+    return '<svg viewBox="0 0 220 90" class="' + (opt.cls || 'stool-svg') + '" aria-hidden="true" focusable="false"><defs>' + defs + '</defs>' +
+      under + '<g filter="url(#' + id + 'd)">' + body + '</g></svg>';
+  }
+
+  /* ======================================================
      Bristol Stool Scale
      ====================================================== */
   var BRISTOL = {
-    1:{ label:'嚴重便秘', color:'#922B21', bg:'#FBEBE9',
-        interp:'Type 1：分離的硬球狀糞便，如堅果或羊糞，排出困難。',
-        detail:'腸道傳輸時間過長（大於 72 小時），糞便水分被過度吸收。\n建議：每日飲水 2000 mL 以上、增加膳食纖維（蔬果、全穀）、規律運動。若持續超過兩週，建議就醫評估。' },
-    2:{ label:'便秘', color:'#C0392B', bg:'#FBEBE9',
-        interp:'Type 2：表面凹凸的臘腸狀糞便，排便費力。',
-        detail:'腸道傳輸偏慢，糞便較乾硬。\n建議：增加纖維與水分攝取，必要時可短期使用滲透性瀉劑（如氧化鎂），並建立固定的排便時間。' },
-    3:{ label:'正常偏乾', color:'#2E7D4F', bg:'#E9F5EE',
-        interp:'Type 3：表面有裂縫的臘腸狀糞便，接近理想。',
-        detail:'腸道功能大致正常，僅稍偏乾。\n建議：維持足夠水分與纖維攝取即可，屬於可接受的正常範圍。' },
-    4:{ label:'理想型態', color:'#1A6B3A', bg:'#D9EFE1',
-        interp:'Type 4：光滑柔軟的臘腸狀或蛇形糞便，最為理想。',
-        detail:'腸道傳輸時間正常（約 12–48 小時），含水量適中。\n此為最佳排便型態，維持目前的飲食與生活習慣即可。' },
-    5:{ label:'腸道傳輸偏快', color:'#B45A00', bg:'#FFF5E6',
-        interp:'Type 5：柔軟小塊、邊緣清楚，排便容易但偏軟。',
-        detail:'腸道傳輸時間稍快，或與飲食內容有關。\n建議：觀察近期飲食與壓力狀態；若合併腹痛、排便次數增加或體重下降，建議就醫評估。' },
-    6:{ label:'輕度腹瀉', color:'#C0392B', bg:'#FBEBE9',
-        interp:'Type 6：糊狀、邊緣不整，無法成形。',
-        detail:'腸道傳輸過快或腸道受到刺激（感染、飲食、藥物）。\n建議：補充水分與電解質，避免油膩與刺激性食物。若超過 48 小時，或合併發燒、血便，請盡速就醫。' },
-    7:{ label:'急性腹瀉', color:'#922B21', bg:'#FBEBE9',
-        interp:'Type 7：完全液狀，無固體成分。',
-        detail:'嚴重腹瀉，脫水風險高。常見原因包括急性腸胃炎、食物中毒、腸躁症發作、發炎性腸病。\n建議：積極補充口服電解質液；若合併發燒、血便、脫水症狀，或持續超過 24 小時，需立即就醫。' }
+    1:{ label:'便秘', color:'#9B3A2A', bg:'#FBEDE9',
+        interp:'Type 1：一顆顆分開的硬塊，像堅果，排出困難。',
+        detail:'糞便在大腸停留太久，水分被過度吸收，是 Bristol 量表中通過時間最長的一型。\n建議：每日飲水約 1500 至 2000 mL（心臟或腎臟疾病需限水者依醫師指示）、增加蔬果與全穀纖維、規律運動。持續超過兩週，或合併腹痛、血便、體重減輕，請就醫評估。' },
+    2:{ label:'便秘', color:'#B4562E', bg:'#FCF1EA',
+        interp:'Type 2：成條的香腸狀，但表面由硬塊黏成、凹凸不平。',
+        detail:'腸道傳輸偏慢，糞便偏乾硬，排便常需用力。\n建議：增加纖維與水分，建立固定的如廁時間；必要時可短期使用滲透性軟便劑（如氧化鎂），用藥前先與醫師討論。' },
+    3:{ label:'正常', color:'#3E7A52', bg:'#EAF4EC',
+        interp:'Type 3：香腸狀，表面有裂痕。',
+        detail:'屬正常範圍，僅稍微偏乾。\n建議：維持足夠水分與纖維攝取即可。' },
+    4:{ label:'理想', color:'#2D6A43', bg:'#E2F0E6',
+        interp:'Type 4：香腸或蛇形，表面光滑、柔軟。',
+        detail:'腸道傳輸速度正常，含水量適中，是最理想的型態。\n維持目前的飲食與生活習慣即可。' },
+    5:{ label:'偏軟', color:'#A86A12', bg:'#FCF4E4',
+        interp:'Type 5：柔軟的小團塊，邊緣清楚，容易排出。',
+        detail:'腸道傳輸稍快，常與飲食內容（纖維不足、油膩）或壓力有關。\n建議：觀察近期飲食；若合併腹痛、排便次數明顯增加或體重下降，請就醫評估。' },
+    6:{ label:'腹瀉', color:'#B4562E', bg:'#FCF1EA',
+        interp:'Type 6：蓬鬆的糊狀碎塊，邊緣破碎、不成形。',
+        detail:'腸道傳輸過快，或腸道受到刺激（感染、飲食、藥物、腸躁症）。\n建議：補充水分與電解質，暫時避免油膩與刺激性食物。超過 48 小時，或合併發燒、血便，請盡快就醫。' },
+    7:{ label:'腹瀉', color:'#9B3A2A', bg:'#FBEDE9',
+        interp:'Type 7：水狀，沒有固體成分，完全是液體。',
+        detail:'嚴重腹瀉，脫水風險高。常見原因為急性腸胃炎、食物中毒，也可能是發炎性腸病或腸躁症發作。\n建議：積極補充口服電解質液；合併發燒、血便、尿量減少或頭暈，或持續超過 24 小時，請立即就醫。' }
   };
+  // 左側七列：型態、示意圖、原始描述的中文版、分類
+  var BRISTOL_ROW = {
+    1:['分開的硬塊', '一顆顆像堅果，排出困難', 'c'],
+    2:['凹凸的香腸狀', '成條，但由硬塊黏成', 'c'],
+    3:['有裂痕的香腸狀', '成條，表面有裂紋', 'n'],
+    4:['光滑的香腸或蛇形', '柔軟，表面光滑', 'n'],
+    5:['邊緣清楚的軟塊', '柔軟小團塊，容易排出', 's'],
+    6:['邊緣破碎的糊狀', '蓬鬆糊狀，不成形', 'd'],
+    7:['水狀', '完全液體，沒有固體', 'd']
+  };
+  var BRISTOL_TAG = { c:'便秘', n:'正常', s:'偏軟', d:'腹瀉' };
+  (function(){
+    var grid = $('bristol-grid');
+    if (!grid) return;
+    grid.innerHTML = [1, 2, 3, 4, 5, 6, 7].map(function(t){
+      var r = BRISTOL_ROW[t];
+      // 乾硬的顏色較深，糊狀與水狀較淺
+      var color = t <= 2 ? '#553319' : (t >= 6 ? '#80562F' : '#6B4423');
+      return '<button type="button" class="bristol-card" data-type="' + t + '" aria-pressed="false">' +
+        '<span class="bristol-num">Type ' + t + '</span>' +
+        '<span class="bristol-art">' + stoolArt(t, { cls:'bristol-svg', color:color, seed:t + 2 }) + '</span>' +
+        '<span class="bristol-txt"><span class="bristol-label">' + r[0] + '<span class="bristol-tag tag-' + r[2] + '">' + BRISTOL_TAG[r[2]] + '</span></span>' +
+        '<span class="bristol-desc">' + r[1] + '</span></span></button>';
+    }).join('');
+  })();
 
   CD.querySelectorAll('.bristol-card').forEach(function(card){
     card.addEventListener('click', function(){
@@ -1782,6 +2033,8 @@
 
       $('bristol-interp').textContent = d.interp;
       $('bristol-detail').textContent = d.detail;
+      var mk = $('bristol-mark');
+      if (mk) { mk.hidden = false; mk.style.left = ((type - .5) / 7 * 100) + '%'; mk.style.color = d.color; }
 
       COPY.bristol = 'Bristol Type ' + type + '（' + d.label + '）：' + d.interp;
       show('bristol', true);
@@ -1870,23 +2123,26 @@
         id:'stoolcolor', group:'gi', kind:'picker', tab:'糞便顏色', tabEn:'消化道警訊',
         title:'糞便顏色自我對照', sub:'糞便顏色可反映消化道健康狀態與潛在警訊',
         scoreLabel:'對照結果',
-        intro:'選擇最接近你近期糞便的顏色，即可顯示可能原因與建議。',
-        note:'※ 本對照僅供衛教參考；糞便持續異常（帶血、顏色改變超過 3 天）請告知醫師',
+        intro:'選擇最接近近期糞便的顏色，右側會顯示可能原因與建議。顏色會受食物與藥物影響，判讀時一併考慮最近吃了什麼。',
+        note:'※ 本對照僅供衛教參考。黑便、暗紅或鮮紅帶血、灰白便，或顏色異常超過 3 天，請告知醫師',
+        ref:'參考：Laine L et al. ACG Clinical Guideline: Upper GI and Ulcer Bleeding. Am J Gastroenterol 2021；Strate LL & Gralnek IM. ACG Clinical Guideline: Acute Lower GI Bleeding. Am J Gastroenterol 2016',
         items:[
-          { label:'棕褐色', color:'#8B5C2A', tone:'green', status:'正常',
-            detail:'棕褐色是最健康的糞便顏色，代表膽汁正常代謝、消化功能良好。飲食均衡、腸道功能正常者通常呈現此顏色。' },
-          { label:'深褐色', color:'#4A2C0A', tone:'green', status:'正常偏深',
-            detail:'深褐色通常與攝取較多動物性脂肪及蛋白質有關，膽汁使顏色加深，氣味也較重。屬於正常範圍，無需過度擔心。' },
-          { label:'綠色', color:'#4A7C2F', tone:'amber', status:'留意',
-            detail:'可能原因：一、短時間內吃了大量深綠色蔬菜（菠菜、青花菜）；二、腸道蠕動過快，膽汁來不及完全代謝；三、細菌感染導致腸胃炎。若無其他症狀且飲食正常，可觀察幾天；若持續且伴隨腹痛、腹瀉，建議就醫。' },
-          { label:'黑色／瀝青色', color:'#1A1A1A', tone:'red', status:'需注意',
-            detail:'可能原因：一、食用高鐵質食物（豬血糕、動物內臟）或鐵劑補充品；二、墨魚汁或甘草糖；三、上消化道出血（胃潰瘍、十二指腸潰瘍、胃癌）。若非特殊飲食因素，黑色糞便可能代表上消化道出血，請儘快就醫。' },
-          { label:'鮮紅色', color:'#C0392B', tone:'red', status:'需注意',
-            detail:'可能原因：一、攝取大量紅色食物（火龍果、甜菜根）；二、痔瘡出血（鮮血附著於糞便表面）；三、大腸下段出血、大腸瘜肉或大腸癌。若非飲食因素，鮮紅色糞便應盡快就醫，安排大腸鏡評估。' },
-          { label:'黃色／土黃色', color:'#C8A822', tone:'amber', status:'留意',
-            detail:'可能原因：一、高脂飲食或膽汁分泌不足（膽囊疾病）；二、胰臟外分泌功能不足，脂肪消化不良；三、感染性腹瀉（如賈第鞭毛蟲感染）。若糞便油膩、漂浮於水面，建議就醫評估胰臟與膽道功能。' },
-          { label:'灰白色／陶土色', color:'#C8C0B0', tone:'red', status:'需立即就醫',
-            detail:'灰白色糞便代表膽汁缺乏，可能原因：一、膽管阻塞（膽結石、膽管炎）；二、肝臟疾病（病毒性肝炎、肝硬化）；三、胰臟疾病（胰臟癌）。若糞便呈灰白色且同時出現黃疸（眼白或皮膚泛黃），請立即就醫。' }
+          { label:'棕褐色', color:'#77492A', tone:'green', status:'正常', hint:'正常顏色',
+            detail:'棕褐色來自膽汁色素經腸道細菌代謝後的產物，代表膽汁排出與消化功能正常。' },
+          { label:'深褐色', color:'#4A2C17', tone:'green', status:'多半正常', hint:'多與飲食或鐵劑有關',
+            detail:'吃較多肉類與蛋白質、水分攝取少，或正在服用鐵劑時，顏色會偏深。只要不是黑而發亮、黏稠如柏油，通常屬正常範圍。' },
+          { label:'綠色', color:'#56612C', tone:'amber', status:'留意', hint:'多與飲食、腹瀉有關',
+            detail:'可能原因：一、吃了大量深綠色蔬菜或含綠色色素的食物；二、腸道蠕動太快，膽汁還來不及轉成褐色，常見於腹瀉；三、鐵劑或部分抗生素。偶爾一次多半與飲食有關；若持續，或合併腹痛、腹瀉、發燒，建議就醫。' },
+          { label:'黃色／油亮', color:'#A8823A', tone:'amber', status:'留意', hint:'留意脂肪吸收不良', gloss:.36,
+            detail:'可能原因：一、脂肪吸收不良，例如慢性胰臟炎、胰臟外分泌功能不足、膽汁分泌不足；二、感染性腹瀉（如梨形鞭毛蟲）；三、短時間內吃太油。若糞便油亮、特別臭、浮在水面不易沖掉，或合併體重減輕，建議就醫評估胰臟與膽道。' },
+          { label:'黑色／柏油樣', color:'#1F1A17', tone:'red', status:'儘快就醫', hint:'警訊：上消化道出血', gloss:.34, tex:.08,
+            detail:'黑而發亮、黏稠如柏油、氣味特別腥臭，是上消化道出血（胃或十二指腸潰瘍、食道靜脈瘤、胃癌）的典型表現，請儘快就醫；合併頭暈、心悸、冒冷汗請直接掛急診。服用鐵劑、含鉍的胃藥（例如幽門桿菌四合一除菌療程）或活性碳也會讓糞便變黑，但通常不黏稠，也沒有柏油般的光澤。' },
+          { label:'暗紅色', color:'#5A1D1A', tone:'red', status:'儘快就醫', hint:'警訊：小腸或右側大腸出血', gloss:.3,
+            detail:'暗紅色或栗子色、和糞便混在一起，常見於小腸或右側大腸出血，大量的上消化道出血也可能呈現這種顏色。若不是吃了紅色食物（紅肉火龍果、甜菜根），請儘快就醫；合併頭暈、心悸請直接掛急診。' },
+          { label:'鮮紅血絲／血滴', color:'#6E4626', art:'blood', tone:'red', status:'需就醫評估', hint:'痔瘡最常見，也要排除腸道病灶',
+            detail:'鮮血附在糞便表面、滴在馬桶裡，或擦拭時沾在衛生紙上，多來自肛門或直腸附近，最常見是痔瘡或肛裂；但直腸瘜肉、大腸癌、發炎性腸病也可能有相同表現。若不是飲食因素，建議就醫，必要時安排大腸鏡；合併排便習慣改變、貧血或體重減輕時更不要拖延。' },
+          { label:'灰白色／陶土色', color:'#CBBD9F', tone:'red', status:'儘快就醫', hint:'警訊：膽汁排不出來', tex:.12,
+            detail:'灰白色代表膽汁沒有排進腸道，可能原因：一、膽管阻塞（膽結石、膽管炎、胰臟頭或膽管腫瘤）；二、肝臟疾病（急性肝炎、肝硬化）。若同時出現黃疸（眼白或皮膚泛黃）、茶色尿，請儘快就醫。做完上消化道攝影、喝過鋇劑後 1 至 2 天內糞便暫時偏白，屬正常。嬰兒糞便偏淡黃或灰白，請用兒童健康手冊的嬰兒大便辨識卡比對並儘早就醫。' }
         ]
       },
       {
@@ -1971,7 +2227,7 @@
         id:'waist', group:'meta', kind:'waist', tab:'腰圍', tabEn:'代謝症候群指標',
         title:'腰圍與代謝症候群指標', sub:'依台灣國民健康署標準判定',
         scoreLabel:'腰圍評估',
-        intro:'請於肚臍水平位置量測腰圍，並選擇生理性別，系統會即時判定是否符合代謝症候群的腰圍指標。',
+        intro:'依下方國民健康署的方法量測腰圍，並選擇生理性別，系統會即時判定是否符合代謝症候群的腰圍指標。',
         note:'※ 腰圍僅為代謝症候群五項指標之一，完整評估請諮詢醫師'
       },
       {
@@ -1981,7 +2237,7 @@
         note:'※ 本評估依據台灣國民健康署代謝症候群判定標準，確認需由醫師評估',
         submitText:'查看評估結果', requireOne:false, scoreLabel:'符合異常指標數',
         items:[
-          { tag:'腹部肥胖', label:'腰圍超標', desc:'男性 ≥ 90 cm，女性 ≥ 80 cm（肚臍水平量測）' },
+          { tag:'腹部肥胖', label:'腰圍超標', desc:'男性 ≥ 90 cm，女性 ≥ 80 cm（量法見「腰圍」工具）' },
           { tag:'高血壓指標', label:'血壓偏高', desc:'收縮壓 ≥ 130 mmHg 或舒張壓 ≥ 85 mmHg，或目前正在服用降血壓藥' },
           { tag:'血糖指標', label:'空腹血糖偏高', desc:'空腹血糖 ≥ 100 mg/dL，或目前正在服用降血糖藥物' },
           { tag:'血脂指標', label:'三酸甘油酯偏高', desc:'三酸甘油酯（TG）≥ 150 mg/dL，或目前正在服用降血脂藥物' },
@@ -2273,10 +2529,12 @@
   /* ---------- 顏色挑選 ---------- */
   function renderPicker(spec){
     var body = $(spec.id + '-body');
+    function art(it, cls){ return stoolArt(it.art || 'color', { color:it.color, gloss:it.gloss, tex:it.tex, cls:cls, seed:5 }); }
     body.innerHTML = '<div class="swatch-list">' + spec.items.map(function(it, i){
-      return '<button type="button" class="swatch-item" data-i="' + i + '" aria-pressed="false">' +
-        '<span class="swatch-dot" style="background:' + it.color + '"></span>' +
-        '<span class="swatch-name">' + esc(it.label) + '</span></button>';
+      return '<button type="button" class="swatch-item tone-' + it.tone + '" data-i="' + i + '" aria-pressed="false">' +
+        '<span class="swatch-art">' + art(it, 'swatch-svg') + '</span>' +
+        '<span class="swatch-txt"><span class="swatch-name">' + esc(it.label) + '</span>' +
+        '<span class="swatch-hint">' + esc(it.hint || '') + '</span></span></button>';
     }).join('') + '</div>';
 
     body.querySelectorAll('.swatch-item').forEach(function(btn){
@@ -2286,16 +2544,14 @@
         btn.setAttribute('aria-pressed', 'true');
         var t = TONE[it.tone];
         $(spec.id + '-result').innerHTML =
-          '<div class="result-card" style="background:' + t.bg + ';border-color:' + t.color + ';">' +
-            '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">' +
-              '<span class="swatch-dot" style="width:54px;height:54px;background:' + it.color + '"></span>' +
-              '<div><div class="score-label">你選擇的顏色</div>' +
-              '<div style="font-size:21px;font-weight:700;color:' + t.color + '">' + esc(it.label) + '</div>' +
-              '<span class="badge" style="margin-top:6px;background:#fff;color:' + t.color +
-                ';border:1.5px solid ' + t.color + '">' + esc(it.status) + '</span></div>' +
+          '<div class="result-card swatch-result" style="background:' + t.bg + ';border-color:' + t.color + ';">' +
+            '<div class="swatch-result-art">' + art(it, 'swatch-big') + '</div>' +
+            '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+              '<div style="font-size:22px;font-weight:700;color:' + t.color + '">' + esc(it.label) + '</div>' +
+              '<span class="badge" style="background:#fff;color:' + t.color + ';border:1.5px solid ' + t.color + '">' + esc(it.status) + '</span>' +
             '</div>' +
             '<div class="result-advice">' + esc(it.detail) + '</div>' +
-            '<div class="notes" style="margin-top:14px;">' + esc(spec.note) + '</div>' +
+            '<div class="notes" style="margin-top:14px;">' + esc(spec.note) + (spec.ref ? '<br>' + esc(spec.ref) : '') + '</div>' +
           '</div>';
 
         COPY[spec.id] = '糞便顏色：' + it.label + '（' + it.status + '）';
@@ -2320,7 +2576,25 @@
           '<input type="number" id="waist-val" min="40" max="200" step="0.1" inputmode="decimal" autocomplete="off">' +
           '<p class="field-err" hidden></p>' +
         '</div>' +
+      '</div>' +
+      '<div class="side-info waist-how"><div class="si-title">怎麼量腰圍（國民健康署）</div><ol class="si-list">' +
+        '<li>脫掉腰部衣物，自然站立，雙腳與肩同寬，雙手自然下垂</li>' +
+        '<li>皮尺繞過腰部，高度在左右兩側<b>腸骨上緣與肋骨下緣的中間點</b></li>' +
+        '<li>皮尺與地面保持水平，緊貼皮膚但不擠壓</li>' +
+        '<li>維持正常呼吸，在<b>吐氣結束時</b>讀取數值</li>' +
+      '</ol></div>';
+    // 代謝症候群五項判定標準，放在結果旁邊（寬螢幕在右欄）
+    var ref = document.createElement('div');
+    ref.className = 'side-info waist-ref';
+    ref.innerHTML = '<div class="si-title">代謝症候群判定（國民健康署）：下列五項有三項以上</div><div class="si-grid">' +
+      '<b>腹部肥胖</b><span>腰圍男性 ≥ 90 cm、女性 ≥ 80 cm</span>' +
+      '<b>血壓偏高</b><span>收縮壓 ≥ 130 或舒張壓 ≥ 85 mmHg，或正在服用降血壓藥</span>' +
+      '<b>空腹血糖偏高</b><span>≥ 100 mg/dL，或正在服用降血糖藥</span>' +
+      '<b>三酸甘油酯偏高</b><span>≥ 150 mg/dL，或正在服用降三酸甘油酯藥</span>' +
+      '<b>HDL 膽固醇偏低</b><span>男性 &lt; 40、女性 &lt; 50 mg/dL</span>' +
       '</div>';
+    var wr = $(spec.id + '-result');
+    if (!$('waist-ref')) { ref.id = 'waist-ref'; wr.parentNode.insertBefore(ref, wr.nextSibling); }
 
     var calc = function(){
       var sex = $('waist-sex').value;

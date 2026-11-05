@@ -648,7 +648,7 @@ async function mountCalc(){
   fitCalc();
   setTimeout(()=>{ calcZ = null; fitCalc(); }, 400);
   // 切換到降血脂或 B 肝用藥時，結果欄才看得到；等面板淡入動畫（0.28 秒，會位移）結束再量
-  CD.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(fitRxOut, 320); }, true);
+  CD.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(()=>{ fitRxOut(); fitSideInfo(); }, 320); }, true);
   // 輸入過程不再改變倍率：少數狀態（例如欄位錯誤提示）超出畫面時，寧可短暫出現捲軸，也不讓全部字級跳動
   updateChips();
   host.classList.remove('loading');
@@ -819,6 +819,7 @@ function maxFit(c, hi){
 
 function computeCalcZ(c){
   const {d} = c;
+  c.card.style.removeProperty("--fill-h");
   const panels = [...d.querySelectorAll('.tool-panel')];
   const saved = panels.map(p=> [p, p.hidden, p.classList.contains('active')]);
   const notice = d.getElementById('staff-notice'), summary = d.getElementById('summary-zone');
@@ -872,10 +873,34 @@ function fitCalc(){
   const c = calcCtx();
   if(!c) return;
   // 窄畫面（含並排模式）維持單欄原尺寸，允許捲動
-  if(c.W < 1100){ c.card.style.zoom = 1; fitRxOut(); return; }
+  if(c.W < 1100){ c.card.style.zoom = 1; c.card.style.removeProperty("--fill-h"); fitRxOut(); return; }
   if(calcZ === null) calcZ = computeCalcZ(c);
   c.card.style.zoom = calcZ;
+  fillCalc(c);
   fitRxOut();
+  fitSideInfo();
+}
+
+// 參考資訊區（FIB-4、R Factor、Child-Pugh 輸入欄下方）放不完整就整塊藏起來
+function fitSideInfo(){
+  if(!calcReady) return;
+  CD.querySelectorAll('.side-wrap').forEach(w=>{
+    const box = w.firstElementChild;
+    if(!box || !w.offsetParent) return;
+    w.classList.toggle('cut', box.offsetHeight > w.clientHeight + 1);
+  });
+}
+
+// 卡片高度補滿整個畫面：倍率由最高的工具決定，較矮的工具改由版面（CSS 的 --fill-h）把內容撐開到底，不留一大塊空白
+function fillCalc(c){
+  const z = parseFloat(c.card.style.zoom) || 1;
+  const cs = getComputedStyle(c.root);
+  const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+  let h = Math.floor((c.H - pad) / z) - 2;
+  c.card.style.setProperty("--fill-h", h + "px");
+  const p = c.d.querySelector(".tool-panel.active");
+  const over = c.root.scrollHeight - c.H;
+  if(over > 0 && p && !CALC_SCROLL_OK.has(p.id)) c.card.style.setProperty("--fill-h", (h - Math.ceil(over / z) - 1) + "px");
 }
 
 // 降血脂與 B 肝用藥：結果卡片很長，結果欄高度限制在畫面內、欄內捲動，左側輸入不必跟著捲
