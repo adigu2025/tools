@@ -313,7 +313,9 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
 .toast{position:fixed; left:50%; bottom:50px; transform:translateX(-50%); background:var(--ink); color:#fff;
   padding:12px 20px; border-radius:12px; font-size:15px; z-index:50; box-shadow:0 8px 28px rgba(0,0,0,.2);}
 /* 列印 A5 衛教單前的提醒：放在畫面上方、字放大，列印視窗打開前先看得到 */
-.toast.warn{top:24px; bottom:auto; background:var(--clay, #B0432E); font-size:19px; font-weight:700; padding:16px 28px; white-space:nowrap;}
+.toast.warn{top:24px; bottom:auto; background:var(--clay, #B0432E); font-size:19px; font-weight:700; padding:14px 28px; text-align:center;}
+.toast.warn b{display:block; white-space:nowrap;}
+.toast.warn span{display:block; font-size:15px; font-weight:500; margin-top:4px; opacity:.92;}
 
 /* QR 放大：hidden 屬性要能蓋過 display:flex，所以只在沒有 hidden 時才設 flex */
 .qr-overlay{position:fixed; inset:0; background:rgba(31,30,29,.55); z-index:60; align-items:center; justify-content:center;}
@@ -984,10 +986,11 @@ document.getElementById('qr-big').src = BASE + 'calc/qr.png';
 document.getElementById('qr-btn').addEventListener('click', ()=>{ qrOverlay.hidden = false; });
 qrOverlay.addEventListener('click', ()=>{ qrOverlay.hidden = true; });
 
-// cls：另外加的樣式（例如 'warn' 顯示在畫面上方的醒目提醒）；ms：顯示多久
-function toast(msg, cls, ms){
+// cls：另外加的樣式（例如 'warn' 顯示在畫面上方的醒目提醒）；ms：顯示多久；html：要排版的內容（呼叫端負責跳脫）
+function toast(msg, cls, ms, html){
   const t = document.createElement('div');
-  t.className = 'toast' + (cls ? ' ' + cls : ''); t.textContent = msg;
+  t.className = 'toast' + (cls ? ' ' + cls : '');
+  if(html) t.innerHTML = html; else t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(()=> t.remove(), ms || 3200);
 }

@@ -199,9 +199,34 @@ function pickBar(){
     `<div class="acts"><button class="tbtn" id="pick-cancel">取消</button>` +
     `<button class="tbtn pri" id="pick-print"${list.length ? '' : ' disabled'}>列印</button></div>`;
 }
-function printPicked(){
+// 雙面列印提醒：選到 A5 衛教單，或任何一份 A4 是奇數頁，就在列印視窗打開前提醒取消雙面。
+// A5 紙走雙面會印出空白；奇數頁開著雙面，下一份會印到它的背面。網頁無法替使用者取消雙面（Chrome 會記住上一次的設定），只能提醒。
+// 提醒先顯示 1.5 秒再打開列印視窗，否則會被列印視窗蓋住
+function duplexReason(items){
+  const a5 = items.filter(it=> it.size === 'A5');
+  if(a5.length) return '這次有 A5 衛教單，開著雙面會印出空白頁';
+  const odd = items.filter(it=> itemSheets(it) % 2 === 1);
+  if(!odd.length) return '';
+  if(items.length === 1){
+    const n = itemSheets(odd[0]);
+    return n === 1 ? '這份只有 1 頁，請用單面列印' : `這份共 ${n} 頁（奇數），請用單面列印`;
+  }
+  // 奇數頁的那份後面還有別份，開著雙面時下一份會接著印在它的背面；排在最後就只提醒用單面
+  const mid = odd.filter(it=> it !== items[items.length - 1]);
+  const name = it=> `「${it.label}」`;
+  if(mid.length) return `${name(mid[0])}${odd.length > 1 ? `等 ${odd.length} 份` : ''}是奇數頁，開著雙面，下一份會印到它的背面`;
+  return `${name(odd[0])}是奇數頁，請用單面列印`;
+}
+async function duplexWarn(items){
+  const why = duplexReason(items);
+  if(!why) return;
+  toast('', 'warn', 9000, `<b>請取消勾選『雙面列印』</b><span>${esc(why)}</span>`);
+  await new Promise(r=> setTimeout(r, 1500));
+}
+async function printPicked(){
   const list = ITEMS.filter(it=> picked.has(itemKey(it)));
   if(!list.length) return;
+  await duplexWarn(list);
   const pages = list.flatMap(it=> it.kind === 'edu' ? it.ref.pages : it.ref.pages.map(src=> ({src})));
   printImages(pages, list.length === 1 ? list[0].label : '衛教與表單 ' + list.length + ' 份');
 }
@@ -346,7 +371,8 @@ document.getElementById('zoom-out').addEventListener('click', ()=> zoomStep(-1))
 document.getElementById('zoom-fit').addEventListener('click', ()=> setZoom('fit'));
 document.getElementById('zoom-width').addEventListener('click', ()=> setZoom('width'));
 document.getElementById('edu-max').addEventListener('click', toggleMax);
-document.getElementById('edu-print').addEventListener('click', ()=>{
+document.getElementById('edu-print').addEventListener('click', async ()=>{
   const p = EDU[eduIdx];
+  await duplexWarn([ITEMS[cur]]);
   printImages(p.pages, p.label);
 });
