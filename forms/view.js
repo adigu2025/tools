@@ -1,32 +1,7 @@
-/* 工作台的列印表單：左側清單、多頁並排預覽、縮放，以及衛教與表單共用的列印（A4、邊界 0）。
-   由 index.html 接在 edu/edu.js 之後載入；表單資料 FORMS、FORM_GROUPS 在 edu/edu.js，HTML 表單內容在 forms/forms.js。 */
-// 列印表單：與衛教圖卡相同的左側清單＋右側預覽，多頁表單並排顯示全部頁面
-let formGroup = recall('hub-form-group', 'consent');
-if(!FORM_GROUPS.some(g=> g.key === formGroup)) formGroup = 'consent';
-let formKey = recall('hub-form-key', '');
+/* 工作台「衛教與表單」分頁裡的表單預覽：多頁並排預覽、縮放，以及衛教與表單共用的列印（A4、邊界 0）。
+   由 index.html 接在 edu/edu.js 之後載入；表單資料 FORMS 與側欄（renderRail、showItem）在 edu/edu.js，HTML 表單內容在 forms/forms.js。 */
 let formZoom = 'fit';
 const formView = document.getElementById('form-view');
-function renderForms(){
-  const list = FORMS.filter(f=> f.group === formGroup);
-  if(!list.some(f=> f.label === formKey)) formKey = list.length ? list[0].label : '';
-  const rail = document.getElementById('form-rail');
-  const tabs = FORM_GROUPS.map(g=>{
-    const n = FORMS.filter(f=> f.group === g.key).length;
-    return `<button class="edu-group press" data-g="${g.key}" aria-pressed="${g.key === formGroup}">${esc(g.label)}<span class="n">${n}</span></button>`;
-  }).join('');
-  const items = list.map(f=>
-    `<button class="edu-item press" data-k="${esc(f.label)}" aria-current="${f.label === formKey}"><span class="ico">${ICON_DOC}</span>` +
-    `<span class="lb">${esc(f.label)}</span><span class="pg">${esc(f.note.replace('共 ', ''))}</span></button>`
-  ).join('');
-  rail.innerHTML = `<div class="edu-groups" role="tablist" aria-label="表單分類">${tabs}</div><div class="edu-list">${items}</div>`;
-  rail.querySelectorAll('.edu-group').forEach(b=> b.addEventListener('click', ()=>{
-    formGroup = b.dataset.g;
-    store('hub-form-group', formGroup);
-    renderForms();
-  }));
-  rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> showForm(b.dataset.k)));
-  showForm(formKey);
-}
 // 問卷與健康紀錄表沒有圖檔，由 forms/forms.js 即時產生 HTML；預覽時每一頁放進一個 iframe，與列印是同一份內容
 const PAGE_W = 794, PAGE_H = 1123;
 function formHtmlPages(t){
@@ -36,15 +11,10 @@ function formHtmlPages(t){
     `<style>${FORMS_CSS}\nhtml,body{margin:0;background:#fff;overflow:hidden;}</style></head><body>`;
   return [...tmp.querySelectorAll('.report-page')].map(pg=> head + pg.outerHTML + '</body></html>');
 }
-function showForm(key){
-  const t = FORMS.find(f=> f.group === formGroup && f.label === key);
-  if(!t){ formView.innerHTML = '<div class="msg">這個分類沒有表單。</div>'; return; }
-  formKey = key;
-  store('hub-form-key', key);
-  document.querySelectorAll('#form-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(b.dataset.k === key)));
-  const list = FORMS.filter(f=> f.group === formGroup);
-  document.getElementById('form-title').textContent = t.label;
-  document.getElementById('form-count').textContent = (list.indexOf(t) + 1) + '／' + list.length + '　' + t.note;
+// t：FORMS 裡的一份表單（由 edu/edu.js 的 showItem 呼叫）
+function showForm(t){
+  document.getElementById('form-title').innerHTML = esc(t.label) + '<span class="sz">A4</span>';
+  document.getElementById('form-count').textContent = groupPos() + '　' + t.note;
   if(t.kind === 'html'){
     const docs = formHtmlPages(t);
     formView.innerHTML = docs.map((_, i)=>
@@ -59,7 +29,7 @@ function showForm(key){
     formView.scrollTo(0, 0);
     return;
   }
-  formView.innerHTML = t.pages.map((src, i)=> `<img alt="${esc(t.label)} 第 ${i + 1} 頁" ${imgSrcAttr('print', src)} draggable="false">`).join('');
+  formView.innerHTML = t.pages.map((src, i)=> `<img alt="${esc(t.label)} 第 ${i + 1} 頁" ${imgSrcAttr('edu', src)} draggable="false">`).join('');
   const imgs = [...formView.querySelectorAll('img')];
   imgs.forEach(im=> im.style.visibility = 'hidden');
   let left = imgs.length;
@@ -73,11 +43,6 @@ function showForm(key){
     if(im.complete && im.naturalWidth) done();
     else{ im.addEventListener('load', done, {once:true}); im.addEventListener('error', done, {once:true}); }
   });
-}
-function stepForm(d){
-  const list = FORMS.filter(f=> f.group === formGroup);
-  const i = list.findIndex(f=> f.label === formKey);
-  if(list.length) showForm(list[(i + d + list.length) % list.length].label);
 }
 // 'fit'：所有頁面放進畫面，並排或上下排看哪一種顯示得比較大；數字為實際倍率（並排）
 const FORM_GAP = 12;
@@ -128,8 +93,8 @@ function formZoomStep(dir){
   const next = dir > 0 ? ZOOM_STEPS.find(z=> z > cur + 0.01) : [...ZOOM_STEPS].reverse().find(z=> z < cur - 0.01);
   if(next !== undefined){ formZoom = next; applyFormZoom(); }
 }
-document.getElementById('form-prev').addEventListener('click', ()=> stepForm(-1));
-document.getElementById('form-next').addEventListener('click', ()=> stepForm(1));
+document.getElementById('form-prev').addEventListener('click', ()=> stepItem(-1));
+document.getElementById('form-next').addEventListener('click', ()=> stepItem(1));
 document.getElementById('fzoom-in').addEventListener('click', ()=> formZoomStep(1));
 document.getElementById('fzoom-out').addEventListener('click', ()=> formZoomStep(-1));
 document.getElementById('fzoom-fit').addEventListener('click', ()=>{ formZoom = 'fit'; applyFormZoom(); });
@@ -150,15 +115,15 @@ formView.addEventListener('pointermove', e=>{
 ['pointerup','pointercancel'].forEach(t=> formView.addEventListener(t, ()=>{ fpan = null; formView.classList.remove('panning'); }));
 formView.addEventListener('dblclick', ()=>{ formZoom = formZoom === 'fit' ? 1 : 'fit'; applyFormZoom(); });
 document.getElementById('form-print').addEventListener('click', ()=>{
-  const t = FORMS.find(f=> f.group === formGroup && f.label === formKey);
-  if(t) printForm(t);
+  const it = ITEMS[cur];
+  if(it && it.kind === 'form') printForm(it.ref);
 });
 formView.addEventListener('wheel', e=>{
   if(!e.ctrlKey) return;
   e.preventDefault();
   formZoomStep(e.deltaY < 0 ? 1 : -1);
 }, {passive:false});
-window.addEventListener('resize', ()=>{ if(main.dataset.view === 'print') applyFormZoom(); });
+window.addEventListener('resize', ()=>{ if(main.dataset.view === 'edu') applyFormZoom(); });
 function printForm(t){
   if(t.kind === 'html'){
     // 每一頁本身就是 A4 大小（794×1123），不必再包一層 .pg

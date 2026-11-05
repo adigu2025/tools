@@ -34,17 +34,16 @@
   --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06);
   --bar-h:80px; --foot-h:30px;
 }
-/* 臨床計算用灰紫；其餘四個分頁各用一個霍格華茲學院的代表色（主色＋輔色），只用在分頁、選取狀態、主要按鈕與細線；
+/* 四個分頁各用一個霍格華茲學院的代表色（主色＋輔色），只用在分頁、選取狀態、主要按鈕與細線；
    大面積底色維持暖白，內文維持墨色，閱讀舒適度不受影響。
    --acc 主色（填色）、--acc-fg 主色上的文字、--acc-2 輔色（細線、指示條）、--acc-soft 淡底、--acc-text 白底上可讀的強調字色。
    赫夫帕夫的黃色當底時字用黑色；史萊哲林的銀色太淺，指示條改用較深的銀灰。
    色調採莫蘭迪感：原色降低彩度、略提亮度，主色上的白字仍維持 4.5:1 以上。
    選中的分頁與「列印」按鈕用淡底＋深色字，滑過時才填主色，畫面不厚重。 */
 body{--acc:#5B6B8C; --acc-fg:#fff; --acc-2:#A88A62; --acc-soft:#E8ECF3; --acc-text:#3E4C6B;}         /* 報價：雷文克勞 藍＋銅 */
-body[data-view="calc"]{--acc:#7D6A8E; --acc-fg:#fff; --acc-2:#B0894F; --acc-soft:#EEE9F2; --acc-text:#5C4A6D;}   /* 臨床計算：灰紫＋淡金 */
+body[data-view="calc"]{--acc:#587562; --acc-fg:#fff; --acc-2:#A3A8AB; --acc-soft:#E5EDE7; --acc-text:#3F5A48;}   /* 臨床計算：史萊哲林 綠＋銀 */
+body[data-view="edu"]{--acc:#9B5A57; --acc-fg:#fff; --acc-2:#C9A96A; --acc-soft:#F3E6E4; --acc-text:#7A3F3D;}    /* 衛教與表單：葛來分多 紅＋金 */
 body[data-view="weight"]{--acc:#E2C477; --acc-fg:#4A4038; --acc-2:#4A4038; --acc-soft:#F6EDD3; --acc-text:#6B5520;} /* 製作報告：赫夫帕夫 黃＋黑 */
-body[data-view="edu"]{--acc:#9B5A57; --acc-fg:#fff; --acc-2:#C9A96A; --acc-soft:#F3E6E4; --acc-text:#7A3F3D;}       /* 衛教圖卡：葛來分多 紅＋金 */
-body[data-view="print"]{--acc:#587562; --acc-fg:#fff; --acc-2:#A3A8AB; --acc-soft:#E5EDE7; --acc-text:#3F5A48;}     /* 列印表單：史萊哲林 綠＋銀 */
 *{box-sizing:border-box;}
 html,body{margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:var(--sans);
   font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;}
@@ -67,8 +66,8 @@ button{font:inherit; cursor:pointer; color:inherit;}
   box-shadow:0 1px 2px rgba(31,30,29,.08), 0 2px 8px rgba(31,30,29,.06);}
 /* 分頁圖示：來源是主 repo 的「圖示」資料夾（icons.js），滑過時有小動畫。
    改成各分頁的學院色：線條用深色（--dot-ink），紙白部分用淡色，其餘填色用學院色（--dot），不畫暗面 */
-.hub-tab[data-view="quote"]{--dot:#5B6B8C; --dot-ink:#3E4C6B;} .hub-tab[data-view="calc"]{--dot:#7D6A8E; --dot-ink:#5C4A6D;} .hub-tab[data-view="weight"]{--dot:#E2C477; --dot-ink:#6B5520;}
-.hub-tab[data-view="edu"]{--dot:#9B5A57; --dot-ink:#7A3F3D;} .hub-tab[data-view="print"]{--dot:#587562; --dot-ink:#3F5A48;}
+.hub-tab[data-view="quote"]{--dot:#5B6B8C; --dot-ink:#3E4C6B;} .hub-tab[data-view="calc"]{--dot:#587562; --dot-ink:#3F5A48;} .hub-tab[data-view="weight"]{--dot:#E2C477; --dot-ink:#6B5520;}
+.hub-tab[data-view="edu"]{--dot:#9B5A57; --dot-ink:#7A3F3D;}
 .hub-tab .ic{width:20px; height:20px; margin-right:8px; vertical-align:-4px; color:var(--dot-ink);}
 .hub-tab .ic [fill]:not([fill="none"]){fill:var(--dot);}
 .hub-tab .ic [fill="#FFFFFF"]:not([fill="none"]){fill:color-mix(in srgb, var(--dot) 22%, #fff);}
@@ -174,8 +173,7 @@ body.q-max .hub-main{height:100dvh;}
 .hub-main[data-view="quote"]  #pane-quote,
 .hub-main[data-view="calc"]   #pane-calc,
 .hub-main[data-view="weight"] #pane-weight,
-.hub-main[data-view="edu"]    #pane-edu,
-.hub-main[data-view="print"]  #pane-print{visibility:visible; pointer-events:auto;}
+.hub-main[data-view="edu"]    #pane-edu{visibility:visible; pointer-events:auto;}
 @media (min-width:1100px){
   .hub-main[data-view="edu"][data-split="1"]{grid-template-columns:1fr 460px; grid-template-areas:"main side";}
   .hub-main[data-view="edu"][data-split="1"] #pane-calc{visibility:visible; pointer-events:auto; grid-area:side;
@@ -220,6 +218,9 @@ body.q-max .hub-main{height:100dvh;}
   border:1.5px solid var(--line-strong); border-radius:6px; font-size:13px; color:var(--acc-fg); background:var(--surface);}
 .edu-item.picking[aria-pressed="true"]{background:var(--acc-soft); color:var(--acc-text);}
 .edu-item.picking[aria-pressed="true"] .ck{background:var(--acc); border-color:var(--acc);}
+/* 問卷與健康紀錄表是即時產生的 HTML，不能和圖片一起印，勾選模式下變淡 */
+.edu-item.nopick{opacity:.45; cursor:not-allowed;}
+.edu-item .ck.off{border-style:dashed;}
 .edu-pick{position:sticky; bottom:-12px; background:var(--surface); border-top:1px solid var(--line); margin:10px -10px -12px; padding:10px;}
 .edu-pick > .tbtn{width:100%;}
 .edu-pick .sum{font-size:13.5px; color:var(--muted); margin:0 2px 8px;}
@@ -281,8 +282,9 @@ body.edu-max .edu-stage{border:0; border-radius:0; box-shadow:none;}
 body.edu-max .edu-view{background:#fff;}
 body.edu-max .edu-view img{box-shadow:none;}
 
-/* ── 列印表單：版面與衛教圖卡相同，左側清單、右側預覽；多頁表單並排顯示，按列印直接出 A4 ── */
-#pane-print{display:grid; grid-template-columns:290px 1fr; gap:12px; padding:12px; height:100%;}
+/* ── 衛教與表單：同一個側欄，右側依項目種類切換預覽區。衛教圖卡一次看一頁；表單多頁並排，按列印直接出 A4 ── */
+#pane-edu > .edu-stage{grid-column:2; grid-row:1;}
+#pane-edu[data-stage="form"] > .stage-edu, #pane-edu:not([data-stage="form"]) > .stage-form{display:none;}
 /* 預覽使用整個高度，工具列浮在上方，蓋到頁面也沒關係；頁面不夠放時改成上下排 */
 .form-view{gap:12px; padding:6px; justify-content:safe center; align-items:safe center;}
 .form-view.vertical{flex-direction:column;}
@@ -291,9 +293,9 @@ body.edu-max .edu-view img{box-shadow:none;}
   box-shadow:0 2px 6px rgba(31,30,29,.08), 0 12px 32px rgba(31,30,29,.10);}
 /* 固定 A4 大小再整體縮放；不可沿用 .pane iframe 的 100%，否則先縮小一次再縮放一次，只看得到左上角 */
 .form-view .fpage iframe{position:absolute; left:0; top:0; width:794px; height:1123px; border:0; transform-origin:0 0; pointer-events:none; background:#fff;}
-body.edu-max #pane-print{grid-template-columns:1fr; padding:0; gap:0;}
-body.edu-max #pane-print .edu-view{background:var(--sunken);}
-body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0 12px 32px rgba(31,30,29,.10);}
+body.edu-max #pane-edu > .edu-stage{grid-column:1;}
+body.edu-max #pane-edu .form-view{background:var(--sunken);}
+body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0 12px 32px rgba(31,30,29,.10);}
 .form-view .msg{text-align:center; line-height:1.8; max-width:420px;}
 .form-view .msg b{display:block; font-size:18px; color:var(--ink); margin-bottom:4px;}
 
@@ -327,7 +329,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 .tbtn.danger:hover{background:var(--clay-dark);}
 
 @media (max-width:1320px){
-  #pane-edu, #pane-print{grid-template-columns:262px 1fr; gap:14px; padding:14px;}
+  #pane-edu{grid-template-columns:262px 1fr; gap:14px; padding:14px;}
   .edu-item{font-size:15px; gap:8px; padding:10px;}
   .edu-tools h1{font-size:21px;}
   .grp > *{padding:7px 10px;}
@@ -347,7 +349,8 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
   .hub-tab{flex:1;}
   .hub-chips{order:5; flex-basis:100%; justify-content:flex-start;}
   .hub-main{height:calc(100dvh - 190px);}
-  #pane-edu, #pane-print{grid-template-columns:1fr; grid-template-rows:auto 1fr; padding:10px; gap:10px;}
+  #pane-edu{grid-template-columns:1fr; grid-template-rows:auto 1fr; padding:10px; gap:10px;}
+  #pane-edu > .edu-stage{grid-column:1; grid-row:2;}
   .edu-rail{display:flex; flex-direction:column; overflow-x:auto; padding:6px;}
   .edu-groups{flex-direction:row; overflow-x:auto;}
   .edu-list{display:flex; overflow-x:auto;}
@@ -366,9 +369,8 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
     <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="mz-sh" clipPathUnits="objectBoundingBox"><path d="M1 0V1H0z"/></clipPath></defs></svg>
     <button class="hub-tab" role="tab" data-view="quote"  aria-selected="true"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-quote' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><path d='M5.5 2.5h13v19l-2.17-1.4-2.16 1.4-2.17-1.4-2.17 1.4-2.16-1.4-2.17 1.4z'/></g><g fill='none'><path d='M5.5 2.5h13v19l-2.17-1.4-2.16 1.4-2.17-1.4-2.17 1.4-2.16-1.4-2.17 1.4z'/></g><g fill='#4C74E0' stroke='none'><circle cx='14.5' cy='14.5' r='2.75'/></g><g fill='none'><circle cx='14.5' cy='14.5' r='2.75'/><path class='a-draw' pathLength='1' d='M8.5 7h7'/><path d='M8.5 10.25h4'/></g></svg>報價系統<kbd>Alt+1</kbd></button>
     <button class="hub-tab" role="tab" data-view="calc"   aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-calc' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='none'><rect x='5' y='2.5' width='14' height='19' rx='2'/></g><g fill='#4C74E0' stroke='none'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='none'><rect x='7.5' y='5' width='9' height='4.5' rx='2'/></g><g fill='#F5B841' stroke='none'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='none'><rect x='13.5' y='15.75' width='3' height='3.5' rx='2'/></g><g fill='none'><path class='a-draw' pathLength='1' stroke='#FFFFFF' d='M10 7.25h4'/><path d='M9 13h0M12 13h0M15 13h0M9 17.5h0M12 17.5h0'/></g></svg>臨床計算<kbd>Alt+2</kbd></button>
-    <button class="hub-tab" role="tab" data-view="edu"    aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-edu' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g class='a-fan'><g fill='#F5B841' stroke='none'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g><g fill='none'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g></g><g fill='#FFFFFF' stroke='none'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='none'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='#F08FA0' stroke='none'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='none'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='none'><path d='M6.5 18.5l3-3 2 2 1.25-1.25 1.75 1.75'/></g></svg>衛教圖卡<kbd>Alt+3</kbd></button>
+    <button class="hub-tab" role="tab" data-view="edu"    aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-edu' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g class='a-fan'><g fill='#F5B841' stroke='none'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g><g fill='none'><rect x='8' y='2.5' width='12' height='15' rx='2'/></g></g><g fill='#FFFFFF' stroke='none'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='none'><rect x='4' y='6.5' width='12' height='15' rx='2'/></g><g fill='#F08FA0' stroke='none'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='none'><circle cx='8' cy='10.5' r='1.5'/></g><g fill='none'><path d='M6.5 18.5l3-3 2 2 1.25-1.25 1.75 1.75'/></g></svg>衛教與表單<kbd>Alt+3</kbd></button>
     <button class="hub-tab" role="tab" data-view="weight" aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-weight' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#4C74E0' stroke='none'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='none'><rect x='3.5' y='4' width='17' height='16.5' rx='2'/></g><g fill='#FFFFFF' stroke='none'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='none'><path d='M8 11.5a4 4 0 0 1 8 0z'/></g><g fill='none'><path class='a-swing' d='M12 11.5l1.75-2.25'/><path stroke='#FFFFFF' d='M8 16.5h2.5M13.5 16.5H16'/></g></svg>製作報告<kbd>Alt+4</kbd></button>
-    <button class="hub-tab" role="tab" data-view="print"  aria-selected="false"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' class='ic ic-print' aria-hidden='true' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><g fill='#FFFFFF' stroke='none'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='none'><rect x='7' y='3' width='10' height='6' rx='2'/></g><g fill='#4C74E0' stroke='none'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='none'><rect x='3' y='8' width='18' height='9' rx='2'/></g><g fill='#F5B841' stroke='none'><circle cx='17.5' cy='11' r='1'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><circle cx='17.5' cy='11' r='1'/></g><g class='a-feed'><g fill='#FFFFFF' stroke='none'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g><g fill='#232A4D' fill-opacity='.18' stroke='none' clip-path='url(#mz-sh)'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g><g fill='none'><path d='M7 14h10v5.5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z'/></g></g><g fill='none'><path class='a-feed' d='M9.5 17h5M9.5 19.25h3'/></g></svg>列印表單<kbd>Alt+5</kbd></button>
   </nav>
   <div class="hub-chips" aria-live="polite">
     <button class="chip" id="chip-calc" data-go="calc" hidden></button>
@@ -408,9 +410,9 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
     </div>
   </section>
 
-  <section class="pane" id="pane-edu">
-    <nav class="edu-rail card" id="edu-rail" aria-label="衛教主題"></nav>
-    <div class="edu-stage card">
+  <section class="pane" id="pane-edu" data-stage="edu">
+    <nav class="edu-rail card" id="edu-rail" aria-label="衛教與表單"></nav>
+    <div class="edu-stage card stage-edu">
       <div class="edu-tools">
         <div class="edu-head">
           <h1 id="edu-title">衛教圖卡</h1>
@@ -437,11 +439,7 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
       </div>
       <div class="edu-view" id="edu-view" tabindex="-1"><div class="msg">載入中……</div></div>
     </div>
-  </section>
-
-  <section class="pane" id="pane-print">
-    <nav class="edu-rail card" id="form-rail" aria-label="列印表單"></nav>
-    <div class="edu-stage card">
+    <div class="edu-stage card stage-form">
       <div class="edu-tools">
         <div class="edu-head">
           <h1 id="form-title">列印表單</h1>
@@ -628,8 +626,8 @@ window.CALC_PRINT = ()=>{
 // 分頁還沒打開時先把圖片網址放在 data-src，不佔開頁的頻寬；setView 打開分頁時才換成 src
 function imgSrcAttr(view, src){ return (main.dataset.view === view ? 'src' : 'data-src') + `="${src}"`; }
 function setView(v){
-  // 最大化只用在衛教與列印表單，切到其他分頁時先結束，否則上方分頁列會一直隱藏
-  if(document.body.classList.contains('edu-max') && v !== 'edu' && v !== 'print') toggleMax();
+  // 最大化只用在衛教與表單，切到其他分頁時先結束，否則上方分頁列會一直隱藏
+  if(document.body.classList.contains('edu-max') && v !== 'edu') toggleMax();
   if(document.body.classList.contains('q-max') && v !== 'quote' && window.Q_EXIT_MAX) Q_EXIT_MAX();
   main.dataset.view = v;
   document.querySelectorAll('.hub-tab').forEach(b=> b.setAttribute('aria-selected', String(b.dataset.view === v)));
@@ -639,12 +637,9 @@ function setView(v){
   document.querySelectorAll('#pane-' + v + ' img[data-src]').forEach(im=>{ im.src = im.dataset.src; im.removeAttribute('data-src'); });
   syncRep();
   if(v === 'edu'){
-    document.getElementById('edu-view').focus({preventScroll:true});
-    setTimeout(applyZoom, 0);
-  }
-  if(v === 'print'){
-    document.getElementById('form-view').focus({preventScroll:true});
-    setTimeout(applyFormZoom, 0);
+    const form = document.getElementById('pane-edu').dataset.stage === 'form';
+    document.getElementById(form ? 'form-view' : 'edu-view').focus({preventScroll:true});
+    setTimeout(()=>{ applyZoom(); applyFormZoom(); }, 0);
   }
   // 頁面重新整理後回到同一個分頁
   store('hub-view', v);
@@ -659,8 +654,7 @@ const FOOT_HINT = {
   report: '選擇要製作的報告。',
   weight: '減重報告會自動暫存草稿；上傳的檔案只在這台電腦讀取，不會上傳。按 Esc 回到報告種類。',
   checkup: '健檢報告會自動暫存草稿（不含 PDF 圖片）；上傳的檔案只在這台電腦讀取，不會上傳。按 Esc 回到報告種類。',
-  edu:    '← → 換張　＋ － 縮放　0 整頁　W 寬度　F 最大化　放大後可按住圖片拖曳',
-  print:  '按「列印」會直接跳出列印對話框，紙張為 A4。'
+  edu:    '← → 換張　＋ － 縮放　0 整頁　W 寬度（衛教）　F 最大化　放大後可按住拖曳　按「列印」直接跳出列印對話框'
 };
 // 個人瀏覽器的小設定（上次的分頁、衛教圖卡與縮放），讀不到就用預設值
 function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(err){} }
@@ -714,7 +708,7 @@ function typingInField(e){
 }
 function onHubKey(e){
   if(e.altKey && !e.ctrlKey && !e.metaKey){
-    const v = {'1':'quote','2':'calc','3':'edu','4':'weight','5':'print'}[e.key];
+    const v = {'1':'quote','2':'calc','3':'edu','4':'weight'}[e.key];
     if(v){ e.preventDefault(); setView(v); return true; }
   }
   return false;
@@ -730,30 +724,20 @@ document.addEventListener('keydown', e=>{
     return;
   }
   if(e.key === 'Escape' && !qrOverlay.hidden){ qrOverlay.hidden = true; return; }
-  if(main.dataset.view === 'print' && !e.ctrlKey && !e.metaKey && !e.altKey){
-    if(typingInField(e)) return;
-    const k = e.key, canScroll = formView.classList.contains('pannable');
-    if(k === 'ArrowLeft' || (k === 'ArrowUp' && !canScroll)){ e.preventDefault(); stepForm(-1); }
-    else if(k === 'ArrowRight' || (k === 'ArrowDown' && !canScroll)){ e.preventDefault(); stepForm(1); }
-    else if(k === '+' || k === '='){ e.preventDefault(); formZoomStep(1); }
-    else if(k === '-' || k === '_'){ e.preventDefault(); formZoomStep(-1); }
-    else if(k === '0'){ e.preventDefault(); formZoom = 'fit'; applyFormZoom(); }
-    else if(k === 'f' || k === 'F'){ e.preventDefault(); toggleMax(); }
-    else if(k === 'Escape' && document.body.classList.contains('edu-max')){ e.preventDefault(); toggleMax(); }
-    return;
-  }
   if(main.dataset.view !== 'edu' || e.ctrlKey || e.metaKey || e.altKey) return;
   // 並排計算時，焦點在右側臨床計算裡的按鍵都留給計算（打數字、方向鍵選項），不當成換張或縮放
   if(typingInField(e) || e.composedPath().includes(document.getElementById('calc-host'))) return;
-  // 圖片放大後可捲動時，上下鍵留給捲動，換張只用左右鍵
-  const canScroll = eduView.classList.contains('pannable');
+  // 目前是表單（多頁並排）還是衛教圖卡，縮放各自處理
+  const form = document.getElementById('pane-edu').dataset.stage === 'form';
+  // 放大後可捲動時，上下鍵留給捲動，換張只用左右鍵
+  const canScroll = (form ? formView : eduView).classList.contains('pannable');
   const k = e.key;
-  if(k === 'ArrowLeft' || (k === 'ArrowUp' && !canScroll)){ e.preventDefault(); stepEdu(-1); }
-  else if(k === 'ArrowRight' || (k === 'ArrowDown' && !canScroll)){ e.preventDefault(); stepEdu(1); }
-  else if(k === '+' || k === '='){ e.preventDefault(); zoomStep(1); }
-  else if(k === '-' || k === '_'){ e.preventDefault(); zoomStep(-1); }
-  else if(k === '0'){ e.preventDefault(); setZoom('fit'); }
-  else if(k === 'w' || k === 'W'){ e.preventDefault(); setZoom('width'); }
+  if(k === 'ArrowLeft' || (k === 'ArrowUp' && !canScroll)){ e.preventDefault(); stepItem(-1); }
+  else if(k === 'ArrowRight' || (k === 'ArrowDown' && !canScroll)){ e.preventDefault(); stepItem(1); }
+  else if(k === '+' || k === '='){ e.preventDefault(); form ? formZoomStep(1) : zoomStep(1); }
+  else if(k === '-' || k === '_'){ e.preventDefault(); form ? formZoomStep(-1) : zoomStep(-1); }
+  else if(k === '0'){ e.preventDefault(); if(form){ formZoom = 'fit'; applyFormZoom(); } else setZoom('fit'); }
+  else if((k === 'w' || k === 'W') && !form){ e.preventDefault(); setZoom('width'); }
   else if(k === 'f' || k === 'F'){ e.preventDefault(); toggleMax(); }
   else if(k === 'Escape' && document.body.classList.contains('edu-max')){ e.preventDefault(); toggleMax(); }
 });
@@ -1004,11 +988,11 @@ mountCalc();
 mountWeight();
 mountCheckup();
 renderRail();
-renderForms();
 const lastRep = recall('hub-rep', 'home');
 main.dataset.rep = ['home','weight','checkup'].includes(lastRep) ? lastRep : 'home';
-const lastView = recall('hub-view', 'quote');
-setView(['quote','calc','weight','edu','print'].includes(lastView) ? lastView : 'quote');
+// 舊版的「列印表單」分頁已併入「衛教與表單」
+const lastView = recall('hub-view', 'quote') === 'print' ? 'edu' : recall('hub-view', 'quote');
+setView(['quote','calc','weight','edu'].includes(lastView) ? lastView : 'quote');
 setInterval(updateChips, 1500);
 // 「全部清除」會重新載入整頁，載入後再顯示完成訊息
 try{ if(sessionStorage.getItem('hub-cleared')){ sessionStorage.removeItem('hub-cleared'); toast('已全部清除，可以開始下一位。'); } }catch(err){}
