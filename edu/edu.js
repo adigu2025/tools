@@ -127,7 +127,9 @@ let pickMode = false;
 const picked = new Set();
 
 // 側欄：上方是分類切換，下方列出該類的衛教與表單（依系列分小標），最下方是多份列印
+// 桌機版的清單浮在側欄右邊（半透明，蓋在預覽左側留白上，預覽不會移動）；再按一次目前的分類可收起
 let railFirst = true;
+let railFly = recall('hub-edu-fly', true) !== false;
 function renderRail(){
   const prev = cur;
   if(railFirst){
@@ -143,6 +145,9 @@ function renderRail(){
     eduPage = 0;
   }
   const rail = document.getElementById('edu-rail');
+  // 重畫清單（勾選模式每勾一份都會重畫）時保留捲動位置
+  const oldList = rail.querySelector('.edu-list');
+  const keepTop = oldList && oldList.dataset.g === eduGroup ? oldList.scrollTop : 0;
   const tabs = EDU_GROUPS.map(g=>{
     const n = ITEMS.filter(it=> it.group === g.key).length;
     const k = ITEMS.filter(it=> it.group === g.key && picked.has(itemKey(it))).length;
@@ -163,11 +168,22 @@ function renderRail(){
       `>${lead}<span class="lb">${esc(it.label)}</span>${sizeTag(it)}${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
   }).join('');
   // 多份一起列印放在最上方，捲動清單時固定在側欄頂端
+  const g = EDU_GROUPS.find(x=> x.key === eduGroup);
+  const flyHead = `<div class="edu-fly-head"><b>${esc(g ? g.label : '')}</b>` +
+    `<button class="fly-x press" type="button" title="收起清單（再按一次分類可展開）" aria-label="收起清單">‹</button></div>`;
+  rail.classList.toggle('fly-off', !railFly);
   rail.innerHTML = `<div class="edu-pick${pickMode ? ' on' : ''}">${pickBar()}</div>` +
-    `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類">${tabs}</div><div class="edu-list">${items}</div>`;
+    `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類">${tabs}</div>` +
+    `<div class="edu-list" data-g="${eduGroup}">${flyHead}${items}</div>`;
+  rail.querySelector('.edu-list').scrollTop = keepTop;
+  const setFly = on=>{ railFly = on; store('hub-edu-fly', on); rail.classList.toggle('fly-off', !on); };
+  rail.querySelector('.fly-x').addEventListener('click', ()=> setFly(false));
   rail.querySelectorAll('.edu-group').forEach(b=> b.addEventListener('click', ()=>{
+    // 再按一次目前的分類：收起或展開清單；換分類時一律展開
+    if(b.dataset.g === eduGroup){ setFly(!railFly); return; }
     eduGroup = b.dataset.g;
     store('hub-edu-group', eduGroup);
+    railFly = true; store('hub-edu-fly', true);
     renderRail();
   }));
   rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=>{

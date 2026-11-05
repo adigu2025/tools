@@ -24,15 +24,66 @@
 .footer{display:none !important;}
 .body{min-height:0 !important; padding:16px 24px 18px !important;}
 .tabs-wrap{background:rgba(250,249,245,.95) !important;}
-/* 分類與工具分頁排成同一列，省下一整列高度 */
+/* 寬螢幕：分類與工具改成左側目錄（風格比照「製作報告」入口：襯線標題、細框線、不用有色陰影）。
+   分類標題底下直接列出該分類的工具，選取的工具是一張白色小卡加左側色條；上方不再佔兩列分頁的高度 */
 @media (min-width:1100px){
-  .tabs-wrap{display:flex !important; flex-wrap:wrap; align-items:center;}
-  .group-bar{flex:none; padding:8px 8px 0 20px !important; align-self:stretch; align-items:center;}
-  .group-btn{padding:6px 2px 7px !important;}
-  .tabs{flex:1 1 0; min-width:0; padding:9px 20px 9px 8px !important; border-left:1px solid #E6E3DA;}
-  .staff-toggle{order:9;}
-  .staff-notice{flex-basis:100%; margin:0 !important;}
+  /* 左欄底色與分隔線畫在卡片上：降血脂、B 肝用藥這兩個允許捲動的工具往下捲時，目錄固定不動，底色仍然到底 */
+  .card{display:grid !important; grid-template-columns:228px minmax(0,1fr); align-items:start;
+    background:linear-gradient(to right,#F6F5F0 227px,#E6E3DA 227px 228px,#fff 228px) !important;}
+  .tabs-wrap{grid-column:1; grid-row:1; display:flex !important; flex-direction:column; align-items:stretch;
+    position:sticky !important; top:0 !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+    background:transparent !important; border-bottom:0 !important; padding:20px 12px 16px;}
+  main.body{grid-column:2; grid-row:1; min-width:0;}
+  .tabs-wrap::before{content:"臨床計算"; font-family:var(--serif,serif); font-size:19px; font-weight:700; letter-spacing:.08em;
+    color:#1F1E1D; padding:0 10px 14px; margin:0 0 6px; border-bottom:1px solid #E6E3DA; order:0;}
+  /* 分類按鈕與工具列交錯排列：分類 → 該分類的工具 → 下一個分類 */
+  .group-bar{display:contents !important;}
+  #group-basic{order:1;} #tabs-basic{order:2;} #group-gi{order:3;} #tabs-gi{order:4;}
+  #group-meta{order:5;} #tabs-meta{order:6;} #group-calc{order:7;} #staff-notice{order:8;} #tabs-calc{order:9;}
+  .group-btn{display:flex !important; align-items:center; gap:8px; width:100%; margin:6px 0 0 !important;
+    padding:9px 10px !important; border:0 !important; border-radius:8px; text-align:left;
+    font-size:14px !important; letter-spacing:.06em; color:#6F6B63 !important;}
+  .group-btn:hover{background:rgba(31,30,29,.04); color:#1F1E1D !important;}
+  .group-btn[aria-selected="true"]{color:#1F1E1D !important;}
+  .group-btn .group-count{margin-left:auto !important; font-size:12px !important; font-weight:600; color:#9C978C !important;
+    letter-spacing:0; font-variant-numeric:tabular-nums;}
+  .group-btn::after{content:""; width:6px; height:6px; flex:none; border:solid #9C978C; border-width:0 1.5px 1.5px 0;
+    transform:rotate(-45deg); transition:transform .2s;}
+  .group-btn[aria-selected="true"]::after{transform:rotate(45deg) translate(-2px,-1px);}
+  .tabs{flex-direction:column; gap:2px !important; padding:2px 0 8px !important; overflow:visible !important; border:0 !important;}
+  .tab{position:relative; width:100%; align-items:flex-start; gap:2px !important; border:0 !important; border-radius:9px !important;
+    background:transparent !important; padding:9px 12px 9px 16px !important; font-size:15px !important; font-weight:600 !important;
+    color:#3A3833 !important; white-space:normal; text-align:left; line-height:1.3;}
+  .tab .tab-en{font-size:12.5px !important; font-weight:500 !important; letter-spacing:0 !important; text-transform:none !important;
+    opacity:1 !important; color:#9C978C;}
+  .tab:hover{background:rgba(31,30,29,.045) !important;}
+  .tab[aria-selected="true"]{background:#fff !important; color:var(--teal-dark) !important;
+    box-shadow:0 0 0 1px #E6E3DA, 0 1px 2px rgba(31,30,29,.05);}
+  .tab[aria-selected="true"] .tab-en{color:#6F6B63;}
+  .tab[aria-selected="true"]::before{content:""; position:absolute; left:6px; top:11px; bottom:11px; width:3px;
+    border-radius:2px; background:var(--teal);}
+  .staff-toggle{order:20; margin:12px 0 0 !important; padding:14px 10px 2px !important; border:0 !important;
+    border-top:1px solid #E6E3DA !important; border-radius:0; text-align:left; font-size:13px !important; color:#9C978C !important;}
+  .staff-toggle:hover{color:var(--teal-dark) !important;}
+  .staff-notice{margin:4px 2px 6px !important; padding:9px 11px !important; border:1px solid #F0DDBE !important; border-radius:8px;
+    font-size:12.5px !important; line-height:1.65 !important;}
 }
+/* 工具標題：襯線字、細分隔線，英文副標改成標題上方的小字 */
+.panel-head{border-bottom:1px solid #E6E3DA !important; align-items:center !important;}
+.panel-title{font-family:var(--serif,serif); font-size:23px !important; letter-spacing:.04em; color:#1F1E1D !important;
+  display:flex; flex-direction:column-reverse;}
+.panel-title small{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei",sans-serif;
+  letter-spacing:.02em !important; color:#9C978C !important; margin:0 0 4px !important;}
+.act{border-width:1px !important; padding:6px 14px !important; font-size:13px !important;}
+/* 輸入欄：淡底、細框，焦點時變白並出現主色框 */
+.field input,.field select{border:1px solid #DEDBD1 !important; background-color:#FBFAF7 !important; border-radius:10px !important;}
+.field input:focus,.field select:focus{background-color:#fff !important; border-color:var(--teal) !important;}
+.field-head label{color:#3A3833 !important;}
+/* 公式與說明：左側色條，不再整塊上色 */
+.formula,.quiz-intro{background:#F7F8F5 !important; border:0 !important; border-left:3px solid #A9BDAF !important; border-radius:0 8px 8px 0 !important;}
+.empty-hint{border:1px dashed #DEDBD1 !important; background:#FBFAF7 !important; border-radius:14px !important;}
+.result,.ideal-box,.target-box,.section-box,.stat,.edu-wrap,.summary-item,.rx-section{border-width:1px !important;}
+.bmi-display{border:1px solid #E6E3DA;}
 /* 收緊垂直間距 */
 .panel-head{margin-bottom:14px !important; padding-bottom:8px !important;}
 .formula{margin-bottom:14px !important; line-height:1.65 !important; padding:10px 14px !important;}
@@ -103,7 +154,8 @@
   .tool-panel.hub-split.active{display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
     column-gap:36px; align-items:start;}
   .tool-panel.hub-split > .panel-head{grid-column:1 / -1;}
-  .hub-out{position:sticky; top:var(--hub-sticky, 140px);}
+  /* 分頁改到左側目錄後，上方沒有分頁列要讓開 */
+  .hub-out{position:sticky; top:14px;}
   .hub-out > :first-child{margin-top:0 !important;}
   .hub-in .grid-4{grid-template-columns:repeat(2,1fr) !important;}
   /* 降血脂與 B 肝用藥：輸入欄較寬（勾選題分三欄），結果欄在欄內捲動，整頁不必捲 */

@@ -48,6 +48,8 @@ body[data-view="weight"]{--acc:#E2C477; --acc-fg:#4A4038; --acc-2:#4A4038; --acc
 *{box-sizing:border-box;}
 html,body{margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:var(--sans);
   font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;}
+/* 桌機版整頁固定一個畫面高，不靠整頁捲動。載入途中內容會短暫超出一個畫面，右側捲軸閃一下就讓整個畫面左右跳 15px，所以不讓整頁出現捲軸 */
+@media screen and (min-width:861px){ html{overflow:hidden;} }
 button{font:inherit; cursor:pointer; color:inherit;}
 :focus-visible{outline:2px solid var(--acc-text); outline-offset:2px; border-radius:8px;}
 
@@ -58,7 +60,9 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .qr-btn:hover{border-color:var(--line-strong);}
 .qr-btn img{width:100%; height:100%; display:block;}
 .hub-brand{white-space:nowrap; font-family:var(--serif); font-size:28px; font-weight:700; letter-spacing:.1em;
-  line-height:1; margin:0 6px 0 2px;}
+  line-height:1; margin:0 6px 0 2px;
+  /* 寬度固定為 6 個字（每字 1em 加字距）：網路字型載入前後字寬不同，不固定的話右邊的按鈕會在重新整理時左右跳一下 */
+  width:6.6em; flex:none; overflow:visible;}
 .hub-tabs{display:flex; gap:2px; background:var(--sunken); padding:4px; border-radius:14px;}
 .hub-tab{border:0; background:transparent; color:var(--muted); padding:9px 20px; border-radius:10px;
   font-size:16.5px; font-weight:500; white-space:nowrap;}
@@ -214,7 +218,30 @@ body.q-max .hub-main{height:100dvh;}
 .edu-item[aria-current="true"] .ico{color:var(--acc-text);}
 /* 系列小標（療程、認識肥胖、用藥……），對應圖卡角落的編號 */
 .edu-sec{font-size:12.5px; letter-spacing:.12em; color:var(--faint); font-weight:600; margin:12px 12px 4px;}
-.edu-list > .edu-sec:first-child{margin-top:2px;}
+.edu-list > .edu-sec:first-child, .edu-fly-head + .edu-sec{margin-top:2px;}
+.edu-fly-head{display:none;}
+/* 桌機版：側欄只放分類，清單浮在側欄右邊，蓋在預覽左側的留白上（半透明毛玻璃）。
+   清單不佔版面，開關清單或換分類時預覽都不會移動；A4 直式單頁放得下，雙頁或橫式才會被蓋到一部分。
+   清單從標題列下方開始，不蓋左上角的標題 */
+@media (min-width:861px){
+  #pane-edu{grid-template-columns:216px 1fr;}
+  .edu-rail{position:relative; z-index:5; overflow:visible;}
+  .edu-groups{border-bottom:0; margin-bottom:0; padding-bottom:2px;}
+  .edu-list{position:absolute; left:calc(100% + 10px); top:62px; width:262px; max-height:calc(100% - 74px); overflow:auto;
+    padding:4px 6px 8px; border-radius:14px; border:1px solid rgba(214,210,200,.9);
+    background:rgba(255,255,255,.82); -webkit-backdrop-filter:blur(14px) saturate(1.2); backdrop-filter:blur(14px) saturate(1.2);
+    box-shadow:0 2px 6px rgba(31,30,29,.06), 0 14px 36px rgba(31,30,29,.12); scrollbar-width:thin;}
+  .edu-rail.fly-off .edu-list{display:none;}
+  .edu-fly-head{display:flex; align-items:center; justify-content:space-between; gap:8px; position:sticky; top:-4px; z-index:1;
+    margin:-4px -6px 4px; padding:10px 8px 8px 16px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.9);}
+  .edu-fly-head b{font-family:var(--serif); font-size:16.5px; letter-spacing:.06em; color:var(--ink);}
+  .fly-x{width:30px; height:30px; flex:none; border:1px solid var(--line); border-radius:8px; background:var(--surface);
+    color:var(--muted); font-size:18px; line-height:1;}
+  .fly-x:hover{background:var(--sunken); color:var(--ink);}
+  .edu-list .edu-item{padding:10px 12px;}
+  /* 已收起時，目前分類按鈕右側出現小箭頭，提示再按一次可展開 */
+  .edu-rail.fly-off .edu-group[aria-pressed="true"]::after{content:"›"; margin-left:6px; font-size:17px; line-height:1;}
+}
 /* 多份一起列印：勾選模式 */
 .edu-item .ck{width:20px; height:20px; flex:none; display:inline-flex; align-items:center; justify-content:center;
   border:1.5px solid var(--line-strong); border-radius:6px; font-size:13px; color:var(--acc-fg); background:var(--surface);}
@@ -350,7 +377,7 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   .hub-tab{padding:9px 15px;}
 }
 @media (max-width:1100px){
-  .hub-brand{font-size:24px; letter-spacing:.06em;}
+  .hub-brand{font-size:24px; letter-spacing:.06em; width:6.36em;}
   .chip .k{display:none;}
 }
 /* ── 窄螢幕 ── */
