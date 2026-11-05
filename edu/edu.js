@@ -46,16 +46,16 @@ const EDU_LIST = [
   ['weight', '認識肥胖', '肥胖與代謝症候群', ICON.scale,    ['img/edu-obesity-metabolic-syndrome.webp']],
   ['weight', '認識肥胖', '肥胖越來越常見',   ICON.globe,    ['img/edu-obesity-trend.webp']],
   ['weight', '認識肥胖', '為什麼會胖？',     ICON.dna,      ['img/edu-obesity-causes.webp']],
-  ['weight', '認識肥胖', '什麼時候該開始治療', ICON.light,  ['img/edu-when-to-intervene.webp']],
+  ['weight', '認識肥胖', '何時該開始治療', ICON.light,     ['img/edu-when-to-intervene.webp']],
   ['weight', '用藥',     '減重藥物怎麼選',   ICON.pill,     ['img/edu-medication-options.webp']],
   ['weight', '用藥',     '用藥注意事項',     ICON.book,     ['img/edu-medication-guide.webp']],
   ['weight', '用藥',     '針劑注射與保存',   ICON.pen,      [{src:'img/edu-glp1-injection-storage.webp', split:2}]],
-  ['exam',   '檢查前',   '胃鏡檢查前注意事項', ICON.stomach, ['img/edu-a5-gastroscopy-prep.webp'], 'A5'],
-  // 大腸鏡清腸說明：現行紙本的備份（保可淨用法與飲食控制），原檔是 PDF，不修改
-  ['exam',   '檢查前',   '大腸鏡清腸說明（保可淨）', ICON.scope, ['img/edu-colonoscopy-bowel-prep-1.webp', 'img/edu-colonoscopy-bowel-prep-2.webp']],
-  ['exam',   '檢查前',   '大腸鏡檢查前注意事項', ICON.scope,  ['img/edu-a5-colonoscopy-prep.webp'], 'A5'],
+  ['exam',   '檢查前',   '胃鏡檢查前須知', ICON.stomach,   ['img/edu-a5-gastroscopy-prep.webp'], 'A5'],
+  // 保可淨清腸說明：大腸鏡現行紙本的備份（保可淨用法與飲食控制），原檔是 PDF，不修改
+  ['exam',   '檢查前',   '保可淨清腸說明', ICON.scope, ['img/edu-colonoscopy-bowel-prep-1.webp', 'img/edu-colonoscopy-bowel-prep-2.webp']],
+  ['exam',   '檢查前',   '大腸鏡檢查前須知', ICON.scope,    ['img/edu-a5-colonoscopy-prep.webp'], 'A5'],
   ['exam',   '檢查前',   '腹部超音波衛教',   ICON.us,       ['img/edu-a5-abdominal-us.webp'], 'A5'],
-  ['exam',   '檢查後',   '胃鏡、大腸鏡檢查後', ICON.scope,    ['img/edu-a5-endoscopy-after.webp'], 'A5'],
+  ['exam',   '檢查後',   '腸胃鏡檢查後須知', ICON.scope,    ['img/edu-a5-endoscopy-after.webp'], 'A5'],
   ['exam',   '治療後',   '瘜肉切除術後',     ICON.polyp,    ['img/edu-a5-polypectomy-after.webp'], 'A5'],
   ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-a5-het-after.webp'], 'A5'],
   ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-a5-arbl-after.webp'], 'A5'],
@@ -84,7 +84,7 @@ let FORMS = [
   {group:'weight', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'html', html:()=> formScalesHtml()},
   {group:'weight', label:'地中海飲食衛教', note:'共 2 頁', pages:[W('img/diet-mediterranean-1.webp'), W('img/diet-mediterranean-2.webp')], kind:'img'},
   {group:'weight', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'html', html:()=> formHealthRecordHtml()},
-  {group:'weight', label:'腸泌素針劑自費使用同意書', note:'共 2 頁', pages:[W('img/consent-glp1-1.webp'), W('img/consent-glp1-2.webp')], kind:'img'},
+  {group:'weight', label:'腸泌素自費同意書', note:'共 2 頁', pages:[W('img/consent-glp1-1.webp'), W('img/consent-glp1-2.webp')], kind:'img'},
   // 管制藥品處方箋為橫式 A4，列印時依圖片比例自動改橫式紙
   {group:'ctrl', label:'Midazolam', note:'共 1 頁', pages:['img/ctrl-midazolam.jpg'], kind:'img'},
   {group:'ctrl', label:'Fentanyl',  note:'共 1 頁', pages:['img/ctrl-fentanyl.jpg'],  kind:'img'},
@@ -98,7 +98,7 @@ let FORMS = [
   {label:'輕中度鎮靜同意書', file:'sedation',    pages:2},
   {label:'麻醉同意書',       file:'anesthesia',  pages:3},
   {label:'冷凝刀同意書',     file:'het',         pages:2},
-  {label:'抗逆流結紮術同意書', file:'arbl',        pages:2},
+  {label:'抗逆流結紮同意書', file:'arbl',         pages:2},
   {label:'甲狀腺穿刺同意書', file:'thyroid-fna', pages:1},
 ].map(n=> ({group:'consent', label:n.label, note:`共 ${n.pages} 頁`, pages:C(n), kind:'img'})));
 

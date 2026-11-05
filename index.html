@@ -187,7 +187,7 @@ body.q-max .hub-main{height:100dvh;}
 .sec-title{font-size:13px; letter-spacing:.14em; color:var(--faint); font-weight:600; margin:8px 12px 10px;}
 
 /* ── 衛教圖卡：圖片盡量放大，病人坐在對面也看得清楚 ── */
-#pane-edu{display:grid; grid-template-columns:260px 1fr; gap:18px; padding:18px; height:100%;}
+#pane-edu{display:grid; grid-template-columns:290px 1fr; gap:18px; padding:18px; height:100%;}
 .edu-rail{overflow:auto; padding:12px 10px;}
 .edu-item{position:relative; display:flex; gap:10px; align-items:center; width:100%; text-align:left; border:0;
   background:transparent; padding:11px 12px; border-radius:10px; color:var(--ink-2); font-size:16.5px; line-height:1.4;}
@@ -195,7 +195,8 @@ body.q-max .hub-main{height:100dvh;}
 /* 選取時不加粗：加粗會讓字變寬、換行位置跳動，改用底色與字色標示 */
 .edu-item[aria-current="true"]{background:var(--acc-soft); color:var(--acc-text);}
 .edu-item .ico{width:20px; flex:none; display:inline-flex; justify-content:center; color:var(--muted);}
-.edu-item .lb{flex:1; min-width:0;}
+/* 名稱一律一行：名稱已控制在 8 字內，萬一側欄更窄才以刪節號收尾 */
+.edu-item .lb{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .edu-item .pg{flex:none; font-size:12px; color:var(--faint); font-weight:400;}
 /* 紙張大小標籤：每份衛教都註記 A4 或 A5，A5 用強調色 */
 .sz{flex:none; display:inline-block; font-family:var(--sans, inherit); font-size:11.5px; font-weight:600; letter-spacing:.04em; line-height:1.3;
@@ -281,7 +282,7 @@ body.edu-max .edu-view{background:#fff;}
 body.edu-max .edu-view img{box-shadow:none;}
 
 /* ── 列印表單：版面與衛教圖卡相同，左側清單、右側預覽；多頁表單並排顯示，按列印直接出 A4 ── */
-#pane-print{display:grid; grid-template-columns:260px 1fr; gap:12px; padding:12px; height:100%;}
+#pane-print{display:grid; grid-template-columns:290px 1fr; gap:12px; padding:12px; height:100%;}
 /* 預覽使用整個高度，工具列浮在上方，蓋到頁面也沒關係；頁面不夠放時改成上下排 */
 .form-view{gap:12px; padding:6px; justify-content:safe center; align-items:safe center;}
 .form-view.vertical{flex-direction:column;}
@@ -326,7 +327,8 @@ body.edu-max #pane-print .edu-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 
 .tbtn.danger:hover{background:var(--clay-dark);}
 
 @media (max-width:1320px){
-  #pane-edu, #pane-print{grid-template-columns:210px 1fr; gap:14px; padding:14px;}
+  #pane-edu, #pane-print{grid-template-columns:262px 1fr; gap:14px; padding:14px;}
+  .edu-item{font-size:15px; gap:8px; padding:10px;}
   .edu-tools h1{font-size:21px;}
   .grp > *{padding:7px 10px;}
   .zoom-val{min-width:84px;}
