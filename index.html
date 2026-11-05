@@ -269,7 +269,7 @@ body.q-max .hub-main{height:100dvh;}
 .edu-head{display:flex; align-items:baseline; gap:10px; padding:7px 14px; min-width:0;}
 .edu-head h1{font-size:17px; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .edu-pages{display:inline-flex; gap:4px;}
-.edu-pages button{border:1px solid var(--line-strong); background:var(--surface); border-radius:8px; padding:3px 10px; font-size:13.5px; color:var(--ink-2);}
+.edu-pages button{white-space:nowrap; border:1px solid var(--line-strong); background:var(--surface); border-radius:8px; padding:3px 10px; font-size:13.5px; color:var(--ink-2);}
 .edu-pages button[aria-pressed="true"]{background:var(--acc-soft); border-color:var(--acc); color:var(--acc-text); font-weight:600;}
 .edu-head .edu-count{margin-right:0; font-size:13px; white-space:nowrap;}
 .edu-ctrl{display:flex; align-items:center; gap:6px; padding:5px; flex-wrap:wrap; justify-content:flex-end;}
@@ -312,10 +312,11 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
 .modal-card ul.rev-list{margin:0; padding-left:1.3em; font-size:16px; color:var(--ink-2); line-height:1.7;}
 .toast{position:fixed; left:50%; bottom:50px; transform:translateX(-50%); background:var(--ink); color:#fff;
   padding:12px 20px; border-radius:12px; font-size:15px; z-index:50; box-shadow:0 8px 28px rgba(0,0,0,.2);}
-/* 列印 A5 衛教單前的提醒：放在畫面上方、字放大，列印視窗打開前先看得到 */
-.toast.warn{top:24px; bottom:auto; background:var(--clay, #B0432E); font-size:19px; font-weight:700; padding:14px 28px; text-align:center;}
+/* 列印前的雙面列印提醒：放在畫面正中央、字放大，列印視窗打開前先看得到 */
+.toast.warn{top:50%; bottom:auto; transform:translate(-50%, -50%); background:var(--clay, #B0432E); font-size:22px; font-weight:700;
+  padding:22px 36px; border-radius:16px; text-align:center; max-width:calc(100vw - 32px); box-shadow:0 0 0 100vmax rgba(21,40,49,.28), 0 12px 40px rgba(0,0,0,.3);}
 .toast.warn b{display:block; white-space:nowrap;}
-.toast.warn span{display:block; font-size:15px; font-weight:500; margin-top:4px; opacity:.92;}
+.toast.warn span{display:block; font-size:16px; font-weight:500; margin-top:8px; opacity:.94;}
 
 /* QR 放大：hidden 屬性要能蓋過 display:flex，所以只在沒有 hidden 時才設 flex */
 .qr-overlay{position:fixed; inset:0; background:rgba(31,30,29,.55); z-index:60; align-items:center; justify-content:center;}
@@ -363,9 +364,16 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   #pane-edu > .edu-stage{grid-column:1; grid-row:2;}
   .edu-rail{display:flex; flex-direction:column; overflow-x:auto; padding:6px;}
   .edu-groups{flex-direction:row; overflow-x:auto;}
+  /* 分類按鈕不可被壓扁，否則字會一個字一行直排 */
+  .edu-group{flex:none; white-space:nowrap;}
   .edu-pick{position:static; margin:0 0 6px; padding:0 0 6px;}
   .edu-list{display:flex; overflow-x:auto;}
-  .edu-rail .sec-title{display:none;}
+  .edu-rail .edu-sec{display:none;}
+  /* 標題與工具列改排在預覽上方，不再浮在圖片上互相擠壓 */
+  .edu-stage{grid-template-rows:auto 1fr;}
+  .edu-tools{position:static; flex-wrap:wrap; padding:6px 6px 0;}
+  .edu-head{flex:1 1 100%;}
+  .edu-view, .form-view{grid-row:2;}
   .edu-item{white-space:nowrap; width:auto;}
   .edu-item[aria-current="true"]::before{display:none;}
 }
@@ -571,8 +579,7 @@ async function mountWeight(){
     });
   }catch(err){ mountFailed(host, '減重報告', err); return; }
   weightReady = true;
-  const upd = ()=> setTimeout(updateChips, 30);
-  ['input','change','click'].forEach(t=> WD.addEventListener(t, upd, true));
+  watchChips(WD, ['bmi-value', 'status-pill']);
   updateChips();
   host.classList.remove('loading');
   syncRep();
@@ -606,8 +613,7 @@ async function mountCalc(){
     });
   }catch(err){ mountFailed(host, '臨床計算', err); return; }
   calcReady = true;
-  const upd = ()=> setTimeout(updateChips, 30);
-  ['input','change','click'].forEach(t=> CD.addEventListener(t, upd, true));
+  watchChips(CD, ['bmi-result', 'bmi-val', 'bmi-badge']);
   splitCalcPanels();
   // 倍率只在載入與視窗大小改變時計算一次，所有工具共用，切換時字級不跳動
   calcZ = null;
@@ -756,7 +762,7 @@ document.addEventListener('keydown', e=>{
 /* 臨床計算自動縮放：所有工具共用同一個倍率，切換工具或分類時字級不會跳動。
    倍率取「每個工具都放得進畫面」的最大值：逐一量過每個工具（結果區全部展開的最壞情況），取最小者。
    量測在同一段同步程式內完成，畫面不會閃。
-   降血脂與 B 肝用藥兩個判定表單不列入計算（避免拉低所有工具的字級），輸入區已排成一屏，結果欄在欄內捲動（fitRxOut）。 */
+   降血脂與 B 肝用藥兩個判定表單不列入計算（避免拉低所有工具的字級），輸入區已排進一個畫面，結果欄在欄內捲動（fitRxOut）。 */
 const CALC_SCROLL_OK = new Set(['panel-lipidrx', 'panel-hbvrx']);
 const CALC_MIN_Z = 0.8, CALC_MAX_Z = 1.45;
 let calcZ = null;
@@ -912,6 +918,18 @@ document.getElementById('rv-close').addEventListener('click', closeRev);
 revModal.addEventListener('click', e=>{ if(e.target === revModal) closeRev(); });
 
 function txt(doc, id){ const el = doc && doc.getElementById(id); return el ? el.textContent.trim() : ''; }
+/* 頂端摘要只在內容可能改變時才重算，不再每 1.5 秒重算一次：
+   輸入、選擇、點擊後，以及結果欄位本身被程式改動時（例如載入紀錄檔是非同步的，點擊當下結果還沒出來） */
+let chipTimer = null;
+function queueChips(){ clearTimeout(chipTimer); chipTimer = setTimeout(updateChips, 30); }
+function watchChips(root, ids){
+  ['input','change','click'].forEach(t=> root.addEventListener(t, queueChips, true));
+  const mo = new MutationObserver(queueChips);
+  ids.forEach(id=>{
+    const el = root.getElementById(id);
+    if(el) mo.observe(el, {childList:true, characterData:true, subtree:true, attributes:true, attributeFilter:['style','hidden','class']});
+  });
+}
 function updateChips(){
   const cc = document.getElementById('chip-calc');
   const cw = document.getElementById('chip-weight');
@@ -941,7 +959,6 @@ function updateChips(){
     }else cw.hidden = true;
   }catch(err){ cw.hidden = true; }
 }
-// 頂端列病人看得到，姓名只露第一個字
 // 姓名中間遮成○，頭尾留著（王○明、兩個字是王○），與健檢 LINE 摘要圖的 ckMaskName 相同；正式報告印全名
 function maskName(n){ const s = [...String(n)]; return esc(s.length <= 1 ? s.join('') : s.length === 2 ? s[0] + '○' : s[0] + '○'.repeat(s.length - 2) + s[s.length - 1]); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -1006,7 +1023,6 @@ main.dataset.rep = ['home','weight','checkup'].includes(lastRep) ? lastRep : 'ho
 // 舊版的「列印表單」分頁已併入「衛教與表單」
 const lastView = recall('hub-view', 'quote') === 'print' ? 'edu' : recall('hub-view', 'quote');
 setView(['quote','calc','weight','edu'].includes(lastView) ? lastView : 'quote');
-setInterval(updateChips, 1500);
 // 「全部清除」會重新載入整頁，載入後再顯示完成訊息
 try{ if(sessionStorage.getItem('hub-cleared')){ sessionStorage.removeItem('hub-cleared'); toast('已全部清除，可以開始下一位。'); } }catch(err){}
 

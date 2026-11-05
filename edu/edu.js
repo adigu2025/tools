@@ -193,9 +193,8 @@ function pickBar(){
   const count = size=> list.filter(it=> it.size === size).reduce((n, it)=> n + itemSheets(it), 0);
   const a4 = count('A4'), a5 = count('A5');
   const sheets = [a4 ? a4 + ' 張 A4' : '', a5 ? a5 + ' 張 A5' : ''].filter(Boolean).join('、');
-  // A4 與 A5 用不同的紙，混在同一次列印會從同一個紙匣出紙
-  const mixed = a4 && a5 ? '<br>A4 與 A5 紙不同，建議分開印' : '';
-  return `<div class="sum">${list.length ? `已選 ${list.length} 份，共 ${sheets}${mixed}` : '點選要一起列印的衛教或表單'}</div>` +
+  // A5 衛教單的圖是整張 A4（內容在上半頁），和 A4 用同一種紙，混在一起印沒有問題
+  return `<div class="sum">${list.length ? `已選 ${list.length} 份，共 ${sheets}` : '點選要一起列印的衛教或表單'}</div>` +
     `<div class="acts"><button class="tbtn" id="pick-cancel">取消</button>` +
     `<button class="tbtn pri" id="pick-print"${list.length ? '' : ' disabled'}>列印</button></div>`;
 }
@@ -217,16 +216,21 @@ function duplexReason(items){
   if(mid.length) return `${name(mid[0])}${odd.length > 1 ? `等 ${odd.length} 份` : ''}是奇數頁，開著雙面，下一份會印到它的背面`;
   return `${name(odd[0])}是奇數頁，請用單面列印`;
 }
+// 回傳 false 表示上一次的列印還在等提醒，這次不要再印（連按兩下「列印」只出一個列印視窗）
+let duplexWaiting = false;
 async function duplexWarn(items){
+  if(duplexWaiting) return false;
   const why = duplexReason(items);
-  if(!why) return;
+  if(!why) return true;
+  duplexWaiting = true;
   toast('', 'warn', 9000, `<b>請取消勾選『雙面列印』</b><span>${esc(why)}</span>`);
   await new Promise(r=> setTimeout(r, 1500));
+  duplexWaiting = false;
+  return true;
 }
 async function printPicked(){
   const list = ITEMS.filter(it=> picked.has(itemKey(it)));
-  if(!list.length) return;
-  await duplexWarn(list);
+  if(!list.length || !await duplexWarn(list)) return;
   const pages = list.flatMap(it=> it.kind === 'edu' ? it.ref.pages : it.ref.pages.map(src=> ({src})));
   printImages(pages, list.length === 1 ? list[0].label : '衛教與表單 ' + list.length + ' 份');
 }
@@ -373,6 +377,5 @@ document.getElementById('zoom-width').addEventListener('click', ()=> setZoom('wi
 document.getElementById('edu-max').addEventListener('click', toggleMax);
 document.getElementById('edu-print').addEventListener('click', async ()=>{
   const p = EDU[eduIdx];
-  await duplexWarn([ITEMS[cur]]);
-  printImages(p.pages, p.label);
+  if(await duplexWarn([ITEMS[cur]])) printImages(p.pages, p.label);
 });

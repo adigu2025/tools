@@ -116,7 +116,7 @@ formView.addEventListener('pointermove', e=>{
 formView.addEventListener('dblclick', ()=>{ formZoom = formZoom === 'fit' ? 1 : 'fit'; applyFormZoom(); });
 document.getElementById('form-print').addEventListener('click', ()=>{
   const it = ITEMS[cur];
-  if(it && it.kind === 'form') duplexWarn([it]).then(()=> printForm(it.ref));
+  if(it && it.kind === 'form') duplexWarn([it]).then(ok=>{ if(ok) printForm(it.ref); });
 });
 formView.addEventListener('wheel', e=>{
   if(!e.ctrlKey) return;
