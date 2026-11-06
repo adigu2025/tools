@@ -93,48 +93,7 @@
 .section-box{padding:12px 14px !important;}
 .notes{line-height:1.7 !important;}
 .ref-table td{padding:7px 12px !important;}
-/* BMR／TDEE：結果區自己再分兩欄，衛教卡片排成一列 */
 @media (min-width:1100px){
-  /* BMI：輸入在左上，BMI 數值與色條在右上，標準體重與目標體重並排在下方 */
-  #panel-bmi.hub-split.active{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
-    grid-template-areas:"head head" "in disp" "table bar" "table ideal" "table target";
-    grid-template-rows:auto auto auto 1fr 1fr !important; row-gap:14px; column-gap:28px; align-items:stretch !important;}
-  #panel-bmi #bmi-table{grid-area:table; margin:0 !important; align-self:stretch; height:100%;}
-  #bmi-table caption{caption-side:top; text-align:left; font-size:13px; font-weight:700; color:var(--teal-dark); padding:0 0 8px;}
-  #bmi-table td,#bmi-table th{padding-top:11px !important; padding-bottom:11px !important;}
-  #bmi-table tfoot td{font-size:12.5px; color:var(--muted); background:#FBFAF7; line-height:1.6;}
-  #bmi-result > .ideal-box, #bmi-result > .target-box{display:flex; flex-direction:column; justify-content:center;}
-  #panel-bmi > .hub-in{grid-area:in; align-self:start;}
-  #panel-bmi > .panel-head{grid-area:head;}
-  #panel-bmi > .hub-in{grid-area:in;}
-  #panel-bmi > .hub-out{display:contents;}
-  #panel-bmi #bmi-hint{grid-column:2; grid-row:2 / -1; margin:0 !important;}
-  #bmi-result:not([style*="none"]){display:contents !important;}
-  #bmi-result > *{margin:0 !important;}
-  #bmi-result > .bmi-display{grid-area:disp;}
-  #bmi-result > .bar-wrap{grid-area:bar;}
-  #bmi-result > .ideal-box{grid-area:ideal; align-self:stretch;}
-  #bmi-result > .bmi-display{align-self:start;}
-  #bmi-result > .target-box{grid-area:target; align-self:stretch;}
-  /* 輸入｜（三個數值／減重時程與營養素並排）｜衛教重點 */
-  #panel-tdee.hub-split.active{grid-template-columns:minmax(0,.7fr) minmax(0,2.6fr) !important; column-gap:24px !important;}
-  #tdee-result:not([style*="none"]){display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);
-    column-gap:14px; align-items:start;}
-  #tdee-result > .stat-grid{grid-column:1 / 3; grid-row:1;}
-  #tdee-result > .section-box:nth-of-type(2){grid-column:1; grid-row:2;}
-  #tdee-result > .section-box:nth-of-type(3){grid-column:2; grid-row:2;}
-  #tdee-result > .edu-wrap{grid-column:3; grid-row:1 / span 3;}
-  #tdee-result .mini-grid-4{grid-template-columns:repeat(2,1fr) !important;}
-  /* 尚未計算時先保留時程與營養素的高度，預估倍率才準 */
-  #tdee-timeline:empty{min-height:var(--hub-tl, 200px);}
-  #tdee-macros:empty{min-height:var(--hub-mac, 95px);}
-  #tdee-result .edu-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important; padding:10px 12px !important; gap:10px !important;}
-  #tdee-result .edu-card{display:grid !important; grid-template-columns:auto 1fr; column-gap:8px; align-items:center;
-    padding:9px 11px !important;}
-  #tdee-result .edu-icon{margin:0 !important; font-size:18px !important;}
-  #tdee-result .edu-text{grid-column:1 / -1; line-height:1.55 !important;}
-  #tdee-result .stat{padding:10px 8px !important;}
-  #tdee-result .notes{margin-top:6px !important;}
   /* 量表與勾選題：選項排成兩欄，高度減半，字才能放大 */
   .check-list,.opt-list,.swatch-list{display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px !important;}
   .check-list > *,.opt-list > *,.swatch-list > *{margin:0 !important;}
@@ -199,7 +158,7 @@
 
   /* 輸入欄加高，左欄不再擠在上半部 */
   /* 輸入欄加高（只限較矮的工具；TDEE 是決定倍率的那一個，不動） */
-  :is(#panel-bmi,#panel-fib4,#panel-rfactor) .hub-in .field :is(input,select){min-height:50px; font-size:17px !important;}
+  
   /* 自我評估：面板改成直向排列，題目區撐滿 */
   main.body > .tool-panel.active:not(.hub-split){display:flex !important; flex-direction:column;}
 }
@@ -278,4 +237,325 @@
   .hub-in > .side-wrap{flex:1 1 0px; min-height:0; overflow:hidden; margin:0 !important;}
   .hub-in > .side-wrap.cut{visibility:hidden;}
   .hub-in > .side-wrap > .side-info{margin:0;}
+}
+
+/* ===== 結果優先版型（2026-11-06 第二版）=====
+   原則：左欄是窄的輸入面板，右欄大部分面積給「這位病人的結果」；對照表退到次要位置或改畫進色帶。
+   被撐大的方塊（結果框、選項、型態卡）一律設成尺寸容器，字級用 cqh／cqw 跟著方塊大小放大，
+   不會出現框很大、字很小的情形。容器不計入自然高度，所以每個都給 min-height，量倍率時才有保留空間。
+   字級階層：說明 12.5 → 內文 15.5 → 小標 18 → 數值 30 → 主數值依框放大（最大約 168） */
+@media (min-width:1100px){
+  /* 兩欄比例：輸入約三分之一 */
+  .tool-panel.hub-split.active:not(.rx-panel):not(#panel-bristol){
+    grid-template-columns:minmax(300px,.4fr) minmax(0,1fr) !important; column-gap:28px !important;}
+  /* 輸入面板：淡底細框，與結果區分組 */
+  .tool-panel.hub-split:not(.rx-panel):not(#panel-bristol) > .hub-in{
+    padding:18px 18px 16px; background:#FAF9F5; border:1px solid #EEEBE3; border-radius:14px; gap:16px;}
+  .hub-in .grid-2, .hub-in .grid-4{gap:14px 12px !important;}
+  .hub-in .field :is(input,select){min-height:48px; font-size:18px !important; font-variant-numeric:tabular-nums;}
+  .hub-in .field select{font-size:15.5px !important;}
+  .hub-in .field-head label{font-size:14px !important; font-weight:700;}
+  /* 公式移到輸入欄最下方，縮成說明字級 */
+  .hub-in > .formula{order:90; font-size:12.5px !important; line-height:1.7 !important; color:var(--muted);
+    background:transparent !important; border-left-width:2px !important; padding:2px 0 2px 12px !important;}
+  .hub-in > .formula strong{color:#3A3833;}
+  .hub-in > .notes{order:99;}
+  .hub-in > .rx-ocr{order:-1;}
+
+  /* ---------- 共用：結果主框 ---------- */
+  .hub-out > [id$="-hint"]{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 !important;}
+  .hub-out > [id$="-hint"] p{font-size:15px;}
+  .hub-out > .ref-table{font-size:13.5px;}
+  .hub-out > .ref-table th{font-size:12.5px;}
+
+  /* ---------- BMI ---------- */
+  #panel-bmi .target-field{max-width:none; margin:0;}
+  #panel-bmi #bmi-table{display:none;}
+  #bmi-result:not([style*="none"]){flex:1 1 auto; display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr) auto auto; gap:14px;}
+  #bmi-result > *{margin:0 !important;}
+  #bmi-result > .bmi-display, #bmi-result > .bar-wrap{grid-column:1 / -1;}
+  #bmi-result > .bmi-display{container-type:size; min-height:170px; display:flex; flex-wrap:nowrap; align-items:center;
+    gap:5cqw; padding:0 6cqw; background:#FBFAF7; border-radius:16px;}
+  #bmi-val{font-size:clamp(64px, min(60cqh, 21cqw), 168px) !important; letter-spacing:-.035em !important; min-width:0 !important;}
+  #bmi-val::after{content:"kg/m²"; font-size:max(13px, .13em); font-weight:600; letter-spacing:0; color:var(--faint); margin-left:.35em;}
+  #bmi-badge{font-size:clamp(18px, 10cqh, 30px) !important; padding:.25em .85em !important;}
+  #bmi-note{font-size:clamp(14.5px, 6.5cqh, 19px) !important; line-height:1.6 !important; margin-top:.6em !important; color:#4A4740 !important;}
+  #panel-bmi .bar-wrap{padding:22px 4px 0;}
+  #panel-bmi .bar-track{height:18px; border-radius:9px; margin-bottom:12px;}
+  #panel-bmi .bar-marker{width:30px; height:30px; top:-6px; border-width:4px;}
+  #panel-bmi .bar-marker:hover, #panel-bmi .bar-marker:focus-visible{width:34px; height:34px; top:-8px;}
+  #panel-bmi .bar-bands{font-size:12.5px;}
+  #panel-bmi .bar-bands b{font-size:14px; color:#6F6B63;}
+  #panel-bmi .bar-bands span.on b{color:var(--text);}
+  #bmi-result > .ideal-box, #bmi-result > .target-box{padding:18px 20px !important; background:#fff; border:1px solid var(--line);
+    border-radius:14px; display:flex; flex-direction:column; justify-content:center;}
+  #panel-bmi .ideal-label, #panel-bmi .target-box h3{font-size:13.5px !important; font-weight:700; color:var(--teal-dark) !important; margin:0 0 8px !important;}
+  #panel-bmi .ideal-range{font-size:30px !important;}
+  #panel-bmi .ideal-note, #panel-bmi .target-detail, #panel-bmi .target-empty{font-size:13.5px !important; line-height:1.7 !important; margin-top:6px;}
+  #panel-bmi .target-pct{font-size:30px !important; padding:0 !important; background:none !important;}
+  #panel-bmi .target-pct-label{font-size:12.5px !important;}
+
+  /* ---------- BMR／TDEE ---------- */
+  #tdee-result:not([style*="none"]){flex:1 1 auto; display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr) auto auto auto; gap:14px;}
+  #tdee-result > *{margin:0 !important;}
+  #tdee-result > .stat-grid, #tdee-result > .energy, #tdee-result > .edu-wrap{grid-column:1 / -1;}
+  #tdee-result > .stat-grid{grid-template-columns:1fr 1fr 1.15fr; gap:12px;}
+  #tdee-result .stat{container-type:size; min-height:118px; display:flex; flex-direction:column; justify-content:center;
+    padding:0 8px !important; background:#FBFAF7; border-radius:14px;}
+  #tdee-result .stat.accent{background:#F3F1EA;}
+  #tdee-result .stat-label{font-size:clamp(13px, 9cqh, 17px) !important;}
+  #tdee-result .stat-val{font-size:clamp(30px, min(34cqh, 24cqw), 76px) !important; letter-spacing:-.02em; margin:.12em 0;}
+  #tdee-result .stat-unit{font-size:clamp(12px, 7.5cqh, 15px) !important;}
+  #tdee-result .energy{padding:4px 2px 0;}
+  #tdee-result .energy-legend{font-size:13px;}
+  #tdee-result .section-box{padding:12px 14px !important;}
+  #tdee-result .section-title{font-size:13.5px !important;}
+  #tdee-result .mini-grid-4{grid-template-columns:repeat(4,1fr) !important;}
+  #tdee-result .mini{padding:8px 4px !important;}
+  #tdee-result .mini-val{font-size:20px !important;}
+  #tdee-result .section-box .notes{margin-top:6px !important; line-height:1.55 !important;}
+  /* 衛教重點：通用內容，縮成三欄的小字 */
+  #tdee-result .edu-head{padding:8px 14px !important; font-size:13px !important;}
+  #tdee-result .edu-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important; padding:10px 12px !important; gap:8px 14px !important;}
+  #tdee-result .edu-card{padding:0 !important; border:0 !important; background:none !important;}
+  #tdee-result .edu-icon{display:none !important;}
+  #tdee-result .edu-title{font-size:13px !important; margin-bottom:2px !important;}
+  #tdee-result .edu-text{font-size:12px !important; line-height:1.55 !important;}
+  #tdee-timeline:empty{min-height:var(--hub-tl, 70px);}
+  #tdee-macros:empty{min-height:var(--hub-mac, 70px);}
+  #tdee-energy:empty{min-height:48px;}
+
+  /* ---------- FIB-4、R Factor、Child-Pugh：分數框依大小放大 ---------- */
+  #fib4-result, #rfactor-result, #childpugh-result{container-type:size; min-height:250px !important; padding:4cqh 4cqw !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .score{font-size:clamp(46px, min(26cqh, 15cqw), 118px) !important; letter-spacing:-.03em;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .score-label{font-size:clamp(13px, 4.5cqh, 16px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .status-text{font-size:clamp(18px, 7cqh, 30px) !important;}
+  #cp-grade{font-size:clamp(22px, 9cqh, 40px) !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .badge{font-size:clamp(14px, 5cqh, 20px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .interp{font-size:clamp(14.5px, 4.6cqh, 18px) !important; line-height:1.65;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .detail-line{font-size:clamp(13px, 3.8cqh, 15px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale{margin-top:auto; padding-top:max(16px, 4cqh);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale-bar{height:clamp(12px, 4cqh, 20px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale-ticks{font-size:13px; height:20px;}
+
+  /* ---------- 量表選項：選項卡被撐高時，字跟著放大 ---------- */
+  main.body > .tool-panel.active:not(.hub-split) .opt{container-type:size; min-height:64px; font-size:inherit !important; padding:10px 44px !important;}
+  .opt-t{font-size:clamp(17px, min(22cqh, 5cqw), 30px); font-weight:600; line-height:1.45;}
+  .quiz-q{font-size:22px !important;}
+  .quiz-nav .btn-main, .quiz-nav .btn-ghost{font-size:16px !important; min-height:48px;}
+  main.body > .tool-panel.active:not(.hub-split) .check-item{container-type:size; min-height:66px;}
+  main.body > .tool-panel.active:not(.hub-split) .check-label{font-size:clamp(16px, min(22cqh, 4.6cqw), 23px) !important;}
+  main.body > .tool-panel.active:not(.hub-split) .check-desc{font-size:clamp(13px, min(13cqh, 3.4cqw), 16px) !important;}
+  main.body > .tool-panel.active:not(.hub-split) .check-tag{font-size:clamp(11.5px, 10cqh, 13.5px) !important;}
+
+  /* ---------- Bristol 與糞便顏色：卡片文字跟著列高放大 ---------- */
+  #panel-bristol .bristol-card{container-type:size; min-height:54px;}
+  #panel-bristol .bristol-label{font-size:clamp(15px, min(28cqh, 4cqw), 21px);}
+  #panel-bristol .bristol-desc{font-size:clamp(12.5px, min(20cqh, 3cqw), 15.5px);}
+  #panel-bristol .bristol-num{font-size:clamp(12.5px, 20cqh, 15px);}
+  #panel-bristol .bristol-tag{font-size:clamp(12px, 18cqh, 14.5px);}
+  #stoolcolor-body .swatch-item{container-type:size; min-height:96px;}
+  #stoolcolor-body .swatch-name{font-size:clamp(15px, min(15cqh, 6cqw), 20px);}
+  #stoolcolor-body .swatch-hint{font-size:clamp(12.5px, min(11cqh, 4.5cqw), 15px);}
+}
+@media (min-width:1100px){
+  /* 左側目錄壓縮：目錄比工具內容高時，會拉低所有工具共用的倍率（字變小），所以列距收緊；
+     醫療人員提示在工作台內不需要（工作台只在診間使用），病人版照常顯示 */
+  .tabs-wrap{padding:16px 12px 12px !important;}
+  .tabs-wrap::before{padding-bottom:12px !important;}
+  .group-btn{padding:7px 10px !important; margin-top:4px !important;}
+  .tab{padding:7px 12px 7px 16px !important; line-height:1.25 !important;}
+  .tab[aria-selected="true"]::before{top:9px !important; bottom:9px !important;}
+  .tabs{padding:0 0 6px !important;}
+  .staff-toggle{margin-top:8px !important; padding-top:10px !important;}
+  #staff-notice{display:none !important;}
+}
+@media (min-width:1100px){
+  /* 文獻附註在右欄最下方，說明字級 */
+  .hub-out > .notes{font-size:12px !important; line-height:1.65 !important; color:var(--faint); margin:0 !important;}
+  /* Child-Pugh 的選單文字較長，輸入欄放寬 */
+  #panel-childpugh.hub-split.active{grid-template-columns:minmax(0,.66fr) minmax(0,1fr) !important;}
+  #panel-bristol .bristol-card{min-height:46px;}
+  /* TDEE：時程與營養素改成「標籤一列、數值與單位同一列」 */
+  #tdee-result .mini{display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline; column-gap:3px;}
+  #tdee-result .mini-label{width:100%; margin-bottom:1px !important;}
+  #tdee-result .section-box .notes{font-size:11.5px !important;}
+  #tdee-result .section-title{margin-bottom:8px !important;}
+  #tdee-result .stat{min-height:104px;}
+}
+@media (min-width:1100px){
+  #panel-bmi .target-result{padding:0 !important; border:0 !important; background:none !important;}
+  /* 對照表在右欄是次要資訊：列距收緊 */
+  .hub-out > .ref-table td{padding:5px 10px !important; line-height:1.45 !important;}
+  .hub-out > .ref-table th{padding:6px 10px !important;}
+  #rfactor-result{min-height:220px !important;}
+  /* TDEE 衛教：標題接在內文前面（run-in），少一行 */
+  #tdee-result .edu-card{display:block !important;}
+  #tdee-result .edu-title{display:inline; margin-right:6px;}
+  #tdee-result .edu-text{display:inline; font-size:11.5px !important;}
+  #tdee-result .edu-grid{gap:8px 16px !important; padding:8px 12px 10px !important;}
+}
+@media (min-width:1100px){
+  /* TDEE 衛教重點是通用內容：預設收合成一列，點標題展開 */
+  #tdee-result .edu-head{cursor:pointer !important; display:flex !important; align-items:center; justify-content:space-between;
+    background:#F3F1EA !important; color:var(--teal-dark) !important;}
+  #tdee-result .edu-head::after{content:"展開 6 項 ▾"; font-size:12px; font-weight:600; color:var(--muted);}
+  #tdee-result .edu-wrap.open .edu-head::after{content:"收合 ▴";}
+  #tdee-result .edu-wrap:not(.open) .edu-grid{display:none !important;}
+  #tdee-result .edu-wrap{border-color:#E6E3DA !important;}
+}
+@media (min-width:1100px){
+  /* 截圖辨識提示：輸入欄較窄，縮成說明字級 */
+  .hub-in > .rx-ocr{font-size:12px !important; line-height:1.6 !important; padding:8px 12px !important; margin:0 !important;}
+  /* Child-Pugh 的公式只是列出五個欄位，與下方選單重複，工作台不顯示 */
+  #panel-childpugh .hub-in > .formula{display:none;}
+  .hub-out > .notes{order:99;}
+  #stoolcolor-body .swatch-item{min-height:84px;}
+}
+@media (min-width:1100px){
+  #rfactor-result{min-height:200px !important;}
+  #rfactor-table{font-size:12.5px !important;}
+  #bmi-result > .bmi-display{min-height:150px;}
+  #panel-bristol .bristol-card{min-height:44px;}
+}
+@media (min-width:1100px){
+  /* TDEE：減重目標是重點數值，用主色強調；營養素欄較寬，標籤與數值不換行 */
+  #tdee-result > .section-box:nth-child(3){grid-column:1;}
+  #tdee-result{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr) !important;}
+  #tdee-result .mini-label, #tdee-result .mini-val{white-space:nowrap;}
+  #tdee-result .mini-label{font-size:12px !important;}
+  #tdee-bmr, #tdee-val{color:#2F3A33 !important;}
+  #tdee-target{color:var(--teal-dark) !important;}
+  #tdee-result .stat.accent{background:var(--teal-soft) !important; border-color:#C9D8CD !important;}
+  #tdee-result .energy-mark:not(.floor){background:var(--teal-dark);}
+  #tdee-result .energy-legend span:nth-child(3) i{background:var(--teal-dark) !important;}
+}
+@media (min-width:1100px){
+  /* 輸入欄下方的參考資訊：白底、說明字級，窄欄也放得下 */
+  .hub-in > .side-wrap > .side-info{background:#fff; padding:10px 12px;}
+  .hub-in .si-title{font-size:12.5px; margin-bottom:6px;}
+  .hub-in :is(.si-grid,.si-quad,.si-list){font-size:12.5px; line-height:1.45;}
+  .hub-in .si-grid{gap:4px 10px;}
+  .hub-in .si-list li+li{margin-top:3px;}
+}
+@media (min-width:1100px){
+  /* Child-Pugh：選單文字長，輸入欄放寬並改成單欄，選項不被截斷 */
+  #panel-childpugh.tool-panel.hub-split.active:not(.rx-panel){grid-template-columns:minmax(0,.78fr) minmax(0,1fr) !important;}
+  #panel-childpugh .hub-in .grid-2{grid-template-columns:1fr !important; gap:10px !important;}
+  #panel-childpugh .hub-in .field{display:grid; grid-template-columns:9.5em minmax(0,1fr); align-items:center; column-gap:10px;}
+  #panel-childpugh .hub-in .field-head{display:flex; flex-direction:column; align-items:flex-start; margin:0 !important; line-height:1.3;}
+  #panel-childpugh .hub-in .field select{min-height:44px;}
+}
+@media (min-width:1100px){
+  /* 檢驗判讀結果的內容長短不一（解讀文字可能三、四行），只依寬度縮放字級，高度由內容決定，不會溢出 */
+  #fib4-result, #rfactor-result, #childpugh-result{container-type:inline-size !important; min-height:0 !important; padding:20px 26px !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .score{font-size:clamp(46px, 12cqw, 104px) !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .score-label{font-size:clamp(13px, 2cqw, 16px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .status-text{font-size:clamp(18px, 3.4cqw, 28px) !important;}
+  #cp-grade{font-size:clamp(22px, 4.4cqw, 36px) !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .badge{font-size:clamp(14px, 2.4cqw, 19px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .interp{font-size:clamp(14.5px, 2.3cqw, 18px) !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .detail-line{font-size:clamp(13px, 1.9cqw, 15px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale{padding-top:18px;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale-bar{height:16px;}
+  #panel-childpugh .hub-in .field{grid-template-columns:8.2em minmax(0,1fr);}
+}
+@media (min-width:1100px){
+  /* FIB-4：分數在左、分級與解讀在右（與 R Factor、Child-Pugh 同一種排法），色帶橫跨整列 */
+  #fib4-result{display:grid !important; grid-template-columns:auto minmax(0,1fr); grid-template-areas:"lab lab" "sc st" "sc in" "scale scale";
+    column-gap:30px; align-content:center;}
+  #fib4-result > .score-label{grid-area:lab;}
+  #fib4-result > .score{grid-area:sc; align-self:center;}
+  #fib4-result > .status-text{grid-area:st; margin:0 0 4px !important; align-self:end;}
+  #fib4-result > .interp{grid-area:in; align-self:start;}
+  #fib4-result > .scale{grid-area:scale;}
+}
+@media (min-width:1100px){
+  .hub-out > .notes{font-size:11.5px !important; line-height:1.55 !important;}
+  .tool-panel.hub-split:not(.rx-panel) > .hub-out{gap:12px;}
+  #fib4-result, #rfactor-result, #childpugh-result{padding:16px 24px !important;}
+  :is(#rfactor-result,#childpugh-result) .scale{padding-top:12px;}
+}
+@media (min-width:1100px){
+  /* 「已完成的評估」欄收窄，讓出寬度給工具本身 */
+  main.body:has(> #summary-zone:not([hidden])){grid-template-columns:minmax(0,1fr) 240px !important; column-gap:22px !important;}
+  /* 卡片文字長短不一：只依寬度縮放（inline-size），高度由內容決定，不會溢出卡片 */
+  #panel-bristol .bristol-card{container-type:inline-size !important; min-height:0 !important; grid-template-columns:52px 120px minmax(0,1fr) !important; gap:12px !important;}
+  #panel-bristol .bristol-label{font-size:clamp(15px, 3.6cqw, 19px) !important;}
+  #panel-bristol .bristol-desc{font-size:clamp(12.5px, 2.9cqw, 15px) !important;}
+  #panel-bristol .bristol-num{font-size:clamp(11.5px, 2.6cqw, 13.5px) !important;}
+  #panel-bristol .bristol-tag{font-size:clamp(11.5px, 2.6cqw, 13px) !important;}
+  #stoolcolor-body .swatch-item{container-type:inline-size !important; min-height:0 !important;}
+  #stoolcolor-body .swatch-name{font-size:clamp(15px, 5.4cqw, 19px) !important;}
+  #stoolcolor-body .swatch-hint{font-size:clamp(12.5px, 4cqw, 14.5px) !important;}
+  main.body > .tool-panel.active:not(.hub-split) .check-item{container-type:inline-size !important; min-height:0 !important;}
+  main.body > .tool-panel.active:not(.hub-split) .check-label{font-size:clamp(16px, 4.2cqw, 21px) !important;}
+  main.body > .tool-panel.active:not(.hub-split) .check-desc{font-size:clamp(13px, 3.1cqw, 15.5px) !important;}
+  main.body > .tool-panel.active:not(.hub-split) .check-tag{font-size:clamp(11.5px, 2.8cqw, 13px) !important;}
+}
+@media (min-width:1100px){
+  /* Bristol：左側型態卡只留型號、示意圖、名稱與分類（描述在右側結果裡），右側結果欄放寬 */
+  #panel-bristol.hub-split.active{grid-template-columns:minmax(300px,.8fr) minmax(0,1fr) !important; column-gap:22px !important;}
+  #panel-bristol .bristol-intro{display:none;}
+  #panel-bristol .bristol-desc{display:none;}
+  #panel-bristol .bristol-card{grid-template-columns:52px 112px minmax(0,1fr) !important; gap:10px !important; padding:4px 12px 4px 8px !important;}
+  #panel-bristol .bristol-label{font-size:clamp(15px, 4.4cqw, 19px) !important;}
+  #panel-bristol .bristol-tag{display:table; margin:3px 0 0 !important;}
+  #panel-bristol .bristol-art{min-height:34px !important;}
+  #bristol-result{min-height:0 !important;}
+  #bristol-result .interp{font-size:14.5px !important;}
+  #bristol-detail{font-size:13.5px !important; line-height:1.7 !important;}
+  #bristol-result .transit{padding-top:14px !important;}
+  #bristol-rome caption{padding-bottom:4px !important;}
+  #bristol-rome td{padding:4px 10px !important;}
+}
+@media (min-width:1100px){
+  /* Bristol：量倍率時結果框先保留最長說明（Type 1）的高度，選完不會超出畫面 */
+  #bristol-result{min-height:336px !important;}
+  /* 糞便顏色：說明文字橫跨兩欄（一行就放得下），色卡與結果並排在下方 */
+  #panel-stoolcolor > .quiz-intro{grid-column:1 / -1 !important; margin-bottom:12px !important;}
+  #panel-stoolcolor > #stoolcolor-result{grid-row:3 !important;}
+  #stoolcolor-body .swatch-art{min-height:30px !important;}
+}
+@media (min-width:1100px){
+  main.body > .tool-panel.active:not(.hub-split) .check-item{padding:9px 16px !important;}
+  main.body > .tool-panel.active:not(.hub-split) .check-body{gap:2px !important;}
+}
+@media (min-width:1100px){
+  /* 選項卡設成尺寸容器後 CSS 計數器會被隔離（每張都從 A 開始），改用 data-i 對應字母 */
+  main.body > .tool-panel.active:not(.hub-split) .opt[data-i="1"]::before{content:"B";}
+  main.body > .tool-panel.active:not(.hub-split) .opt[data-i="2"]::before{content:"C";}
+  main.body > .tool-panel.active:not(.hub-split) .opt[data-i="3"]::before{content:"D";}
+  main.body > .tool-panel.active:not(.hub-split) .opt[data-i="4"]::before{content:"E";}
+  main.body > .tool-panel.active:not(.hub-split) .opt[data-i="5"]::before{content:"F";}
+  main.body > .tool-panel.active:not(.hub-split) .opt[data-i="6"]::before{content:"G";}
+  main.body > .tool-panel.active:not(.hub-split) .opt[data-i="7"]::before{content:"H";}
+}
+@media (min-width:1100px){
+  /* 時程四格較窄：單位改接在數值後面的小字，四格與營養素同樣兩列 */
+  #tdee-timeline .mini-unit{display:none;}
+  #tdee-timeline .mini-val::after{content:" kg"; font-size:12px; font-weight:600; color:var(--faint);}
+}
+@media (min-width:1100px){
+  /* Child-Pugh：總分與分級並排，臨床意義改成整列寬，行數較少 */
+  #childpugh-result > div:first-child{display:grid !important; grid-template-columns:auto minmax(0,1fr); gap:6px 34px !important;}
+  #childpugh-result > div:first-child > div:nth-child(3){grid-column:1 / -1; min-width:0 !important;}
+}
+@media (min-width:1100px){
+  /* 量倍率時結果框是空的，先保留填值後（最長解讀文字）的高度，填完不會超出畫面 */
+  #fib4-result{min-height:266px !important;}
+  #rfactor-result{min-height:270px !important;}
+  #childpugh-result{min-height:306px !important;}
+}
+@media (min-width:1100px){
+  /* R Factor 對照表：「主要特徵」與上方解讀重複，工作台不顯示；英文型態名接在中文後面 */
+  #rfactor-table :is(th,td):nth-child(3){display:none;}
+  #rfactor-table td br{display:none;}
+  #rfactor-table td:nth-child(2){white-space:nowrap;}
+}
+@media (min-width:1100px){
+  .hub-in > .notes{font-size:11.5px !important; line-height:1.55 !important; padding-top:10px !important;}
+  #panel-childpugh > .hub-in{gap:12px !important;}
 }

@@ -301,6 +301,7 @@
       var tr = $('target-result'), td = $('target-detail');
       if (tr) tr.style.display = 'none';
       if (td) td.style.display = 'none';
+      if (tool === 'bmi') { var te = $('target-empty'); if (te) te.style.display = ''; bmiBand(-1); }
       show(tool, false);
       var first = panel.querySelector('input, select');
       if (first) first.focus();
@@ -323,7 +324,7 @@
 
   function calcBMI(){
     var h = num('height'), w = num('weight');
-    if (!isNum(h) || !isNum(w)) { bmiBase = ''; show('bmi', false); markRow('bmi-table', null); calcTarget(); return; }
+    if (!isNum(h) || !isNum(w)) { bmiBase = ''; show('bmi', false); markRow('bmi-table', null); bmiBand(-1); calcTarget(); return; }
 
     var hm = h / 100;
     var bmi = w / (hm * hm);
@@ -337,6 +338,7 @@
     badge.style.color = s.color;
     $('bmi-note').textContent = s.note;
     markRow('bmi-table', String(BMI_STATUS.indexOf(s)));
+    bmiBand(BMI_STATUS.indexOf(s));
 
     var lo = (18.5 * hm * hm).toFixed(1);
     var hi = (24 * hm * hm).toFixed(1);
@@ -360,12 +362,19 @@
     calcTarget();
   }
 
+  // 色帶下方六段分級：目前落在哪一段就加粗
+  function bmiBand(i){
+    CD.querySelectorAll('#bar-bands span').forEach(function(sp){ sp.classList.toggle('on', sp.dataset.band === String(i)); });
+  }
+
   function calcTarget(){
     var w = num('weight'), t = num('target-weight');
-    var box = $('target-result'), detail = $('target-detail');
+    var box = $('target-result'), detail = $('target-detail'), empty = $('target-empty');
+    if (empty) empty.style.display = 'none';
     var hide = function(){
       box.style.display = 'none';
       detail.style.display = 'none';
+      if (empty) empty.style.display = '';
       if (bmiBase) COPY.bmi = bmiBase;
     };
 
@@ -503,6 +512,18 @@
       floorNote = '減重目標熱量已設在自行節食的最低建議值（' + floorName + '），不再往下扣。' +
         (deficit < 200 ? '光靠少吃效果有限，建議增加活動量，或到門診討論其他方式。' : '想再加快，建議從增加活動量著手。');
     }
+    // 熱量組成條：以 TDEE 為全長
+    var pB = bmr / tdee * 100, pT = target / tdee * 100, pF = Math.min(100, floor / tdee * 100);
+    $('tdee-energy').innerHTML =
+      '<div class="energy-bar"><i class="e-bmr" style="width:' + pB.toFixed(2) + '%"></i><i class="e-act" style="flex:1"></i>' +
+        (deficit > 0 ? '<span class="energy-mark" style="left:' + pT.toFixed(2) + '%"></span>' : '') +
+        '<span class="energy-mark floor" style="left:' + pF.toFixed(2) + '%"></span></div>' +
+      '<div class="energy-legend">' +
+        '<span><i style="background:#8FAE9A"></i>基礎代謝 <b>' + fmtInt(Math.round(bmr)) + '</b></span>' +
+        '<span><i style="background:#C9D8CD"></i>活動消耗 <b>+' + fmtInt(Math.round(tdee - bmr)) + '</b></span>' +
+        (deficit > 0 ? '<span><i style="background:var(--gold)"></i>減重目標 <b>' + fmtInt(Math.round(target)) + '</b>（少吃 ' + deficit + '）</span>' : '') +
+        '<span><i style="border:1.5px dashed #B9B2A4;background:none"></i>自行節食下限 <b>' + fmtInt(floor) + '</b></span>' +
+      '</div>';
     $('tdee-floor').textContent = floorNote;
     $('tdee-floor').hidden = !floorNote;
 
@@ -525,7 +546,8 @@
     $('tdee-macros').innerHTML =
       '<div class="mini"><div class="mini-label">蛋白質</div><div class="mini-val" style="color:var(--blue)">' + protein + '</div><div class="mini-unit">g／天</div></div>' +
       '<div class="mini"><div class="mini-label">碳水化合物</div><div class="mini-val" style="color:var(--green)">' + carbs + '</div><div class="mini-unit">g／天</div></div>' +
-      '<div class="mini"><div class="mini-label">脂肪</div><div class="mini-val" style="color:var(--gold)">' + fat + '</div><div class="mini-unit">g／天</div></div>';
+      '<div class="mini"><div class="mini-label">脂肪</div><div class="mini-val" style="color:var(--gold)">' + fat + '</div><div class="mini-unit">g／天</div></div>' +
+      '<div class="mini"><div class="mini-label">飲水</div><div class="mini-val" style="color:#4F7F95">' + (waterLo / 1000).toFixed(1) + '–' + (waterHi / 1000).toFixed(1) + '</div><div class="mini-unit">L／天</div></div>';
 
     var actSel = $('tdee-activity');
     var actName = actSel.options[actSel.selectedIndex].text.replace(/（.*$/, '');
@@ -539,6 +561,13 @@
   }
 
   bind(['tdee-sex','tdee-age','tdee-height','tdee-weight','tdee-activity'], calcTDEE);
+
+  // 衛教重點的標題可收合（工作台預設收合，病人版一律展開）
+  CD.querySelectorAll('.edu-head').forEach(function(h){
+    h.addEventListener('click', function(){
+      h.parentElement.classList.toggle('open');
+    });
+  });
 
   function fmtInt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
@@ -2368,7 +2397,7 @@
       '<div class="quiz-q">' + esc(q.q) + '</div>' +
       '<div class="opt-list">' + q.opts.map(function(o, i){
         return '<button type="button" class="opt" data-i="' + i + '" aria-pressed="' +
-               (st.picked[st.idx] === i ? 'true' : 'false') + '">' + esc(o) + '</button>';
+               (st.picked[st.idx] === i ? 'true' : 'false') + '"><span class="opt-t">' + esc(o) + '</span></button>';
       }).join('') + '</div>' +
       '<div class="quiz-nav">' +
         (st.idx > 0 ? '<button type="button" class="btn-ghost" data-prev>上一題</button>' : '') +

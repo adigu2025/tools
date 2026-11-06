@@ -312,7 +312,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .bar-wrap{margin-bottom:20px;}
 .bar-track{
   position:relative;height:11px;border-radius:6px;
-  background:linear-gradient(to right,#7FB6D4 0%,#5FC08D 22%,#F0C24C 32%,#E2703F 100%);
+  background:linear-gradient(to right,#8FB6CC 0 17.31%,#8DBF9C 17.31% 38.46%,#E3C27A 38.46% 50%,#E09A6C 50% 61.54%,#D07A62 61.54% 80.77%,#B4584D 80.77%);
   margin-bottom:9px;
   cursor:pointer;touch-action:none;
 }
@@ -326,6 +326,15 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .bar-marker:hover,.bar-marker:focus-visible{width:24px;height:24px;top:-7px;}
 .bar-marker.dragging{cursor:grabbing;transition:width .15s var(--ease),height .15s var(--ease),top .15s var(--ease);}
 .bar-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--faint);font-weight:600;}
+.bar-bands{display:flex;font-size:11.5px;color:var(--faint);line-height:1.35;}
+.bar-bands span{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;border-left:1px solid var(--line);padding:2px 2px 0;}
+.bar-bands span:first-child{border-left:0;}
+.bar-bands b{font-weight:600;white-space:nowrap;}
+.bar-bands i{font-style:normal;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.bar-bands span.on{color:var(--text);}
+.bar-bands span.on b{font-weight:800;}
+.target-field{max-width:calc(50% - 8px);margin-bottom:18px;}
+.target-empty{font-size:12.5px;color:var(--faint);line-height:1.7;}
 .ideal-box{border:1.5px solid var(--line);border-radius:var(--radius-md);padding:15px;margin-bottom:16px;}
 .ideal-label{font-size:12.5px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
 .ideal-range{font-size:23px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;}
@@ -428,13 +437,23 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .stat-unit{font-size:12px;color:var(--faint);}
 .section-box{background:var(--surface-alt);border:1.5px solid var(--line);border-radius:var(--radius-md);padding:16px;margin-bottom:20px;}
 .section-title{font-size:14.5px;font-weight:700;color:var(--teal);margin-bottom:12px;}
+.energy{margin:0 0 20px;}
+.energy-bar{position:relative;display:flex;height:16px;border-radius:8px;overflow:visible;background:var(--line);}
+.energy-bar .e-bmr{background:#8FAE9A;border-radius:8px 0 0 8px;}
+.energy-bar .e-act{background:#C9D8CD;border-radius:0 8px 8px 0;}
+.energy-mark{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--gold);}
+.energy-mark.floor{background:none;border-left:2px dashed #B9B2A4;width:0;margin-left:-1px;}
+.energy-legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:12.5px;color:var(--muted);}
+.energy-legend span{display:inline-flex;align-items:center;gap:6px;}
+.energy-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.energy-legend b{color:var(--text);font-variant-numeric:tabular-nums;}
 .mini-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
 .mini-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 .mini{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:11px 8px;text-align:center;}
 .mini-label{font-size:12.5px;color:var(--muted);margin-bottom:3px;}
 .mini-val{font-size:19px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums;}
 .mini-unit{font-size:11.5px;color:var(--faint);}
-.edu-head{background:var(--teal);padding:10px 16px;color:#fff;font-size:14.5px;font-weight:700;}
+.edu-head{display:block;width:100%;text-align:left;border:0;font:inherit;cursor:default;background:var(--teal);padding:10px 16px;color:#fff;font-size:14.5px;font-weight:700;}
 .edu-wrap{border:1.5px solid var(--line);border-radius:var(--radius-md);overflow:hidden;}
 .edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:14px 16px;}
 .edu-card{background:var(--surface-alt);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px;}
@@ -784,8 +803,9 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
   .bmi-number{font-size:40px;min-width:84px;}
   .ideal-range{font-size:19px;}
   .bar-labels{font-size:10px;}
-  .target-input{width:100%;}
-  .target-row{flex-direction:column;gap:12px;}
+  .bar-bands{font-size:9.5px;letter-spacing:-.02em;}
+  .bar-bands span{padding:2px 0 0;}
+  .target-field{max-width:none;}
   .target-result{width:100%;}
 
   .score{font-size:37px;}
@@ -956,6 +976,11 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <p class="field-err" hidden></p>
         </div>
       </div>
+      <div class="field target-field">
+        <div class="field-head"><label for="target-weight">目標體重（選填）</label><span class="field-unit">kg</span></div>
+        <input type="number" id="target-weight" min="20" max="300" step="0.1" inputmode="decimal" autocomplete="off">
+        <p class="field-err" hidden></p>
+      </div>
 
       <div class="empty-hint" id="bmi-hint">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B7C7CF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -978,11 +1003,14 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
                  role="slider" tabindex="0" aria-label="拖曳調整體重（身高固定）"
                  aria-valuemin="14" aria-valuemax="40" aria-valuenow="0" aria-valuetext=""></div>
           </div>
-          <div class="bar-labels">
-            <span>過輕<br>&lt;18.5</span>
-            <span style="text-align:center">正常<br>18.5–24</span>
-            <span style="text-align:center">過重<br>24–27</span>
-            <span style="text-align:right">肥胖<br>&gt;27</span>
+          <!-- 色帶範圍 BMI 14 至 40；六段的寬度依國健署切點換算 -->
+          <div class="bar-bands" id="bar-bands">
+            <span data-band="0" style="width:17.31%"><b>過輕</b><i>&lt; 18.5</i></span>
+            <span data-band="1" style="width:21.15%"><b>健康體位</b><i>18.5–24</i></span>
+            <span data-band="2" style="width:11.54%"><b>過重</b><i>24–27</i></span>
+            <span data-band="3" style="width:11.54%"><b>輕度肥胖</b><i>27–30</i></span>
+            <span data-band="4" style="width:19.23%"><b>中度肥胖</b><i>30–35</i></span>
+            <span data-band="5" style="width:19.23%"><b>重度肥胖</b><i>≥ 35</i></span>
           </div>
         </div>
         <div class="ideal-box">
@@ -995,16 +1023,10 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </div>
         <div class="target-box">
           <h3>目標體重與減重比例</h3>
-          <div class="target-row">
-            <div class="field target-input">
-              <div class="field-head"><label for="target-weight">目標體重</label><span class="field-unit">kg</span></div>
-              <input type="number" id="target-weight" min="20" max="300" step="0.1" inputmode="decimal" autocomplete="off">
-              <p class="field-err" hidden></p>
-            </div>
-            <div class="target-result" id="target-result">
-              <div class="target-pct" id="target-pct">—</div>
-              <div class="target-pct-label">需減去目前體重的比例</div>
-            </div>
+          <p class="target-empty" id="target-empty">填入目標體重後，這裡會算出需減重的比例與預估週數。</p>
+          <div class="target-result" id="target-result">
+            <div class="target-pct" id="target-pct">—</div>
+            <div class="target-pct-label">需減去目前體重的比例</div>
           </div>
           <div class="target-detail" id="target-detail"></div>
         </div>
@@ -1021,8 +1043,11 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <tr data-band="4"><td style="color:var(--red);font-weight:700">中度肥胖</td><td>30 – 35</td><td>評估代謝疾病並積極介入</td></tr>
           <tr data-band="5"><td style="color:#922B21;font-weight:700">重度肥胖</td><td>≥ 35</td><td>全面評估，含藥物或手術</td></tr>
         </tbody>
-        <tfoot><tr><td colspan="3" class="bmi-waist">※ 腹部肥胖：腰圍男性 ≥ 90 cm、女性 ≥ 80 cm；BMI 正常但腰圍超標，同樣代表內臟脂肪偏多</td></tr></tfoot>
       </table>
+      <div class="notes bmi-notes">
+        ※ 腹部肥胖：腰圍男性 ≥ 90 cm、女性 ≥ 80 cm；BMI 正常但腰圍超標，同樣代表內臟脂肪偏多<br>
+        ※ 分級依國民健康署成人標準；不適用於孕婦、未滿 18 歲與肌肉量特別高者
+      </div>
     </section>
 
     <!-- ===================== TDEE ===================== -->
@@ -1108,6 +1133,9 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           </div>
         </div>
 
+        <!-- 熱量組成：基礎代謝＋活動消耗＝TDEE，金色線是減重目標 -->
+        <div class="energy" id="tdee-energy" aria-hidden="true"></div>
+
         <div class="section-box">
           <div class="section-title" id="tdee-timeline-title">減重時程預估（每日減少 500 kcal）</div>
           <div class="mini-grid-4" id="tdee-timeline"></div>
@@ -1116,13 +1144,13 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </div>
 
         <div class="section-box">
-          <div class="section-title">建議每日營養素攝取（依減重目標熱量）</div>
-          <div class="mini-grid-3" id="tdee-macros"></div>
+          <div class="section-title">建議每日營養素與飲水（依減重目標熱量）</div>
+          <div class="mini-grid-4" id="tdee-macros"></div>
           <p class="notes" style="margin-top:10px;">蛋白質 30%｜碳水化合物 40%｜脂肪 30%（一般減重期建議比例，慢性腎病或其他疾病須個別調整）</p>
         </div>
 
         <div class="edu-wrap">
-          <div class="edu-head">減重衛教重點</div>
+          <button type="button" class="edu-head">減重衛教重點</button>
           <div class="edu-grid">
             <div class="edu-card">
               <div class="edu-icon">💧</div>
@@ -1751,8 +1779,6 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 
       <div class="notes bristol-notes">
         ※ Bristol Stool Form Scale：Lewis SJ, Heaton KW. Scand J Gastroenterol 1997;32:920–4。型態與腸道通過時間相關<br>
-        ※ Type 3–4 為正常；Type 1–2 提示便秘；Type 5–7 偏軟至腹瀉<br>
-        ※ 排便型態持續異常，建議至消化內科門診評估<br>
         ※ 腸躁症分型：Lacy BE et al. Bowel Disorders. Gastroenterology 2016;150:1393–1407（Rome IV）
       </div>
 

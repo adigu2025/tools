@@ -936,8 +936,9 @@ function fitRxOut(){
    窄螢幕或並排模式時，CSS 會讓兩欄自動疊回單欄。 */
 function splitCalcPanels(){
   const doc = CD;
-  // 附註放左欄、結果與對照表放右欄，兩欄高度較平均
-  const isOut = c=> /-(result|hint)$/.test(c.id) || c.matches('.ref-table, .rx-cards, .rx-basis');
+  // 左欄只放輸入；結果、對照表與文獻附註放右欄（BMI、Bristol、Child-Pugh 的附註留在左欄底部，用藥給付兩個工具維持原樣）
+  const isOut = c=> /-(result|hint)$/.test(c.id) || c.matches('.ref-table, .rx-cards, .rx-basis') ||
+    (c.matches('.notes:not(.bmi-notes):not(.bristol-notes)') && !c.parentElement.matches('.rx-panel, #panel-childpugh'));
   doc.querySelectorAll('.tool-panel').forEach(p=>{
     if(p.classList.contains('hub-split') || p.querySelector(':scope > .quiz-intro')) return;
     const kids = [...p.children].filter(c=> !c.classList.contains('panel-head'));
