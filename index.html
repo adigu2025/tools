@@ -148,10 +148,15 @@ body.q-max .hub-main{height:100dvh;}
 .rep-head p{margin:0; color:var(--muted); font-size:15px;}
 /* 報告種類卡片：接近方形，上半部是一疊 A4 報告的縮圖（看得出會產出什麼），下半部是名稱與說明。
    不用底色方塊圖示，也不用有色陰影；靜止時只有細框線，滑過時框線加深、最上面那一頁略微抬起 */
-.rep-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,340px)); gap:22px;}
-.rep-card{display:flex; flex-direction:column; text-align:left; padding:0; overflow:hidden;
+/* 2026-11-06：兩張卡改成各佔一半、縮圖放左邊，畫面不再只塞在左半邊 */
+.rep-wrap{padding-top:clamp(0px, 4vh, 40px);}
+.rep-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:22px;}
+.rep-card{display:grid; grid-template-columns:200px minmax(0,1fr); grid-template-rows:1fr auto; text-align:left; padding:0; overflow:hidden;
   background:var(--surface); border:1px solid var(--line); border-radius:14px; transition:border-color .2s;}
 .rep-card:hover{border-color:var(--faint);}
+.rep-card > .rep-art{grid-row:1 / 3; height:auto; min-height:220px; border-bottom:0; border-right:1px solid var(--line);}
+.rep-card > .rep-art svg{width:190px; height:155px;}
+.rep-card .rep-foot{margin:18px 26px 0;}
 .rep-art{height:200px; background:var(--surface-alt); border-bottom:1px solid var(--line); display:grid; place-items:center;}
 .rep-art svg{width:220px; height:180px; display:block; overflow:visible;}
 .rep-art .sheet{fill:#fff; stroke:var(--line-strong); stroke-width:1;}
@@ -164,7 +169,7 @@ body.q-max .hub-main{height:100dvh;}
   .rep-card:hover .front{transform:translateY(-5px);}
   .rep-card:hover .back{transform:rotate(8deg);}
 }
-.rep-txt{padding:20px 24px 0; display:flex; flex-direction:column; gap:6px; flex:1;}
+.rep-txt{padding:24px 26px 0; display:flex; flex-direction:column; gap:6px; flex:1;}
 .rep-txt b{font-family:var(--serif); font-size:23px; letter-spacing:.04em; color:var(--ink);}
 .rep-txt small{font-size:14.5px; color:var(--muted); line-height:1.65;}
 .rep-foot{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:18px 24px 0; padding:12px 0 16px;
@@ -172,7 +177,7 @@ body.q-max .hub-main{height:100dvh;}
 .rep-foot .go{color:var(--ink-2); font-weight:600; white-space:nowrap;}
 .rep-foot .go i{font-style:normal; display:inline-block; margin-left:4px; transition:transform .2s;}
 .rep-card:hover .rep-foot .go i{transform:translateX(3px);}
-@media (max-width:700px){ .rep-grid{grid-template-columns:1fr;} }
+@media (max-width:700px){ .rep-grid{grid-template-columns:1fr;} .rep-card{grid-template-columns:140px minmax(0,1fr);} }
 .rep-empty{padding:48px 32px; text-align:center; color:var(--muted);}
 .rep-empty b{display:block; font-family:var(--serif); font-size:24px; color:var(--ink); margin-bottom:8px;}
 .hub-main[data-view="quote"]  #pane-quote,

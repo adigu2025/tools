@@ -1000,6 +1000,7 @@ function buildHome(){
     card.innerHTML=`
       <div class="cat-icon">${ICONS[cat.id]}</div>
       <div class="cat-label">${cat.label}</div>
+      <div class="cat-desc">${esc(cat.desc||'')}</div>
       <div class="cat-count-badge">${cat.id==='endo'?(ENDO_TREE.layer1.length+ENDO_TREE.special.length+ENDO_TREE.selfPay.length):cat.items.filter(i=>!i.type).length} 項</div>
     `;
     card.addEventListener('click',()=>openCategory(cat.id));
@@ -2827,6 +2828,7 @@ function buildExtraCards(){
     card.innerHTML=`
       <div class="cat-icon">${DOC_ICONS[set.id]}</div>
       <div class="cat-label">${esc(set.label)}</div>
+      <div class="cat-desc">${esc(set.desc||'')}</div>
       <div class="cat-count-badge">${set.items.length} 份</div>`;
     card.addEventListener('click',()=>openDocSet(set.id));
     grid.appendChild(card);

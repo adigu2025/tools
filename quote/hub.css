@@ -28,4 +28,40 @@
     border:1px solid rgba(var(--accent-rgb),.35) !important;}
   .btn-print:hover{background:var(--accent) !important; color:#fff !important;}
   .toast{background:var(--text) !important;}
+
+  /* ===== 首頁（2026-11-06）：拿掉英文小標與口號，五大類改成價目表式的清單 =====
+     靠左對齊、一列一類：名稱、說明、項數一眼掃完，和右邊費用清單的閱讀方向一致。
+     滑過只換底色，不浮起、不放大。 */
+  #screen-home #home-inner{align-items:stretch; padding:clamp(28px, 8vh, 84px) clamp(28px, 4vw, 56px) 48px;}
+  #home-inner > *{width:100%; max-width:720px; margin-left:auto; margin-right:auto;}
+  #home-inner .home-hero{text-align:left; margin-bottom:20px;}
+  #home-inner .home-hero-title{font-size:28px; font-weight:700; letter-spacing:.05em; line-height:1.35; color:var(--text);}
+  .home-hero-sub{margin-top:6px; font-size:14.5px; line-height:1.6; color:var(--muted);}
+  #home-inner .search-wrap{margin-bottom:24px;}
+  .search-wrap .field-label{margin-left:2px;}
+  .search-wrap .search-input{height:50px; border-radius:12px; padding-left:18px;}
+  #home-inner .cat-grid-wrap{max-width:720px;}
+  #home-inner :is(.cat-grid, .cat-extra-grid){display:flex; flex-direction:column; gap:0; max-width:none; background:var(--surface);
+    border:1px solid var(--border); border-radius:14px; overflow:hidden;}
+  #home-inner .cat-card{flex-direction:row; align-items:center; justify-content:flex-start; gap:16px; padding:13px 18px 13px 16px;
+    border:0; border-top:1px solid var(--border); border-radius:0; box-shadow:none; text-align:left; transition:background .15s;}
+  #home-inner .cat-card:first-child{border-top:0;}
+  #home-inner .cat-card:hover{transform:none; box-shadow:none; background:var(--surface-warm);}
+  #home-inner .cat-card:active{transform:none; background:var(--accent-pale);}
+  #home-inner .cat-icon{width:40px; height:40px; border-radius:10px; flex:none; background:var(--accent-pale); border:0; color:var(--primary); transition:none;}
+  #home-inner .cat-icon svg{width:23px; height:23px;}
+  #home-inner .cat-card:hover .cat-icon{transform:none; background:var(--accent-pale);}
+  #home-inner .cat-label{font-size:17.5px; letter-spacing:.06em; line-height:1.4; min-width:6em;}
+  .cat-desc{flex:1; min-width:0; font-size:14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #home-inner .cat-count-badge{margin-left:auto; flex:none; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums;}
+  #home-inner .cat-card::after{content:"›"; flex:none; margin-left:4px; font-size:20px; line-height:1; color:var(--border-strong); transition:color .15s;}
+  #home-inner .cat-card:hover::after{color:var(--accent);}
+  /* 隱藏的說明文件（首頁按 X）：同樣是清單，金色小圖示區分 */
+  #home-inner .cat-extra{margin-top:12px;}
+  #home-inner .cat-extra .cat-icon{background:var(--gold-pale); color:var(--gold-deep);}
+  #home-inner .cat-extra .cat-label{font-size:16px;}
+  @media (min-width:1700px){
+    #home-inner > *, #home-inner .cat-grid-wrap{max-width:820px;}
+    #home-inner .cat-card{padding-top:16px; padding-bottom:16px;}
+  }
 }
