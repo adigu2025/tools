@@ -14,6 +14,9 @@
     amber:{ color:'#B45A00', bg:'#FFF5E6' },
     red:{ color:'#C0392B', bg:'#FBEBE9' }
   };
+  // 工作台（載入 hub.css，會設 --calc-hub）：自我評估改成左邊作答、右邊即時結果；病人版維持一題一頁、作答完才出結果
+  var HUB = getComputedStyle(CD.host || CB).getPropertyValue('--calc-hub').trim() === '1';
+  TONE.none = { color:'#8A867C', bg:'#FAF9F5' };
   var ASSESS = assessSpecs();
   buildAssessments();
 
@@ -2359,6 +2362,7 @@
       panel.tabIndex = 0;
       panel.hidden = true;
       panel.dataset.summary = '1';
+      if (HUB && (spec.kind === 'quiz' || spec.kind === 'check')) panel.classList.add('as-split');
       panel.innerHTML =
         '<div class="panel-head">' +
           '<div class="panel-title">' + esc(spec.title) + '<small>' + esc(spec.sub) + '</small></div>' +
@@ -2375,6 +2379,15 @@
       main.insertBefore(panel, $('summary-zone'));
 
       RESETTERS[spec.id] = function(){ startModule(spec); };
+      // 工作台：點右側作答紀錄的某一題，左邊跳回那一題修改
+      if (HUB && spec.kind === 'quiz') {
+        panel.querySelector('.assess-result').addEventListener('click', function(e){
+          var row = e.target.closest('[data-q]');
+          if (!row) return;
+          QSTATE[spec.id].idx = parseInt(row.dataset.q, 10);
+          renderQuiz(spec); liveQuiz(spec);
+        });
+      }
       startModule(spec);
     });
     // 寫在 HTML 的靜態分頁（Bristol）依 data-after 移到指定評估的後面
@@ -2396,17 +2409,85 @@
     if (spec.kind === 'waist')  { renderWaist(spec); }
   }
 
-  function resultCard(spec, scoreHtml, level, tone, advice, extra){
+  // more（工作台才有）：label 換掉分數標題、sub 是徽章旁的一行說明、gauge 色帶、after 接在色帶下、sheet 作答紀錄
+  function resultCard(spec, scoreHtml, level, tone, advice, extra, more){
     var t = TONE[tone];
-    return '<div class="result-card" style="background:' + t.bg + ';border-color:' + t.color + ';">' +
-      '<div class="score-label">' + esc(spec.scoreLabel || '評估結果') + '</div>' +
-      '<div class="result-score" style="color:' + t.color + '">' + scoreHtml + '</div>' +
-      '<div style="margin-top:10px;"><span class="badge" style="background:#fff;color:' + t.color +
-        ';border:1.5px solid ' + t.color + '">' + esc(level) + '</span></div>' +
+    more = more || {};
+    return '<div class="result-card tone-' + tone + '" style="background:' + t.bg + ';border-color:' + t.color + ';">' +
+      '<div class="rc-top"><div class="rc-score">' +
+        '<div class="score-label">' + esc(more.label || spec.scoreLabel || '評估結果') + '</div>' +
+        '<div class="result-score" style="color:' + t.color + '">' + scoreHtml + '</div></div>' +
+        '<div class="rc-level" style="margin-top:10px"><span class="badge" style="background:#fff;color:' + t.color +
+          ';border:1.5px solid ' + t.color + '">' + esc(level) + '</span>' +
+          (more.sub ? '<div class="rc-sub">' + more.sub + '</div>' : '') + '</div>' +
+      '</div>' +
+      (more.gauge || '') + (more.after || '') +
       '<div class="result-advice">' + advice + '</div>' +
-      (extra || '') +
+      (extra ? '<div class="rc-extra">' + extra + '</div>' : '') +
+      (more.sheet || '') +
       '<div class="notes" style="margin-top:14px;">' + esc(spec.note) + '</div>' +
       '</div>';
+  }
+
+  // 色帶：bands 是 [{ to:上限（不含）, tone, name }]，依序排列；val 為 null 時不畫指標
+  function gaugeHtml(min, max, val, bands, ticks){
+    var span = max - min, from = min;
+    var segs = bands.map(function(b){
+      var w = (Math.min(b.to, max) - from) / span * 100; from = Math.min(b.to, max);
+      return { w: w, tone: b.tone, name: b.name };
+    });
+    var pos = val === null ? null : Math.max(0, Math.min(100, (val - min) / span * 100));
+    return '<div class="rc-gauge">' +
+      '<div class="rc-track">' + segs.map(function(s){
+        return '<i style="width:' + s.w + '%;background:' + TONE[s.tone].color + '"></i>'; }).join('') + '</div>' +
+      (pos === null ? '' : '<b class="rc-mark" style="left:' + pos + '%"></b>') +
+      '<div class="rc-bands">' + segs.map(function(s){
+        return '<span style="width:' + s.w + '%">' + esc(s.name) + '</span>'; }).join('') + '</div>' +
+      (ticks ? '<div class="rc-ticks">' + ticks.map(function(v){
+        return '<span style="left:' + ((v - min) / span * 100) + '%">' + v + '</span>'; }).join('') + '</div>' : '') +
+      '</div>';
+  }
+
+  // 量表的分級帶：不計紅旗題（全 0 分只看總分），把同一等級的連續分數併成一段；每個分數佔一格
+  function quizBands(spec){
+    var zero = spec.qs.map(function(){ return 0; }), out = [];
+    for (var t = 0; t <= spec.max; t++) {
+      var g = spec.grade(t, zero), last = out[out.length - 1];
+      if (last && last.name === g.level) last.to = t + 1;
+      else out.push({ to: t + 1, tone: g.tone, name: g.level, from: t });
+    }
+    return out;
+  }
+
+  // 工作台：題目式即時結果。全部答完顯示等級與建議；還沒答完顯示目前得分與作答紀錄
+  function liveQuiz(spec){
+    var st = QSTATE[spec.id], res = $(spec.id + '-result');
+    var n = spec.qs.length, done = 0, total = 0;
+    spec.qs.forEach(function(q, i){ if (st.picked[i] !== undefined) { done++; total += st.scores[i]; } });
+    if (!done) { res.innerHTML = ''; show(spec.id, false); return; }
+    var bands = quizBands(spec);
+    var ticks = bands.map(function(b){ return b.from; }).concat([spec.max]);
+    var sheet = '<ol class="rc-sheet">' + spec.qs.map(function(q, i){
+      var p = st.picked[i], s = st.scores[i];
+      var flag = p !== undefined && q.tagCls === 'tag-red' && s >= 3;
+      return '<li data-q="' + i + '" class="' + (i === st.idx ? 'cur ' : '') + (p === undefined ? 'todo' : '') + (flag ? ' flag' : '') + '">' +
+        '<span class="n">' + (i + 1) + '</span><span class="q">' + esc(q.q) + '</span>' +
+        '<span class="a">' + (p === undefined ? '未作答' : esc(q.opts[p])) + '</span>' +
+        '<b>' + (p === undefined ? '' : '+' + s) + '</b></li>';
+    }).join('') + '</ol>';
+    var score = total + ' <span class="of">/ ' + spec.max + '</span>';
+    if (done < n) {
+      res.innerHTML = resultCard(spec, score, '尚未完成', 'none',
+        '還有 ' + (n - done) + ' 題未作答，答完會顯示風險等級與建議。', '',
+        { label: '目前得分（已答 ' + done + ' / ' + n + ' 題）', gauge: gaugeHtml(0, spec.max + 1, total + .5, bands, ticks), sheet: sheet });
+      show(spec.id, false);
+      return;
+    }
+    var g = spec.grade(total, st.scores);
+    res.innerHTML = resultCard(spec, score, g.level, g.tone, esc(g.advice), g.extra,
+      { gauge: gaugeHtml(0, spec.max + 1, total + .5, bands, ticks), sheet: sheet });
+    COPY[spec.id] = spec.title + '：' + total + ' / ' + spec.max + '（' + g.level + '）';
+    show(spec.id, true);
   }
 
   /* ---------- 題目式 ---------- */
@@ -2417,7 +2498,7 @@
     var body = $(spec.id + '-body');
     body.innerHTML =
       '<div class="progress-track"><div class="progress-fill" style="width:' +
-        (st.idx / spec.qs.length * 100) + '%"></div></div>' +
+        (HUB ? st.picked.filter(function(v){ return v !== undefined; }).length : st.idx) / spec.qs.length * 100 + '%"></div></div>' +
       '<div class="quiz-step">問題 ' + (st.idx + 1) + ' / ' + spec.qs.length + '</div>' +
       (q.tag ? '<div class="quiz-tag ' + (q.tagCls || '') + '">' + esc(q.tag) + '</div>' : '') +
       '<div class="quiz-q">' + esc(q.q) + '</div>' +
@@ -2427,9 +2508,9 @@
       }).join('') + '</div>' +
       '<div class="quiz-nav">' +
         (st.idx > 0 ? '<button type="button" class="btn-ghost" data-prev>上一題</button>' : '') +
-        '<button type="button" class="btn-main" data-next' +
+        (HUB && last ? '' : '<button type="button" class="btn-main" data-next' +
           (st.picked[st.idx] === undefined ? ' disabled' : '') + '>' +
-          (last ? '查看評估結果' : '下一題') + '</button>' +
+          (last ? '查看評估結果' : '下一題') + '</button>') +
       '</div>';
 
     body.querySelectorAll('.opt').forEach(function(btn){
@@ -2439,20 +2520,29 @@
         btn.setAttribute('aria-pressed', 'true');
         st.picked[st.idx] = i;
         st.scores[st.idx] = spec.qs[st.idx].scores[i];
-        body.querySelector('[data-next]').disabled = false;
+        var nx = body.querySelector('[data-next]');
+        if (nx) nx.disabled = false;
         saveState();
+        // 工作台：右邊結果即時更新，選完自動跳下一題
+        if (HUB) {
+          liveQuiz(spec);
+          if (!last) setTimeout(function(){ if (st.idx === parseInt(body.dataset.idx, 10)) { st.idx++; renderQuiz(spec); liveQuiz(spec); saveState(); } }, 200);
+        }
       });
     });
+    body.dataset.idx = st.idx;
     var prev = body.querySelector('[data-prev]');
-    if (prev) prev.addEventListener('click', function(){ st.idx--; renderQuiz(spec); });
-    body.querySelector('[data-next]').addEventListener('click', function(){
+    if (prev) prev.addEventListener('click', function(){ st.idx--; renderQuiz(spec); if (HUB) liveQuiz(spec); });
+    var next = body.querySelector('[data-next]');
+    if (next) next.addEventListener('click', function(){
       if (st.picked[st.idx] === undefined) return;
-      if (st.idx < spec.qs.length - 1) { st.idx++; renderQuiz(spec); saveState(); return; }
+      if (st.idx < spec.qs.length - 1) { st.idx++; renderQuiz(spec); if (HUB) liveQuiz(spec); saveState(); return; }
       finishQuiz(spec);
     });
   }
 
   function finishQuiz(spec){
+    if (HUB) { liveQuiz(spec); return; }
     var st = QSTATE[spec.id];
     var total = st.scores.reduce(function(a, b){ return a + b; }, 0);
     var g = spec.grade(total, st.scores);
@@ -2494,6 +2584,11 @@
         btn.setAttribute('aria-pressed', at >= 0 ? 'false' : 'true');
         if (spec.requireOne) submit.disabled = st.chosen.length === 0;
         saveState();
+        // 工作台：勾選後右邊即時更新（內視鏡疑慮全部取消時清空）
+        if (HUB) {
+          if (spec.id === 'scope') { if (st.chosen.length) finishScope(spec); else { $(spec.id + '-result').innerHTML = ''; show(spec.id, false); } }
+          else finishMetsyn(spec);
+        }
       });
     });
     submit.addEventListener('click', function(){
@@ -2516,7 +2611,7 @@
         }).join('') + '</div>' +
         '<div class="notes" style="margin-top:8px;">' + esc(spec.note) + '</div>' +
       '</div>';
-    $(spec.id + '-body').hidden = true;
+    if (!HUB) $(spec.id + '-body').hidden = true;
 
     COPY[spec.id] = '內視鏡檢查疑慮：' + picked.map(function(g){ return g.tag + ' ' + g.label; }).join('、');
 
@@ -2557,10 +2652,21 @@
         '<strong>定期追蹤：</strong>每年抽血檢查血糖、血脂並量測腰圍</div></div>';
     }
 
+    var more = null;
+    if (HUB) {
+      var on = {};
+      st.chosen.forEach(function(i){ on[i] = 1; });
+      more = {
+        label: '符合的異常指標',
+        gauge: gaugeHtml(0, 6, count + .5, [{ to:1, tone:'green', name:'正常' }, { to:3, tone:'amber', name:'1 至 2 項：警訊' }, { to:6, tone:'red', name:'3 項以上：代謝症候群' }], [0, 1, 3, 5]),
+        after: '<div class="rc-chips">' + spec.items.map(function(it, i){
+          return '<span class="' + (on[i] ? 'on' : '') + '">' + esc(it.tag) + '</span>'; }).join('') + '</div>'
+      };
+    }
     $(spec.id + '-result').innerHTML = resultCard(
-      spec, count + ' <span class="of">/ 5 項</span>', level, tone, esc(advice), extra
+      spec, count + ' <span class="of">/ 5 項</span>', level, tone, esc(advice), extra, more
     );
-    $(spec.id + '-body').hidden = true;
+    if (!HUB) $(spec.id + '-body').hidden = true;
 
     COPY[spec.id] = '代謝症候群評估：' + count + ' / 5 項異常（' + level + '）' + (names ? '｜' + names : '');
 
@@ -2632,12 +2738,13 @@
           '<p class="field-err" hidden></p>' +
         '</div>' +
       '</div>' +
-      '<div class="side-info waist-how"><div class="si-title">怎麼量腰圍（國民健康署）</div><ol class="si-list">' +
+      (HUB ? '<details class="side-info waist-how"><summary class="si-title">怎麼量腰圍（國民健康署）</summary><ol class="si-list">'
+           : '<div class="side-info waist-how"><div class="si-title">怎麼量腰圍（國民健康署）</div><ol class="si-list">') +
         '<li>脫掉腰部衣物，自然站立，雙腳與肩同寬，雙手自然下垂</li>' +
         '<li>皮尺繞過腰部，高度在左右兩側<b>腸骨上緣與肋骨下緣的中間點</b></li>' +
         '<li>皮尺與地面保持水平，緊貼皮膚但不擠壓</li>' +
         '<li>維持正常呼吸，在<b>吐氣結束時</b>讀取數值</li>' +
-      '</ol></div>';
+      '</ol>' + (HUB ? '</details>' : '</div>');
     // 代謝症候群五項判定標準，放在結果旁邊（寬螢幕在右欄）
     var ref = document.createElement('div');
     ref.className = 'side-info waist-ref';
@@ -2654,23 +2761,29 @@
     var calc = function(){
       var sex = $('waist-sex').value;
       var val = num('waist-val');
-      if (!sex || !isNum(val)) { show(spec.id, false); return; }
+      var grid = $('waist-ref').querySelector('.si-grid');
+      if (!sex || !isNum(val)) { $(spec.id + '-result').innerHTML = ''; grid.classList.remove('hit'); show(spec.id, false); return; }
       var limit = sex === 'male' ? 90 : 80;
       var over = val >= limit;
+      grid.classList.toggle('hit', over);
+      var gap = Math.abs(val - limit).toFixed(1).replace(/.0$/, '');
       var tone = over ? 'red' : 'green';
       var advice = over
         ? '您的腰圍超過台灣國民健康署的建議標準（男性 &lt; 90 cm，女性 &lt; 80 cm），屬於代謝症候群的腰圍指標異常。建議搭配血壓、血糖、血脂共同評估，並積極調整飲食與增加有氧運動。'
         : '您的腰圍在正常範圍內（男性 &lt; 90 cm，女性 &lt; 80 cm），代謝症候群的腰圍指標目前正常。請持續維持均衡飲食與規律運動。';
       $(spec.id + '-result').innerHTML = resultCard(
         spec, val + ' <span class="of">cm</span>',
-        over ? '超標' : '正常範圍', tone, advice
+        over ? '超標' : '正常範圍', tone, advice, '',
+        HUB ? {
+          sub: (sex === 'male' ? '男性' : '女性') + '標準 &lt; ' + limit + ' cm，' + (over ? '超過 ' + gap + ' cm' : '還有 ' + gap + ' cm 的空間'),
+          gauge: gaugeHtml(50, 130, val, [{ to:limit, tone:'green', name:'正常' }, { to:130, tone:'red', name:'腹部肥胖' }], [50, limit, 130])
+        } : null
       );
       COPY[spec.id] = '腰圍 ' + val + ' cm（' + (over ? '超標' : '正常範圍') +
                       '，' + (sex === 'male' ? '男性標準 < 90' : '女性標準 < 80') + ' cm）';
       show(spec.id, true);
     };
-    $('waist-sex').addEventListener('change', calc);
-    $('waist-val').addEventListener('input', calc);
+    bind(['waist-sex', 'waist-val'], calc);
   }
 
   /* ======================================================
@@ -2787,13 +2900,17 @@
     ASSESS.forEach(function(spec){
       var st = (data.quiz || {})[spec.id];
       if (!st) return;
-      QSTATE[spec.id] = st;
+      // 只有真的作答過才換掉狀態，而且換掉就一定重畫：按鈕的事件綁的是畫面當下的狀態物件，
+      // 換了狀態卻沒重畫，之後的勾選會記到舊物件上（例如重新整理後勾三項，結果卻算 0 項）
       if (spec.kind === 'quiz' && st.picked && st.picked.length) {
+        QSTATE[spec.id] = st;
         if (st.idx >= spec.qs.length) { st.idx = spec.qs.length - 1; }
         renderQuiz(spec);
-        if ((data.copy || {})[spec.id]) finishQuiz(spec);
+        if (HUB) liveQuiz(spec);
+        else if ((data.copy || {})[spec.id]) finishQuiz(spec);
       }
       if (spec.kind === 'check' && st.chosen && st.chosen.length) {
+        QSTATE[spec.id] = st;
         renderCheck(spec);
         var body = $(spec.id + '-body');
         st.chosen.forEach(function(i){
@@ -2802,6 +2919,7 @@
         });
         var submit = body.querySelector('[data-submit]');
         if (submit) submit.disabled = false;
+        if (HUB) { if (spec.id === 'scope') finishScope(spec); else finishMetsyn(spec); }
       }
     });
     renderSummary();

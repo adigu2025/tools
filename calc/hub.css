@@ -1,7 +1,7 @@
 /* 工作台載入臨床計算時才加上（見 ../index.html 的 mountCalc）：拿掉頁首頁尾、換成工作台色票與寬螢幕排版。
    病人版（calc/index.html）不套用。 */
 /* 工作台裡由 .c-body 負責捲動，host 撐滿分頁；列印「已完成的評估」時改回一般排版，內容才不會被截斷 */
-:host{height:100%; position:relative;}
+:host{height:100%; position:relative; --calc-hub:1;}   /* app.js 依 --calc-hub 判斷是工作台，自我評估改用左右兩欄 */
 .c-body{position:absolute; inset:0; overflow:auto;}
 @media print{ :host{height:auto;} .c-body{position:static; overflow:visible;} }
 /* 配色：史萊哲林綠（主色）＋銀灰（輔色）的莫蘭迪色調，與工作台「臨床計算」分頁一致 */
@@ -568,4 +568,134 @@
 @media (min-width:1100px){
   .hub-in > .notes{font-size:11.5px !important; line-height:1.55 !important; padding-top:10px !important;}
   #panel-childpugh > .hub-in{gap:12px !important;}
+}
+
+/* ===== 自我評估：結果為主（2026-11-06 第三版）=====
+   原則同 BMI、Bristol：左欄窄、只放作答；右欄大、即時顯示這位病人的結果。
+   右欄是尺寸容器（container-type:size）：不計入自然高度（不影響共用倍率），字級用 cqh 跟著框高放大，
+   內容比框高時在框內捲動，整頁不出現捲軸。 */
+@media (min-width:1100px){
+  main.body > .tool-panel.as-split.active:not(.hub-split){display:grid !important;
+    grid-template-columns:minmax(300px,.78fr) minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr); column-gap:26px; align-items:stretch;}
+  .as-split > .panel-head{grid-column:1 / -1;}
+  /* 說明文字（共幾題、怎麼判定）右欄的色帶與提示都看得到，工作台不顯示，把高度留給題目 */
+  .as-split > .quiz-intro{display:none !important;}
+  #panel-metsyn .check-tag{display:none !important;}
+  /* 代謝症候群五項的說明較長，左欄放寬一點，說明才不會每項都折成兩行 */
+  main.body > #panel-metsyn.tool-panel.as-split.active:not(.hub-split){grid-template-columns:minmax(0,.95fr) minmax(0,1fr) !important;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) > [id$="-body"]{grid-column:1; grid-row:2 / 4; display:flex; flex-direction:column; min-height:0;
+    padding:16px 16px 14px; background:#FAF9F5; border:1px solid #EEEBE3; border-radius:14px;}
+  .as-split > .assess-result{grid-column:2; grid-row:2 / 4; display:flex !important; flex-direction:column; margin:0 !important;
+    container-type:size; overflow-y:auto; scrollbar-width:thin;}
+  .as-split > .assess-result:empty::before{content:"左邊開始作答，這裡會即時顯示分數、風險等級與建議"; flex:1; display:flex; align-items:center;
+    justify-content:center; border:1px dashed #DEDBD1; border-radius:14px; background:#FBFAF7; color:var(--faint); font-size:15px;}
+  #scope-result:empty::before{content:"勾選左邊在意的項目，這裡會顯示對應的檢查說明";}
+  #metsyn-result:empty::before{content:"勾選符合的指標，這裡會即時算出符合幾項；都不符合時按「查看評估結果」";}
+
+  /* ---------- 左欄：題目式 ---------- */
+  main.body > .tool-panel.as-split.active:not(.hub-split) .quiz-step{margin-bottom:8px; font-size:12.5px;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .quiz-tag{align-self:flex-start; margin-bottom:8px;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .quiz-q{font-size:19px !important; line-height:1.55 !important; margin-bottom:14px; min-height:3.1em;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) [id$="-body"] > .opt-list{flex:none; display:flex !important; flex-direction:column; gap:7px !important; counter-reset:none;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .opt{container-type:normal; min-height:46px; display:flex !important; align-items:center;
+    justify-content:flex-start; text-align:left; padding:10px 14px 10px 50px !important; font-size:16px !important; font-weight:500; line-height:1.45;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .opt::before{top:50%; left:13px; transform:translateY(-50%);}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .opt-t{font-size:16px; font-weight:inherit;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .quiz-nav{margin-top:auto; padding-top:14px;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .quiz-nav .btn-main,
+  main.body > .tool-panel.as-split.active:not(.hub-split) .quiz-nav .btn-ghost{flex:1; min-height:44px; height:44px; padding-top:0 !important; padding-bottom:0 !important; font-size:15px !important;}
+
+  /* ---------- 左欄：勾選式（單欄、精簡） ---------- */
+  main.body > .tool-panel.as-split.active:not(.hub-split) [id$="-body"] > .check-list{flex:none; display:flex !important; flex-direction:column; gap:8px !important;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) [id$="-body"] > .quiz-nav{margin-top:auto;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .check-item{container-type:normal; flex:none; min-height:0; padding:7px 14px !important; align-items:center !important;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .check-label{font-size:16px !important;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .check-desc{font-size:12px !important; line-height:1.45 !important;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .check-tag{font-size:11.5px !important;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) [id$="-body"] > .quiz-nav{padding-top:10px;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) [data-submit]{width:100%; min-height:42px; font-size:15px !important;}
+  #scope-body .quiz-nav{display:none;}
+
+  /* ---------- 右欄：結果卡 ---------- */
+  :is(.as-split > .assess-result, #waist-result) > .result-card{flex:1 0 auto; columns:auto !important; margin:0 !important; display:flex; flex-direction:column;
+    gap:clamp(12px, 2.4cqh, 20px); padding:clamp(18px, 3.4cqh, 28px) clamp(20px, 3.4cqw, 32px) !important; border-width:1.5px;}
+  :is(.as-split > .assess-result, #waist-result) > .result-card > *{margin:0 !important;}
+  /* 即時更新時每次重畫都淡入會一閃一閃，工作台不要淡入 */
+  :is(.as-split > .assess-result, #waist-result) > .result-card{animation:none !important;}
+  :is(.as-split, #panel-waist) .rc-top{display:flex; align-items:flex-end; gap:12px 28px; flex-wrap:wrap;}
+  /* 內容不滿框時上下置中（附註仍貼底）：多出的高度一半在分數上方、一半在附註上方 */
+  :is(.as-split > .assess-result, #waist-result) > .result-card > .rc-top{margin-top:auto !important;}
+  :is(.as-split, #panel-waist) .rc-top .score-label{font-size:13.5px; font-weight:700; color:var(--muted); margin-bottom:6px;}
+  :is(.as-split, #panel-waist) .result-score{font-size:clamp(56px, min(16cqh, 23cqw), 120px) !important; letter-spacing:-.035em; line-height:.95;}
+  :is(.as-split, #panel-waist) .result-score .of{font-size:max(15px, .24em) !important; letter-spacing:0; margin-left:.15em;}
+  :is(.as-split, #panel-waist) .rc-level{padding-bottom:.4em; margin-top:0 !important;}
+  :is(.as-split, #panel-waist) .rc-level .badge{font-size:clamp(16px, 3.6cqh, 22px) !important; padding:.25em .9em !important; font-weight:700;}
+  :is(.as-split, #panel-waist) .rc-sub{font-size:14px; color:#4A4740; margin-top:10px;}
+  :is(.as-split, #panel-waist) .result-advice{font-size:clamp(15px, 2.9cqh, 17.5px); line-height:1.8; color:#3A3833;}
+  .as-split .result-card.tone-none .result-score{opacity:.55;}
+  /* 色帶 */
+  .rc-gauge{position:relative; padding-top:6px;}
+  .rc-track{display:flex; height:14px; border-radius:7px; overflow:hidden; gap:2px;}
+  .rc-track i{display:block; height:100%; opacity:.82;}
+  .rc-mark{position:absolute; top:1px; width:24px; height:24px; margin-left:-12px; border-radius:50%; background:#fff; border:4px solid var(--text);
+    box-shadow:0 1px 4px rgba(0,0,0,.18); transition:left .25s ease;}
+  .tone-none .rc-mark{border-color:#B5B1A7;}
+  .rc-bands{display:flex; margin-top:8px; font-size:12.5px; font-weight:600; color:var(--muted);}
+  .rc-bands span{text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 2px;}
+  .rc-ticks{position:relative; height:16px; margin-top:2px; font-size:11.5px; color:var(--faint); font-variant-numeric:tabular-nums;}
+  .rc-ticks span{position:absolute; transform:translateX(-50%);}
+  .rc-ticks span:first-child{transform:none;} .rc-ticks span:last-child{transform:translateX(-100%);}
+  /* 代謝症候群五項 */
+  .rc-chips{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px;}
+  .rc-chips span{padding:5px 6px; border-radius:10px; text-align:center; font-size:13.5px; font-weight:600; color:#8A867C; background:#fff; border:1px solid #E6E3DA;}
+  .rc-chips span.on{color:#fff; background:var(--red); border-color:var(--red);}
+  /* 補充說明框：兩欄並排 */
+  .rc-extra{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px;}
+  .rc-extra .info-box{margin:0 !important;}
+  /* 代謝症候群：「什麼是代謝症候群／健康風險」是通用衛教，工作台只留改善建議，結果框不必捲動 */
+  #metsyn-result .rc-extra .info-box:not(.tone-teal){display:none;}
+  #metsyn-result .info-box{padding:10px 14px !important;}
+  .rc-extra .info-body{font-size:13px !important; line-height:1.75 !important;}
+  /* 作答紀錄：點一列可跳回那一題 */
+  .rc-sheet{list-style:none; margin:0; padding:8px 0 0; border-top:1px dashed #DEDBD1; display:grid; gap:0; font-size:12.5px;}
+  .rc-sheet li{display:grid; grid-template-columns:22px minmax(0,1fr) auto 30px; gap:10px; align-items:center; padding:3px 8px; border-radius:7px; cursor:pointer; line-height:1.5;}
+  .rc-sheet li:hover{background:rgba(255,255,255,.7);}
+  .rc-sheet li.cur{background:#fff; box-shadow:inset 0 0 0 1px #DEDBD1;}
+  .rc-sheet .n{font-weight:700; color:var(--faint); text-align:right; font-variant-numeric:tabular-nums;}
+  .rc-sheet .q{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#4A4740;}
+  .rc-sheet .a{font-weight:600; color:var(--text); white-space:nowrap; max-width:15em; overflow:hidden; text-overflow:ellipsis;}
+  .rc-sheet b{text-align:right; font-variant-numeric:tabular-nums; color:var(--muted);}
+  .rc-sheet li.todo .a{color:var(--faint); font-weight:500;}
+  .rc-sheet li.flag .a, .rc-sheet li.flag b{color:var(--red);}
+  :is(.as-split > .assess-result, #waist-result) .notes{margin-top:auto !important; font-size:11.5px !important; line-height:1.55 !important;}
+  /* 內視鏡疑慮：說明卡兩欄 */
+  #scope-result .result-card > div:nth-child(2){display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px;}
+  #scope-result .solution-card{margin:0 !important;}
+  #scope-result .solution-title{font-size:16.5px !important;}
+  #scope-result .solution-body{font-size:14.5px !important; line-height:1.8 !important;}
+
+  /* ---------- 腰圍：左邊輸入（量法縮到下方小字），右邊結果＋五項標準 ---------- */
+  #panel-waist.active{grid-template-columns:minmax(300px,.78fr) minmax(0,1fr) !important; grid-template-rows:auto minmax(0,1fr) auto !important;}
+  /* 說明（量法）收在左下角，上方不再放說明框 */
+  #panel-waist > .quiz-intro{display:none !important;}
+  /* 左欄：輸入＋五項判定標準（量法收合在最下面）；右欄整欄給結果 */
+  #panel-waist > #waist-body{grid-column:1 !important; grid-row:2 !important; min-height:0; overflow:auto;}
+  #panel-waist > #waist-ref{grid-column:1 !important; grid-row:3 !important; margin:12px 0 0 !important;}
+  #panel-waist > #waist-result{grid-column:2 !important; grid-row:2 / 4 !important; margin:0 !important;}
+  #waist-body details.waist-how summary{cursor:pointer; list-style:none; color:var(--teal-dark);}
+  #waist-body details.waist-how summary::-webkit-details-marker{display:none;}
+  #waist-body details.waist-how summary::after{content:"　展開"; font-weight:500; color:var(--faint);}
+  #waist-body details.waist-how[open] summary::after{content:"　收合";}
+  #waist-body details.waist-how .si-list{margin-top:8px;}
+  #panel-waist > #waist-body{display:flex; flex-direction:column; padding:16px 16px 14px; background:#FAF9F5; border:1px solid #EEEBE3; border-radius:14px;}
+  #waist-body .grid-2{grid-template-columns:1fr !important; gap:14px !important;}
+  #waist-body .field :is(input,select){min-height:48px; font-size:18px !important;}
+  #waist-body .field select{font-size:15.5px !important;}
+  #waist-body .waist-how{flex:none !important; margin-top:auto !important; background:transparent !important; border:0 !important; border-top:1px dashed #E6E3DA !important;
+    border-radius:0 !important; padding:12px 0 0 !important;}
+  #waist-body .waist-how .si-title{font-size:12.5px !important;}
+  #waist-body .waist-how .si-list{flex:none !important; display:block !important; font-size:12.5px !important; line-height:1.65 !important;}
+  #panel-waist > #waist-result{container-type:size;}
+  #waist-ref .si-grid{font-size:12.5px !important;}
+  #waist-ref .si-grid.hit > :nth-child(-n+2){color:var(--red); font-weight:700;}
 }
