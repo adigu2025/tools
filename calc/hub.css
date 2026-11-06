@@ -646,8 +646,9 @@
   .rc-ticks span{position:absolute; transform:translateX(-50%);}
   .rc-ticks span:first-child{transform:none;} .rc-ticks span:last-child{transform:translateX(-100%);}
   /* 代謝症候群五項 */
-  .rc-chips{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px;}
-  .rc-chips span{padding:5px 6px; border-radius:10px; text-align:center; font-size:13.5px; font-weight:600; color:#8A867C; background:#fff; border:1px solid #E6E3DA;}
+  /* 五格依字數分寬度、不換行，標籤用短名（腰圍、血壓…），字級跟著結果框寬度縮放 */
+  .rc-chips{display:flex; flex-wrap:wrap; gap:6px;}   /* 太窄時整格移到下一列，不會在字中間斷行 */
+  .rc-chips span{flex:1 1 auto; white-space:nowrap; padding:6px 7px; border-radius:10px; text-align:center; font-size:clamp(12.5px, 3.4cqw, 15px); font-weight:600; color:#8A867C; background:#fff; border:1px solid #E6E3DA;}
   .rc-chips span.on{color:#fff; background:var(--red); border-color:var(--red);}
   /* 補充說明框：兩欄並排 */
   .rc-extra{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px;}

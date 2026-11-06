@@ -2660,7 +2660,7 @@
         label: '符合的異常指標',
         gauge: gaugeHtml(0, 6, count + .5, [{ to:1, tone:'green', name:'正常' }, { to:3, tone:'amber', name:'1 至 2 項：警訊' }, { to:6, tone:'red', name:'3 項以上：代謝症候群' }], [0, 1, 3, 5]),
         after: '<div class="rc-chips">' + spec.items.map(function(it, i){
-          return '<span class="' + (on[i] ? 'on' : '') + '">' + esc(it.tag) + '</span>'; }).join('') + '</div>'
+          return '<span class="' + (on[i] ? 'on' : '') + '" title="' + esc(it.label) + '">' + ['腰圍', '血壓', '空腹血糖', '三酸甘油酯', 'HDL'][i] + '</span>'; }).join('') + '</div>'
       };
     }
     $(spec.id + '-result').innerHTML = resultCard(
