@@ -994,14 +994,30 @@ function appendCustomAddCard(grid,catLabel){
 function buildHome(){
   const grid=QD.getElementById('catGrid');
   grid.innerHTML='';
+  /* 價目表式：類別｜包含哪些分組｜項數｜最低價。表頭只在工作台版顯示（hub.css） */
+  const head=document.createElement('div');
+  head.className='cat-table-head';
+  head.innerHTML='<span>類別</span><span>包含</span><span>項數</span><span>價格</span>';
+  grid.appendChild(head);
   CATEGORIES.forEach(cat=>{
+    const isEndo=cat.id==='endo';
+    const count=isEndo?(ENDO_TREE.layer1.length+ENDO_TREE.special.length+ENDO_TREE.selfPay.length):cat.items.filter(i=>!i.type).length;
+    /* 分組名稱：去掉「⑦」這類編號與括號說明，只留短名 */
+    let secs=isEndo?['常規內視鏡','其他內視鏡','自費內視鏡','耗材']
+      :cat.items.filter(i=>i.type==='section').map(i=>i.name.replace(/^[①-⑳]\s*/,'').replace(/[（(].*$/,'').trim());
+    let secText=secs.length?secs.slice(0,4).join('・')+(secs.length>4?` 等 ${secs.length} 組`:''):(cat.desc||'');
+    const prices=isEndo?[...ENDO_TREE.layer1.map(i=>i.basePrice),...ENDO_TREE.special.map(i=>i.price),...ENDO_TREE.selfPay.map(i=>i.price)]
+      :cat.items.filter(i=>!i.type).map(i=>i.price);
+    const valid=prices.filter(p=>p>0);
+    const minP=valid.length?Math.min(...valid):0;
     const card=document.createElement('div');
     card.className='cat-card';
     card.innerHTML=`
       <div class="cat-icon">${ICONS[cat.id]}</div>
       <div class="cat-label">${cat.label}</div>
-      <div class="cat-desc">${esc(cat.desc||'')}</div>
-      <div class="cat-count-badge">${cat.id==='endo'?(ENDO_TREE.layer1.length+ENDO_TREE.special.length+ENDO_TREE.selfPay.length):cat.items.filter(i=>!i.type).length} 項</div>
+      <div class="cat-desc">${esc(secText)}</div>
+      <div class="cat-count-badge">${count} 項</div>
+      <div class="cat-price">${minP?'NT$ '+fmtPrice(minP)+'<span class="from">起</span>':''}</div>
     `;
     card.addEventListener('click',()=>openCategory(cat.id));
     grid.appendChild(card);
@@ -1104,7 +1120,8 @@ function resetCatFilter(){
    BUILD ITEMS GRID
    ═══════════════════════════════════════════════════════════════════ */
 function buildItemsGrid(cat){
-  if(cat.id==='endo'){buildEndoGrid();return;}
+  QD.getElementById('itemsGrid').dataset.cat=cat.id;
+  if(cat.id==='endo'){buildEndoGrid();buildSecRail();return;}
   const grid=QD.getElementById('itemsGrid');
   grid.innerHTML='';
 
@@ -1172,8 +1189,64 @@ function buildItemsGrid(cat){
     e.innerHTML='找不到「'+esc(catFilter)+'」相關項目<br>請換個關鍵字，或清除篩選';
     grid.appendChild(e);
   }
+  /* 整組只有一項（健檢的基礎套組、院外檢查）：改成橫跨整列的單行卡，不要一張卡獨佔一排高度 */
+  grid.querySelectorAll('.items-section-header').forEach(h=>{
+    const a=h.nextElementSibling, b=a&&a.nextElementSibling;
+    if(a&&a.classList.contains('item-card')&&!a.classList.contains('custom-add-card')&&(!b||b.classList.contains('items-section-header'))) a.classList.add('solo');
+  });
   updateFilterCount(shown);
   applyCardA11y();
+  buildSecRail();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   分組索引（左側）：分組很多時（檢驗 27 組）才出現，點一下跳到該組，
+   捲動時自動標出目前看到的分組。分組少的類別不顯示，版面維持原樣。
+   ═══════════════════════════════════════════════════════════════════ */
+function buildSecRail(){
+  const sc=QD.querySelector('#screen-category .items-scroll');
+  if(!sc) return;
+  let body=sc.parentElement;
+  if(!body.classList.contains('cat-body')){
+    body=document.createElement('div');
+    body.className='cat-body';
+    sc.parentElement.insertBefore(body,sc);
+    body.appendChild(sc);
+    sc.addEventListener('scroll',()=>syncSecRail(),{passive:true});
+  }
+  let rail=body.querySelector('.sec-rail');
+  const hdrs=[...sc.querySelectorAll('.items-section-header')];
+  const on=!!currentCat&&currentCat.id!=='endo'&&hdrs.length>=8;
+  body.classList.toggle('has-rail',on);
+  if(!on){ if(rail) rail.innerHTML=''; return; }
+  if(!rail){ rail=document.createElement('nav'); rail.className='sec-rail'; rail.setAttribute('aria-label','分組'); body.insertBefore(rail,sc); }
+  rail.innerHTML='';
+  hdrs.forEach((h,i)=>{
+    /* 每組項數：標題到下一個標題之間的項目卡 */
+    let n=0, el=h.nextElementSibling;
+    while(el&&!el.classList.contains('items-section-header')){ if(el.classList.contains('item-card')&&!el.classList.contains('custom-add-card')) n++; el=el.nextElementSibling; }
+    const b=document.createElement('button');
+    b.type='button'; b.className='sec-rail-btn';
+    b.innerHTML=`<span>${esc(h.textContent.replace(/\./g,'・'))}</span><em>${n}</em>`;
+    b.addEventListener('click',()=>{ sc.scrollTo({top:Math.max(0,secTop(sc,h)-2),behavior:'smooth'}); });
+    rail.appendChild(b);
+  });
+  syncSecRail();
+}
+function secTop(sc,h){ return h.getBoundingClientRect().top-sc.getBoundingClientRect().top+sc.scrollTop; }
+function syncSecRail(){
+  const sc=QD.querySelector('#screen-category .items-scroll');
+  const rail=QD.querySelector('#screen-category .sec-rail');
+  if(!sc||!rail||!rail.children.length) return;
+  const hdrs=[...sc.querySelectorAll('.items-section-header')];
+  const y=sc.scrollTop+24;
+  let idx=0;
+  hdrs.forEach((h,i)=>{ if(secTop(sc,h)<=y) idx=i; });
+  if(sc.scrollTop+sc.clientHeight>=sc.scrollHeight-4) idx=hdrs.length-1;
+  [...rail.children].forEach((b,i)=>b.classList.toggle('active',i===idx));
+  const act=rail.children[idx];
+  if(act){ const top=act.offsetTop, bot=top+act.offsetHeight;
+    if(top<rail.scrollTop) rail.scrollTop=top-8; else if(bot>rail.scrollTop+rail.clientHeight) rail.scrollTop=bot-rail.clientHeight+8; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
