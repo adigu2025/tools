@@ -183,6 +183,8 @@
     var min = el.min !== '' ? parseFloat(el.min) : -Infinity;
     var max = el.max !== '' ? parseFloat(el.max) : Infinity;
     if (!isFinite(v) || v < min || v > max) {
+      // 還在輸入中（例如身高打到「1」）先不顯示錯誤，免得提示一閃一閃把版面推上推下；離開欄位時再檢查
+      if (isFinite(v) && v < min && v >= 0 && CD.activeElement === el) return BAD;
       el.classList.add('invalid');
       if (err) {
         err.textContent = '請輸入 ' + el.min + '–' + el.max + ' 之間的數值';
@@ -233,7 +235,14 @@
     ids.forEach(function(id){
       var el = $(id);
       if (!el) return;
-      el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', fn);
+      if (el.tagName === 'SELECT') { el.addEventListener('change', fn); return; }
+      // 數字還沒打完（例如體重改成 72 時先打出「7」）不重算，保留上一個結果，免得結果區一下消失一下出現；
+      // 離開欄位時再算一次，真的超出範圍才顯示錯誤
+      el.addEventListener('input', function(e){
+        if (el.type === 'number' && el.min !== '' && el.value !== '' && parseFloat(el.value) >= 0 && parseFloat(el.value) < parseFloat(el.min)) return;
+        fn(e);
+      });
+      if (el.type === 'number') el.addEventListener('blur', fn);
     });
   }
 
@@ -1159,6 +1168,21 @@
   var ocrProgress = null;
 
   // 截圖字小時先放大並轉灰階。中文小字在不同放大倍率下時好時壞，所以準備兩種倍率各辨識一次再合併
+  // 擦掉長的水平線：檢驗結果下方的底線會讓小數點被吃掉（0.90 認成 09、4.3 認成 43），
+  // 表格框線也會干擾。每一列找連續的深色像素，長度超過約 3 個字寬的視為線條，塗成白色
+  function ocrUnline(g, w, h, k){
+    var d = g.getImageData(0, 0, w, h), p = d.data, min = Math.round(45 * k);
+    for (var y = 0; y < h; y++) {
+      var run = 0, row = y * w * 4;
+      for (var x = 0; x <= w; x++) {
+        var dark = x < w && p[row + x * 4] < 170;
+        if (dark) { run++; continue; }
+        if (run >= min) for (var j = x - run; j < x; j++) { var o = row + j * 4; p[o] = p[o + 1] = p[o + 2] = 255; }
+        run = 0;
+      }
+    }
+    g.putImageData(d, 0, 0);
+  }
   function ocrPrepare(file){
     return new Promise(function(ok, fail){
       var url = URL.createObjectURL(file);
@@ -1174,6 +1198,7 @@
           g.imageSmoothingQuality = 'high';
           g.filter = 'grayscale(1)';
           g.drawImage(img, 0, 0, c.width, c.height);
+          ocrUnline(g, c.width, c.height, k);
           return c;
         }));
       };
@@ -1199,6 +1224,8 @@
   }
 
   var OCR_NUM = /(\d+(?:\.\d+)?)/;
+  // 小數點被吃掉時常剩「09」「048」這種 0 開頭的整數，補回成 0.9、0.48
+  function ocrVal(t){ return /^0\d+$/.test(t) ? parseFloat('0.' + t.slice(1)) : parseFloat(t); }
 
   // 依報告表頭欄位判讀：找到含「結果」與「參考／單位」的表頭列，用各欄標題的左右位置切出欄界，
   // 表頭下方每一列的文字依水平位置歸到對應欄，再重組成「項目 結果 參考值 單位」交給後面的判讀。
@@ -1300,7 +1327,7 @@
     if (toks.length >= 2 && toks[toks.length - 1] === '1') toks.pop();
     var last = toks[toks.length - 1];
     if (/[-–~～]/.test(last)) return null;
-    return { v: parseFloat(last), hi: hi };
+    return { v: ocrVal(last), hi: hi };
   }
   function ocrRef(lines, k, keys){
     for (var i = 0; i < lines.length; i++) {
@@ -1363,7 +1390,7 @@
       hits.forEach(function(h, i){
         var seg = line.slice(h.e, i + 1 < hits.length ? hits[i + 1].s : undefined);
         var m = seg.match(OCR_NUM);
-        if (m) { accept(h.k, parseFloat(m[1])); got++; }
+        if (m) { accept(h.k, ocrVal(m[1])); got++; }
       });
       // 表格把名稱排成一列、數值在下一列：依順序對應
       if (!got && hits.length >= 2) {
@@ -1686,8 +1713,7 @@
           return p.then(function(){ pass = texts.length; return worker.recognize(c); }).then(function(res){ texts.push(ocrTable(res.data) || res.data.text || ''); });
         }, Promise.resolve()).then(function(){
           if (job.gen !== ocrGen[t]) return;
-          var text = ocrNormalize(texts.join('\n'));
-          var lines = text.split(/\n+/).map(function(l){ return l.trim(); }).filter(Boolean);
+          var text = ocrNormalize(texts.join('\n'));          var lines = text.split(/\n+/).map(function(l){ return l.trim(); }).filter(Boolean);
           ocrRecs[t].push({ date: ocrDate(lines), v: ocrClean(OCR_READ[t](text, lines)) });
         });
       }).catch(function(err){

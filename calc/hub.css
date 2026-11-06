@@ -272,7 +272,8 @@
   #panel-bmi .target-field{max-width:none; margin:0;}
   #panel-bmi #bmi-table{display:none;}
   #bmi-result:not([style*="none"]){flex:1 1 auto; display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    grid-template-rows:minmax(0,1fr) auto auto; gap:14px;}
+    grid-template-rows:minmax(0,1fr) auto minmax(min-content,1fr); gap:14px;}
+  /* 主框與下方兩格各分一半剩餘高度：目標體重填與不填時下方格子高矮不同，主框（字級隨框高）才不會跟著伸縮 */
   #bmi-result > *{margin:0 !important;}
   #bmi-result > .bmi-display, #bmi-result > .bar-wrap{grid-column:1 / -1;}
   #bmi-result > .bmi-display{container-type:size; min-height:170px; display:flex; flex-wrap:nowrap; align-items:center;
@@ -467,7 +468,7 @@
   #fib4-result{display:grid !important; grid-template-columns:auto minmax(0,1fr); grid-template-areas:"lab lab" "sc st" "sc in" "scale scale";
     column-gap:30px; align-content:center;}
   #fib4-result > .score-label{grid-area:lab;}
-  #fib4-result > .score{grid-area:sc; align-self:center;}
+  #fib4-result > .score{grid-area:sc; align-self:center; min-width:4.3ch; font-variant-numeric:tabular-nums;}   /* 固定寬度，打字時右邊的判讀文字不左右移動 */
   #fib4-result > .status-text{grid-area:st; margin:0 0 4px !important; align-self:end;}
   #fib4-result > .interp{grid-area:in; align-self:start;}
   #fib4-result > .scale{grid-area:scale;}
@@ -514,9 +515,18 @@
 @media (min-width:1100px){
   /* Bristol：量倍率時結果框先保留最長說明（Type 1）的高度，選完不會超出畫面 */
   #bristol-result{min-height:336px !important;}
+  /* 換選型態時說明長短不同：標題區與說明各保留最長那一種的高度，下方文字不上下跳 */
+  #bristol-result > div:first-child{min-height:96px;}
+  #bristol-detail{min-height:4lh;}
   /* 糞便顏色：說明文字橫跨兩欄（一行就放得下），色卡與結果並排在下方 */
   #panel-stoolcolor > .quiz-intro{grid-column:1 / -1 !important; margin-bottom:12px !important;}
   #panel-stoolcolor > #stoolcolor-result{grid-row:3 !important;}
+  /* 結果欄高度跟著左側色卡、不再自己撐高：說明較長的顏色（黑色、灰白色）改在結果框內捲動，選色時整頁不會冒出捲軸而左右位移 */
+  #stoolcolor-result{contain:size; overflow-y:auto;}
+  #stoolcolor-result .result-advice{line-height:1.7 !important;}
+  #stoolcolor-result .notes{padding-top:10px !important;}
+  #stoolcolor-result .swatch-result-art{max-height:84px;}
+  #stoolcolor-result .swatch-result-art svg{display:block; height:84px !important; width:auto !important;}
   #stoolcolor-body .swatch-art{min-height:30px !important;}
 }
 @media (min-width:1100px){
