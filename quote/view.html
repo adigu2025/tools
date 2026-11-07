@@ -409,6 +409,24 @@
 }
 .item-card.selected  .check-dot { opacity: 1; transform: scale(1); }
 .item-card.ins-mode  .check-dot { opacity: 1; transform: scale(1); background: var(--ins-color); }
+/* 健檢方案版面（app.js layoutHealthCheck）：基礎套組大卡＋加選模組一列＋⑦⑧並排 */
+#itemsGrid.hc-layout { display: block; }
+.hc-layout .mode-badge { display: none; }
+.hc-layout .item-name { padding-right: 0 !important; }
+.hc-layout .hc-plan { display: grid; grid-template-columns: 200px minmax(0,1fr); grid-template-rows: auto 1fr auto; column-gap: 28px; padding: 16px 20px; min-height: 0; }
+.hc-plan .item-name { grid-column: 1; font-size: 19px; margin: 0; }
+.hc-plan .item-price-row { grid-column: 1; grid-row: 3; padding: 0; margin: 0; }
+.hc-plan-list { grid-column: 2; grid-row: 1 / 4; margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill,minmax(250px,1fr)); gap: 6px 22px; font-size: 13.5px; line-height: 1.5; color: var(--text); padding-right: 30px; }
+.hc-plan-list li { position: relative; padding-left: 14px; }
+.hc-plan-list li::before { content: ""; position: absolute; left: 0; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.hc-sec { min-width: 0; }
+.hc-cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; }
+.hc-mods .hc-cards { grid-template-columns: repeat(6,minmax(0,1fr)); }
+.hc-layout .hc-cards .item-card { padding-left: 12px; padding-right: 12px; }
+.hc-mods .item-name { font-size: 14px !important; letter-spacing: 0; }
+@media (max-width: 1100px) { .hc-mods .hc-cards { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+.hc-row { display: grid; grid-template-columns: 2fr 1fr; column-gap: 24px; }
+@media (max-width: 900px) { .hc-row { grid-template-columns: 1fr; } .hc-layout .hc-plan { grid-template-columns: 1fr; } .hc-plan-list { grid-column: 1; grid-row: auto; margin: 8px 0; } }
 
 /* ─── Tooltip ────────────────────────────────────────────────────── */
 .tooltip-popup {

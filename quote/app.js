@@ -730,7 +730,7 @@ QD.addEventListener('mousemove', e=>{ mouseX=e.clientX; mouseY=e.clientY; positi
 
 QD.addEventListener('mouseover', e=>{
   const card = e.target.closest('.item-card[data-id]');
-  if(!card) return;
+  if(!card || card.classList.contains('hc-plan')) return;   /* 基礎套組卡已直接列出內容，不再跳提示框 */
   const notes = ITEM_NOTES[card.dataset.id];
   const rdesc = ITEM_DESCS[card.dataset.id];
   if(!notes && !rdesc) return;
@@ -1006,7 +1006,10 @@ function buildHome(){
     let secs=isEndo?['常規內視鏡','其他內視鏡','自費內視鏡','耗材']
       :cat.items.filter(i=>i.type==='section').map(i=>i.name.replace(/^[①-⑳]\s*/,'').replace(/[（(].*$/,'').trim());
     let secText=secs.length?secs.slice(0,4).join('・')+(secs.length>4?` 等 ${secs.length} 組`:''):(cat.desc||'');
-    const prices=isEndo?[...ENDO_TREE.layer1.map(i=>i.basePrice),...ENDO_TREE.special.map(i=>i.price),...ENDO_TREE.selfPay.map(i=>i.price)]
+    /* 健檢方案：以基礎套組為起點，加選模組另計；價格欄顯示基礎套組價，不用最便宜的單一模組 */
+    const isHc=cat.id==='health-check';
+    if(isHc) secText='基礎套組，可加選 ① 至 ⑧ 模組';
+    const prices=isHc?[cat.items.find(i=>i.id==='hc_base').price]:isEndo?[...ENDO_TREE.layer1.map(i=>i.basePrice),...ENDO_TREE.special.map(i=>i.price),...ENDO_TREE.selfPay.map(i=>i.price)]
       :cat.items.filter(i=>!i.type).map(i=>i.price);
     const valid=prices.filter(p=>p>0);
     const minP=valid.length?Math.min(...valid):0;
@@ -1121,6 +1124,7 @@ function resetCatFilter(){
    ═══════════════════════════════════════════════════════════════════ */
 function buildItemsGrid(cat){
   QD.getElementById('itemsGrid').dataset.cat=cat.id;
+  QD.getElementById('itemsGrid').classList.remove('hc-layout');
   if(cat.id==='endo'){buildEndoGrid();buildSecRail();return;}
   const grid=QD.getElementById('itemsGrid');
   grid.innerHTML='';
@@ -1189,14 +1193,56 @@ function buildItemsGrid(cat){
     e.innerHTML='找不到「'+esc(catFilter)+'」相關項目<br>請換個關鍵字，或清除篩選';
     grid.appendChild(e);
   }
-  /* 整組只有一項（健檢的基礎套組、院外檢查）：改成橫跨整列的單行卡，不要一張卡獨佔一排高度 */
-  grid.querySelectorAll('.items-section-header').forEach(h=>{
+  if(cat.id==='health-check'&&!filtering) layoutHealthCheck(grid);
+  /* 整組只有一項：改成橫跨整列的單行卡，不要一張卡獨佔一排高度（健檢方案另有版面，不套用） */
+  if(cat.id!=='health-check') grid.querySelectorAll('.items-section-header').forEach(h=>{
     const a=h.nextElementSibling, b=a&&a.nextElementSibling;
     if(a&&a.classList.contains('item-card')&&!a.classList.contains('custom-add-card')&&(!b||b.classList.contains('items-section-header'))) a.classList.add('solo');
   });
   updateFilterCount(shown);
   applyCardA11y();
   buildSecRail();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   健檢方案版面：基礎套組做成一張大卡，直接列出全部內容（不必停留看備註）；
+   加選模組一列排滿；⑦ 腫瘤標記與 ⑧ 院外檢查並排在同一列。
+   卡片本身（data-id、mode-badge、price-row）不變，局部更新照常運作。
+   ═══════════════════════════════════════════════════════════════════ */
+function layoutHealthCheck(grid){
+  const kids=[...grid.children];
+  const groups=[]; let cur=null;
+  kids.forEach(el=>{
+    if(el.classList.contains('items-section-header')){ cur={hdr:el,cards:[]}; groups.push(cur); }
+    else if(cur) cur.cards.push(el);
+  });
+  if(groups.length<4) return;
+  grid.innerHTML='';
+  grid.classList.add('hc-layout');
+  const sec=(g,extra)=>{
+    const s=document.createElement('section');
+    s.className='hc-sec'+(extra?' '+extra:'');
+    const box=document.createElement('div');
+    box.className='hc-cards';
+    g.cards.forEach(c=>box.appendChild(c));
+    s.append(g.hdr,box);
+    return s;
+  };
+  /* 基礎套組：標題那一列與卡片同名，拿掉標題，內容直接攤開 */
+  const base=groups[0].cards[0];
+  if(base){
+    base.classList.add('hc-plan');
+    const lines=(ITEM_NOTES[base.dataset.id]||'').split('\n').filter(Boolean);
+    const desc=base.querySelector('.item-desc');
+    if(desc&&lines.length) desc.outerHTML='<ul class="hc-plan-list">'+lines.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul>';
+    const hint=base.querySelector('.notes-hint'); if(hint) hint.remove();
+    grid.appendChild(base);
+  }
+  grid.appendChild(sec(groups[1],'hc-mods'));
+  const row=document.createElement('div');
+  row.className='hc-row';
+  groups.slice(2).forEach(g=>row.appendChild(sec(g)));
+  grid.appendChild(row);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1933,8 +1979,9 @@ function toggleItem(item, clickMode){
 function applyCardState(card, item){
   const inCart=cart.find(c=>c.id===item.id);
   const sel=!!inCart, isIns=sel&&inCart.mode==='ins';
-  /* 保留 nm-flow 等排版用的 class 不受影響（那些在子元素上） */
-  card.className='item-card'+(isIns?' ins-mode':sel?' selected':'');
+  /* 只切換選取狀態，卡片本身的排版 class（solo、hc-plan 等）要保留，否則點一下版面就跳回一般卡片 */
+  card.classList.toggle('ins-mode', isIns);
+  card.classList.toggle('selected', sel&&!isIns);
   const badge=card.querySelector('.mode-badge');
   if(badge){
     badge.className='mode-badge '+(isIns?'ins':'self');
