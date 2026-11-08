@@ -100,12 +100,19 @@ const PATCHES = {
     ]},
   ],
 };
+// A4 單張右下角一律只放診所 LOGO（img/logo-mark.png，不放文字），位置與大小固定：
+// 右緣 x 1118、上緣 y 1648、高 66 px（1241 × 1755 像素；約 11 mm 高）。cards.html 的 .mark 用同一個位置。
+// 舊圖右下角是「LOGO＋木子澄安診所＋英文名」，先蓋白 [955, 1652, 172, 58] 再畫。
+const LOGO_ONLY = ['diet-mediterranean-1', 'diet-mediterranean-2', 'edu-clinical-assessment', 'edu-treatment-pathway', 'edu-obesity-trend', 'edu-obesity-causes'];
+const MARK = {right:1118, top:1648, h:66};
 const loadImg = src=> new Promise((ok, no)=>{ const i = new Image(); i.onload = ()=> ok(i); i.onerror = no; i.src = src; });
 async function build(){
   await document.fonts.load(SANS(400, 20)); await document.fonts.load(SANS(700, 20)); await document.fonts.load(SERIF(30));
   await document.fonts.ready;
+  const mark = await loadImg('../img/logo-mark.png');
   const out = [];
-  for(const [name, list] of Object.entries(PATCHES)){
+  const jobs = [...Object.entries(PATCHES), ...LOGO_ONLY.map(n=> [n, []])];
+  for(const [name, list] of jobs){
     // 一律從 git 裡的原圖開始改，重跑不會疊加
     const img = await loadImg('orig/' + name + '.webp');
     const c = document.createElement('canvas');
@@ -121,9 +128,13 @@ async function build(){
       if(p.hl && p.text.length){ const [x, , font, , s] = p.text[0]; g.font = font; g.fillStyle = '#F1E2C3'; g.fillRect(p.hl[0], p.hl[1], g.measureText(s).width + (x - p.hl[0]) + 12, p.hl[2]); }
       for(const [x, y, font, color, s] of p.text){ g.font = font; g.fillStyle = color; g.fillText(s, x, y); }
     }
-    // 頁尾版本日期改成這次修改的月份
-    g.fillStyle = '#fff'; g.fillRect(455, 1672, 110, 36);
-    g.font = SANS(400, 17.5); g.fillStyle = SUB; g.fillText('v. 2026/11', 462, 1697);
+    // 右下角換成只有 LOGO
+    g.fillStyle = '#fff'; g.fillRect(955, 1652, 172, 58);
+    const mw = MARK.h * mark.naturalWidth / mark.naturalHeight;
+    g.drawImage(mark, MARK.right - mw, MARK.top, mw, MARK.h);
+    // 頁尾版本日期改成這次修改的月份（只換 LOGO 的圖不改版本）
+    if(list.length){ g.fillStyle = '#fff'; g.fillRect(455, 1672, 110, 36);
+    g.font = SANS(400, 17.5); g.fillStyle = SUB; g.fillText('v. 2026/11', 462, 1697); }
     document.body.appendChild(c);
     out.push(c);
   }

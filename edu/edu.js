@@ -16,6 +16,7 @@ const EDU_GROUPS = [
   {key:'exam',    label:'檢查衛教'},
   {key:'consent', label:'檢查同意書'},
   {key:'ctrl',    label:'管藥與麻醉'},
+  {key:'disease', label:'疾病衛教'},
   {key:'wound',   label:'傷口照護'},
 ];
 const svgIcon = d=> `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true">${d}</svg>`;
@@ -42,6 +43,10 @@ const ICON = {
   snow:     svgIcon('<path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11"/><path d="M9.5 3.5L12 6l2.5-2.5M9.5 20.5L12 18l2.5 2.5"/>'),
   band:     svgIcon('<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v4M12 18v4"/>'),
   leaf:     svgIcon('<path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l8-8"/>'),
+  liver:    svgIcon('<path d="M3 9c0-3 3-5 8-5 5 0 10 1 10 5 0 5-6 10-11 10-4 0-7-5-7-10z"/><path d="M11 4v8"/>'),
+  kidney:   svgIcon('<path d="M14 4c4 0 6 4 6 8s-2 8-6 8c-3 0-4-2-4-4 0-1.5 1-2.5 1-4s-1-2.5-1-4c0-2 1-4 4-4z"/><path d="M10 12H5v8"/>'),
+  heart:    svgIcon('<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/><path d="M6 12h3l1.5-3 2 6 1.5-3H18"/>'),
+  drop:     svgIcon('<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>'),
   form:     svgIcon('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3"/><path d="M8.5 10.5l1.5 1.5 2.5-2.5M14 11h2M8.5 16h7"/>'),
 };
 // sec：圖卡角落的系列名稱，同一系列在側欄排在一起並加上小標
@@ -69,6 +74,18 @@ const EDU_LIST = [
   ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-a5-het-after.webp'], 'A5'],
   ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-a5-arbl-after.webp'], 'A5'],
   ['exam',   '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
+  // 疾病衛教（2026/11 新增，A5）：原始檔在 edu-src/a5.html，右下角放官方 LINE QR code
+  ['disease', '肝膽',     '膽結石、膽砂',     ICON.liver,    ['img/edu-a5-gallstone.webp'], 'A5'],
+  ['disease', '肝膽',     '膽囊瘜肉',         ICON.liver,    ['img/edu-a5-gb-polyp.webp'], 'A5'],
+  ['disease', '肝膽',     '脂肪肝',           ICON.liver,    ['img/edu-a5-fatty-liver.webp'], 'A5'],
+  ['disease', '腸胃',     '胃食道逆流',       ICON.stomach,  ['img/edu-a5-gerd.webp'], 'A5'],
+  ['disease', '腸胃',     '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
+  ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
+  ['disease', '腎臟',     '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
+  ['disease', '腎臟',     '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
+  ['disease', '慢性病',   '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
+  ['disease', '慢性病',   '糖尿病前期與糖尿病', ICON.drop,   ['img/edu-a5-diabetes.webp'], 'A5'],
+  ['disease', '慢性病',   '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
   ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
   ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
 ];

@@ -63,8 +63,8 @@ table.tb td:last-child{white-space:nowrap; font-weight:700; color:var(--ink);}
 .foot .addr{font-size:11.5px; color:#6A6E70; line-height:1.75;}
 .foot .addr span{margin-left:12px;}
 /* 診所標誌：取自減重衛教圖卡頁尾，顏色與大小一致 */
-.logo{width:106px; height:36px; overflow:hidden; position:relative;}
-.logo img{position:absolute; width:794px; left:-612px; top:-1056px;}
+/* 右下角只放診所 LOGO，不放文字；位置與 patch.html 的 MARK 相同（換算 794 px 寬：右緣 715.4、上緣 1054.4、高 42.2） */
+.mark{position:absolute; right:78.6px; top:1054.4px; height:42.2px;}
 .k .sub{display:block; font-size:12.5px; color:var(--faint); line-height:1.6; margin-top:6px;}
 .lad{display:grid; grid-template-columns:62px 1fr; align-items:center; column-gap:8px; margin-bottom:8px;}
 .lad > b{font-weight:700; color:var(--ink); font-size:15px;}
@@ -133,7 +133,7 @@ table.tb td:last-child{white-space:nowrap; font-weight:700; color:var(--ink);}
     </div>
     <p class="v" style="margin-top:2px"><b class="s">更改施打日</b>：兩劑間隔至少 3 天（72 小時）。<span class="red">任何情況都不可一次打兩倍劑量。</span></p>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div></div><img class="mark" src="../img/logo-mark.png" alt="">
 </section>
 
 <section class="page" data-out="edu-glp1-guide-2">
@@ -176,7 +176,7 @@ table.tb td:last-child{white-space:nowrap; font-weight:700; color:var(--ink);}
     <div class="c">持續噁心嘔吐、吃不下、尿量變少；<br>上腹痛延伸到背部，或右上腹痛；<br>併用胰島素或磺醯尿素類降血糖藥，出現冒冷汗、手抖、心悸。<br><b class="s">不必等到回診日。</b></div>
   </div>
   <p class="src">資料來源：週纖達、猛健樂仿單。操作或施打時間有任何疑問，歡迎隨時詢問醫護團隊。</p>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div></div><img class="mark" src="../img/logo-mark.png" alt="">
 </section>
 
 <script>
