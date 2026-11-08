@@ -64,15 +64,22 @@
     align-items:stretch; transition:border-color .15s, background .15s; cursor:pointer;}
   #home-inner #catGrid .cat-card:hover{transform:none; box-shadow:none; border-color:rgba(var(--accent-rgb),.55); background:#FCFBF8;}
   #home-inner #catGrid .cat-card:active{background:var(--accent-pale);}
-  #home-inner .cat-big{display:flex; flex-direction:column; gap:10px; padding:20px 22px 18px; border-radius:0 0 12px 12px;
-    border-top:4px solid var(--primary) !important;}
-  #home-inner .cat-big[data-cat="health-check"]{border-top-color:var(--green) !important;}
+  /* 大卡（2026-11-08 第四版）：四周等寬細框，用類別色的淡漸層與柔和陰影區分，不再用單邊粗色條 */
+  #home-inner .cat-big{--tone:var(--primary); --tone-rgb:21,40,49;
+    display:flex; flex-direction:column; gap:10px; padding:22px 24px 20px; border-radius:14px;
+    border:1px solid rgba(var(--tone-rgb),.16) !important;
+    background:linear-gradient(180deg, rgba(var(--tone-rgb),.045) 0, rgba(var(--tone-rgb),0) 62%), var(--surface) !important;
+    box-shadow:0 1px 2px rgba(21,40,49,.04), 0 8px 22px -14px rgba(var(--tone-rgb),.30) !important;
+    transition:border-color .18s, box-shadow .18s, transform .18s !important;}
+  #home-inner .cat-big[data-cat="health-check"]{--tone:var(--green); --tone-rgb:94,138,110;}
+  #home-inner #catGrid .cat-big:hover{border-color:rgba(var(--tone-rgb),.42) !important; transform:translateY(-1px);
+    box-shadow:0 2px 4px rgba(21,40,49,.05), 0 14px 30px -14px rgba(var(--tone-rgb),.42) !important;}
+  #home-inner #catGrid .cat-big:active{transform:none;}
   #home-inner .cat-big[data-cat="health-check"] .cat-price{color:var(--green-deep);}
   #home-inner .cat-big[data-cat="health-check"] .cat-chip{background:var(--green-pale); border-color:#CFE0D4; color:var(--green-deep);}
-  #home-inner #catGrid .cat-big[data-cat="health-check"]:hover{border-color:rgba(94,138,110,.6);}
   #home-inner .cat-big .cat-head{display:flex; align-items:center; gap:12px;}
   #home-inner .cat-big .cat-icon{width:44px; height:44px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
-    background:var(--accent-pale); border:0; color:var(--primary);}
+    background:var(--accent-pale); border:1px solid rgba(var(--tone-rgb),.10); color:var(--primary);}
   #home-inner .cat-big[data-cat="health-check"] .cat-icon{background:var(--green-pale); color:var(--green-deep);}
   #home-inner .cat-big .cat-icon svg{width:26px; height:26px;}
   #home-inner .cat-big .cat-label{font-size:23px; font-weight:700; letter-spacing:.08em; color:var(--text);}
