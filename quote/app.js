@@ -56,9 +56,9 @@ const ITEM_NOTES = {
   hc_base:`血液常規（紅血球、白血球、血小板）\n飯前血糖、糖化血色素、胰島素阻抗\n肝功能 AST、ALT（附 FIB-4 肝纖維化指數）\n腎功能 BUN、肌酸酐，尿酸\n總膽固醇、三酸甘油酯、高密度及低密度膽固醇\n甲狀腺功能 TSH、free T4\n尿液一般檢查\n腹部超音波、甲狀腺超音波\nTANITA 身體組成分析`,
   hc_m1:`Lp(a) 脂蛋白(a)\nApoB 載脂蛋白 B\nhs-CRP 高敏感度 C 反應蛋白\nECG 12 導程心電圖`,
   hc_m3:`B 型肝炎表面抗原\nB 型肝炎表面抗體\nC 型肝炎抗體`,
-  hc_m7f:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n女性：CA125、CA153\n數值僅供參考，不能取代影像與內視鏡檢查`,
-  hc_m7m:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n男性：PSA、free-PSA\n數值僅供參考，不能取代影像與內視鏡檢查`,
-  hc_m6:`屬於健檢項目，胃鏡、大腸鏡檢查與麻醉皆為自費，同一次完成\n含日本製造代餐與清腸藥物、標準胃鏡（經口）\n檢查中如需切片或瘜肉切除，處置費用可全額自費，或依實際情況申報健保\n有疑問的地方，請與醫師討論`,
+  hc_m7f:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n女性：CA125、CA153`,
+  hc_m7m:`共同：CEA、AFP、CA199、SCC、Cyfra 21-1\nCA-724、Pro-GRP、β-HCG、EB-VCA-IgA\n男性：PSA、free-PSA`,
+  hc_m6:`屬於健檢項目，胃鏡、大腸鏡檢查與麻醉皆為自費，同一次完成\n含日本製造代餐與清腸藥物、標準胃鏡（經口）\n檢查中如需切片或瘜肉切除，處置費用可全額自費，或依實際情況申報健保`,
   lb01:`飯前血糖
 肝功能 AST、ALT
 腎功能 BUN、肌酸酐，尿酸
@@ -560,11 +560,11 @@ const ENDO_TREE = {
     {id:'en_het',     name:'HET 微創痔瘡冷凝刀',           desc:'需同時選擇大腸鏡＋鎮靜或麻醉',  price:35500}
   ],
   selfPay:[
-    {id:'en_sp_g',    name:'胃鏡',                          desc:'',                                          price:1600},
+    {id:'en_sp_g',    name:'胃鏡（自費）',                        desc:'',                                          price:1600},
     {id:'en_sp_ghp',  name:'胃鏡＋Hp 檢測',             desc:'Hp 快速尿素測試＋拋棄式切片鉗',               price:2900},
     {id:'en_sp_gb',   name:'胃鏡＋切片',                   desc:'含拋棄式切片鉗，病理檢查費另計',           price:2600},
     {id:'en_sp_gp',   name:'胃鏡＋瘜肉切除術',             desc:'含拋棄式切除環，病理檢查費另計',           price:7000},
-    {id:'en_sp_c',    name:'大腸鏡',                          desc:'',                                          price:2500},
+    {id:'en_sp_c',    name:'大腸鏡（自費）',                        desc:'',                                          price:2500},
     {id:'en_sp_cb',   name:'大腸鏡＋切片',                   desc:'含拋棄式切片鉗，病理檢查費另計',           price:3500},
     {id:'en_sp_cp1',  name:'大腸鏡＋瘜肉切除術（1 至 3 個）',      desc:'含拋棄式切除環，病理檢查費另計',           price:5000},
     {id:'en_sp_cp2',  name:'大腸鏡＋瘜肉切除術（4 至 9 個）',      desc:'含拋棄式切除環，病理檢查費另計',           price:6000},
@@ -875,6 +875,19 @@ function runSearch(q){
     }
   });
 
+  /* 排序：名稱完全相同 → 名稱開頭相同 → 名稱含關鍵字 → 只有說明含關鍵字。
+     同分維持原本分類順序。例如輸入「胃鏡」時，內視鏡的「胃鏡」排在健檢 ⑥ 前面，
+     櫃檯直接按 Enter 不會選錯。名稱前的圈號（⑥ 等）比對時略過。 */
+  const rank = h=>{
+    const n = String(h.item.name).replace(/\n/g,'').replace(/^[①-⑳]\s*/,'').toLowerCase();
+    if(n===ql) return 0;
+    if(n.startsWith(ql)) return 1;
+    if(n.includes(ql)) return 2;
+    return 3;
+  };
+  hits.forEach((h,i)=>{ h._r=rank(h); h._i=i; });
+  hits.sort((a,b)=>a._r-b._r || a._i-b._i);
+
   searchResults.innerHTML='';
   if(hits.length===0){
     searchResults.innerHTML=`<div class="search-empty">找不到「${esc(q)}」相關項目</div>`;
@@ -890,7 +903,7 @@ function runSearch(q){
       const descFirst = (h.item.desc||'').split('\n')[0];
       div.innerHTML=`
         <span class="sr-cat-badge">${esc(h.catLabel)}</span>
-        <span class="sr-name">${esc(h.item.name)}</span>
+        <span class="sr-name">${esc(oneLineName(h.item))}</span>
         <span class="sr-desc">${esc(h.nav ? (descFirst||'前往內視鏡選單完成選擇') : descFirst)}</span>
         <span class="sr-price">${esc(priceStr)}</span>
       `;
@@ -2118,10 +2131,14 @@ const NOTE_BY_ID = {
   dr4:       '含維生素 B12、鋅及其他成分',
   dr5:       '含胺基酸、維生素 B12 及其他成分',
   dr6:       '含胺基酸、硫辛酸及其他成分',
-  hc_m8:      '依榮總定價，檢查當日於榮總繳費；報告回本診所說明'
+  /* 繳費方式已寫在金額下方與備註，這裡只說安排方式，避免同一件事印三次 */
+  hc_m8:      '本診所協助安排，報告回本診所說明'
 };
 /* 內含項目是完整句子的套組，列印時不分兩欄 */
 const NOTE_NO_COLS = new Set(['hc_m6']);
+/* 腫瘤標記：健檢 ⑦、檢驗腫瘤套組（lb15–18）、腫瘤標記單項（lb_06xxx）與 PSA 類（lb_07xxx）。
+   荷爾蒙分類的 β-HCG（lb_17013）是驗孕用途，不算在內 */
+const TUMOR_IDS = /^(hc_m7[fm]|lb1[5-8]|lb_0[67]\d{3})$/;
 
 function cartRoot(id){ return String(id).split('|')[0]; }
 
@@ -2155,8 +2172,15 @@ function scopeLabel(root){
   if(/^en_sp_c/.test(root)) return '大腸鏡';
   return '';
 }
+/* 卡片上分兩行的名稱，在清單、列印與搜尋結果併成一行。
+   點滴名稱是「品牌名。\n品項」，句號換成「｜」，印出來才不像兩句話；其餘點滴直接相連。 */
+function oneLineName(item){
+  const raw=String(item.name);
+  if(/^dr\d$/.test(item.id)) return raw.replace(/。\n/g,'｜').replace(/\n/g,'');
+  return raw.replace(/\n/g,' ');
+}
 function cartDisplayName(item){
-  const name=String(item.name).replace(/\n/g, /^dr\d$/.test(item.id)?'':' ');
+  const name=oneLineName(item);
   if(item.id.indexOf('|')===-1) return name;
   if(/_(w|l|a)$/.test(item.id.split('|').pop())){
     const lb=scopeLabel(cartRoot(item.id));
@@ -2198,15 +2222,17 @@ function renderCart(){
     /* 清單逐項刪空＝這位病人結束，已付與手動折扣一併歸零，以免帶到下一位病人 */
     if(!_restoring){
       paidAmount=0; manualDiscountOverride=null; dismissedDiscounts=new Set();
-      const pd0=QD.getElementById('paidDisplay'); if(pd0&&pd0.tagName==='SPAN') pd0.textContent='— NT$ 0';
+      const pd0=QD.getElementById('paidDisplay'); if(pd0&&pd0.tagName==='SPAN') pd0.textContent='− NT$ 0';
     }
     emptyState.style.display='';
     cartCount.textContent='0'; cartCount.classList.add('zero');
     QD.getElementById('selfTotal').textContent='NT$ 0';
-    var dd=QD.getElementById('discountDisplay');if(dd&&dd.tagName==='SPAN')dd.textContent='— NT$ 0';
+    var dd=QD.getElementById('discountDisplay');if(dd&&dd.tagName==='SPAN')dd.textContent='− NT$ 0';
     QD.getElementById('grandTotal').textContent='0';
     const er=QD.getElementById('extPayRow'); if(er) er.hidden=true;
-    ['hcNote','extPayNote','endoNote'].forEach(id=>{const n=QD.getElementById(id); if(n) n.classList.remove('active');});
+    ['hcNote','extPayNote','endoNote','insNote','tumorNote'].forEach(id=>{const n=QD.getElementById(id); if(n) n.classList.remove('active');});
+    /* 清單清空時，上一位病人的重複計費提醒也要一起清掉 */
+    const wb=QD.getElementById('warnBlock'); if(wb) wb.innerHTML='';
     _prevCartIds=[];
     saveState();
     return;
@@ -2253,7 +2279,7 @@ function renderCart(){
       const notesBlock = notes
         ? `<div class="cart-notes-print${!NOTE_NO_COLS.has(item.id)&&notes.split('\n').length>=4?' cols':''}">
              <div class="cart-notes-print-title">包含項目</div>
-             ${notes.split('\n').map(l=>`• ${esc(l)}`).join('<br>')}
+             ${notes.split('\n').map(l=>`<span class="np-line">${esc(l)}</span>`).join('')}
            </div>`
         : '';
 
@@ -2336,7 +2362,7 @@ function renderCart(){
       totalDiscount+=d.discount;
       const r=document.createElement('div'); r.className='discount-row';
       r.innerHTML=`<span class="discount-name">${esc(d.name)}</span>
-                   <span class="discount-amt">— NT$ ${fmtPrice(d.discount)}</span>
+                   <span class="discount-amt">− NT$ ${fmtPrice(d.discount)}</span>
                    <button class="discount-remove-btn" data-disc-id="${esc(d.id)}" title="取消此優惠">✕</button>`;
       block.appendChild(r);
     });
@@ -2349,7 +2375,7 @@ function renderCart(){
   const allTbd=selfSum===0&&selfItems.some(i=>i.price===0&&i.catLabel!=='內視鏡');
   QD.getElementById('selfTotal').textContent=allTbd?'待建檔':`NT$ ${fmtPrice(selfSum)}`;
   var ddEl=QD.getElementById('discountDisplay');
-  if(ddEl&&ddEl.tagName==='SPAN') ddEl.textContent=displayDiscount>0?`— NT$ ${fmtPrice(displayDiscount)}`:'— NT$ 0';
+  if(ddEl&&ddEl.tagName==='SPAN') ddEl.textContent=displayDiscount>0?`− NT$ ${fmtPrice(displayDiscount)}`:'− NT$ 0';
   QD.getElementById('grandTotal').textContent=allTbd?'待建檔':fmtPrice(grand);
   const extRow=QD.getElementById('extPayRow');
   if(extRow){
@@ -2363,10 +2389,16 @@ function renderCart(){
     if(hcNote) hcNote.classList.toggle('active',cart.some(c=>c.catLabel==='健檢方案'));
     const ldctNote=QD.getElementById('extPayNote');
     if(ldctNote) ldctNote.classList.toggle('active',extItems.length>0);
+    /* 有免自費（健保）項目：提醒掛號費與部分負擔仍要付 */
+    const insNote=QD.getElementById('insNote');
+    if(insNote) insNote.classList.toggle('active',cart.some(c=>c.mode==='ins'));
+    /* 腫瘤標記（健檢 ⑦、檢驗腫瘤套組與單項）：數值僅供參考 */
+    const tumorNote=QD.getElementById('tumorNote');
+    if(tumorNote) tumorNote.classList.toggle('active',cart.some(c=>TUMOR_IDS.test(c.id)));
   })();
   /* 已付金額只負責顯示，編輯由 .panel-foot 的委派處理 */
   var pdEl=QD.getElementById('paidDisplay');
-  if(pdEl&&pdEl.tagName==='SPAN') pdEl.textContent='— NT$ '+fmtPrice(paidAmount);
+  if(pdEl&&pdEl.tagName==='SPAN') pdEl.textContent='− NT$ '+fmtPrice(paidAmount);
   markZeroRows(displayDiscount, paidAmount);
   (function(){
     var hasEndo=cart.some(function(c){return c.catLabel==='內視鏡';});
@@ -2524,6 +2556,29 @@ function renderConflictWarning(){
       warns.push(esc(x.name)+' 與 '+esc(ITEM_BY_ID[SAME_TEST[x.id]].name)+' 是同一項檢驗，清單中選了兩次。');
   });
 
+  /* ⑤ 同一種鏡選了兩個以上的鏡種（例如健保胃鏡＋自費胃鏡、胃鏡＋組合鏡）。
+     自費系列彼此已互斥，這裡補抓健保與自費之間、單鏡與組合鏡之間。免自費項目也算，因為檢查本身重複了 */
+  const SCOPE_NAME = r=>{ const d=ENDO_TREE.layer1.concat(ENDO_TREE.selfPay).find(x=>x.id===r); return d?d.name:r; };
+  [['胃鏡',GASTRO_ROOTS],['大腸鏡',COLON_ROOTS]].forEach(([kind,roots])=>{
+    const picked=[...new Set(cart.map(c=>cartRoot(c.id)).filter(r=>roots.indexOf(r)!==-1))];
+    if(picked.length>1)
+      warns.push('清單中有 '+picked.length+' 個'+kind+'項目：'+picked.map(r=>esc(SCOPE_NAME(r))).join('、')+'，請確認是否重複。');
+  });
+
+  /* ⑥ 自費鏡種已含切片鉗或切除環，又另外加選同一種耗材 */
+  const qtyOf = id=>{ const c=items.find(x=>x.id===id); return c?(c.qty||1):0; };
+  const WITH_FORCEPS = ['en_sp_ghp','en_sp_gb','en_sp_cb'];
+  const WITH_SNARE   = ['en_sp_gp','en_sp_cp1','en_sp_cp2','en_sp_cp3'];
+  if(qtyOf('en_sp_forceps') && cart.some(c=>WITH_FORCEPS.indexOf(c.id)!==-1))
+    warns.push('自費鏡種已含 1 支拋棄式切片鉗，清單另加切片鉗 '+qtyOf('en_sp_forceps')+' 支，請確認是額外使用。');
+  if(qtyOf('en_sp_snare') && cart.some(c=>WITH_SNARE.indexOf(c.id)!==-1))
+    warns.push('自費瘜肉切除已含拋棄式切除環，清單另加切除環 '+qtyOf('en_sp_snare')+' 個，請確認是額外使用。');
+
+  /* ⑦ 內視鏡病理檢查費與檢驗分類的外科病理同時選了 */
+  const labPath=items.filter(c=>/^lb_2600[4-8]$/.test(c.id));
+  if(qtyOf('en_sp_path') && labPath.length)
+    warns.push('已選內視鏡病理檢查費，檢驗分類另有 '+labPath.map(x=>esc(x.name)).join('、')+'，請確認是否為不同檢體。');
+
   /* 健保與前提條件 */
   const rules=[];
   if(cart.some(c=>c.id==='en_gastro'&&c.mode==='ins') && cart.some(c=>c.id==='en_colon'&&c.mode==='ins'))
@@ -2582,7 +2637,7 @@ function removeItem(id){
   showToast(`已移除：${item.name}`, '復原', ()=>{
     cart=snapshot; _prevCartIds=cart.map(c=>c.id);
     paidAmount=snapMoney.paid; manualDiscountOverride=snapMoney.disc; dismissedDiscounts=snapMoney.dismissed;
-    const pdu=QD.getElementById('paidDisplay'); if(pdu&&pdu.tagName==='SPAN') pdu.textContent='— NT$ '+fmtPrice(paidAmount);
+    const pdu=QD.getElementById('paidDisplay'); if(pdu&&pdu.tagName==='SPAN') pdu.textContent='− NT$ '+fmtPrice(paidAmount);
     renderCart();
     if(!refreshCards([id]) && currentCat) buildItemsGrid(currentCat);
     showToast(`已復原：${item.name}`);
@@ -2599,13 +2654,13 @@ QD.getElementById('btnClear').addEventListener('click',()=>{
   const n=cart.length;
   cart=[]; paidAmount=0; manualDiscountOverride=null; dismissedDiscounts=new Set();
   var pd=QD.getElementById('paidDisplay');
-  if(pd&&pd.tagName==='SPAN') pd.textContent='— NT$ 0';
+  if(pd&&pd.tagName==='SPAN') pd.textContent='− NT$ 0';
   renderCart(); if(currentCat) buildItemsGrid(currentCat);
   showToast(`已清除 ${n} 個項目`, '復原', ()=>{
     cart=snap.cart; paidAmount=snap.paid; manualDiscountOverride=snap.disc;
     dismissedDiscounts=snap.dismissed;
     var pd2=QD.getElementById('paidDisplay');
-    if(pd2&&pd2.tagName==='SPAN') pd2.textContent='— NT$ '+fmtPrice(paidAmount);
+    if(pd2&&pd2.tagName==='SPAN') pd2.textContent='− NT$ '+fmtPrice(paidAmount);
     _prevCartIds=cart.map(c=>c.id);
     renderCart(); if(currentCat) buildItemsGrid(currentCat);
     showToast('已復原清單');
@@ -2643,8 +2698,8 @@ function renderEndoNote(){
   if(!el) return;
   const p=id=>{ const d=QTY_DEFS.find(x=>x.id===id); return d?fmtPrice(d.price):''; };
   /* 走健保時切片鉗、切除環由健保給付，大部分情況下只有止血夾與注射針要自費（YT 2026-11-04） */
-  el.textContent='※ 以上為內視鏡預估費用。如需切片、瘜肉切除或止血，會依實際使用另計切片鉗、切除環、止血夾、注射針等耗材費用；'
-    +'自費病理檢查每項檢體 '+p('en_sp_path')+' 元。';
+  el.textContent='※ 內視鏡費用為預估金額。檢查中如需切片、瘜肉切除或止血，會依實際使用另計切片鉗、切除環、止血夾、注射針等耗材費用；'
+    +'切片標本的自費病理檢查（第四級外科病理）每項檢體 '+p('en_sp_path')+' 元。';
 }
 renderEndoNote();
 
@@ -2734,7 +2789,7 @@ function startEditAmount(el, cfg){
     if(!cancel) cfg.set(raw===''?null:Math.max(0,parseInt(raw,10)||0));
     const span=document.createElement('span');
     span.id=elId; span.className=cls;
-    span.textContent='— NT$ '+fmtPrice(cfg.get());
+    span.textContent='− NT$ '+fmtPrice(cfg.get());
     input.replaceWith(span);
     renderCart();
   }
@@ -2809,7 +2864,7 @@ function applySavedState(s){
     pi.dispatchEvent(new Event('input', {bubbles:true}));
   }
   const pd = QD.getElementById('paidDisplay');
-  if(pd && pd.tagName === 'SPAN') pd.textContent = '— NT$ ' + fmtPrice(paidAmount);
+  if(pd && pd.tagName === 'SPAN') pd.textContent = '− NT$ ' + fmtPrice(paidAmount);
   _prevCartIds = cart.map(c=>c.id);
   _restoring = false;
   renderCart();

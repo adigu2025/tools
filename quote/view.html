@@ -500,7 +500,7 @@
 .cart-count { background: var(--accent); color: white; font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 12px; min-width: 24px; text-align: center; transition: background 0.2s; }
 .cart-count.zero { background: var(--border); color: var(--muted); }
 .panel-legend { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-.legend-item  { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+.legend-item  { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
 .legend-dot   { width: 8px; height: 8px; border-radius: 50%; }
 
 .panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; scroll-behavior: smooth; scrollbar-gutter: stable; }
@@ -1027,12 +1027,16 @@
 /* ─── Print ──────────────────────────────────────────────────────── */
 @page { margin: 0; size: A4; }
 
-.cart-notes-print, .cart-item-note { display: none; }
+.cart-notes-print, .cart-item-note, .pf-pad { display: none; }
+.print-frame, .print-frame > tbody, .print-frame > tbody > tr, .pf-cell { display: contents; }
 
 @media print {
-  /* ═══ 報價單列印版（2026-10 改版）══════════════════════════════
+  /* ═══ 報價單列印版（2026-11 改版）══════════════════════════════
      A4 直式；頁首品牌列、信件開頭、分類明細、右側結算、備註、署名。
-     版面寬度由 .layout 左右 16mm 留白決定。 */
+     版面寬度由 .layout 左右 16mm 留白決定。
+     上下留白：@page 邊界必須是 0（否則瀏覽器會印出網址與日期的頁首頁尾），
+     改用 .print-frame 表格的 thead／tfoot 撐出 12mm，Chrome 會在每一頁重複，
+     第 2 頁以後的內容就不會貼齊紙張頂端與底端。 */
   .q-body {
     display: block !important;
     height: auto !important; overflow: visible !important;
@@ -1040,11 +1044,18 @@
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
     color: #1F2E37;
   }
+  .print-frame { display: table !important; width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; }
+  .print-frame > thead { display: table-header-group !important; }
+  .print-frame > tfoot { display: table-footer-group !important; }
+  .print-frame > tbody { display: table-row-group !important; }
+  .print-frame tr { display: table-row !important; }
+  .print-frame td { display: table-cell !important; padding: 0; vertical-align: top; }
+  .pf-pad td { height: 12mm; }
 
   /* 頁首：左側診所名稱，右側日期與地址電話，下方金線 */
   .banner {
     display: grid !important; grid-template-columns: 1fr auto; align-items: end;
-    height: auto !important; padding: 10mm 16mm 3.5mm !important; margin: 0 !important;
+    height: auto !important; padding: 0 16mm 3.5mm !important; margin: 0 !important;
     background: #FFF !important; box-shadow: none !important;
     border-bottom: none !important; position: relative !important;
     break-after: avoid; page-break-after: avoid;
@@ -1123,7 +1134,8 @@
   }
   .cart-item-meta { display: inline-flex !important; margin-left: 2mm; vertical-align: 1px; }
   .cart-item-cat, .cart-badge.self { display: none !important; }
-  .cart-badge.ins { font-size: 7.5pt !important; padding: 0 5px !important; border: 0.6pt solid #14805C; background: none !important; }
+  /* 免自費已印在右側金額欄，名稱旁的標籤不再重複 */
+  .cart-badge.ins { display: none !important; }
   .cart-price-wrap { align-self: flex-start !important; }
   .cart-item-price {
     font-family: var(--serif) !important; font-size: 11pt !important; font-weight: 700 !important;
@@ -1133,13 +1145,19 @@
   .cart-remove-btn, .price-edit-hint, .price-revert-btn, .qty-ctrl { display: none !important; }
   .ext-pay-tag { font-size: 8pt !important; margin-top: 0.5mm; }
 
+  /* 套組內含項目：不加側線，每行用小圓點起頭，換行時對齊文字（懸掛縮排） */
   .cart-notes-print {
     display: block !important;
-    margin: 1.2mm 0 0 !important; padding: 0 0 0 3mm !important;
-    border: none !important; border-left: 1.2pt solid #E4C793 !important; border-radius: 0 !important;
+    margin: 1.2mm 0 0 !important; padding: 0 !important;
+    border: none !important; border-radius: 0 !important;
     background: transparent !important;
     font-size: 8.6pt !important; color: #55636C !important; line-height: 1.7 !important;
     overflow-wrap: anywhere;
+  }
+  .np-line { display: block; position: relative; padding-left: 3.6mm; break-inside: avoid; }
+  .np-line::before {
+    content: ''; position: absolute; left: 0.6mm; top: 0.82em;
+    width: 1.1mm; height: 1.1mm; border-radius: 50%; background: #9FB2BC;
   }
   /* 單項說明一欄排到金額前方；只有四行以上的套組內含項目才分兩欄 */
   .cart-notes-print.cols { column-count: 2; column-gap: 8mm; }
@@ -1177,13 +1195,18 @@
     padding: 5mm 16mm 6mm; line-height: 1.7 !important;
   }
   .letter-remark, .letter-version { grid-column: 1 / -1; }
+  /* 備註：上下細線框住，不用底色與側邊色條；※ 懸掛在左，換行對齊文字 */
   .letter-remark {
-    margin: 0; padding: 3mm 4mm; background: #F2F5F7 !important;
-    border-left: 2pt solid #BC7F30; font-size: 9pt; color: #4A5860;
+    margin: 0; padding: 2.6mm 0 2.8mm; background: none !important;
+    border-top: 0.6pt solid #B9C6CD; border-bottom: 0.6pt solid #B9C6CD;
+    font-size: 9pt; color: #4A5860;
     break-inside: avoid; page-break-inside: avoid;
   }
-  .letter-remark p { margin: 0; line-height: 1.7; }
-  .letter-remark p:first-child { font-weight: 700; color: #3E6A7C; letter-spacing: 0.3em; font-size: 8.5pt; margin-bottom: 0.5mm; }
+  .letter-remark p { margin: 0; line-height: 1.75; padding-left: 1.25em; text-indent: -1.25em; }
+  .letter-remark p:first-child {
+    padding-left: 0; text-indent: 0;
+    font-weight: 700; color: #3E6A7C; letter-spacing: 0.4em; font-size: 8.5pt; margin-bottom: 0.8mm;
+  }
   .letter-contact { margin: 4mm 0 0; font-size: 10pt; color: #3B4A53; }
   .letter-sign { text-align: right; margin-top: 4mm; font-size: 11pt; font-weight: 700; letter-spacing: 0.12em; break-after: avoid; page-break-after: avoid; }
   .letter-version {
@@ -1209,11 +1232,18 @@
   /* 金額為 0 的折扣與已付列不印 */
   .sub-total-row.print-zero { display: none !important; }
 
-  #endoNote, #hcNote, #extPayNote { display: none !important; }
-  #endoNote.active, #hcNote.active, #extPayNote.active { display: block !important; }
+  #endoNote, #hcNote, #extPayNote, #insNote, #tumorNote { display: none !important; }
+  #endoNote.active, #hcNote.active, #extPayNote.active, #insNote.active, #tumorNote.active { display: block !important; }
 }
 </style>
 <div class="q-body" id="q-body" tabindex="-1">
+
+<!-- 列印外框：thead／tfoot 是每一頁上下的留白（Chrome 只對真正的表格重複表頭表尾）。
+     螢幕上整個表格用 display: contents 拆掉，不影響原本版面。 -->
+<table class="print-frame" role="presentation">
+<thead class="pf-pad"><tr><td></td></tr></thead>
+<tfoot class="pf-pad"><tr><td></td></tr></tfoot>
+<tbody><tr><td class="pf-cell">
 
 <!-- Banner -->
 <header class="banner">
@@ -1369,11 +1399,9 @@
           </svg></span>
           費用清單 <span class="cart-count zero" id="cartCount">0</span>
         </div>
-        <div class="panel-legend">
+        <div class="panel-legend" title="在清單項目上按右鍵或長按，可切換自費／免自費">
           <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>自費</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--ins-color)"></div>免自費</div>
-          <div class="legend-item" style="font-size:11px;opacity:.6;margin-left:4px">右鍵／長按切換</div>
-        </div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--ins-color)"></div>免自費</div>        </div>
       </div>
     </div>
     <div class="panel-body" id="panelBody">
@@ -1399,14 +1427,14 @@
       <div class="sub-total-row">
         <span class="sub-label">優惠折扣</span>
         <div class="cart-price-wrap">
-          <span class="discount-display" id="discountDisplay">— NT$ 0</span>
+          <span class="discount-display" id="discountDisplay">− NT$ 0</span>
           <span class="price-edit-hint" style="color:var(--gold);opacity:0.6">點擊修改金額</span>
         </div>
       </div>
       <div class="sub-total-row">
         <span class="sub-label" style="color:var(--gold)">已付金額</span>
         <div class="cart-price-wrap">
-          <span class="paid-display" id="paidDisplay">— NT$ 0</span>
+          <span class="paid-display" id="paidDisplay">− NT$ 0</span>
           <span class="price-edit-hint" style="color:var(--gold);opacity:0.6">點擊修改金額</span>
         </div>
       </div>
@@ -1433,10 +1461,12 @@
 <!-- ── 說明信件結尾（列印用，螢幕隱藏）────────────── -->
 <div id="letterClose" class="letter-part letter-close">
   <div class="letter-remark">
-    <p>備註：</p>
+    <p>備註</p>
     <p>※ 實際醫療內容將依醫師診察與檢查結果調整，如有額外必要醫療處置，將事前充分說明。</p>
+    <p id="insNote">※ 標示「免自費」的項目由健保給付，看診當日仍依健保規定收取掛號費與部分負擔。</p>
     <p id="hcNote">※ 健檢項目都可以單獨選擇；符合國民健康署公費篩檢資格的項目，本診所會先協助您使用公費。</p>
-    <p id="extPayNote">※ 低劑量肺部電腦斷層由本診所協助安排，依榮總定價，於榮總檢查當日繳費，不列入本院應收總額；報告回到本診所，與其他項目一起說明。</p>
+    <p id="tumorNote">※ 腫瘤標記數值僅供參考，不能取代影像與內視鏡檢查。</p>
+    <p id="extPayNote">※ 低劑量肺部電腦斷層依榮總定價，於榮總檢查當日繳費，不列入本院應收總額。</p>
     <p id="endoNote"></p>
     <p id="validNote"></p>
   </div>
@@ -1445,6 +1475,9 @@
   <!-- 價目版本：日後對帳或費用爭議時可回推當時適用的價目表 -->
   <p class="letter-version" id="letterVersion"></p>
 </div>
+
+</td></tr></tbody>
+</table><!-- /print-frame -->
 
 <!-- Tooltip -->
 <div class="tooltip-popup" id="tooltipPopup"></div>
