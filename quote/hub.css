@@ -41,34 +41,57 @@
   .search-wrap .field-label{margin-left:2px;}
   .search-wrap .search-input{height:46px; border-radius:10px; padding-left:16px;}
   #home-inner .cat-grid-wrap{max-width:880px;}
-  #home-inner :is(.cat-grid, .cat-extra-grid){display:block; max-width:none; background:var(--surface);
+  /* 隱藏的說明文件（首頁按 X）：維持一列一類的清單樣式，類別名用金色區分 */
+  #home-inner .cat-extra-grid{display:block; max-width:none; background:var(--surface);
     border:1px solid var(--border); border-radius:12px; overflow:hidden;}
-  #home-inner :is(.cat-card, .cat-table-head){display:grid; grid-template-columns:120px minmax(0,1fr) 64px 112px 16px;
-    align-items:center; column-gap:18px; padding:0 18px 0 22px;}
-  #home-inner .cat-table-head{height:38px; background:var(--surface-warm); border-bottom:1px solid var(--border);
-    font-size:12.5px; letter-spacing:.12em; color:var(--muted);}
-  #home-inner .cat-table-head span:nth-child(3), #home-inner .cat-table-head span:nth-child(4){text-align:right;}
-  #home-inner .cat-card{height:auto; min-height:56px; padding-top:10px; padding-bottom:10px; border:0; border-top:1px solid var(--border);
+  #home-inner .cat-extra-grid .cat-card{display:grid; grid-template-columns:120px minmax(0,1fr) 64px 16px;
+    align-items:center; column-gap:18px; padding:10px 18px 10px 22px; height:auto; min-height:56px; border:0; border-top:1px solid var(--border);
     border-radius:0; box-shadow:none; text-align:left; transition:background .12s;}
-  #home-inner .cat-table-head + .cat-card, #home-inner .cat-extra-grid .cat-card:first-child{border-top:0;}
-  #home-inner .cat-card:hover{transform:none; box-shadow:none; background:#F7F6F1;}
-  #home-inner .cat-card:active{transform:none; background:var(--accent-pale);}
-  #home-inner .cat-icon{display:none;}
-  #home-inner .cat-label{font-size:17px; letter-spacing:.08em; line-height:1.4; color:var(--text);}
-  .cat-desc{min-width:0; font-size:14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  #home-inner .cat-count-badge{margin:0; text-align:right; font-size:14px; color:var(--muted); font-variant-numeric:tabular-nums;}
-  #home-inner .cat-price{display:block; text-align:right; font-size:14.5px; font-weight:600; color:var(--primary);
-    font-variant-numeric:tabular-nums; white-space:nowrap;}
-  #home-inner .cat-price .from{font-weight:400; font-size:13px; color:var(--muted); margin-left:2px;}
-  #home-inner .cat-card::after{content:"›"; font-size:20px; line-height:1; color:transparent; transition:color .12s;}
-  #home-inner .cat-card:hover::after{color:var(--accent);}
-  /* 隱藏的說明文件（首頁按 X）：同一張表的樣式，類別名用金色區分 */
+  #home-inner .cat-extra-grid .cat-card:first-child{border-top:0;}
+  #home-inner .cat-extra-grid .cat-card:hover{transform:none; box-shadow:none; background:#F7F6F1;}
+  #home-inner .cat-extra-grid .cat-icon{display:none;}
+  #home-inner .cat-extra .cat-label{font-size:15.5px; letter-spacing:.08em; color:var(--gold-deep);}
+  #home-inner .cat-extra-grid .cat-count-badge{margin:0; text-align:right; font-size:14px; color:var(--muted);}
   #home-inner .cat-extra{margin-top:12px;}
-  #home-inner .cat-extra .cat-label{font-size:15.5px; color:var(--gold-deep);}
-  @media (min-width:1700px){
-    #home-inner > *, #home-inner .cat-grid-wrap{max-width:960px;}
-    #home-inner .cat-card{min-height:62px;}
-  }
+  .cat-desc{min-width:0; font-size:14px; color:var(--muted);}
+
+  /* ===== 首頁（2026-11-08 第三版）：主力兩大卡＋次要兩張橫卡 ===== */
+  #home-inner .cat-grid{display:flex; flex-direction:column; gap:14px; max-width:none;}
+  #home-inner .home-big-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  #home-inner .home-small-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  #home-inner #catGrid .cat-card{background:var(--surface); border:1px solid var(--border); box-shadow:none; text-align:left;
+    align-items:stretch; transition:border-color .15s, background .15s; cursor:pointer;}
+  #home-inner #catGrid .cat-card:hover{transform:none; box-shadow:none; border-color:rgba(var(--accent-rgb),.55); background:#FCFBF8;}
+  #home-inner #catGrid .cat-card:active{background:var(--accent-pale);}
+  #home-inner .cat-big{display:flex; flex-direction:column; gap:10px; padding:20px 22px 18px; border-radius:0 0 12px 12px;
+    border-top:4px solid var(--primary) !important;}
+  #home-inner .cat-big[data-cat="health-check"]{border-top-color:var(--gold) !important;}
+  #home-inner .cat-big .cat-head{display:flex; align-items:center; gap:12px;}
+  #home-inner .cat-big .cat-icon{width:44px; height:44px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+    background:var(--accent-pale); border:0; color:var(--primary);}
+  #home-inner .cat-big[data-cat="health-check"] .cat-icon{background:var(--gold-pale); color:var(--gold-deep);}
+  #home-inner .cat-big .cat-icon svg{width:26px; height:26px;}
+  #home-inner .cat-big .cat-label{font-size:23px; font-weight:700; letter-spacing:.08em; color:var(--text);}
+  #home-inner .cat-big .cat-count-badge{margin-left:auto; font-size:14px; color:var(--muted); background:none; border:0; padding:0;}
+  #home-inner .cat-big .cat-desc{font-size:15px; line-height:1.6;}
+  #home-inner .cat-chips{display:flex; flex-wrap:wrap; gap:6px;}
+  #home-inner .cat-chip{font-size:13px; line-height:1.5; padding:3px 10px; border-radius:999px; background:var(--surface-warm);
+    border:1px solid var(--border); color:var(--muted); white-space:nowrap;}
+  #home-inner .cat-big .cat-price{display:block; margin-top:auto; font-size:21px; font-weight:700; color:var(--primary);
+    font-variant-numeric:tabular-nums;}
+  #home-inner .cat-big .cat-price .cur{font-size:13px; font-weight:500; color:var(--muted);}
+  #home-inner .cat-big .cat-price .from{font-size:13px; font-weight:400; color:var(--muted); margin-left:3px;}
+  #home-inner .cat-small{display:flex; flex-direction:row; align-items:center; gap:14px; padding:14px 18px; border-radius:12px;}
+  #home-inner .cat-small .cat-icon{width:40px; height:40px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-warm); border:1px solid var(--border); color:var(--accent);}
+  #home-inner .cat-small .cat-icon svg{width:22px; height:22px;}
+  #home-inner .cat-small .cat-text{flex:1; min-width:0;}
+  #home-inner .cat-small .cat-label{font-size:18px; font-weight:700; letter-spacing:.06em; color:var(--text);}
+  #home-inner .cat-small .cat-desc{font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #home-inner .cat-small .cat-count-badge{margin:0; flex:none; font-size:13.5px; color:var(--muted); background:none; border:0; padding:0;}
+  #home-inner .cat-small::after{content:"›"; font-size:22px; line-height:1; color:var(--muted);}
+  @media (max-width:760px){ #home-inner :is(.home-big-row, .home-small-row){grid-template-columns:1fr;} }
+  @media (min-width:1700px){ #home-inner > *, #home-inner .cat-grid-wrap{max-width:960px;} }
 
   /* ===== 分類內頁（2026-11-06）：卡片縮小一級、拿掉浮起與金色短線，一屏多放一排 ===== */
   #screen-category{padding:16px 28px 0;}
