@@ -8,6 +8,7 @@
     --primary:#3E4C6B; --primary-dark:#323E58; --primary-mid:#4F5E7E;
     --accent:#5B6B8C; --accent-light:#7584A3; --accent-pale:#E8ECF3; --accent-rgb:91,107,140;
     --gold:#A88A62; --gold-pale:#F3EDE4; --gold-line:#D9C7AC; --gold-deep:#6E5634; --gold-rgb:168,138,98;
+    --green:#5E8A6E; --green-pale:#E8F0EA; --green-deep:#3B6149;
     --bg:#F5F4EE; --surface:#FFFFFF; --surface-warm:#FAF9F5;
     --text:#1F1E1D; --muted:#6F6B63; --border:#E6E3DA; --border-strong:#D6D2C6;
     --shadow-sm:0 1px 2px rgba(31,30,29,.04), 0 1px 6px rgba(31,30,29,.04);
@@ -65,11 +66,14 @@
   #home-inner #catGrid .cat-card:active{background:var(--accent-pale);}
   #home-inner .cat-big{display:flex; flex-direction:column; gap:10px; padding:20px 22px 18px; border-radius:0 0 12px 12px;
     border-top:4px solid var(--primary) !important;}
-  #home-inner .cat-big[data-cat="health-check"]{border-top-color:var(--gold) !important;}
+  #home-inner .cat-big[data-cat="health-check"]{border-top-color:var(--green) !important;}
+  #home-inner .cat-big[data-cat="health-check"] .cat-price{color:var(--green-deep);}
+  #home-inner .cat-big[data-cat="health-check"] .cat-chip{background:var(--green-pale); border-color:#CFE0D4; color:var(--green-deep);}
+  #home-inner #catGrid .cat-big[data-cat="health-check"]:hover{border-color:rgba(94,138,110,.6);}
   #home-inner .cat-big .cat-head{display:flex; align-items:center; gap:12px;}
   #home-inner .cat-big .cat-icon{width:44px; height:44px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center;
     background:var(--accent-pale); border:0; color:var(--primary);}
-  #home-inner .cat-big[data-cat="health-check"] .cat-icon{background:var(--gold-pale); color:var(--gold-deep);}
+  #home-inner .cat-big[data-cat="health-check"] .cat-icon{background:var(--green-pale); color:var(--green-deep);}
   #home-inner .cat-big .cat-icon svg{width:26px; height:26px;}
   #home-inner .cat-big .cat-label{font-size:23px; font-weight:700; letter-spacing:.08em; color:var(--text);}
   #home-inner .cat-big .cat-count-badge{margin-left:auto; font-size:14px; color:var(--muted); background:none; border:0; padding:0;}
