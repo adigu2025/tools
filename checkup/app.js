@@ -700,7 +700,7 @@ function ckImportPath(area, text){
     const rank = [];
     if(/adenocarcinoma|carcinoma|malignan|癌/i.test(s)) rank.push('cancer');
     if(/sessile serrated[^.\n]*dysplasia|SSL[^.\n]*dysplasia|traditional serrated/i.test(s)) rank.push('ssldys');
-    if(/villous|tubulovillous|high[- ]grade dysplasia|高度分化不良|絨毛/i.test(s)) rank.push('advanced');
+    if(/villous|tubulovillous|high[- ]grade dysplasia|高度分化不良|高度異生|絨毛/i.test(s)) rank.push('advanced');
     if(/sessile serrated|SSA|SSL|無柄鋸齒/i.test(s)) rank.push('ssl');
     if(/tubular adenoma|管狀腺瘤/i.test(s)) rank.push('tubular');
     if(/hyperplastic polyp|增生性瘜肉/i.test(s)) rank.push('hyper');
@@ -734,7 +734,12 @@ function ckModRows(rows){
   return out;
 }
 
-/* 大腸鏡追蹤間隔：依 2020 美國多學會大腸癌工作小組（USMSTF）建議。
+/* 大腸鏡追蹤間隔：依國民健康署《大腸癌篩檢指引》（2021，台灣消化系醫學會撰寫）第柒章。
+   低風險（1 至 2 顆腫瘤性瘜肉、都小於 10 mm、沒有絨毛狀成分或高度異生變化）3 至 5 年；
+   高風險（3 顆以上、任一顆 10 mm 以上、絨毛狀成分或高度異生變化）3 年；10 顆以上 1 年。
+   鋸齒狀病灶屬腫瘤性瘜肉，套用同樣的分級。沒有瘜肉或只有小的增生性瘜肉，回歸每 2 年糞便潛血檢查；
+   一等親 60 歲前罹患大腸癌改為每 5 年大腸鏡。清腸不良依指引儘早重做。
+   指引沒有涵蓋的大型增生性瘜肉與分片切除，依 2020 美國多學會大腸癌工作小組（USMSTF）。
    回傳 {t 間隔, g 燈號, when 建議分組, d 說明}；沒有填病理時回傳 null。 */
 function ckColonNext(){
   const m = CK.mod || {}, h = m.cHist;
@@ -743,23 +748,20 @@ function ckColonNext(){
   const fam = ckFamCancer(/大腸|結腸|直腸/);
   let t, g = 1, d = '';
   if(h === 'cancer') return {t:'轉介外科與腫瘤科', g:2, when:'now', d:'病理為癌，需要進一步分期與治療'};
-  if(h === 'none'){ t = fam ? '5 年' : '10 年'; g = 0; d = fam ? '沒有瘜肉；一等親有大腸癌，間隔縮短為 5 年' : '沒有瘜肉'; }
-  else if(h === 'hyper'){ if(mm >= 10){ t = '3 至 5 年'; d = '增生性瘜肉達 10 mm 以上'; } else { t = '10 年'; g = 0; d = '小於 10 mm 的增生性瘜肉，屬低風險'; } }
-  else if(h === 'tubular'){
-    if(n > 10){ t = '1 年'; d = '腺瘤超過 10 顆'; }
-    else if(mm >= 10 || n >= 5){ t = '3 年'; d = mm >= 10 ? '腺瘤達 10 mm 以上' : '腺瘤 5 至 10 顆'; }
-    else if(n >= 3){ t = '3 至 5 年'; d = '腺瘤 3 至 4 顆，皆小於 10 mm'; }
-    else { t = '7 至 10 年'; d = '腺瘤 1 至 2 顆，皆小於 10 mm'; }
-  }
-  else if(h === 'advanced'){ t = '3 年'; d = '絨毛狀或高度分化不良腺瘤，屬進行性腺瘤'; }
-  else if(h === 'ssl' || h === 'ssldys'){
-    if(h === 'ssldys' || mm >= 10){ t = '3 年'; d = h === 'ssldys' ? '鋸齒狀病灶合併分化不良' : '鋸齒狀病灶達 10 mm 以上'; }
-    else if(n >= 5){ t = '3 年'; d = '鋸齒狀病灶 5 至 10 顆'; }
-    else if(n >= 3){ t = '3 至 5 年'; d = '鋸齒狀病灶 3 至 4 顆，皆小於 10 mm'; }
-    else { t = '5 至 10 年'; d = '鋸齒狀病灶 1 至 2 顆，皆小於 10 mm'; }
+  const neg = why=>{ if(fam){ t = '5 年'; d = why + '；一等親 60 歲前罹患大腸癌，每 5 年大腸鏡（60 歲以後罹患則與一般人相同）'; } else { t = '改為每 2 年糞便潛血檢查'; g = 0; d = why; } };
+  if(h === 'none') neg('沒有瘜肉');
+  else if(h === 'hyper'){ if(mm >= 10){ t = '3 至 5 年'; d = '增生性瘜肉達 10 mm 以上'; } else neg('小於 10 mm 的增生性瘜肉，不屬於腫瘤性瘜肉'); }
+  else {
+    const kind = h === 'ssl' || h === 'ssldys' ? '鋸齒狀病灶' : '腺瘤';
+    if(n >= 10){ t = '1 年'; d = kind + ' 10 顆以上'; }
+    else if(h === 'advanced' || h === 'ssldys' || mm >= 10 || n >= 3){
+      t = '3 年';
+      d = '高風險：' + (h === 'advanced' ? '絨毛狀成分或高度異生變化' : h === 'ssldys' ? '鋸齒狀病灶合併分化不良' : mm >= 10 ? kind + '達 10 mm 以上' : kind + ' 3 顆以上');
+    }
+    else { t = '3 至 5 年'; d = '低風險：' + kind + ' 1 至 2 顆，皆小於 10 mm'; }
   }
   if(m.cPiece === 'yes'){ t = '6 個月'; g = 1; d = '20 mm 以上分片切除，需要確認切除部位沒有殘留'; }
-  else if(m.cPrep === 'poor' && !/^(1 年)$/.test(t)){ t = '1 年內'; g = 1; d = '腸道清潔不佳，可能有看不清楚的地方'; }
+  else if(m.cPrep === 'poor'){ t = '盡快重做大腸鏡'; g = 1; d = '腸道清潔不佳，可能有看不清楚的地方，指引建議儘早重新檢查'; }
   // 醫師修改的間隔優先，指引的理由仍保留在說明裡
   const ov = String(m.cNextOv || '').trim();
   if(ov){ d = (d ? d + '；' : '') + `指引建議 ${t}，醫師依個別狀況調整`; t = ov; }
@@ -1042,7 +1044,10 @@ function ckCollect(){
   const colon = mod.find(u=> u.colon);
   if(colon){
     const c = colon.colon;
-    advice.push({key:'colon', when: c.when, t: c.when === 'now' && !c.ov ? '大腸鏡病理為癌，請盡快回診討論轉介與治療。' : `依這次大腸鏡結果（${c.d}），下次大腸鏡建議在 ${c.t}${/內$|後$/.test(c.t) ? '' : '後'}。`});
+    const t = c.ov ? '' : /轉介/.test(c.t) ? '大腸鏡病理為癌，請盡快回診討論轉介與治療。'
+      : /糞便潛血/.test(c.t) ? `依這次大腸鏡結果（${c.d}），之後改為每 2 年做一次糞便潛血檢查。`
+      : /^盡快/.test(c.t) ? `依這次大腸鏡結果（${c.d}），建議${c.t}。` : '';
+    advice.push({key:'colon', when: c.when, t: t || `依這次大腸鏡結果（${c.d}），下次大腸鏡建議在 ${c.t}${/內$|後$/.test(c.t) ? '' : '後'}。`});
   }
   advice.push({key:'yearly', when:'y1', t:'明年同一時間再安排一次健檢，和這次的數值比較。'});
   // 醫師修改：CK.fu[key] 改時間或文字、off 不列入；CK.fuAdd 是自行新增的項目

@@ -315,7 +315,7 @@ function ckChAppendix(){
     ['PREVENT', '美國心臟學會 2023 年發表的心血管風險模型，適用 30 至 79 歲、沒有心血管疾病的人。'],
     ['TwCCCC', '以台灣竹山社區世代建立的冠心病風險計分，2023 年台灣心臟學會指引採用，適用 35 歲以上。'],
     ['Lung-RADS', '美國放射學會的低劑量肺部電腦斷層分級（1 至 4X），依分級決定追蹤間隔。'],
-    ['大腸鏡間隔', '依 2020 年美國多學會大腸癌工作小組建議，由瘜肉的種類、數目與大小決定。'],
+    ['大腸鏡間隔', '依國民健康署《大腸癌篩檢指引》（2021），由瘜肉的種類、數目與大小決定。'],
   ];
   return [`<div class="rb full gloss"><div class="rb-l"><div class="rb-no"></div><h3 class="rb-h">名詞與判讀說明</h3></div><div class="rb-r">` +
     `<table class="rt kv">${G.map(([k, v])=> `<tr><th>${k}</th><td>${rBr(v, 38)}</td></tr>`).join('')}</table></div></div>`];
