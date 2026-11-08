@@ -65,37 +65,65 @@ table.tb td:last-child{white-space:nowrap; font-weight:700; color:var(--ink);}
 /* 診所標誌：取自減重衛教圖卡頁尾，顏色與大小一致 */
 .logo{width:106px; height:36px; overflow:hidden; position:relative;}
 .logo img{position:absolute; width:794px; left:-612px; top:-1056px;}
+.k .sub{display:block; font-size:12.5px; color:var(--faint); line-height:1.6; margin-top:6px;}
+.lad{display:grid; grid-template-columns:62px 1fr; align-items:center; column-gap:8px; margin-bottom:8px;}
+.lad > b{font-weight:700; color:var(--ink); font-size:15px;}
+.steps{display:flex; gap:4px;}
+.steps div{flex:1; background:var(--beige); text-align:center; padding:5px 2px 4px; font-size:11.5px; color:var(--sub); line-height:1.3;}
+.steps i{display:block; font-style:normal; font-family:'Noto Serif TC',serif; font-weight:900; font-size:17px; color:var(--ink);}
+.steps div.mx{background:#E7EEF0;} .steps div.mx i{color:#2E5566;}
+/* 內容較多的一頁：段落上下間距縮小 */
+.page.tight .row{padding:8px 0 7px;}
+.page.tight .box{margin-top:12px;}
 .fit-ok{outline:3px solid #2E8B57;} .fit-bad{outline:3px solid #C0392B;}
 </style>
 </head>
 <body>
 
-<!-- ───────── 減重：用藥 02 用藥注意事項（改成「療程」系列版型，內容不變） ───────── -->
-<section class="page" data-out="edu-medication-guide">
+<!-- ───────── 減重：用藥 02 腸泌素針劑怎麼打（2026/11 由「用藥注意事項」與「針劑注射與保存」合併；瑞倍適服法移到用藥 01） ───────── -->
+<section class="page tight" data-out="edu-glp1-guide-1">
   <div class="top"><span>木子澄安診所　減重門診衛教</span><span class="no">用藥<b>02</b></span></div>
-  <h1>用藥注意事項</h1>
-  <p class="lead">腸胃不適的緩解方法、口服藥怎麼吃、針劑忘記打怎麼辦。</p>
+  <h1>腸泌素針劑怎麼打？</h1>
+  <p class="lead">適用週纖達（Wegovy）與猛健樂（Mounjaro）筆型注射劑。</p>
   <div class="rule"></div>
   <div class="row">
-    <div class="k"><small>01</small><b>腸胃不適，<br>可以這樣緩解</b></div>
-    <div class="v two">
-      <ol class="n"><li>少量多餐、吃慢一點</li><li>有飽足感就停止進食</li><li>避免油炸、辛辣的食物</li></ol>
-      <ol class="n" start="4" style="counter-reset:n 3"><li>飯後不要馬上躺下</li><li>睡前 3 小時不進食</li><li>適度運動，水分喝足</li></ol>
-    </div>
+    <div class="k"><small>01</small><b>保存</b></div>
+    <div class="v"><ul class="d">
+      <li><b class="s">還沒開始用</b>：冷藏 2 至 8°C，<span class="red">不可冷凍</span>，結凍過就不能再用。</li>
+      <li><b class="s">開始用之後</b>：30°C 以下室溫或冷藏都可以，<br>週纖達 <b class="s">6 週</b>、猛健樂 <b class="s">30 天</b>內用完。</li>
+      <li>遠離冰箱出風口；避免高溫與日曬，不要放在車內。</li>
+    </ul></div>
   </div>
   <div class="row">
-    <div class="k"><small>02</small><b>口服藥：<br>瑞倍適</b></div>
-    <div class="v">
-      <ol class="n"><li>早上起床、空腹時服用。</li><li>配不超過 120 mL 的白開水，整顆吞服。</li><li>服藥後至少等 30 分鐘，才能吃東西、喝其他飲料或吃其他藥。</li></ol>
-      <p class="red">不可壓碎、剝半或咀嚼，會影響吸收。</p>
-    </div>
+    <div class="k"><small>02</small><b>注射前</b></div>
+    <div class="v"><ul class="d">
+      <li><b class="s">排氣</b>：週纖達每支新筆第一次使用前做一次流量檢查；<br>猛健樂每次注射前都要排氣。</li>
+      <li>每次換新針頭。<span class="red">筆針不可與他人共用</span>，換了針頭也一樣。</li>
+    </ul></div>
+  </div>
+  <div class="row">
+    <div class="k"><small>03</small><b>注射步驟</b></div>
+    <div class="v"><ol class="n">
+      <li>每週固定一天施打，一天中任何時間、飯前飯後都可以。</li>
+      <li>部位：腹部（肚臍周圍 5 公分以外）、<br>大腿前側或上臂外側，<span class="hl">每次換位置</span>。</li>
+      <li>針頭完全插入皮膚，按住注射鈕。</li>
+      <li>劑量歸零後，針頭<b class="s">留在皮膚內</b>停留 <span class="hl">6 秒以上</span>，再拔出。</li>
+      <li>拔針後針尖有一滴藥液是正常的。</li>
+    </ol></div>
+  </div>
+  <div class="row">
+    <div class="k"><small>04</small><b>注射後</b></div>
+    <div class="v"><ul class="d">
+      <li>打完立即卸下針頭，丟入硬質容器，帶回診所或藥局回收。</li>
+      <li>最後一劑打完，筆內殘留少量藥液是正常的。</li>
+    </ul></div>
   </div>
   <div class="row wide">
-    <div class="k"><small>03</small><b>針劑：忘記打怎麼辦？</b></div>
+    <div class="k"><small>05</small><b>忘記打怎麼辦？</b></div>
     <div class="v two">
       <div>
         <div class="col-h">週纖達</div>
-        <ul class="d"><li>漏打 <b class="s">5 天以內</b>：盡快補打。</li><li>超過 5 天：跳過這次，照原訂日期打。</li><li>連續漏打好幾劑：先問醫師，可能要從較低劑量重新開始。</li></ul>
+        <ul class="d"><li>漏打 <b class="s">5 天以內</b>：盡快補打。</li><li>超過 5 天：跳過這次，照原訂日期打。</li><li>連續漏打 2 週以上：先問醫師。</li></ul>
       </div>
       <div>
         <div class="col-h">猛健樂</div>
@@ -103,12 +131,51 @@ table.tb td:last-child{white-space:nowrap; font-weight:700; color:var(--ink);}
         <div class="week"><div>週一<b>漏打</b></div><div class="go">週二至週五<b>盡快補打</b></div><div class="skip">週六、週日<b>跳過</b></div><div>下週一<b>照常</b></div></div>
       </div>
     </div>
+    <p class="v" style="margin-top:2px"><b class="s">更改施打日</b>：兩劑間隔至少 3 天（72 小時）。<span class="red">任何情況都不可一次打兩倍劑量。</span></p>
   </div>
-  <div class="box">
-    <div class="t">更改施打日</div>
-    <div class="c">兩劑之間間隔足夠就可以：<br>週纖達、猛健樂都要間隔至少 3 天，也就是 72 小時。<br><span class="red">任何情況都不可一次打兩倍劑量。</span></div>
+  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div></div>
+</section>
+
+<section class="page" data-out="edu-glp1-guide-2">
+  <div class="top"><span>木子澄安診所　減重門診衛教</span><span class="no">用藥<b>02 續</b></span></div>
+  <h1>用藥期間要注意什麼？</h1>
+  <p class="lead">腸胃不適怎麼緩解、懷孕與避孕、劑量怎麼調。</p>
+  <div class="rule"></div>
+  <div class="row">
+    <div class="k"><small>06</small><b>腸胃不適，<br>可以這樣緩解</b></div>
+    <div class="v"><div class="two"><ol class="n">
+      <li>少量多餐，七分飽就停</li>
+      <li>避免油炸、油膩與辛辣的食物</li>
+      <li>吃慢一點，飯後不馬上躺下</li></ol>
+      <ol class="n" style="counter-reset:n 3"><li>睡前 3 小時不進食</li>
+      <li>水分喝足，適度運動</li>
+      <li>避免大量飲酒與極端節食</li>
+    </ol></div>
+    <p style="margin-top:4px">藥物是幫手。持續好的飲食與運動習慣，停藥後才不容易復胖。</p></div>
   </div>
-  <p class="src">資料來源：週纖達、猛健樂、瑞倍適仿單。</p>
+  <div class="row">
+    <div class="k"><small>07</small><b>懷孕與避孕</b></div>
+    <div class="v"><ul class="d">
+      <li>懷孕或哺乳期間<b class="s">不可使用</b>。</li>
+      <li>計畫懷孕：週纖達要<b class="s">停藥至少 2 個月</b>後再懷孕；<br>猛健樂也請提早與醫師討論停藥時間。</li>
+      <li>使用猛健樂又吃口服避孕藥：開始用藥及每次調升劑量後 <b class="s">4 週內</b>，<br>要加用保險套或改用非口服的避孕方式。</li>
+    </ul></div>
+  </div>
+  <div class="row">
+    <div class="k"><small>08</small><b>劑量階梯</b><span class="sub">每 4 週評估一次<br>單位 mg</span></div>
+    <div class="v">
+      <div class="lad"><b>週纖達</b>
+        <div class="steps"><div><i>0.25</i>第 1 至 4 週</div><div><i>0.5</i>5 至 8 週</div><div><i>1</i>9 至 12 週</div><div><i>1.7</i>13 至 16 週</div><div class="mx"><i>2.4</i>17 週起維持</div></div></div>
+      <div class="lad"><b>猛健樂</b>
+        <div class="steps"><div><i>2.5</i>第 1 至 4 週</div><div><i>5</i>5 至 8 週</div><div><i>7.5</i>9 至 12 週</div><div><i>10</i>13 至 16 週</div><div><i>12.5</i>17 至 20 週</div><div class="mx"><i>15</i>21 週起</div></div></div>
+      <p style="margin-top:6px"><span class="hl">從低劑量開始，不一定要升到最高劑量</span>。調整劑量請與醫師討論。</p>
+    </div>
+  </div>
+  <div class="box alert">
+    <div class="t">提早就醫</div>
+    <div class="c">持續噁心嘔吐、吃不下、尿量變少；<br>上腹痛延伸到背部，或右上腹痛；<br>併用胰島素或磺醯尿素類降血糖藥，出現冒冷汗、手抖、心悸。<br><b class="s">不必等到回診日。</b></div>
+  </div>
+  <p class="src">資料來源：週纖達、猛健樂仿單。操作或施打時間有任何疑問，歡迎隨時詢問醫護團隊。</p>
   <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="logo"><img src="../img/edu-clinical-assessment.webp" alt=""></div></div>
 </section>
 

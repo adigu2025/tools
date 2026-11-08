@@ -55,8 +55,8 @@ const EDU_LIST = [
   ['weight', '認識肥胖', '為什麼會胖？',     ICON.dna,      ['img/edu-obesity-causes.webp']],
   ['weight', '認識肥胖', '何時該開始治療', ICON.light,     ['img/edu-when-to-intervene.webp']],
   ['weight', '用藥',     '減重藥物怎麼選',   ICON.pill,     ['img/edu-medication-options.webp']],
-  ['weight', '用藥',     '用藥注意事項',     ICON.book,     ['img/edu-medication-guide.webp']],
-  ['weight', '用藥',     '針劑注射與保存',   ICON.pen,      [{src:'img/edu-glp1-injection-storage.webp', split:2}]],
+  // 2026/11 由「用藥注意事項」與「針劑注射與保存」合併；瑞倍適服法移到「減重藥物怎麼選」
+  ['weight', '用藥',     '腸泌素針劑怎麼打', ICON.pen,      ['img/edu-glp1-guide-1.webp', 'img/edu-glp1-guide-2.webp']],
   // 地中海飲食衛教原本放在列印表單，合併後歸到減重衛教
   ['weight', '飲食',     '地中海飲食衛教',   ICON.leaf,     ['img/diet-mediterranean-1.webp', 'img/diet-mediterranean-2.webp']],
   ['exam',   '檢查前',   '胃鏡檢查前須知', ICON.stomach,   ['img/edu-a5-gastroscopy-prep.webp'], 'A5'],

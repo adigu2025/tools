@@ -17,6 +17,13 @@ const INK = '#2f3437', DARK = '#1f2a2e', SUB = '#6b6f71';
 const PATCHES = {
   // 用藥 01：SELECT 研究的對象是已有心血管疾病的人
   'edu-medication-options': [
+    // 瑞倍適「特色」欄：原本只寫不必打針，2026/11 合併針劑衛教時把口服服法從用藥 02 移到這裡
+    {cover:[222, 762, 290, 163], text:[
+      [227, 797, SANS(400, 24.5), INK, '不必打針。起床空腹，'],
+      [227, 837, SANS(400, 24.5), INK, '配 120 mL 內白開水'],
+      [227, 877, SANS(400, 24.5), INK, '整顆吞服，不可壓碎；'],
+      [227, 917, SANS(400, 24.5), INK, '30 分鐘後才吃喝、服藥'],
+    ]},
     {cover:[530, 762, 285, 160], text:[
       [537, 797, SANS(400, 24.5), INK, '已有心血管疾病的人，'],
       [537, 837, SANS(400, 24.5), INK, '大型研究證實可降低'],
@@ -46,7 +53,7 @@ const PATCHES = {
       [113, 1572, SANS(400, 17.5), SUB, '資料來源：各藥品仿單；SELECT，N Engl J Med 2023；SURMOUNT-OSA，N Engl J Med 2024。'],
     ]},
   ],
-  // 療程 04：5% 評估改到「維持劑量用滿約 3 個月」，與療程 01、02 一致（週纖達第 17 週才到維持劑量）
+  // 療程 04：6 個月的評估寫「開始用藥約半年」（週纖達第 17 週才到維持劑量，半年時維持劑量還不到 3 個月）
   'edu-follow-up-schedule': [
     {cover:[380, 795, 748, 140], text:[
       [388, 828, SANS(700, 25), DARK, '抽血與階段檢視'],
@@ -55,7 +62,7 @@ const PATCHES = {
     ]},
     {cover:[380, 995, 748, 140], text:[
       [388, 1028, SANS(700, 25), DARK, '療效評估與腹部超音波'],
-      [388, 1073, SANS(400, 25), INK, '維持劑量用滿約 3 個月，確認減重是否達 5%；'],
+      [388, 1073, SANS(400, 25), INK, '開始用藥約半年，確認減重是否達 5%；'],
       [388, 1118, SANS(400, 25), INK, '超音波看脂肪肝改善多少，追蹤共病指標。'],
     ]},
   ],
@@ -79,6 +86,19 @@ const PATCHES = {
       [113, 1515, SANS(400, 17.5), SUB, '資料來源：MERIT，Lancet 2022；ASGE／ESGE 內視鏡減重治療指引，2024。'],
     ]},
   ],
+  // 認識肥胖 01：HDL 依國健署標準沒有「或已服藥」；最後一句改成定期檢查是追蹤，不是改善
+  'edu-obesity-metabolic-syndrome': [
+    {cover:[858, 1038, 140, 42], text:[]},
+    {cover:[345, 1466, 620, 46], hl:[350, 1490, 15], text:[
+      [355, 1499, SANS(700, 26), DARK, '五項指標靠飲食與運動改善，定期檢查追蹤。'],
+    ]},
+  ],
+  // 認識肥胖 04：「超過」是大於，標準是大於或等於
+  'edu-when-to-intervene': [
+    {cover:[345, 964, 620, 38], text:[
+      [351, 990, SANS(400, 20.5), SUB, '身高單位：公分。BMI 24 以上為過重，27 以上為肥胖。'],
+    ]},
+  ],
 };
 const loadImg = src=> new Promise((ok, no)=>{ const i = new Image(); i.onload = ()=> ok(i); i.onerror = no; i.src = src; });
 async function build(){
@@ -97,6 +117,8 @@ async function build(){
       if(Array.isArray(p.bg)){ const d = g.getImageData(p.bg[0], p.bg[1], 1, 1).data; g.fillStyle = `rgb(${d[0]},${d[1]},${d[2]})`; }
       else g.fillStyle = p.bg || '#fff';
       g.fillRect(...p.cover);
+      // hl：螢光筆底色 [起點 x、上緣 y、高度]，寬度依第一行文字長度
+      if(p.hl && p.text.length){ const [x, , font, , s] = p.text[0]; g.font = font; g.fillStyle = '#F1E2C3'; g.fillRect(p.hl[0], p.hl[1], g.measureText(s).width + (x - p.hl[0]) + 12, p.hl[2]); }
       for(const [x, y, font, color, s] of p.text){ g.font = font; g.fillStyle = color; g.fillText(s, x, y); }
     }
     // 頁尾版本日期改成這次修改的月份
