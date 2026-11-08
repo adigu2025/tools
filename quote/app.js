@@ -1230,16 +1230,40 @@ function layoutHealthCheck(grid){
   if(groups.length<4) return;
   grid.innerHTML='';
   grid.classList.add('hc-layout');
+  const CIRC='①②③④⑤⑥⑦⑧⑨⑩';
+  /* 段落標題：「⑦ 11 項腫瘤標記（男女項目不同，擇一）」拆成編號徽章＋主標＋灰色副標 */
+  const fmtHdr=h=>{
+    const m=h.textContent.trim().match(/^([①-⑩]\s*)?([^（]+)(?:（(.+)）)?$/);
+    if(!m) return;
+    h.innerHTML=(m[1]?'<span class="hc-num">'+(CIRC.indexOf(m[1].trim())+1)+'</span>':'')+
+      '<span class="hc-hdr-t">'+esc(m[2].trim())+'</span>'+(m[3]?'<span class="hc-hdr-s">'+esc(m[3])+'</span>':'');
+  };
+  /* 卡片名稱：圓圈編號改成綠色數字徽章；⑦ 只留「女性」「男性」 */
+  const fmtCard=c=>{
+    const nm=c.querySelector('.item-name'); if(!nm) return;
+    const t=nm.textContent.trim();
+    const sex=t.match(/（(女|男)）$/);
+    if(sex){ nm.innerHTML='<span class="hc-hdr-t">'+sex[1]+'性</span>'; }
+    else{
+      const m=t.match(/^([①-⑩])\s*(.+)$/);
+      if(m) nm.innerHTML='<span class="hc-num">'+(CIRC.indexOf(m[1])+1)+'</span><span class="hc-hdr-t">'+esc(m[2])+'</span>';
+    }
+    /* 說明裡的優惠句（含「折」）改成小標籤 */
+    const d=c.querySelector('.item-desc');
+    if(d) d.innerHTML=d.innerHTML.split('<br>').map(x=>/折/.test(x)?'<span class="hc-tag">'+x+'</span>':x).join('<br>').replace(/<br>(<span class="hc-tag">)/g,'$1');
+    const hint=c.querySelector('.notes-hint'); if(hint) hint.remove();
+  };
   const sec=(g,extra)=>{
     const s=document.createElement('section');
     s.className='hc-sec'+(extra?' '+extra:'');
+    fmtHdr(g.hdr);
     const box=document.createElement('div');
     box.className='hc-cards';
-    g.cards.forEach(c=>box.appendChild(c));
+    g.cards.forEach(c=>{ fmtCard(c); box.appendChild(c); });
     s.append(g.hdr,box);
     return s;
   };
-  /* 基礎套組：標題那一列與卡片同名，拿掉標題，內容直接攤開 */
+  /* 基礎套組：左側名稱與價格，右側直接列出內容 */
   const base=groups[0].cards[0];
   if(base){
     base.classList.add('hc-plan');
@@ -1247,6 +1271,8 @@ function layoutHealthCheck(grid){
     const desc=base.querySelector('.item-desc');
     if(desc&&lines.length) desc.outerHTML='<ul class="hc-plan-list">'+lines.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul>';
     const hint=base.querySelector('.notes-hint'); if(hint) hint.remove();
+    const nm=base.querySelector('.item-name');
+    if(nm) nm.insertAdjacentHTML('afterend','<div class="hc-plan-sub">每份健檢的必選項目，<br>其他模組都以此為基礎加選</div>');
     grid.appendChild(base);
   }
   grid.appendChild(sec(groups[1],'hc-mods'));

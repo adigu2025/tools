@@ -409,24 +409,53 @@
 }
 .item-card.selected  .check-dot { opacity: 1; transform: scale(1); }
 .item-card.ins-mode  .check-dot { opacity: 1; transform: scale(1); background: var(--ins-color); }
-/* 健檢方案版面（app.js layoutHealthCheck）：基礎套組大卡＋加選模組一列＋⑦⑧並排 */
-#itemsGrid.hc-layout { display: block; }
+/* 健檢方案版面（app.js layoutHealthCheck，2026-11-08 第二版）
+   基礎套組橫幅＋加選模組 3×2＋⑦⑧並排；整頁撐滿高度，模組卡隨高度伸展 */
+#itemsGrid.hc-layout { --hg: #5E8A6E; --hg-pale: #E8F0EA; --hg-deep: #3B6149;
+  display: flex; flex-direction: column; gap: 12px; min-height: calc(100% - 2px); }
 .hc-layout .mode-badge { display: none; }
+.hc-layout .item-card { min-height: 0; }
 .hc-layout .item-name { padding-right: 0 !important; }
-.hc-layout .hc-plan { display: grid; grid-template-columns: 200px minmax(0,1fr); grid-template-rows: auto 1fr auto; column-gap: 28px; padding: 16px 20px; min-height: 0; }
-.hc-plan .item-name { grid-column: 1; font-size: 19px; margin: 0; }
-.hc-plan .item-price-row { grid-column: 1; grid-row: 3; padding: 0; margin: 0; }
-.hc-plan-list { grid-column: 2; grid-row: 1 / 4; margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill,minmax(250px,1fr)); gap: 6px 22px; font-size: 13.5px; line-height: 1.5; color: var(--text); padding-right: 30px; }
-.hc-plan-list li { position: relative; padding-left: 14px; }
-.hc-plan-list li::before { content: ""; position: absolute; left: 0; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-.hc-sec { min-width: 0; }
-.hc-cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 10px; }
-.hc-mods .hc-cards { grid-template-columns: repeat(6,minmax(0,1fr)); }
-.hc-layout .hc-cards .item-card { padding-left: 12px; padding-right: 12px; }
-.hc-mods .item-name { font-size: 14px !important; letter-spacing: 0; }
-@media (max-width: 1100px) { .hc-mods .hc-cards { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+.hc-layout .items-section-header { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 0;
+  font-size: 16px; font-weight: 700; letter-spacing: .06em; color: var(--text); }
+.hc-layout .items-section-header::after { display: none; }
+.hc-hdr-s { font-size: 13px; font-weight: 400; letter-spacing: .02em; color: var(--muted); }
+.hc-num { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--hg-pale); color: var(--hg-deep); font-size: 14px; font-weight: 700; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.hc-tag { display: inline-block; margin-top: 6px; padding: 1px 9px; border-radius: 999px; font-size: 12.5px;
+  background: var(--gold-pale, #F6EEDF); color: var(--gold-deep, #8A5A1F); }
+
+/* 基礎套組 */
+.hc-layout .hc-plan { display: grid; grid-template-columns: 200px minmax(0,1fr); grid-template-rows: auto auto 1fr auto; column-gap: 0;
+  padding: 18px 26px 16px; border-left: 5px solid var(--hg); }
+.hc-plan .item-name { grid-column: 1; font-size: 22px; font-weight: 700; letter-spacing: .08em; margin: 0; }
+.hc-plan-sub { grid-column: 1; margin-top: 6px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+.hc-plan .item-price-row { grid-column: 1; grid-row: 4; padding: 10px 0 0; margin: 0; }
+.hc-plan .price-val { font-size: 26px; color: var(--hg-deep); }
+.hc-plan-list { grid-column: 2; grid-row: 1 / 5; align-self: center; margin: 0; padding: 2px 20px 2px 28px; border-left: 1px solid var(--border);
+  list-style: none; display: grid; grid-template-columns: auto auto; justify-content: start; gap: 6px 44px; font-size: 14.5px; line-height: 1.5; color: var(--text); }
+.hc-plan-list li { position: relative; padding-left: 16px; }
+.hc-plan-list li::before { content: ""; position: absolute; left: 0; top: .6em; width: 6px; height: 6px; border-radius: 50%; background: var(--hg); }
+
+/* 加選模組：3 欄 2 列，卡片隨頁面高度伸展 */
+.hc-sec { min-width: 0; display: flex; flex-direction: column; }
+.hc-cards { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 12px; }
+.hc-mods { flex: 1; }
+.hc-mods .hc-cards { flex: 1; grid-template-columns: repeat(3,minmax(0,1fr)); grid-auto-rows: minmax(104px,1fr); }
+.hc-layout .hc-cards .item-card { display: flex; flex-direction: column; padding: 14px 20px 12px; }
+.hc-layout .hc-cards .item-name { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; letter-spacing: .03em; margin-bottom: 8px; }
+.hc-layout .hc-cards .item-desc { font-size: 13.5px; line-height: 1.65; margin: 0 0 0 36px; }
+.hc-layout .hc-cards .item-price-row { margin-top: auto; padding: 8px 0 0 36px; }
+.hc-layout .hc-cards .price-val { font-size: 21px; }
+/* ⑦ 女性／男性兩張卡沒有編號，說明不必縮排 */
+.hc-row .hc-sec:first-child .item-desc, .hc-row .hc-sec:first-child .item-price-row { margin-left: 0; padding-left: 0; }
 .hc-row { display: grid; grid-template-columns: 2fr 1fr; column-gap: 24px; }
-@media (max-width: 900px) { .hc-row { grid-template-columns: 1fr; } .hc-layout .hc-plan { grid-template-columns: 1fr; } .hc-plan-list { grid-column: 1; grid-row: auto; margin: 8px 0; } }
+@media (max-width: 1100px) { .hc-mods .hc-cards { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .hc-layout .hc-plan { grid-template-columns: minmax(0,1fr) auto; grid-template-rows: auto auto auto; }
+  .hc-plan .item-price-row { grid-column: 2; grid-row: 1 / 3; align-self: center; padding: 0 30px 0 0; }
+  .hc-plan-list { grid-column: 1 / -1; grid-row: 3; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px 24px; margin: 14px 0 0; padding: 14px 0 0; border-left: 0; border-top: 1px solid var(--border); } }
+@media (max-width: 900px) { .hc-row { grid-template-columns: 1fr; row-gap: 22px; } .hc-plan-list { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .hc-mods .hc-cards { grid-template-columns: 1fr; } }
 
 /* ─── Tooltip ────────────────────────────────────────────────────── */
 .tooltip-popup {
