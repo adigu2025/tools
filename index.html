@@ -247,25 +247,6 @@ body.q-max .hub-main{height:100dvh;}
   /* 已收起時，目前分類按鈕右側出現小箭頭，提示再按一次可展開 */
   .edu-rail.fly-off .edu-group[aria-pressed="true"]::after{content:"›"; margin-left:6px; font-size:17px; line-height:1;}
 }
-/* 多份一起列印：勾選模式 */
-.edu-item .ck{width:20px; height:20px; flex:none; display:inline-flex; align-items:center; justify-content:center;
-  border:1.5px solid var(--line-strong); border-radius:6px; font-size:13px; color:var(--acc-fg); background:var(--surface);}
-.edu-item.picking[aria-pressed="true"]{background:var(--acc-soft); color:var(--acc-text);}
-.edu-item.picking[aria-pressed="true"] .ck{background:var(--acc); border-color:var(--acc);}
-/* 問卷與健康紀錄表是即時產生的 HTML，不能和圖片一起印，勾選模式下變淡 */
-.edu-item.nopick{opacity:.45; cursor:not-allowed;}
-.edu-item .ck.off{border-style:dashed;}
-/* 多份一起列印：側欄最上方，捲動時固定在頂端；用學院色淡底＋粗字，比分類按鈕醒目 */
-.edu-pick{position:sticky; top:-12px; z-index:2; background:var(--surface); border-bottom:1px solid var(--line); margin:-12px -10px 10px; padding:10px;}
-.edu-pick > .tbtn{width:100%;}
-.edu-pick .pick-on{display:flex; align-items:center; justify-content:center; gap:8px; background:var(--acc-soft); border:1.5px solid var(--acc); color:var(--acc-text); font-weight:700;}
-.edu-pick .pick-on:hover{background:var(--acc); color:var(--acc-fg);}
-.edu-pick.on{background:var(--acc-soft);}
-.edu-pick #pick-print:not(:disabled){background:var(--acc); color:var(--acc-fg); font-weight:700;}
-.edu-pick .sum{font-size:13.5px; color:var(--muted); margin:0 2px 8px;}
-.edu-pick .acts{display:flex; gap:8px;}
-.edu-pick .acts .tbtn{flex:1;}
-.edu-pick .tbtn:disabled{opacity:.45; cursor:default;}
 .edu-stage{display:grid; grid-template-rows:auto 1fr; min-height:0; min-width:0; overflow:hidden;}
 .edu-tools{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap;}
 .edu-tools h1{font-family:var(--serif); font-size:24px; font-weight:700; margin:0 0 0 4px; letter-spacing:.03em;}
@@ -399,7 +380,6 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   .edu-groups{flex-direction:row; overflow-x:auto;}
   /* 分類按鈕不可被壓扁，否則字會一個字一行直排 */
   .edu-group{flex:none; white-space:nowrap;}
-  .edu-pick{position:static; margin:0 0 6px; padding:0 0 6px;}
   .edu-list{display:flex; overflow-x:auto;}
   .edu-rail .edu-sec{display:none;}
   /* 標題與工具列改排在預覽上方，不再浮在圖片上互相擠壓 */

@@ -1,9 +1,10 @@
-/* 工作台的「衛教與表單」分頁：圖卡與列印表單的資料、合併的左側清單、圖卡的縮放與拖曳、多份一起列印。
+/* 工作台的「衛教與表單」分頁：圖卡與列印表單的資料、合併的左側清單、圖卡的縮放與拖曳、單份列印。
    由 index.html 以一般 script 載入，放在工作台主程式（分頁、BASE、recall、main）之後、啟動程式之前；
    表單的預覽區在 forms/view.js（側欄點到表單時由 showItem 呼叫 showForm），列印共用的 loadImg、printImages、printHtml 也在那裡。 */
 /* ── 衛教圖卡與列印表單的資料 ──
    衛教依用途分類，同一類再依圖卡角落的系列與編號分小節（例如減重的「療程 01 至 04」），側欄順序與圖卡編號一致。
-   清單只在這裡維護一份；側欄名稱一律用圖卡上的標題，在診間口頭說「點那張」時對得上。
+   清單只在這裡維護一份；側欄名稱原則上用圖卡上的標題，在診間口頭說「點那張」時對得上。
+   例外：同意書用簡稱（例如「腸泌素自費同意書」），標題太長的衛教可以另取短名（例如「針劑注意事項」）；側欄名稱以 8 字內為原則。
    每份衛教可以有多頁（pages），每頁可以是兩頁並列的圖（split = 2，列印時拆成兩張 A4）。
    多頁的 A4 衛教與同意書、表單一樣，在表單預覽區把所有頁面一起顯示、捲動看完，不必另外點第 2 頁。
    第 6 欄寫 'A5' 的是 A5 衛教單：圖是整張 A4 直式、內容只在上半頁（210 × 148.5 mm），列印時就是一般 A4 直式，
@@ -22,7 +23,6 @@ const EDU_GROUPS = [
 ];
 const svgIcon = d=> `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true">${d}</svg>`;
 const ICON_DOC = svgIcon('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>');
-const ICON_PRINT = svgIcon('<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/>');
 const ICON = {
   assess:   svgIcon('<path d="M5 3v6a4 4 0 0 0 8 0V3"/><path d="M3.5 3H5M13 3h1.5"/><path d="M9 13v2a5 5 0 0 0 9 3"/><circle cx="19" cy="16" r="2.5"/>'),
   path:     svgIcon('<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>'),
@@ -62,16 +62,23 @@ const EDU_LIST = [
   ['weight', '認識肥胖', '何時該開始治療', ICON.light,     ['img/edu-when-to-intervene.webp']],
   ['weight', '用藥',     '減重藥物怎麼選',   ICON.pill,     ['img/edu-medication-options.webp']],
   // 2026/11 由「用藥注意事項」與「針劑注射與保存」合併；瑞倍適服法移到「減重藥物怎麼選」
-  ['weight', '用藥',     '腸泌素針劑怎麼打', ICON.pen,      ['img/edu-glp1-guide-1.webp', 'img/edu-glp1-guide-2.webp']],
+  // 側欄名稱的例外：圖卡標題仍是「腸泌素針劑怎麼打？」，側欄依 YT 要求寫「針劑注意事項」（2026/11/09）
+  ['weight', '用藥',     '針劑注意事項',     ICON.pen,     ['img/edu-glp1-guide-1.webp', 'img/edu-glp1-guide-2.webp']],
+  ['weight', '用藥',     '腸泌素副作用',     ICON.pen,      ['img/edu-a5-glp1-side-effects.webp'], 'A5'],
   // 地中海飲食衛教原本放在列印表單，合併後歸到減重衛教
   ['weight', '飲食',     '地中海飲食衛教',   ICON.leaf,     ['img/diet-mediterranean-1.webp', 'img/diet-mediterranean-2.webp']],
+  // 2026/11/09 重新排列：同類的衛教相鄰（內視鏡檢查前、瘜肉切除與追蹤、上消化道、下消化道），圖卡角落編號一併改過
   ['exam',   '檢查前',   '胃鏡檢查前須知', ICON.stomach,   ['img/edu-a5-gastroscopy-prep.webp'], 'A5'],
-  // 保可淨清腸說明：大腸鏡現行紙本的備份（保可淨用法與飲食控制），原檔是 PDF，不修改
-  ['exam',   '檢查前',   '保可淨清腸說明', ICON.scope, ['img/edu-colonoscopy-bowel-prep-1.webp', 'img/edu-colonoscopy-bowel-prep-2.webp']],
   ['exam',   '檢查前',   '大腸鏡檢查前須知', ICON.scope,    ['img/edu-a5-colonoscopy-prep.webp'], 'A5'],
+  // 保可淨清腸說明：大腸鏡現行紙本的備份（保可淨用法與飲食控制），原檔是 PDF，不修改，沒有編號，排在大腸鏡後面
+  ['exam',   '檢查前',   '保可淨清腸說明', ICON.scope, ['img/edu-colonoscopy-bowel-prep-1.webp', 'img/edu-colonoscopy-bowel-prep-2.webp']],
+  ['exam',   '檢查前',   '膠囊內視鏡須知',   ICON.pill,     ['img/edu-a5-capsule.webp'], 'A5'],
   ['exam',   '檢查前',   '腹部超音波衛教',   ICON.us,       ['img/edu-a5-abdominal-us.webp'], 'A5'],
   ['exam',   '檢查後',   '腸胃鏡檢查後須知', ICON.scope,    ['img/edu-a5-endoscopy-after.webp'], 'A5'],
   ['exam',   '治療後',   '瘜肉切除術後',     ICON.polyp,    ['img/edu-a5-polypectomy-after.webp'], 'A5'],
+  ['exam',   '治療後',   '大腸瘜肉追蹤',     ICON.polyp,    ['img/edu-a5-polyp-surveillance.webp'], 'A5'],
+  ['exam',   '治療後',   '內視鏡止血術後',   ICON.drop,     ['img/edu-a5-hemostasis-after.webp'], 'A5'],
+  ['exam',   '治療後',   '異物取出術後',     ICON.stomach,  ['img/edu-a5-foreign-body-after.webp'], 'A5'],
   ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-a5-het-after.webp'], 'A5'],
   ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-a5-arbl-after.webp'], 'A5'],
   ['exam',   '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
@@ -79,10 +86,14 @@ const EDU_LIST = [
   ['disease', '肝膽',     '膽結石、膽砂',     ICON.liver,    ['img/edu-a5-gallstone.webp'], 'A5'],
   ['disease', '肝膽',     '膽囊瘜肉',         ICON.liver,    ['img/edu-a5-gb-polyp.webp'], 'A5'],
   ['disease', '肝膽',     '脂肪肝',           ICON.liver,    ['img/edu-a5-fatty-liver.webp'], 'A5'],
+  ['disease', '肝膽',     'B 肝、C 肝追蹤',   ICON.liver,    ['img/edu-a5-hepatitis-bc.webp'], 'A5'],
   ['disease', '腸胃',     '胃食道逆流',       ICON.stomach,  ['img/edu-a5-gerd.webp'], 'A5'],
-  ['disease', '腸胃',     '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
-  ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
   ['disease', '腸胃',     '胃潰瘍、十二指腸潰瘍', ICON.stomach, ['img/edu-a5-peptic-ulcer.webp'], 'A5'],
+  ['disease', '腸胃',     '功能性消化不良',   ICON.stomach,  ['img/edu-a5-functional-dyspepsia.webp'], 'A5'],
+  ['disease', '腸胃',     '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
+  ['disease', '腸胃',     '便祕與腸躁症',     ICON.germ,     ['img/edu-a5-constipation-ibs.webp'], 'A5'],
+  ['disease', '腸胃',     '低 FODMAP 飲食',   ICON.leaf,     ['img/edu-a5-low-fodmap.webp'], 'A5'],
+  ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
   ['disease', '腎臟',     '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
   ['disease', '腎臟',     '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
   ['disease', '慢性病',   '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
@@ -104,19 +115,19 @@ const sizeTag = p=> `<span class="sz${p.size === 'A5' ? ' a5' : ''}">${p.size}</
 // 列印表單：問卷與健康紀錄表由 forms/forms.js 產生空白表（與減重系統共用版面）；
 // 腸泌素同意書、管藥與麻醉紀錄、檢查同意書、院內指引都是圖片，放在工作台的 img/（檢查同意書由 consent-src/ 輸出，院內指引由 guide-src/ 輸出）。
 // group 對應上方 EDU_GROUPS；sec 是側欄小標。
-const C = n=> Array.from({length:n.pages}, (_, i)=> `img/consent-${n.file}-${i + 1}.webp`);
+const C = n=> Array.from({length:n.pages}, (_, i)=> W(`img/consent-${n.file}-${i + 1}.webp`));
 let FORMS = [
   {group:'weight', sec:'表單', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'html', html:()=> formScalesHtml()},
   {group:'weight', sec:'表單', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'html', html:()=> formHealthRecordHtml()},
   {group:'weight', sec:'表單', label:'腸泌素自費同意書', note:'共 2 頁', pages:[W('img/consent-glp1-1.webp'), W('img/consent-glp1-2.webp')], kind:'img'},
   // 管制藥品處方箋為橫式 A4，列印時依圖片比例自動改橫式紙
-  {group:'ctrl', label:'Midazolam', note:'共 1 頁', pages:['img/ctrl-midazolam.jpg'], kind:'img'},
-  {group:'ctrl', label:'Fentanyl',  note:'共 1 頁', pages:['img/ctrl-fentanyl.jpg'],  kind:'img'},
-  {group:'ctrl', label:'Propofol',  note:'共 1 頁', pages:['img/ctrl-propofol.jpg'],  kind:'img'},
-  {group:'ctrl', label:'空白管藥單', note:'共 1 頁', pages:['img/ctrl-blank.jpg'],     kind:'img'},
-  {group:'ctrl', label:'麻醉紀錄表', note:'共 1 頁', pages:['img/anesthesia-record.jpg'], kind:'img'},
+  {group:'ctrl', label:'Midazolam', note:'共 1 頁', pages:[W('img/ctrl-midazolam.jpg')], kind:'img'},
+  {group:'ctrl', label:'Fentanyl',  note:'共 1 頁', pages:[W('img/ctrl-fentanyl.jpg')],  kind:'img'},
+  {group:'ctrl', label:'Propofol',  note:'共 1 頁', pages:[W('img/ctrl-propofol.jpg')],  kind:'img'},
+  {group:'ctrl', label:'空白管藥單', note:'共 1 頁', pages:[W('img/ctrl-blank.jpg')],     kind:'img'},
+  {group:'ctrl', label:'麻醉紀錄表', note:'共 1 頁', pages:[W('img/anesthesia-record.jpg')], kind:'img'},
   // 院內作業指引，版面原始檔在 guide-src/
-  {group:'ctrl', label:'用藥指引', note:'共 2 頁', pages:['img/guide-sedation-1.webp', 'img/guide-sedation-2.webp'], kind:'img'},
+  {group:'ctrl', label:'用藥指引', note:'共 2 頁', pages:[W('img/guide-sedation-1.webp'), W('img/guide-sedation-2.webp')], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
   {label:'大腸鏡同意書',     file:'colonoscopy', pages:2},
@@ -128,7 +139,7 @@ let FORMS = [
   {label:'甲狀腺穿刺同意書', file:'thyroid-fna', pages:1},
 ].map(n=> ({group:'consent', label:n.label, note:`共 ${n.pages} 頁`, pages:C(n), kind:'img'})));
 
-// 側欄的完整清單：同一分類先列衛教圖卡、再列表單，切換、翻頁、多份列印都用這一份
+// 側欄的完整清單：同一分類先列衛教圖卡、再列表單，切換、翻頁都用這一份
 const ITEMS = EDU_GROUPS.flatMap(g=> [
   ...EDU.filter(p=> p.group === g.key).map(p=> ({kind:'edu', group:g.key, sec:p.sec, label:p.label, icon:p.icon, size:p.size, ref:p})),
   ...FORMS.filter(f=> f.group === g.key).map(f=> ({kind:'form', group:g.key, sec:f.sec || '', label:f.label, icon:ICON.form, size:'A4', ref:f})),
@@ -137,18 +148,12 @@ const ITEMS = EDU_GROUPS.flatMap(g=> [
 const itemKey = it=> it.kind + '|' + it.group + '|' + it.label + '|' + it.size;
 // 印出的張數：衛教兩頁並列的圖算兩張；表單照頁數
 const itemSheets = it=> it.kind === 'edu' ? sheetCount(it.ref) : (it.ref.kind === 'img' ? it.ref.pages.length : +(it.ref.note.match(/\d+/) || [1])[0]);
-// 多份一起列印只收圖片；問卷與健康紀錄表是即時產生的 HTML，要單獨列印
-const canPick = it=> it.kind === 'edu' || it.ref.kind === 'img';
-
 let cur = 0, eduIdx = 0, eduPage = 0, shownKey = '';
 let eduGroup = recall('hub-edu-group', 'weight');
 if(!EDU_GROUPS.some(g=> g.key === eduGroup)) eduGroup = 'weight';
 
-// 多份一起列印：勾選模式下，點清單是勾選或取消，不切換項目；可以跨分類勾選，依清單順序印出
-let pickMode = false;
-const picked = new Set();
-
-// 側欄：上方是分類切換，下方列出該類的衛教與表單（依系列分小標），最下方是多份列印
+// 側欄：上方是分類切換，下方列出該類的衛教與表單（依系列分小標）。
+// 2026/11/09 取消「多份一起列印」：每份單獨列印，A4、A5 不會混在同一批（不必換紙），直式、橫式也不會被迫用同一種紙
 // 桌機版的清單浮在側欄右邊（半透明，蓋在預覽左側留白上，預覽不會移動）；再按一次目前的分類可收起
 let railFirst = true;
 let railFly = recall('hub-edu-fly', true) !== false;
@@ -172,9 +177,8 @@ function renderRail(){
   const keepTop = oldList && oldList.dataset.g === eduGroup ? oldList.scrollTop : 0;
   const tabs = EDU_GROUPS.map(g=>{
     const n = ITEMS.filter(it=> it.group === g.key).length;
-    const k = ITEMS.filter(it=> it.group === g.key && picked.has(itemKey(it))).length;
     return `<button class="edu-group press" data-g="${g.key}" aria-pressed="${g.key === eduGroup}">${esc(g.label)}` +
-      `<span class="n">${pickMode && k ? '已選 ' + k : n}</span></button>`;
+      `<span class="n">${n}</span></button>`;
   }).join('');
   let sec = null;
   const items = ITEMS.map((it, i)=>{
@@ -182,20 +186,14 @@ function renderRail(){
     const head = (it.sec && it.sec !== sec) ? `<div class="edu-sec">${esc(it.sec)}</div>` : '';
     sec = it.sec;
     const n = itemSheets(it);
-    const on = picked.has(itemKey(it));
-    const ok = canPick(it);
-    const lead = pickMode ? `<span class="ck${ok ? '' : ' off'}" aria-hidden="true">${on ? '✓' : ''}</span>` : `<span class="ico">${it.icon || ICON_DOC}</span>`;
-    return head + `<button class="edu-item press${pickMode ? ' picking' : ''}${pickMode && !ok ? ' nopick' : ''}" data-i="${i}" aria-current="${!pickMode && i === cur}"` +
-      (pickMode ? ` aria-pressed="${on}"` : '') + (pickMode && !ok ? ' title="這份表單由系統產生，請單獨列印"' : '') +
-      `>${lead}<span class="lb">${esc(it.label)}</span>${sizeTag(it)}${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
+    return head + `<button class="edu-item press" data-i="${i}" aria-current="${i === cur}">` +
+      `<span class="ico">${it.icon || ICON_DOC}</span><span class="lb">${esc(it.label)}</span>${sizeTag(it)}${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
   }).join('');
-  // 多份一起列印放在最上方，捲動清單時固定在側欄頂端
   const g = EDU_GROUPS.find(x=> x.key === eduGroup);
   const flyHead = `<div class="edu-fly-head"><b>${esc(g ? g.label : '')}</b>` +
     `<button class="fly-x press" type="button" title="收起清單（再按一次分類可展開）" aria-label="收起清單">‹</button></div>`;
   rail.classList.toggle('fly-off', !railFly);
-  rail.innerHTML = `<div class="edu-pick${pickMode ? ' on' : ''}">${pickBar()}</div>` +
-    `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類">${tabs}</div>` +
+  rail.innerHTML = `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類">${tabs}</div>` +
     `<div class="edu-list" data-g="${eduGroup}">${flyHead}${items}</div>`;
   rail.querySelector('.edu-list').scrollTop = keepTop;
   const setFly = on=>{ railFly = on; store('hub-edu-fly', on); rail.classList.toggle('fly-off', !on); };
@@ -208,69 +206,23 @@ function renderRail(){
     railFly = true; store('hub-edu-fly', true);
     renderRail();
   }));
-  rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=>{
-    const i = +b.dataset.i;
-    if(!pickMode){ showItem(i, 0); return; }
-    if(!canPick(ITEMS[i])){ toast('「' + ITEMS[i].label + '」由系統產生，請點選後單獨列印。'); return; }
-    const k = itemKey(ITEMS[i]);
-    picked.has(k) ? picked.delete(k) : picked.add(k);
-    renderRail();
-  }));
-  const on = document.getElementById('pick-on');
-  if(on) on.addEventListener('click', ()=>{ pickMode = true; renderRail(); });
-  const cancel = document.getElementById('pick-cancel');
-  if(cancel) cancel.addEventListener('click', ()=>{ pickMode = false; picked.clear(); renderRail(); });
-  const go = document.getElementById('pick-print');
-  if(go) go.addEventListener('click', printPicked);
-  // 勾選模式下只重畫清單；切換分類（目前項目換了）時才換預覽
-  if(!pickMode || cur !== prev || shownKey !== itemKey(ITEMS[cur])) showItem(cur, eduPage);
+  rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> showItem(+b.dataset.i, 0)));
+  if(cur !== prev || shownKey !== itemKey(ITEMS[cur])) showItem(cur, eduPage);
 }
-function pickBar(){
-  if(!pickMode) return `<button class="tbtn pick-on" id="pick-on" title="勾選幾份衛教或表單，一次印出">${ICON_PRINT}多份一起列印</button>`;
-  const list = ITEMS.filter(it=> picked.has(itemKey(it)));
-  const count = size=> list.filter(it=> it.size === size).reduce((n, it)=> n + itemSheets(it), 0);
-  const a4 = count('A4'), a5 = count('A5');
-  const sheets = [a4 ? a4 + ' 張 A4' : '', a5 ? a5 + ' 張 A5' : ''].filter(Boolean).join('、');
-  // A5 衛教單的圖是整張 A4（內容在上半頁），和 A4 用同一種紙，混在一起印沒有問題
-  return `<div class="sum">${list.length ? `已選 ${list.length} 份，共 ${sheets}` : '點選要一起列印的衛教或表單'}</div>` +
-    `<div class="acts"><button class="tbtn" id="pick-cancel">取消</button>` +
-    `<button class="tbtn pri" id="pick-print"${list.length ? '' : ' disabled'}>列印</button></div>`;
-}
-// 雙面列印提醒：選到 A5 衛教單，或任何一份 A4 是奇數頁，就在列印視窗打開前提醒取消雙面。
-// A5 紙走雙面會印出空白；奇數頁開著雙面，下一份會印到它的背面。網頁無法替使用者取消雙面（Chrome 會記住上一次的設定），只能提醒。
-// 提醒先顯示 1.5 秒再打開列印視窗，否則會被列印視窗蓋住
-function duplexReason(items){
-  const a5 = items.filter(it=> it.size === 'A5');
-  if(a5.length) return '這次有 A5 衛教單，開著雙面會印出空白頁';
-  const odd = items.filter(it=> itemSheets(it) % 2 === 1);
-  if(!odd.length) return '';
-  if(items.length === 1){
-    const n = itemSheets(odd[0]);
-    return n === 1 ? '這份只有 1 頁，請用單面列印' : `這份共 ${n} 頁（奇數），請用單面列印`;
-  }
-  // 奇數頁的那份後面還有別份，開著雙面時下一份會接著印在它的背面；排在最後就只提醒用單面
-  const mid = odd.filter(it=> it !== items[items.length - 1]);
-  const name = it=> `「${it.label}」`;
-  if(mid.length) return `${name(mid[0])}${odd.length > 1 ? `等 ${odd.length} 份` : ''}是奇數頁，開著雙面，下一份會印到它的背面`;
-  return `${name(odd[0])}是奇數頁，請用單面列印`;
-}
+// 雙面列印提醒：只在印 A5 衛教單時出現（A5 紙走雙面會印出空白頁）；A4 一律不提醒（2026/11/09 YT 決定）。
+// 網頁無法替使用者取消雙面（Chrome 會記住上一次的設定），只能提醒。提醒先顯示 1.5 秒再打開列印視窗，否則會被列印視窗蓋住
+const duplexReason = it=> it.size === 'A5' ? 'A5 衛教單開著雙面會印出空白頁' : '';
 // 回傳 false 表示上一次的列印還在等提醒，這次不要再印（連按兩下「列印」只出一個列印視窗）
 let duplexWaiting = false;
-async function duplexWarn(items){
+async function duplexWarn(it){
   if(duplexWaiting) return false;
-  const why = duplexReason(items);
+  const why = duplexReason(it);
   if(!why) return true;
   duplexWaiting = true;
   toast('', 'warn', 9000, `<b>請取消勾選『雙面列印』</b><span>${esc(why)}</span>`);
   await new Promise(r=> setTimeout(r, 1500));
   duplexWaiting = false;
   return true;
-}
-async function printPicked(){
-  const list = ITEMS.filter(it=> picked.has(itemKey(it)));
-  if(!list.length || !await duplexWarn(list)) return;
-  const pages = list.flatMap(it=> it.kind === 'edu' ? it.ref.pages : it.ref.pages.map(src=> ({src})));
-  printImages(pages, list.length === 1 ? list[0].label : '衛教與表單 ' + list.length + ' 份');
 }
 // 目前項目在同一分類裡的位置，例如「3／15」
 function groupPos(){
@@ -288,7 +240,7 @@ function showItem(i, page){
   store('hub-edu-key', shownKey);
   const multi = multiA4(it);
   document.getElementById('pane-edu').dataset.stage = it.kind === 'form' || multi ? 'form' : 'edu';
-  document.querySelectorAll('#edu-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(!pickMode && +b.dataset.i === cur)));
+  document.querySelectorAll('#edu-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(+b.dataset.i === cur)));
   if(multi){
     eduIdx = EDU.indexOf(it.ref);
     showForm({label:it.ref.label, note:`共 ${sheetCount(it.ref)} 頁`, pages:it.ref.pages.map(p=> p.src), kind:'img'});
@@ -422,5 +374,5 @@ document.getElementById('zoom-width').addEventListener('click', ()=> setZoom('wi
 document.getElementById('edu-max').addEventListener('click', toggleMax);
 document.getElementById('edu-print').addEventListener('click', async ()=>{
   const p = EDU[eduIdx];
-  if(await duplexWarn([ITEMS[cur]])) printImages(p.pages, p.label);
+  if(await duplexWarn(ITEMS[cur])) printImages(p.pages, p.label);
 });

@@ -12,7 +12,7 @@
 | `weight/` | 減重報告：`view.html`（畫面與樣式）、`app.js`、`report.js`；`index.html` 只轉址到工作台 | |
 | `checkup/` | 健檢報告：`view.html`（畫面與樣式）、`app.js`（優品 PDF 擷取、判讀規則、加選模組、PREVENT 與 TwCCCC 心血管風險、大腸鏡間隔、公費篩檢資格、貼上英文超音波報告；上傳 TANITA、超音波、胃腸鏡與病理報告會自動判讀並附在報告後面，圖片與掃描檔用 Tesseract.js 在瀏覽器裡辨識英文；追蹤時程可由醫師修改；Esc 回報告種類）、`report.js`（A4 報告、歷年趨勢圖、LINE 摘要圖）。報告樣式、排版函式與判讀標準在共用的 `kit/report-kit.js`，不依賴減重報告 | |
 | `kit/` | `report-kit.js`：減重與健檢報告共用的 A4 排版、Logo、PDF 函式庫載入、TANITA 擷取、運動處方，以及 BMI、腰圍、血壓（130/80）判讀標準 | |
-| `edu/` | `edu.js`：衛教圖卡與列印表單的資料、合併的側欄清單（ITEMS）、圖卡縮放、多份列印 | |
+| `edu/` | `edu.js`：衛教圖卡與列印表單的資料、合併的側欄清單（ITEMS）、圖卡縮放、單份列印 | |
 | `revision.js` | 各工具的最後改版日期與這次改版的簡短說明（`REVISION_NOTE`），工作台左下角顯示最晚的日期、點一下看說明；報價單的價目版本另見 `quote/app.js` 的 `Q_PRICE_VERSION` | |
 | `mount.js` | `mountView()`：把各工具的 view.html 裝進 shadow root，再依序載入程式 | |
 | `forms/` | `forms.js`：減重門診評估問卷、健康紀錄表的題目、版面與樣式（列印表單與減重報告共用）；`view.js`：表單的多頁並排預覽與共用列印 | |

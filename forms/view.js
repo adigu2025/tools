@@ -118,7 +118,7 @@ document.getElementById('form-print').addEventListener('click', ()=>{
   const it = ITEMS[cur];
   if(!it) return;
   // 多頁的 A4 衛教也用這個預覽區，列印照衛教的頁面
-  duplexWarn([it]).then(ok=>{ if(ok) it.kind === 'form' ? printForm(it.ref) : printImages(it.ref.pages, it.ref.label); });
+  duplexWarn(it).then(ok=>{ if(ok) it.kind === 'form' ? printForm(it.ref) : printImages(it.ref.pages, it.ref.label); });
 });
 formView.addEventListener('wheel', e=>{
   if(!e.ctrlKey) return;
