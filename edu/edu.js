@@ -5,6 +5,7 @@
    衛教依用途分類，同一類再依圖卡角落的系列與編號分小節（例如減重的「療程 01 至 04」），側欄順序與圖卡編號一致。
    清單只在這裡維護一份；側欄名稱一律用圖卡上的標題，在診間口頭說「點那張」時對得上。
    每份衛教可以有多頁（pages），每頁可以是兩頁並列的圖（split = 2，列印時拆成兩張 A4）。
+   多頁的 A4 衛教與同意書、表單一樣，在表單預覽區把所有頁面一起顯示、捲動看完，不必另外點第 2 頁。
    第 6 欄寫 'A5' 的是 A5 衛教單：圖是整張 A4 直式、內容只在上半頁（210 × 148.5 mm），列印時就是一般 A4 直式，
    紙匣放 A5 紙、長邊先進紙，印出來就是一張 A5。側欄與標題都會註記 A4 或 A5。A5 版面原始檔在 edu-src/a5.html。
    圖卡原始檔：減重「用藥 02」與「檢查與治療」類自製圖卡的版面在 edu-src/，改文字後重新輸出圖片。 */
@@ -275,15 +276,22 @@ function groupPos(){
   const inGroup = ITEMS.filter(x=> x.group === it.group);
   return (inGroup.indexOf(it) + 1) + '／' + inGroup.length;
 }
-// 切換項目：衛教圖卡與表單各有自己的預覽區（圖卡一次看一頁，表單多頁並排），依項目種類切換
+// 多頁的 A4 衛教：和同意書一樣用表單預覽區，所有頁面一起顯示
+const multiA4 = it=> it.kind === 'edu' && it.size === 'A4' && it.ref.pages.length > 1;
+// 切換項目：單頁衛教圖卡用圖卡預覽區（整頁／寬度縮放），表單與多頁 A4 文件用表單預覽區（多頁並排或上下捲動）
 function showItem(i, page){
   cur = (i + ITEMS.length) % ITEMS.length;
   const it = ITEMS[cur];
   shownKey = itemKey(it);
   store('hub-edu-key', shownKey);
-  document.getElementById('pane-edu').dataset.stage = it.kind;
+  const multi = multiA4(it);
+  document.getElementById('pane-edu').dataset.stage = it.kind === 'form' || multi ? 'form' : 'edu';
   document.querySelectorAll('#edu-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(!pickMode && +b.dataset.i === cur)));
-  if(it.kind === 'edu') showEdu(it.ref, page);
+  if(multi){
+    eduIdx = EDU.indexOf(it.ref);
+    showForm({label:it.ref.label, note:`共 ${sheetCount(it.ref)} 頁`, pages:it.ref.pages.map(p=> p.src), kind:'img'});
+  }
+  else if(it.kind === 'edu') showEdu(it.ref, page);
   else showForm(it.ref);
 }
 function showEdu(p, page){
@@ -316,7 +324,7 @@ function showEdu(p, page){
 // 上下張：衛教先翻完同一份的各頁，再到同一分類的下一項（到底回第一項）
 function stepItem(d){
   const it = ITEMS[cur];
-  if(it.kind === 'edu'){
+  if(it.kind === 'edu' && !multiA4(it)){
     const np = eduPage + d;
     if(np >= 0 && np < it.ref.pages.length){ showEdu(it.ref, np); return; }
   }

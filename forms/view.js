@@ -11,7 +11,7 @@ function formHtmlPages(t){
     `<style>${FORMS_CSS}\nhtml,body{margin:0;background:#fff;overflow:hidden;}</style></head><body>`;
   return [...tmp.querySelectorAll('.report-page')].map(pg=> head + pg.outerHTML + '</body></html>');
 }
-// t：FORMS 裡的一份表單（由 edu/edu.js 的 showItem 呼叫）
+// t：FORMS 裡的一份表單，或多頁 A4 衛教轉成的同樣格式（由 edu/edu.js 的 showItem 呼叫）
 function showForm(t){
   document.getElementById('form-title').innerHTML = esc(t.label) + '<span class="sz">A4</span>';
   document.getElementById('form-count').textContent = groupPos() + '　' + t.note;
@@ -116,7 +116,9 @@ formView.addEventListener('pointermove', e=>{
 formView.addEventListener('dblclick', ()=>{ formZoom = formZoom === 'fit' ? 1 : 'fit'; applyFormZoom(); });
 document.getElementById('form-print').addEventListener('click', ()=>{
   const it = ITEMS[cur];
-  if(it && it.kind === 'form') duplexWarn([it]).then(ok=>{ if(ok) printForm(it.ref); });
+  if(!it) return;
+  // 多頁的 A4 衛教也用這個預覽區，列印照衛教的頁面
+  duplexWarn([it]).then(ok=>{ if(ok) it.kind === 'form' ? printForm(it.ref) : printImages(it.ref.pages, it.ref.label); });
 });
 formView.addEventListener('wheel', e=>{
   if(!e.ctrlKey) return;
