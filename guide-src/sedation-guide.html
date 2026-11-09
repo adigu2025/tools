@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>輕中度鎮靜用藥指引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#222; --sub:#5f6368; --faint:#8a8f94; --line:#d6d9dc; --head:#f3f4f5; --row:#fafafa;
+  --warn:#b3261e; --warn-bg:#fdf3f2; --care-bg:#fff9e8; --care-line:#e3c26a;
+}
+@page{size:A4 portrait; margin:0;}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{background:#e4e6e8;}
+body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:var(--ink);
+  font-size:9.2pt; line-height:1.5; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+.page{width:210mm; height:297mm; margin:8mm auto; background:#fff; padding:10mm 13mm 8mm;
+  overflow:hidden; display:flex; flex-direction:column; gap:1.8mm;}
+@media print{ html,body{background:#fff;} .page{margin:0; break-after:page;} .page:last-child{break-after:auto;} }
+
+/* 頁首 */
+.head{display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1.5px solid var(--ink); padding-bottom:1.8mm;}
+.head h1{font-size:16pt; font-weight:700; letter-spacing:.03em; line-height:1.25;}
+.head .sub{font-size:8.6pt; color:var(--sub); margin-top:.6mm;}
+.head .meta{text-align:right; font-size:8pt; color:var(--sub); line-height:1.5;}
+.head.mini h1{font-size:12pt;}
+
+/* 章節標題 */
+h2{font-size:11pt; font-weight:700; display:flex; align-items:baseline; gap:2mm; margin-top:1.3mm;
+  padding-bottom:.8mm; border-bottom:1px solid var(--line);}
+h2 i{font-style:normal; font-size:9pt; color:#fff; background:#555; border-radius:50%; width:5mm; height:5mm;
+  display:inline-flex; align-items:center; justify-content:center; flex:none; transform:translateY(-.3mm);}
+h2 small{font-weight:400; font-size:8.4pt; color:var(--sub); margin-left:auto;}
+h3{font-size:9.6pt; font-weight:700; margin-bottom:.6mm;}
+
+/* 表格 */
+table{width:100%; border-collapse:collapse; font-size:8.8pt; line-height:1.42;}
+th,td{border:1px solid var(--line); padding:.9mm 1.8mm; vertical-align:middle; text-align:left;}
+thead th{background:var(--head); font-weight:700; text-align:center; font-size:8.6pt;}
+tbody th{font-weight:700; white-space:nowrap; background:var(--row);}
+td.c{text-align:center;}
+.dose{font-weight:700; font-size:9.6pt;}
+.ml{color:var(--sub); font-size:8.4pt; margin-left:1.2mm;}
+tr.key td, tr.key th{background:var(--care-bg);}
+.tag{display:inline-block; font-size:7.4pt; font-weight:400; color:var(--sub); border:1px solid var(--faint);
+  border-radius:1mm; padding:0 1mm; margin-left:1.2mm; vertical-align:1px;}
+
+/* 區塊 */
+.note{font-size:8pt; color:var(--sub); line-height:1.45;}
+.box{border:1px solid var(--line); border-radius:1.4mm; padding:1.6mm 2.8mm;}
+.box.care{background:var(--care-bg); border-color:var(--care-line);}
+.box.warn{background:var(--warn-bg); border:1px solid #efc5c1; border-left:3px solid var(--warn);}
+.warn-t{color:var(--warn); font-weight:700;}
+ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
+.box ul.dots{padding-left:4mm;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:2.6mm;}
+.k{font-weight:700;}
+
+/* 給藥順序 */
+.flow{display:grid; grid-template-columns:repeat(4,1fr); gap:2.4mm; counter-reset:st;}
+.flow .st{border:1px solid var(--line); border-radius:1.4mm; padding:1.4mm 2.2mm; position:relative;}
+.flow .st b{display:block; font-size:9.6pt;}
+.flow .st .n{font-size:7.6pt; color:var(--faint);}
+.flow .st:not(:last-child)::after{content:"›"; position:absolute; right:-1.2mm; top:50%; transform:translate(50%,-55%);
+  color:var(--faint); font-size:13pt; line-height:1;}
+
+.foot{margin-top:auto; border-top:1px solid var(--line); padding-top:1.4mm; display:flex; justify-content:space-between;
+  font-size:7.8pt; color:var(--faint);}
+.shot .page{margin:0 auto;}
+</style>
+</head>
+<body>
+
+<!-- ═════════ 第 1 頁 ═════════ -->
+<section class="page" data-file="guide-sedation-1">
+  <header class="head">
+    <div>
+      <h1>內視鏡輕中度鎮靜用藥指引</h1>
+      <div class="sub">適用胃鏡、大腸鏡與內視鏡治療｜目標：叫名字或輕拍會回應，自主呼吸維持</div>
+    </div>
+    <div class="meta">院內作業標準<br>版本 2026-11-09</div>
+  </header>
+
+  <h2><i>1</i>本院藥品劑型與建議配製<small>依管制藥品使用紀錄單</small></h2>
+  <table>
+    <thead><tr>
+      <th style="width:14%">藥品</th><th style="width:18%">本院劑型</th><th style="width:28%">建議配製</th>
+      <th style="width:14%">換算</th><th style="width:26%">開始作用／作用高峰／持續</th>
+    </tr></thead>
+    <tbody>
+      <tr><th>Midazolam</th><td>5 mg/mL，每支&nbsp;1&nbsp;mL</td>
+        <td>1 支＋生理食鹽水 4 mL，共 5 mL</td>
+        <td class="c">1 mL = 1 mg</td>
+        <td>約 2 分鐘／5 至 10 分鐘／15 至 80 分鐘</td></tr>
+      <tr><th>Fentanyl</th><td>0.1 mg/2 mL</td>
+        <td>不稀釋，用 3 mL 空針</td>
+        <td class="c">1 mL = 50 mcg</td>
+        <td>1 至 2 分鐘／3 至 5 分鐘／30 至 60 分鐘</td></tr>
+      <tr><th>Propofol</th><td>200 mg/20 mL（1%）</td>
+        <td>不稀釋；<span class="k">一人一支，開封後 6 小時內用完</span></td>
+        <td class="c">1 mL = 10 mg</td>
+        <td>30 至 60 秒／1 至 2 分鐘／4 至 8 分鐘</td></tr>
+    </tbody>
+  </table>
+  <p class="note">高齡者的作用高峰更慢、持續更久。三種藥用不同大小的空針，並貼上藥名與濃度。Fentanyl 與稀釋後的 Midazolam 都是透明液體，最容易拿錯。Propofol 容易孳生細菌，不可跨病人共用，剩餘量依管制藥品規定銷燬並記錄。</p>
+
+  <h2><i>2</i>給藥前先分組<small>決定起始量與重新評估點</small></h2>
+  <div class="grid2">
+    <div class="box">
+      <h3>標準組</h3>
+      <p>年齡 &lt; 60 歲、ASA I 至 II，且沒有右欄任何一項。</p>
+    </div>
+    <div class="box care">
+      <h3>減量組（符合任一項）</h3>
+      <p>年齡 ≥ 60 歲、ASA III、體重 &lt; 50 kg、肝硬化、慢性腎臟病、COPD、阻塞型睡眠呼吸中止（或 STOP-Bang ≥ 3）、BMI ≥ 30、平時服用安眠藥或鴉片類止痛藥。</p>
+    </div>
+  </div>
+  <div class="box warn">
+    <span class="warn-t">不在本院做輕中度鎮靜，改由麻醉專科醫師執行或轉介：</span>
+    ASA IV 以上、預期困難呼吸道（Mallampati IV、張口或頸部活動受限）、重度睡眠呼吸中止、BMI ≥ 40、懷孕、過去鎮靜失敗或有嚴重不良反應、長期大量使用苯二氮平類／鴉片類／酒精、預期時間很長的治療性內視鏡。
+  </div>
+
+  <h2><i>3</i>給藥順序<small>先止痛、再鎮靜，每一劑等到作用高峰再追加</small></h2>
+  <div class="flow">
+    <div class="st"><span class="n">步驟 1</span><b>Fentanyl</b>約 1 分鐘緩慢推完</div>
+    <div class="st"><span class="n">步驟 2</span><b>等 2 分鐘給 Midazolam</b>每 30 秒不超過 1 mg</div>
+    <div class="st"><span class="n">步驟 3</span><b>等 2 至 3 分鐘評估</b>眼皮下垂、說話變慢</div>
+    <div class="st"><span class="n">步驟 4</span><b>開始檢查</b>一次只追加一種藥</div>
+  </div>
+
+  <h2><i>4</i>標準方案：Fentanyl ＋ Midazolam<small>粗體為劑量，灰字為抽取量</small></h2>
+  <table>
+    <thead><tr>
+      <th style="width:16%"></th><th style="width:21%">Fentanyl｜標準組</th><th style="width:21%">Fentanyl｜減量組</th>
+      <th style="width:21%">Midazolam｜標準組</th><th style="width:21%">Midazolam｜減量組</th>
+    </tr></thead>
+    <tbody>
+      <tr><th>起始量</th>
+        <td><span class="dose">50 mcg</span><span class="ml">1 mL</span></td>
+        <td><span class="dose">25 mcg</span><span class="ml">0.5 mL</span></td>
+        <td><span class="dose">1 至 2 mg</span><span class="ml">1 至 2 mL</span></td>
+        <td><span class="dose">0.5 至 1 mg</span><span class="ml">0.5 至 1 mL</span></td></tr>
+      <tr><th>每次追加</th>
+        <td><span class="dose">25 mcg</span><span class="ml">0.5 mL</span></td>
+        <td><span class="dose">25 mcg</span><span class="ml">0.5 mL</span></td>
+        <td><span class="dose">1 mg</span><span class="ml">1 mL</span></td>
+        <td><span class="dose">0.5 mg</span><span class="ml">0.5 mL</span></td></tr>
+      <tr><th>追加間隔</th>
+        <td>至少 5 分鐘</td><td>至少 5 分鐘</td><td>至少 2 至 3 分鐘</td><td>至少 3 至 5 分鐘</td></tr>
+      <tr class="key"><th>重新評估點<span class="tag">院內</span></th>
+        <td><span class="dose">累積 100 mcg</span><span class="ml">1 支</span></td>
+        <td><span class="dose">累積 50 mcg</span></td>
+        <td><span class="dose">累積 5 mg</span></td>
+        <td><span class="dose">累積 3.5 mg</span></td></tr>
+    </tbody>
+  </table>
+  <div class="grid2">
+    <div class="box">
+      <h3>該追加哪一種？</h3>
+      <ul class="dots">
+        <li><span class="k">以疼痛為主</span>（皺眉、呻吟）：追加 Fentanyl。</li>
+        <li><span class="k">焦慮、躁動、作嘔、仍很清醒</span>：追加 Midazolam。</li>
+        <li>大腸鏡疼痛多來自腸道打圈（loop）與充氣，先調整手法、壓腹、換姿勢。</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>到了重新評估點</h3>
+      <ul class="dots">
+        <li>院內設定的評估點，不是藥品上限。仿單 Midazolam 總量一般 3.5 至 7.5 mg，併用鴉片類時更少。</li>
+        <li>再加藥風險升高、效果有限。改用 Propofol 少量追加（第 6 節），或停止並改約麻醉科。</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><i>5</i>監測與紀錄<small>依 ASA 2018 中度鎮靜指引</small></h2>
+  <ul class="dots">
+    <li>給藥前記錄基準值：血壓、心跳、SpO₂、呼吸次數、意識。全程監測 SpO₂、心電圖、capnography，鼻導管氧氣 2 至 4 L/min。</li>
+    <li>每 5 分鐘記錄血壓、心跳、SpO₂、鎮靜深度。每一劑的時間與劑量同步寫進麻醉紀錄表與管藥紀錄單，兩邊總量要一致。有給氧氣時 SpO₂ 下降會較晚出現，呼吸變淺要靠 capnography 先發現。</li>
+  </ul>
+
+  <footer class="foot"><span>內視鏡輕中度鎮靜用藥指引</span><span>第 1 頁／共 2 頁</span></footer>
+</section>
+
+<!-- ═════════ 第 2 頁 ═════════ -->
+<section class="page" data-file="guide-sedation-2">
+  <header class="head mini">
+    <div>
+      <h1>內視鏡輕中度鎮靜用藥指引</h1>
+      <div class="sub">Propofol 追加、停藥條件與拮抗劑、恢復與離院</div>
+    </div>
+    <div class="meta">院內作業標準<br>版本 2026-11-09</div>
+  </header>
+
+  <h2><i>6</i>Propofol 少量追加（平衡式鎮靜）<small>只在標準方案效果不足時使用</small></h2>
+  <div class="box warn">
+    <span class="warn-t">前提，缺一不可：</span>有一位不兼做內視鏡的專責人員全程看病人；capnography、氧氣、甦醒球面罩、口咽或鼻咽呼吸道、抽痰設備都已就位；執行者具 ACLS 與呼吸道處置能力。
+  </div>
+  <table>
+    <thead><tr><th style="width:16%"></th><th style="width:42%">標準組</th><th style="width:42%">減量組</th></tr></thead>
+    <tbody>
+      <tr><th>先給的藥</th><td colspan="2">已給 Fentanyl 25 至 50 mcg，Midazolam 0.5 至 1 mg 視情況給。<span class="k">不用大劑量 Propofol 單獨誘導</span>，單用 Propofol 屬於靜脈麻醉，由麻醉專科醫師執行。</td></tr>
+      <tr><th>每次追加</th>
+        <td><span class="dose">10 至 20 mg</span><span class="ml">1 至 2 mL</span></td>
+        <td><span class="dose">10 mg</span><span class="ml">1 mL</span></td></tr>
+      <tr><th>追加間隔</th><td colspan="2">每次至少間隔 30 至 60 秒，看到前一劑的效果再決定，不可連續快速推注。</td></tr>
+      <tr><th>停止追加</th><td colspan="2">病人要重複叫喚或疼痛刺激才有反應，表示已進入深度鎮靜。停止追加，等回到叫名字就會回應的程度。</td></tr>
+      <tr class="key"><th>重新評估點<span class="tag">院內</span></th><td colspan="2">累積 100 mg（10 mL），或每 1 至 2 分鐘就要追加才能維持。這位病人下次改約麻醉專科醫師的靜脈麻醉。</td></tr>
+    </tbody>
+  </table>
+
+  <h2><i>7</i>停藥條件與處置</h2>
+  <table>
+    <thead><tr><th style="width:31%">出現這些情況</th><th>立即處置</th></tr></thead>
+    <tbody>
+      <tr><th>capnography 波形消失超過 15 秒<br>或呼吸 &lt; 8 次／分</th>
+        <td>停止給藥，大聲叫喚、刺激病人；推下顎（jaw thrust）、調整頭頸姿勢、提高氧氣流量。</td></tr>
+      <tr><th>SpO₂ &lt; 90%</th>
+        <td>同上。30 秒內沒有回升，退出內視鏡，放口咽或鼻咽呼吸道，用甦醒球面罩輔助通氣。</td></tr>
+      <tr><th>收縮壓 &lt; 90 mmHg<br>或比基準值下降超過 30%</th>
+        <td>停止給藥、加快點滴、抬高下肢；持續低血壓依急救流程處理。</td></tr>
+      <tr><th>心跳 &lt; 50 次／分合併低血壓</th>
+        <td>停止給藥，atropine 0.5 mg 靜脈注射，依 ACLS 流程處理。</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:1.2mm">拮抗劑　<span class="note" style="font-weight:400">非管制藥品，劑型請對照本院急救車實際品項</span></h3>
+  <table>
+    <thead><tr><th style="width:15%">藥品</th><th style="width:40%">劑量與給法</th><th>注意事項</th></tr></thead>
+    <tbody>
+      <tr><th>Naloxone<br><span class="note">拮抗 Fentanyl</span></th>
+        <td>0.4 mg/mL 1 支＋生理食鹽水 9 mL，成為 0.04 mg/mL。每次 <span class="dose">0.04 至 0.1 mg</span>（1 至 2.5 mL），每 2 分鐘可重複到呼吸恢復；呼吸停止時可一次給 0.4 mg。</td>
+        <td>作用時間可能比 fentanyl 短，要留意再次呼吸抑制。小劑量分次給，可避免劇痛與躁動。</td></tr>
+      <tr><th>Flumazenil<br><span class="note">拮抗 Midazolam</span></th>
+        <td>0.1 mg/mL。<span class="dose">0.2 mg</span> 靜脈注射，15 秒推完；1 分鐘後仍未清醒再給 0.2 mg，每分鐘可重複，<span class="k">總量&nbsp;1&nbsp;mg</span>。</td>
+        <td>作用約 1 小時，之後可能再度嗜睡。長期使用苯二氮平類或有癲癇病史者，可能誘發戒斷或抽搐。</td></tr>
+      <tr><th>Propofol</th><td colspan="2">沒有拮抗劑。停止給藥並維持呼吸，通常幾分鐘內恢復。</td></tr>
+    </tbody>
+  </table>
+
+  <h2><i>8</i>恢復與離院</h2>
+  <ul class="dots">
+    <li>改良 Aldrete 評分 ≥ 9 分，生命徵象回到基準值 ±20% 以內，可以自己走路。</li>
+    <li>最後一劑 Midazolam 後至少觀察 30 分鐘；<span class="k">用過拮抗劑的病人至少觀察 2 小時</span>，確認沒有再度嗜睡。</li>
+    <li>需有親友陪同離院，當天不可開車、騎車（與本院輕中度鎮靜同意書一致）。</li>
+  </ul>
+
+  <div class="box" style="margin-top:1.4mm">
+    <p class="note"><span class="k" style="color:var(--ink)">依據</span>
+      ① ASGE. Guidelines for sedation and anesthesia in GI endoscopy. Gastrointest Endosc 2018;87:327–337.
+      ② ASA. Practice guidelines for moderate procedural sedation and analgesia 2018. Anesthesiology 2018;128:437–479.
+      ③ Dumonceau JM, et al. ESGE/ESGENA NAAP guideline update 2015. Endoscopy 2015;47:1175–1189.
+      ④ Midazolam 仿單（UK SmPC 4.2 節）。</p>
+    <p class="note" style="margin-top:.8mm"><span class="k" style="color:var(--ink)">說明</span>
+      標「院內」的重新評估點是本院設定，不是指引規定的上限。表列劑量為起始建議，實際依病人反應調整。Propofol 為第四級管制藥品，非麻醉專科醫師以 Propofol 執行鎮靜的國內資格規定，訂定本指引時未查到明確條文，啟用第 6 節前請先向衛生局確認。</p>
+  </div>
+
+  <footer class="foot"><span>內視鏡輕中度鎮靜用藥指引</span><span>第 2 頁／共 2 頁</span></footer>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// 輸出：用 consent-src/serve.ps1 開本頁，主控台執行 await renderAll()，WebP 存進 consent-src/out/tools/
+function fitReport(){
+  return [...document.querySelectorAll(".page")].map(p=>{
+    const f = p.querySelector(".foot");
+    return [p.dataset.file, Math.round(f.getBoundingClientRect().top - f.previousElementSibling.getBoundingClientRect().bottom)];
+  });
+}
+async function renderAll(){
+  await document.fonts.ready;
+  document.body.classList.add("shot");
+  const res = [];
+  for(const el of document.querySelectorAll(".page")){
+    const canvas = await html2canvas(el, {scale: 1414 / 794, backgroundColor:"#ffffff", useCORS:true, logging:false});
+    const webp = await new Promise(r=> canvas.toBlob(r, "image/webp", 0.9));
+    await fetch("/__save?name=out/tools/" + el.dataset.file + ".webp", {method:"POST", body:webp});
+    res.push([el.dataset.file, canvas.width, canvas.height]);
+  }
+  document.body.classList.remove("shot");
+  return res;
+}
+</script>
+</body>
+</html>

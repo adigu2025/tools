@@ -99,7 +99,7 @@ const sheetCount = p=> p.pages.reduce((n, pg)=> n + (pg.split || 1), 0);
 const sizeTag = p=> `<span class="sz${p.size === 'A5' ? ' a5' : ''}">${p.size}</span>`;
 
 // 列印表單：問卷與健康紀錄表由 forms/forms.js 產生空白表（與減重系統共用版面）；
-// 腸泌素同意書、管藥與麻醉紀錄、檢查同意書都是圖片，放在工作台的 img/（檢查同意書由 consent-src/ 輸出）。
+// 腸泌素同意書、管藥與麻醉紀錄、檢查同意書、院內指引都是圖片，放在工作台的 img/（檢查同意書由 consent-src/ 輸出，院內指引由 guide-src/ 輸出）。
 // group 對應上方 EDU_GROUPS；sec 是側欄小標。
 const C = n=> Array.from({length:n.pages}, (_, i)=> `img/consent-${n.file}-${i + 1}.webp`);
 let FORMS = [
@@ -112,6 +112,8 @@ let FORMS = [
   {group:'ctrl', label:'Propofol',  note:'共 1 頁', pages:['img/ctrl-propofol.jpg'],  kind:'img'},
   {group:'ctrl', label:'空白管藥單', note:'共 1 頁', pages:['img/ctrl-blank.jpg'],     kind:'img'},
   {group:'ctrl', label:'麻醉紀錄表', note:'共 1 頁', pages:['img/anesthesia-record.jpg'], kind:'img'},
+  // 院內作業指引，版面原始檔在 guide-src/
+  {group:'ctrl', label:'輕中度鎮靜用藥指引', note:'共 2 頁', pages:['img/guide-sedation-1.webp', 'img/guide-sedation-2.webp'], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
   {label:'大腸鏡同意書',     file:'colonoscopy', pages:2},
