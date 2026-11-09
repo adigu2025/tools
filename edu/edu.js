@@ -113,7 +113,7 @@ let FORMS = [
   {group:'ctrl', label:'空白管藥單', note:'共 1 頁', pages:['img/ctrl-blank.jpg'],     kind:'img'},
   {group:'ctrl', label:'麻醉紀錄表', note:'共 1 頁', pages:['img/anesthesia-record.jpg'], kind:'img'},
   // 院內作業指引，版面原始檔在 guide-src/
-  {group:'ctrl', label:'輕中度鎮靜用藥指引', note:'共 2 頁', pages:['img/guide-sedation-1.webp', 'img/guide-sedation-2.webp'], kind:'img'},
+  {group:'ctrl', label:'用藥指引', note:'共 2 頁', pages:['img/guide-sedation-1.webp', 'img/guide-sedation-2.webp'], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
   {label:'大腸鏡同意書',     file:'colonoscopy', pages:2},
