@@ -16,9 +16,10 @@
 *{box-sizing:border-box; margin:0; padding:0;}
 body{background:#9AA5AA; font-family:'Noto Sans TC',sans-serif; color:var(--body); text-spacing-trim:space-all;}
 .page{width:210mm; height:148.5mm; margin:20px auto; background:#fff; padding:10mm 10mm 13mm; display:flex; flex-direction:column;}
-.top{display:flex; justify-content:space-between; align-items:baseline; font-size:9.5px; letter-spacing:.12em; color:#6A6E70;}
+/* 頁首與頁尾的字級和 A4 單張（cards.html）相同：兩種版面都是 794 px 寬，同樣的 px 印出來一樣大 */
+.top{display:flex; justify-content:space-between; align-items:baseline; font-size:11.5px; letter-spacing:.14em; color:#6A6E70;}
 .top .no{letter-spacing:.06em; color:#3A3F42;}
-.top .no b{font-family:'Noto Serif TC',serif; font-weight:900; color:var(--gold); font-size:12.5px; margin-left:6px;}
+.top .no b{font-family:'Noto Serif TC',serif; font-weight:900; color:var(--gold); font-size:15px; margin-left:8px; letter-spacing:.02em;}
 .head{display:flex; align-items:baseline; gap:14px; margin-top:4px;}
 h1{font-family:'Noto Serif TC',serif; font-weight:900; font-size:27px; line-height:1.3; color:var(--ink); white-space:nowrap;}
 .lead{font-size:14px; color:var(--sub); line-height:1.5;}
@@ -50,12 +51,12 @@ table.tb td{border-bottom:1px solid var(--line); padding:3px 4px; line-height:1.
 table.tb th:last-child, table.tb td:last-child{white-space:nowrap;}
 table.tb td:last-child{font-weight:700; color:var(--ink);}
 .src{font-size:9.5px; color:#7A7E80; margin-top:4px; line-height:1.5;}
-/* 頁尾：左邊地址電話與版本，右下角官方 LINE QR code。
+/* 頁尾：左邊一行地址、電話與版本（診所名稱已在頁首，不重複），右下角官方 LINE QR code。
    QR code 疊在頁尾右側往上突出，頁尾高度只由地址決定，左欄可以多用一些高度；右欄內容不可壓到 QR code（見 fitReport） */
 .foot{margin-top:auto; border-top:1px solid #E0DCD4; padding-top:5px; position:relative;}
-.foot .addr{font-size:9.5px; color:#6A6E70; line-height:1.6;}
-.foot .addr span{margin-left:10px;}
-.qr{position:absolute; right:0; bottom:0; display:flex; flex-direction:column; align-items:flex-end; background:#fff; padding:4px 0 0 10px;}
+.foot .addr{font-size:11.5px; color:#6A6E70; line-height:1.75;}
+.foot .addr span{margin-left:12px;}
+.qr{position:absolute; right:0; bottom:0; display:flex; flex-direction:column; align-items:flex-end; background:#fff; padding:1px 0 0 10px;}
 .qr img{width:19mm; height:19mm; display:block;}
 .qr span{font-size:9px; color:#6A6E70; letter-spacing:.04em; margin-top:1px; white-space:nowrap;}
 .fit-bad{outline:3px solid #C0392B;}
@@ -96,7 +97,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便、劇烈腹痛或發燒，<br>請立即回診或至急診。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 檢查前 02 大腸鏡 ───────── -->
@@ -137,7 +138,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
         </ul></div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 檢查前 03 腹部超音波 ───────── -->
@@ -167,7 +168,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
         </ul></div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 檢查後 01 腸胃鏡 ───────── -->
@@ -201,7 +202,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便或大量血便、腹痛加劇、<br>發燒、頭暈心悸，請立即回診或至急診。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 治療後 01 瘜肉切除 ───────── -->
@@ -234,7 +235,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <p class="src">以清腸乾淨、完整切除為前提。資料來源：國健署《大腸癌篩檢指引》2021。</p>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 治療後 02 冷凝刀 ───────── -->
@@ -268,7 +269,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">大量出血、劇烈疼痛、發燒，或無法排尿，<br>請立即回診或至急診。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 治療後 03 抗逆流結紮 ───────── -->
@@ -295,7 +296,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便、劇烈胸痛或腹痛、發燒，<br>或完全無法吞嚥。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 用藥 01 幽門桿菌 ───────── -->
@@ -330,7 +331,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <p class="src">資料來源：Maastricht VI／Florence 共識，Gut 2022；Taipei Global Consensus，Gut 2020。</p>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ═════════ 疾病衛教（2026/11 新增）：版面與上面相同，頁首左邊改「疾病衛教」 ═════════ -->
@@ -361,7 +362,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">腹痛超過 6 小時、發燒畏寒、<br>皮膚或眼白變黃、茶色尿、灰白便。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 肝膽 02 膽囊瘜肉 ───────── -->
@@ -395,7 +396,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box"><div class="t">追蹤怎麼做</div><div class="c">6 個月、1 年、2 年各做一次超音波；<br>長到 10 mm 建議手術，2 年沒變化可停止。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 肝膽 03 脂肪肝 ───────── -->
@@ -426,7 +427,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <p class="src">資料來源：EASL、EASD、EASO MASLD 臨床指引，J Hepatol 2024。</p>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 腸胃 01 胃食道逆流 ───────── -->
@@ -458,7 +459,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">吐血、解黑便；<br>胸痛合併冒冷汗或喘，先排除心臟問題。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 腸胃 02 急性腸胃炎 ───────── -->
@@ -490,7 +491,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <p class="src">資料來源：衛生福利部疾病管制署諾羅病毒防治。</p>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 腸胃 03 痔瘡 ───────── -->
@@ -523,7 +524,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">大量出血或頭暈；<br>肛門腫硬劇痛、發燒。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 腎臟 01 腎結石 ───────── -->
@@ -557,7 +558,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <p class="src">資料來源：EAU 尿路結石指引 2024。</p>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 腎臟 02 腎水腫 ───────── -->
@@ -589,7 +590,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">發燒畏寒、腰痛加劇、<br>尿量明顯減少或解不出尿。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 慢性病 01 高血壓 ───────── -->
@@ -623,7 +624,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">血壓 180/120 以上，合併胸痛、喘、<br>劇烈頭痛、單側無力或說話不清。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 慢性病 02 糖尿病前期與糖尿病 ───────── -->
@@ -660,7 +661,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">意識不清、血糖持續 300 以上，<br>或口渴多尿合併嘔吐、呼吸急促。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <!-- ───────── 慢性病 03 血脂 ───────── -->
@@ -695,7 +696,7 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box alert"><div class="t">立即就醫</div><div class="c">上腹劇痛延伸到背部，合併嘔吐。</div></div>
     </div>
   </div>
-  <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
 </section>
 
 <script>
