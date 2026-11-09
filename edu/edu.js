@@ -82,11 +82,13 @@ const EDU_LIST = [
   ['disease', '腸胃',     '胃食道逆流',       ICON.stomach,  ['img/edu-a5-gerd.webp'], 'A5'],
   ['disease', '腸胃',     '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
   ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
+  ['disease', '腸胃',     '胃潰瘍、十二指腸潰瘍', ICON.stomach, ['img/edu-a5-peptic-ulcer.webp'], 'A5'],
   ['disease', '腎臟',     '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
   ['disease', '腎臟',     '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
   ['disease', '慢性病',   '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
   ['disease', '慢性病',   '糖尿病前期與糖尿病', ICON.drop,   ['img/edu-a5-diabetes.webp'], 'A5'],
   ['disease', '慢性病',   '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
+  ['disease', '慢性病',   '高尿酸與痛風',     ICON.drop,     ['img/edu-a5-gout.webp'], 'A5'],
   ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
   ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
 ];
