@@ -142,6 +142,8 @@ async function ckParsePdf(file){
       rep.birth = ckRoc(g(/出生日期：(\d{2,3}\/\d{1,2}\/\d{1,2})/));
       rep.age = g(/年齡：(\d+)歲/);
       rep.date = ckRoc(g(/收件日期：(\d{2,3}\/\d{1,2}\/\d{1,2})/)) || ckRoc(g(/開單日期：(\d{2,3}\/\d{1,2}\/\d{1,2})/));
+      // 開單日期：減重與健檢報告的「檢查日期」用這一天；rep.date（收件日期）仍用來排歷年報告的先後
+      rep.orderDate = ckRoc(g(/開單日期：(\d{2,3}\/\d{1,2}\/\d{1,2})/)) || rep.date;
       rep.reportDate = ckRoc(g(/報告日期：(\d{2,3}\/\d{1,2}\/\d{1,2})/));
     }
 

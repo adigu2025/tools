@@ -632,6 +632,14 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .rx-panel .panel-head{margin-bottom:10px;}
 .rx-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px 12px;margin-bottom:6px;}
 .rx-fields .rx-wide{grid-column:span 2;}
+/* 會採納兩次檢驗的欄位：本次與前次上下對齊 */
+.rx-fields.rx-pair{grid-template-columns:repeat(6,minmax(0,1fr));}
+.rx-fields.rx-pair + .rx-fields{margin-top:8px;}
+@media (max-width:600px){
+  .rx-fields.rx-pair{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .rx-fields.rx-pair .rx-wide{grid-column:1 / -1;}
+  .rx-fields.rx-pair .rx-gap{display:none;}
+}
 .rx-sub{font-size:12.5px;font-weight:700;color:var(--teal-dark);margin:10px 0 6px;}
 .rx-sub small{font-weight:500;color:var(--faint);margin-left:6px;}
 /* 用藥判定欄位多，三個操作鈕加大，上傳鈕用實心主色 */
@@ -1214,6 +1222,11 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <p class="field-err" hidden></p>
         </div>
         <div class="field">
+          <div class="field-head"><label for="fib-plt">血小板</label><span class="field-unit">10⁹/L</span></div>
+          <input type="number" id="fib-plt" min="1" max="1500" step="1" inputmode="numeric" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
           <div class="field-head"><label for="fib-ast">AST</label><span class="field-unit">U/L</span></div>
           <input type="number" id="fib-ast" min="1" max="5000" step="1" inputmode="numeric" autocomplete="off">
           <p class="field-err" hidden></p>
@@ -1221,11 +1234,6 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <div class="field">
           <div class="field-head"><label for="fib-alt">ALT</label><span class="field-unit">U/L</span></div>
           <input type="number" id="fib-alt" min="1" max="5000" step="1" inputmode="numeric" autocomplete="off">
-          <p class="field-err" hidden></p>
-        </div>
-        <div class="field">
-          <div class="field-head"><label for="fib-plt">血小板</label><span class="field-unit">10⁹/L</span></div>
-          <input type="number" id="fib-plt" min="1" max="1500" step="1" inputmode="numeric" autocomplete="off">
           <p class="field-err" hidden></p>
         </div>
       </div>
@@ -1480,10 +1488,6 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
       <p class="rx-ocr" data-ocr="lipidrx"><span class="rx-ocr-msg" id="lx-ocrMsg">截圖可一次選多張、按 Ctrl+V 貼上或直接拖進來，自動帶入性別、年齡、血脂四項與腰圍；不同日期的兩次檢驗會分別帶入本次與前次。影像只在本機辨識，不上傳。</span></p>
 
       <div class="rx-fields">
-        <div class="field rx-wide">
-          <div class="field-head"><label for="lx-date">本次檢驗日期</label></div>
-          <input type="date" id="lx-date" autocomplete="off">
-        </div>
         <div class="field">
           <div class="field-head"><label for="lx-sex">性別</label></div>
           <select id="lx-sex">
@@ -1496,6 +1500,18 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <div class="field-head"><label for="lx-age">年齡</label><span class="field-unit">歲</span></div>
           <input type="number" id="lx-age" min="0" max="120" step="1" inputmode="numeric" autocomplete="off">
           <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="lx-waist">腰圍</label><span class="field-unit">cm</span></div>
+          <input type="number" id="lx-waist" min="40" max="200" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+      </div>
+      <div class="rx-sub">檢驗數值<small>前次為選填：間隔 ≥3 個月的另一次數據，兩次都達起始值即可佐證生活型態調整後仍未達標</small></div>
+      <div class="rx-fields rx-pair">
+        <div class="field rx-wide">
+          <div class="field-head"><label for="lx-date">本次檢驗日期</label></div>
+          <input type="date" id="lx-date" autocomplete="off">
         </div>
         <div class="field">
           <div class="field-head"><label for="lx-tc">Cholesterol</label></div>
@@ -1517,14 +1533,6 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <input type="number" id="lx-ldl" min="0" max="500" step="1" inputmode="decimal" autocomplete="off">
           <p class="field-err" hidden></p>
         </div>
-        <div class="field">
-          <div class="field-head"><label for="lx-waist">腰圍</label><span class="field-unit">cm</span></div>
-          <input type="number" id="lx-waist" min="40" max="200" step="0.1" inputmode="decimal" autocomplete="off">
-          <p class="field-err" hidden></p>
-        </div>
-      </div>
-      <div class="rx-sub">前次檢驗<small>選填：間隔 ≥3 個月的另一次數據，兩次都達起始值即可佐證生活型態調整後仍未達標</small></div>
-      <div class="rx-fields">
         <div class="field rx-wide">
           <div class="field-head"><label for="lx-date0">前次檢驗日期</label></div>
           <input type="date" id="lx-date0" autocomplete="off">
@@ -1649,27 +1657,25 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           </select>
         </div>
         <div class="field">
-          <div class="field-head"><label for="hb-alt1">ALT 最近</label><span class="field-unit">U/L</span></div>
-          <input type="number" id="hb-alt1" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
-          <p class="field-err" hidden></p>
-        </div>
-        <div class="field">
-          <div class="field-head"><label for="hb-alt2" title="半年內另一次">ALT 前次</label><span class="field-unit">U/L</span></div>
-          <input type="number" id="hb-alt2" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
-          <p class="field-err" hidden></p>
-        </div>
-        <div class="field">
           <div class="field-head"><label for="hb-uln">ALT 上限</label><span class="field-unit">U/L</span></div>
           <input type="number" id="hb-uln" min="1" max="200" step="1" inputmode="numeric" autocomplete="off" value="40">
           <p class="field-err" hidden></p>
         </div>
         <div class="field rx-wide">
+          <div class="field-head"><label for="hb-dna">HBV DNA</label><span class="field-unit">IU/mL</span></div>
+          <input type="text" id="hb-dna" min="0" max="500000000" inputmode="decimal" autocomplete="off" title="可輸入 20000 或 2e5">
+          <p class="field-err" hidden></p>
+        </div>
+      </div>
+      <div class="rx-fields rx-pair">
+        <div class="field rx-wide">
           <div class="field-head"><label for="hb-date1">最近檢驗日期</label></div>
           <input type="date" id="hb-date1" autocomplete="off">
         </div>
-        <div class="field rx-wide">
-          <div class="field-head"><label for="hb-date2">前次檢驗日期</label></div>
-          <input type="date" id="hb-date2" autocomplete="off">
+        <div class="field">
+          <div class="field-head"><label for="hb-alt1">ALT 最近</label><span class="field-unit">U/L</span></div>
+          <input type="number" id="hb-alt1" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
+          <p class="field-err" hidden></p>
         </div>
         <div class="field">
           <div class="field-head"><label for="hb-ast">AST</label><span class="field-unit">U/L</span></div>
@@ -1681,11 +1687,18 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <input type="number" id="hb-plt" min="1" max="1500" step="1" inputmode="numeric" autocomplete="off">
           <p class="field-err" hidden></p>
         </div>
+        <div class="field rx-gap" aria-hidden="true"></div>
         <div class="field rx-wide">
-          <div class="field-head"><label for="hb-dna">HBV DNA</label><span class="field-unit">IU/mL</span></div>
-          <input type="text" id="hb-dna" min="0" max="500000000" inputmode="decimal" autocomplete="off" title="可輸入 20000 或 2e5">
+          <div class="field-head"><label for="hb-date2">前次檢驗日期</label></div>
+          <input type="date" id="hb-date2" autocomplete="off">
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="hb-alt2" title="半年內另一次">ALT 前次</label><span class="field-unit">U/L</span></div>
+          <input type="number" id="hb-alt2" min="0" max="5000" step="1" inputmode="numeric" autocomplete="off">
           <p class="field-err" hidden></p>
         </div>
+      </div>
+      <div class="rx-fields">
         <div class="field">
           <div class="field-head"><label for="hb-fs">Fibroscan</label><span class="field-unit">kPa</span></div>
           <input type="number" id="hb-fs" min="0" max="75" step="0.1" inputmode="decimal" autocomplete="off">

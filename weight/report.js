@@ -83,9 +83,9 @@ function rCollect(){
   d.msPositive = d.msCount >= 3;
   d.msAny = d.msCount > 0 || hb != null || ['b-waist', 'b-sbp', 'lab-ac', 'lab-tg', 'lab-hdl'].some(id=> rS(id));
   // 睡眠：問卷沒有勾任何一題、也沒手動輸入分數時，視為未評估（系統自動加的年齡、性別、BMI 分數不單獨成立）
-  const sbAnswered = STOPBANG_ITEMS.some(it=> chk(it.id)) || rS('stopbang-manual') !== '';
+  const sbAnswered = STOPBANG_ITEMS.some(it=> chk(it.id)) || chk('sb-neck') || rS('stopbang-manual') !== '';
   d.sb = sbAnswered ? calcStopBang() : null;
-  d.sbItems = STOPBANG_ITEMS.filter(it=> chk(it.id)).map(it=> it.label);
+  d.sbItems = STOPBANG_ITEMS.filter(it=> chk(it.id)).map(it=> it.label).concat(chk('sb-neck') ? ['頸圍超過 40 公分'] : []);
   d.gSb = d.sb == null ? -1 : d.sb >= 5 ? 2 : d.sb >= 3 ? 1 : 0;
   const phq = calcPhq9();
   d.phq = phq;
@@ -262,6 +262,8 @@ function rChBody(d){
   const rows = [];
   rows.push(['腰圍', 'Waist', d.waist == null ? null : d.waist, 'cm', (d.male ? '< 90' : '< 80'), d.gWaist, d.waist == null ? '' : rBar(d.waist, [60, 130], [[d.waistCut, 0], [Infinity, 2]])]);
   rows.push(['血壓', 'Blood Pressure', (d.sbp != null && d.dbp != null) ? `${d.sbp}/${d.dbp}` : null, 'mmHg', '< 130/80', d.gBp, '']);
+  const hr = rN('b-hr');
+  if(hr != null) rows.push(['心跳', 'Heart Rate', hr, '次/分', '60 至 100', hr < 50 || hr > 110 ? 2 : (hr < 60 || hr > 100 ? 1 : 0), '']);
   const tgt = rN('b-target-weight');
   rows.push(['目標體重', 'Target Weight', tgt, 'kg', '', -2, tgt != null && d.w ? `<span class="small muted">需減少 ${((d.w - tgt) / d.w * 100).toFixed(1)}%</span>` : '']);
   blocks.push(rBlock('體位與血壓', 'ANTHROPOMETRICS',
@@ -400,7 +402,7 @@ function rChLab(d){
       `<table class="rt"><colgroup><col style="width:46%"><col style="width:36%"><col style="width:18%"></colgroup>` +
       `<thead><tr><th>指標</th><th>本次數值</th><th class="c">判定</th></tr></thead><tbody class="ru-host">${trs}</tbody></table>` +
       `<p class="note-line tail">五項中符合三項以上即成立。<br>共符合 <b>${d.msCount}</b>／5 項${hb != null ? `；HbA1c ${hb}%${d.msHba1c ? '，屬糖尿病前期' : ''}` : ''}。　結果：${d.msPositive ? rPill(2, '符合代謝症候群') : rPill(0, '未達診斷標準')}</p>` +
-      (rS('metabolic-note') ? `<p class="note-line tail">${rLines('備註：' + rS('metabolic-note'), 42)}</p>` : ''), {split:true}));
+      '', {split:true}));
   }
 
   const rowsL = (trackData.lab || []).filter(r=> TRACK_COLS.lab.some(([k])=> k !== 'date' && String(r[k] || '').trim()));
@@ -435,10 +437,10 @@ function rChHistory(d){
   const blocks = [];
   const {sc, meds} = rScreeningLists();
   const kv = (rows)=> `<table class="rt kv"><tbody class="ru-host">${rows.filter(Boolean).map(([k, v])=> `<tr class="ru"><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>`;
-  const withNote = (list, noteId, none)=> (list.length ? rBr(list.join('、'), 27) : `<span class="muted">${none}</span>`) + (rS(noteId) ? `<div class="small muted">${rLines(rS(noteId), 29)}</div>` : '');
+  const withNote = (list, none)=> list.length ? rBr(list.join('、'), 27) : `<span class="muted">${none}</span>`;
   blocks.push(rBlock('次發性肥胖<br>與藥物因素', 'SECONDARY CAUSES', kv([
-    ['次發性肥胖篩檢', withNote(sc, 'sc-note', '未發現')],
-    ['藥物性因素', withNote(meds, 'med-note', '無')],
+    ['次發性肥胖篩檢', withNote(sc, '未發現')],
+    ['藥物性因素', withNote(meds, '無')],
   ]), {split:true}));
 
   const diet = stripHeaderLine(rS('diet-habit-text'), CATEGORY_TEXT_HEADERS['diet-habit-text']);
@@ -450,18 +452,19 @@ function rChHistory(d){
 
   const motiv = rS('motiv-score');
   // 男性不列生育計畫
-  blocks.push(rBlock(d.male ? '家族史與動機' : '家族史、<br>生育計畫與動機', 'BACKGROUND', kv([
+  // 順序跟製作介面一致：睡眠、情緒評估之後才是家族史、生育計畫與動機
+  const famBlock = (rBlock(d.male ? '家族史與動機' : '家族史、<br>生育計畫與動機', 'BACKGROUND', kv([
     ['家族史', rS('fam-note') ? rLines(rS('fam-note'), 27) : '<span class="muted">未記錄</span>'],
-    !d.male && ['生育計畫', rS('preg-plan') ? wEsc(rS('preg-plan')) : '<span class="muted">未評估</span>'],
+    !d.male && ['生育計畫', rS('preg-plan') ? rBr(wPregText(), 27) : '<span class="muted">未評估</span>'],
     ['減重意願與準備度', motiv ? `<b>${wEsc(motiv)}</b> / 10` : '<span class="muted">未評估</span>'],
     ['社會支持', rS('motiv-support') ? rBr(rS('motiv-support'), 27) : '<span class="muted">未記錄</span>'],
-  ].concat(rS('fam-motiv-note') ? [['備註', rLines(rS('fam-motiv-note'), 27)]] : [])), {split:true}));
+  ]), {split:true}));
 
   const sbHtml = d.sb == null
     ? '<div class="empty">未填寫 STOP-BANG 問卷。</div>'
     : `<div class="scale-row"><div class="score">STOP-BANG 分數<b>${d.sb}<small style="font-size:13px; color:#9A9387"> / 8</small></b>${rPill(d.gSb, ['低風險', '中風險', '高風險'][d.gSb])}</div>` +
       rScale(d.sb, 9, [[3, 0, '0 至 2 低風險'], [5, 1, '3 至 4 中風險'], [9, 2, '5 至 8 高風險']], 340) + `</div>` +
-      `<div class="items">${d.sbItems.length ? '問卷勾選：<br>' + d.sbItems.map(t=> '・' + wEsc(t)).join('<br>') : '問卷各題皆未勾選。'}<br>另依資料自動計分：BMI ＞ 35、年齡 ＞ 50 歲、男性；頸圍未納入。</div>`;
+      `<div class="items">${d.sbItems.length ? '問卷勾選：<br>' + d.sbItems.map(t=> '・' + wEsc(t)).join('<br>') : '問卷各題皆未勾選。'}<br>另依資料自動計分：BMI ＞ 35、年齡 ＞ 50 歲、男性。</div>`;
   blocks.push(rBlock('睡眠評估', 'SLEEP APNEA SCREENING', sbHtml));
 
   const phqHtml = !d.phq
@@ -469,7 +472,8 @@ function rChHistory(d){
     : `<div class="scale-row"><div class="score">PHQ-9 總分<b>${d.phq.total}<small style="font-size:13px; color:#9A9387"> / 27</small></b>${rPill(d.gPhq, d.phq.severity)}</div>` +
       rScale(d.phq.total, 28, [[5, 0, '0 至 4 無明顯'], [10, 1, '5 至 9 輕度'], [28, 2, '10 以上 中度至重度']], 340) + `</div>` +
       (d.phq.item9 >= 1 ? `<p class="warn">第 9 題（傷害自己的念頭）有作答，<br>建議立即評估自殺風險並轉介身心科。</p>` : '');
-  blocks.push(rBlock('情緒評估', 'MOOD SCREENING', phqHtml + (rS('sleep-note') ? `<p class="note-line">${rLines('睡眠與心理評估備註：' + rS('sleep-note'), 42)}</p>` : '')));
+  blocks.push(rBlock('情緒評估', 'MOOD SCREENING', phqHtml));
+  blocks.push(famBlock);
 
   blocks.push(rRichBlock('共病症', 'COMORBIDITIES', rS('cm-note')) || rBlock('共病症', 'COMORBIDITIES', '<div class="empty">未記錄共病症。</div>'));
   return blocks;
@@ -485,7 +489,8 @@ function rChPlan(d){
     ['第三階', '內視鏡輔助減重', '胃內肉毒桿菌注射、胃內水球置放、內視鏡縮胃術。<br>自費項目，需完整說明效果、風險與費用。', '藥物治療 3 個月，<br>減重未達 5%，或無法用藥'],
     ['第四階', '減重手術', '袖狀胃切除、胃繞道，轉介外科評估。', 'BMI ≥ 37.5，<br>或 BMI ≥ 32.5 合併嚴重共病'],
   ];
-  const cur = onMed ? 1 : (tx.length ? 0 : -1);
+  // 本次在哪一階：醫師在「治療分層流程」點選的優先，沒點就用系統預設（app.js 的 wTier）
+  const cur = (typeof wTier === 'function' ? wTier() : (onMed ? 2 : (tx.length ? 1 : 0))) - 1;
   blocks.push(rBlock('治療階梯', 'TREATMENT PATHWAY',
     `<div class="ladder">${tiers.map(([n, h, p, w], i)=> `<div class="tier${i === cur ? ' on' : ''}"><div><div class="n">${n}${i === cur ? '<span class="now">本次</span>' : ''}</div><h5>${h}</h5><div class="when">${w}</div></div><p>${p}</p></div>`).join('')}</div>` +
     `<p class="note-line" style="white-space:nowrap">肥胖治療採階梯式進行，每一階都建立在生活型態調整上；符合手術條件者可直接轉介評估。</p>`));
@@ -534,19 +539,21 @@ function rChFollow(d){
     ['長期', ['每 3 至 6 個月'], '規律回診', onMed ? '目標是「不復胖」。<br>停藥前後尤其要留意體重變化。' : '目標是「不復胖」。<br>體重回升時提早回診，一起調整計畫。'],
   ].filter(Boolean);
   blocks.push(rBlock('回診與<br>追蹤時程', 'FOLLOW-UP SCHEDULE',
-    `<div class="ru-host">${plan.map(([w, sub, h, t])=> `<div class="tl-row ru"><div><div class="tl-when">${w}</div>${sub.map(x=> `<div class="tl-sub">${x}</div>`).join('')}</div><div><h4>${h}</h4><div class="what">${t}</div></div></div>`).join('')}</div>` +
-    `<p class="note-line tail">日期由檢查日期推算，實際回診以預約為準。${rS('track-note') ? '<br>' + rLines(rS('track-note'), 42) : ''}</p>`, {split:true}));
+    `<div class="ru-host">${plan.map(([w, sub, h, t], i)=> `<div class="tl-row ru" style="padding:${i ? 8 : 0}px 0 8px"><div><div class="tl-when">${w}</div>${sub.map(x=> `<div class="tl-sub">${x}</div>`).join('')}</div><div><h4>${h}</h4><div class="what">${t}</div></div></div>`).join('')}</div>` +
+    `<p class="note-line tail">日期由檢查日期推算，實際回診以預約為準。</p>`, {split:true}));
 
   const psy = [];
   if(chk('psy-refer')) psy.push('建議轉介身心科或心理諮商');
   if(chk('psy-support')) psy.push('已建立支持系統（家人、朋友、定期回診）');
-  if(psy.length || rS('psy-note')){
+  if(psy.length){
     blocks.push(rBlock('心理支持<br>與復胖預防', 'SUPPORT',
-      `<div class="rich ru-host">${psy.map(t=> `<div class="li ru">${rBr(t, 35)}</div>`).join('')}${rRich(rS('psy-note'))}</div>`, {split:true}));
+      `<div class="rich ru-host">${psy.map(t=> `<div class="li ru">${rBr(t, 35)}</div>`).join('')}</div>`, {split:true}));
   }
-  // 文字由 wWarnText() 提供：預設依用藥與性別產生，醫師可在「追蹤」頁修改
-  const warn = wWarnText().split('\n').map(t=> t.trim()).filter(Boolean);
-  if(warn.length) blocks.push(rCallout('提早就醫', warn.map(t=> `<div class="li ru">${rBr(t, 34)}</div>`).join(''), true));
+  // 文字由 wWarnText() 提供：依用藥與性別產生。醫師另外寫的提醒在「追蹤備註與提早就醫提醒」，印在回診時程下方
+  // 醫師在「追蹤備註與提早就醫提醒」寫的內容排在這一框的最前面，跟自動產生的提醒印在一起
+  const warn = rS('track-note').split('\n').concat(wWarnText().split('\n')).map(t=> t.trim()).filter(Boolean);
+  if(warn.length) blocks.push(rCallout('提早就醫', warn.map(t=> `<div class="li ru">${rBr(t, 34)}</div>`).join(''), true)
+    .replace('class="rb callout', 'class="rb keep-prev callout'));   // 不讓這一框單獨落在下一頁
   return blocks;
 }
 

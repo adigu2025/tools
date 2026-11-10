@@ -1172,7 +1172,7 @@ function ckRenderFind(){
   const d = ckCollect();
   const box = ckEl('k-find');
   if(!d.findingsAll.length){ box.innerHTML = '<div class="k-empty" style="display:block">目前沒有判讀為「注意」或「異常」的項目。</div>'; }
-  else box.innerHTML = '<p class="k-note" style="margin:0 0 4px">系統自動判讀的結果，請逐項確認；取消勾選的項目不會印在報告上，也不會產生建議。</p>' +
+  else box.innerHTML = '' +
     d.findingsAll.map(x=> `<div class="${x.off ? 'off' : ''}"><span class="g${x.g}">${x.g === 2 ? '異常' : '注意'}</span><span>${x.html}</span>` +
       `<label class="k-fin"><input type="checkbox" data-fin="${ckEsc(x.key)}"${x.off ? '' : ' checked'}> 列入報告</label></div>`).join('');
   if(d.fib4 && d.fib4.miss) box.insertAdjacentHTML('beforeend', `<div><span class="gna">提醒</span><span>FIB-4 無法計算：缺${d.fib4.miss.join('、')}。</span></div>`);
@@ -1481,7 +1481,7 @@ async function ckAddFiles(files){
   const cur = ckSortedReports()[0];
   if(cur){
     const fill = (k, v)=>{ if(v && !CK.info[k]) CK.info[k] = v; };
-    fill('name', cur.name); fill('chart', cur.chart); fill('sex', cur.sex); fill('birth', cur.birth); fill('date', cur.date);
+    fill('name', cur.name); fill('chart', cur.chart); fill('sex', cur.sex); fill('birth', cur.birth); fill('date', cur.orderDate || cur.date);   // 檢查日期用開單日期，沒有才用收件日期
     if(!CK.info.age){ const a = ckAgeAt(cur.birth, cur.date); CK.info.age = a != null ? String(a) : (cur.age || ''); }
   }
   ckSave();

@@ -314,6 +314,49 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 .w-lab td.g{white-space:nowrap; font-size:13.5px; font-weight:700;}
 .w-lab .g0{color:#3F6E4D;} .w-lab .g1{color:#8A5F1F;} .w-lab .g2{color:#A8352F;}
 .w-lab-empty{padding:12px 0 4px; color:var(--muted); font-size:14.5px;}
+
+/* ══ 2026-11 選項一律按鈕式：勾選框與單選鈕都藏起來，整塊是按鈕，選取用深灰底白字 ══ */
+.w-vitals{grid-template-columns:1fr 1fr 1fr 1.7fr 1fr !important;}
+@media (max-width:760px){ .w-vitals{grid-template-columns:1fr 1fr !important;} }
+.chk-grid{display:flex; flex-wrap:wrap; gap:8px;}
+.chk-row{position:relative; display:flex; align-items:center; gap:8px; margin:0; padding:0;}
+.chk-row input[type=checkbox]{position:absolute; opacity:0; width:1px; height:1px; margin:0; pointer-events:none;}
+.chk-row label{display:inline-flex; align-items:center; min-height:42px; padding:8px 15px; border:1.5px solid var(--border); border-radius:10px;
+  background:#FAF9F6; font-size:15px; line-height:1.35; color:var(--navy); cursor:pointer; user-select:none; transition:.15s;}
+.chk-row label:hover{border-color:#CFC6B6; background:#fff;}
+.chk-row input:checked + label{background:var(--sel); border-color:var(--sel); color:#fff;}
+.chk-row input:focus-visible + label{box-shadow:0 0 0 4px rgba(188,127,48,.2);}
+.chk-row.chk-other{grid-column:auto;}
+.chk-row.chk-other:has(input:checked){flex:1 1 100%;}
+.chk-row.auto label{cursor:default; border-style:dashed;}
+.chk-row.auto label:hover{border-color:var(--border); background:#FAF9F6;}
+.chk-row.auto input:checked + label, .chk-row.auto input:checked + label:hover{background:var(--sel); border-color:var(--sel); border-style:solid;}
+.chk-row.auto label::after{content:'自動'; font-size:11.5px; margin-left:8px; opacity:.65;}
+/* 代謝症候群五項排成一列 */
+.ms-grid{grid-template-columns:repeat(5,minmax(0,1fr));}
+.ms-grid .ms-item, .ms-grid .ms-item.w3{grid-column:auto; position:relative; cursor:pointer;}
+.ms-item input[type=checkbox]{position:absolute; opacity:0; width:1px; height:1px; pointer-events:none;}
+.ms-item:hover{border-color:#CFC6B6; background:#fff;}
+@media (max-width:760px){ .ms-grid{grid-template-columns:1fr 1fr;} }
+/* 問卷：同一題的選項排在同一列 */
+.choice-grid{grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr);}
+@media (max-width:760px){ .choice-grid{grid-auto-flow:row; grid-template-columns:1fr 1fr;} }
+#diet-category-group h3:first-child, #activity-category-group h3:first-child{margin-top:0;}
+.scale-row{gap:14px;}
+.scale-opts{gap:6px; flex:none;}
+.scale-opts label{font-size:14px; color:var(--navy); padding:8px 12px; border-radius:10px; border-width:1.5px; background:#FAF9F6; white-space:nowrap; transition:.15s;}
+.scale-opts label:hover{border-color:#CFC6B6; background:#fff;}
+.scale-opts input:checked + span{background:transparent; padding:0; color:#fff;}
+/* 1 至 10 分 */
+.choice-row.score-row{grid-template-columns:repeat(10,minmax(0,1fr)); max-width:620px;}
+.choice-row.score-row .choice-btn{min-height:44px; align-items:center; padding:6px 0;}
+/* 治療分層：可點選 */
+button.ladder-step{display:block; width:100%; text-align:left; font:inherit; cursor:pointer; transition:.15s;}
+button.ladder-step:hover{border-color:#CFC6B6; background:#fff;}
+button.ladder-step.on{background:var(--sel); border-color:var(--sel);}
+button.ladder-step.on h4{color:#fff;}
+button.ladder-step.on p{color:rgba(255,255,255,.8);}
+#tier-now.manual{color:var(--primary-dark); border-color:var(--primary);}
 </style>
 <div class="w-body" id="w-body" tabindex="-1">
 <header class="banner">
@@ -353,36 +396,34 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <!-- ══════════ 上傳報告 ══════════ -->
 <section class="screen" id="screen-upload">
   <div class="card">
-    <h2>上傳報告<small>所有檔案只在這台電腦讀取，不會上傳；讀得到文字的會自動帶入下方欄位，上傳的報告會附在評估報告最後</small></h2>
-    <h3 style="margin-top:4px">抽血報告<small class="w-uph">優品醫事檢驗所的 PDF 會依欄位讀出全部項目，包含血液常規與尿液檢查；檢驗單上的 eGFR 優先於依肌酸酐估算的數值</small></h3>
+    <h2>上傳報告</h2>
+    <h3 style="margin-top:4px">優品檢驗</h3>
     <div class="upload-zone" id="lab-drop" onclick="WD.getElementById('lab-file').click()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳抽血報告（PDF 或 JPG、PNG 圖檔）
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳（PDF、JPG、PNG）
       <input type="file" id="lab-file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none">
     </div>
     <div class="file-list" id="lab-filelist"></div>
-    <div class="btnrow"><button class="btn outline" onclick="fillCurrentLabFieldsFromUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 重新帶入下方欄位</button><button class="btn outline" onclick="extractFromUploads('lab')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 加入追蹤紀錄</button></div>
-    <div class="hint">上傳後自動帶入。優品醫事檢驗所的 PDF 依欄位位置讀取（與健檢報告同一套）；其他檢驗所的 PDF 改用關鍵字比對，非 AI 判讀。掃描檔與圖檔只附在報告中。帶入後請務必核對數值</div>
-    <h3>TANITA 身體組成<small class="w-uph">有文字層的 PDF 可自動擷取數值；擷取到的數值優先於公式估算（例如 BMR）</small></h3>
+    <div class="btnrow"><button class="btn outline" onclick="fillCurrentLabFieldsFromUpload()">重新帶入欄位</button><button class="btn outline" onclick="extractFromUploads('lab')">加入追蹤紀錄</button></div>
+    <h3>TANITA</h3>
     <div class="upload-zone" id="tanita-drop" onclick="WD.getElementById('tanita-file').click()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳 TANITA 報告（PDF 或 JPG、PNG 圖檔）
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳（PDF、JPG、PNG）
       <input type="file" id="tanita-file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none">
     </div>
     <div class="file-list" id="tanita-filelist"></div>
-    <div class="btnrow"><button class="btn outline" onclick="fillCurrentBodyFieldsFromUpload()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 重新帶入下方欄位</button><button class="btn outline" onclick="extractFromUploads('tanita')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg> 加入追蹤紀錄</button></div>
-    <div class="hint">上傳後自動帶入。以關鍵字比對 PDF 文字內容擷取，非 AI 判讀，僅適用於有文字層的 PDF（掃描檔與圖檔只附在報告中），擷取後請務必核對再使用</div>
-    <label class="rpt-att-opt" style="margin-top:14px"><input type="checkbox" id="rpt-att"> 報告最後附上原始報告（上傳的抽血、TANITA 報告）</label>
+    <div class="btnrow"><button class="btn outline" onclick="fillCurrentBodyFieldsFromUpload()">重新帶入欄位</button><button class="btn outline" onclick="extractFromUploads('tanita')">加入追蹤紀錄</button></div>
+    <div class="chk-grid" style="margin-top:16px"><div class="chk-row"><input type="checkbox" id="rpt-att"><label for="rpt-att">報告最後附上原始報告</label></div></div>
   </div>
 </section>
 
 <!-- ══════════ 1 基本資料 ══════════ -->
 <section class="screen" id="screen-basic">
   <div class="card">
-    <h2>基本資料<small>上傳抽血 PDF 後自動帶入，可以修改；已經填過的欄位不會被覆蓋</small></h2>
+    <h2>基本資料</h2>
     <div class="grid">
       <div class="field"><label>姓名</label><input id="p-name"></div>
       <div class="field"><label>病歷號</label><input id="p-chart" type="text"></div>
       <div class="field"><label>性別</label><select id="p-gender"><option value="" selected></option><option value="M">男</option><option value="F">女</option></select></div>
-      <div class="field"><label>出生年月日（西元年－月－日）</label>
+      <div class="field"><label>出生年月日（西元）</label>
         <div style="display:flex; gap:4px; align-items:center">
           <input id="p-birth-y" type="text" inputmode="numeric" maxlength="4" style="width:78px">
           <span>-</span>
@@ -393,22 +434,22 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
         </div>
       </div>
       <div class="field"><label>檢查日期</label><input id="p-date" type="date"></div>
-      <div class="field"><label>年齡（自動計算）</label><input id="p-age" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label>年齡</label><input id="p-age" readonly style="background:#F4F2EE"></div>
     </div>
   </div>
   <div class="card">
-    <h2>身高體重、腰圍、血壓</h2>
-    <div class="hint" style="margin-top:-4px">上傳 TANITA 報告時，身高與體重會自動帶入這裡（標示「上傳」）；已經自己輸入或改過的數值不會被覆蓋。</div>
-    <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+    <h2>身高體重、腰圍、血壓、心跳</h2>
+    <div class="grid w-vitals">
       <div class="field"><label>身高 (cm)</label><input id="b-height" type="number" min="100" max="250" step="0.1"></div>
       <div class="field"><label>體重 (kg)</label><input id="b-weight" type="number" min="20" max="400" step="0.1"></div>
       <div class="field"><label>腰圍 (cm)</label><input id="b-waist" type="number" min="40" max="250" step="0.1"></div>
-      <div class="field"><label>血壓 收縮/舒張 (mmHg)</label><div style="display:flex; gap:6px"><input id="b-sbp" type="number" min="60" max="300"><input id="b-dbp" type="number" min="30" max="200"></div></div>
+      <div class="field"><label>血壓 收縮／舒張 (mmHg)</label><div style="display:flex; gap:6px"><input id="b-sbp" type="number" min="60" max="300"><input id="b-dbp" type="number" min="30" max="200"></div></div>
+      <div class="field"><label>心跳 (次/分)</label><input id="b-hr" type="number" min="30" max="220" step="1"></div>
     </div>
     <div class="grid" style="margin-top:14px">
       <div class="field"><label>目標體重 (kg)</label><input id="b-target-weight" type="number" min="20" max="400" step="0.1"></div>
-      <div class="field"><label>預計減重比例（填目標體重後自動計算）</label><input id="target-loss-pct" readonly style="background:#F4F2EE"></div>
-      <div class="field"><label>標準體重範圍（BMI 18.5 至 24，填身高後自動計算）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label>預計減重比例</label><input id="target-loss-pct" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label>標準體重範圍（BMI 18.5 至 24）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
     </div>
     <div id="bmi-result" style="margin-top:20px; display:none">
       <div style="display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap">
@@ -443,7 +484,6 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <section class="screen" id="screen-body">
   <div class="card">
     <h2>身體組成數值</h2>
-    <div class="hint" style="margin-top:-4px">可由上方上傳的報告自動帶入，也可以直接輸入。</div>
     <div class="grid">
       <div class="field"><label>體脂肪率 (%)</label><input id="t-fat" type="number" min="1" max="80" step="0.1"></div>
       <div class="field"><label>肌肉量 (kg)</label><input id="t-muscle" type="number" min="5" max="150" step="0.1"></div>
@@ -455,17 +495,14 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       <div class="field"><label>四肢骨骼肌指數 SMI (kg/m²)</label><input id="t-smi" type="number" min="2" max="20" step="0.1"></div>
       <div class="field"><label>相位角 Phase Angle</label><input id="t-phaseangle" type="number" min="1" max="15" step="0.1"></div>
     </div>
-    <div class="hint">SMI與相位角為進階生物電阻抗（BIA）指標，若TANITA機型未提供可留空，不影響其他評估項目</div>
+    <div class="field" style="margin-top:14px"><label>身體組成備註</label><textarea id="body-note"></textarea></div>
     <div class="btnrow"><button class="btn" onclick="calcBody()">套用分析</button></div>
     <div id="body-result" style="margin-top:14px; display:none" class="summary-box"></div>
-    <div class="field" style="margin-top:12px"><label>身體組成備註</label><textarea id="body-note"></textarea></div>
   </div>
 
   <div class="card">
     <h2>身體組成追蹤紀錄</h2>
-    <div class="hint">每次回診記錄一筆，用於追蹤治療進度</div>
     <div class="btnrow" style="margin-top:0"><button class="btn outline" onclick="addTrackRow('body')">＋ 帶入目前頁面數值</button><button class="btn outline" onclick="addBlankTrackRow('body')">＋ 新增空白列手動輸入</button></div>
-    <div class="hint">表格內容可直接點擊儲存格編輯</div>
     <div class="tt-wrap" style="margin-top:12px"><table class="dtable" id="track-body-table"></table></div>
     <div id="track-body-chart" style="margin-top:16px"></div>
   </div>
@@ -474,11 +511,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <!-- ══════════ 2 評估問卷 ══════════ -->
 <section class="screen" id="screen-history">
   <div class="card">
-    <h2 style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="toggleCollapse('screening-body','screening-toggle')">
-      <span>次發性肥胖病因與藥物性因素篩檢<span class="hint" id="screening-summary" style="font-weight:400; margin-left:8px">尚未勾選</span></span>
-      <span id="screening-toggle" style="color:var(--primary); font-size:15px; font-weight:700">展開填寫 ▾</span>
-    </h2>
-    <div id="screening-body" style="display:none; margin-top:14px">
+    <h2>次發性肥胖病因</h2>
     <div class="chk-grid">
       <div class="chk-row"><input type="checkbox" id="sc-thyroid"><label for="sc-thyroid">甲狀腺功能低下</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-cushing"><label for="sc-cushing">庫欣氏症候群</label></div>
@@ -486,11 +519,13 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       <div class="chk-row"><input type="checkbox" id="sc-hypothal"><label for="sc-hypothal">下視丘病灶</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-gh"><label for="sc-gh">生長激素缺乏症</label></div>
       <div class="chk-row"><input type="checkbox" id="sc-hypogonad"><label for="sc-hypogonad">性腺功能低下症</label></div>
-      <div class="chk-row"><input type="checkbox" id="sc-genetic"><label for="sc-genetic">遺傳性肥胖症候群（如Prader-Willi）</label></div>
+      <div class="chk-row"><input type="checkbox" id="sc-genetic"><label for="sc-genetic">遺傳性肥胖症候群（如 Prader-Willi）</label></div>
       <div class="chk-row chk-other"><input type="checkbox" id="sc-other"><label for="sc-other">其他</label><input type="text" id="sc-other-text" class="other-text" aria-label="其他次發性肥胖病因" hidden></div>
     </div>
-    <div class="field" style="margin-top:12px"><label>次發性肥胖病因備註</label><textarea id="sc-note"></textarea></div>
-    <h3>藥物性因素</h3>
+  </div>
+
+  <div class="card">
+    <h2>藥物性因素</h2>
     <div class="chk-grid">
       <div class="chk-row"><input type="checkbox" id="med-steroid"><label for="med-steroid">類固醇</label></div>
       <div class="chk-row"><input type="checkbox" id="med-psych"><label for="med-psych">抗精神病藥／抗憂鬱藥</label></div>
@@ -502,87 +537,82 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       <div class="chk-row"><input type="checkbox" id="med-chemo"><label for="med-chemo">化療藥物</label></div>
       <div class="chk-row chk-other"><input type="checkbox" id="med-other"><label for="med-other">其他</label><input type="text" id="med-other-text" class="other-text" aria-label="其他藥物性因素" hidden></div>
     </div>
-    <div class="field" style="margin-top:10px"><label>藥物是否可調整／備註</label><textarea id="med-note" style="min-height:50px"></textarea></div>
-    </div>
   </div>
 
   <div class="card">
-    <h2>心血管風險評估資料<small>用來計算 PREVENT 心血管與心衰竭風險；吸菸狀態沒有選就不計算</small></h2>
+    <h2>心血管風險評估資料</h2>
     <div class="field">
       <label>吸菸</label>
       <select id="cv-smoke" class="as-buttons">
         <option value="">未評估</option><option value="never">從未吸菸</option><option value="former">已戒菸</option><option value="current">目前吸菸</option>
       </select>
     </div>
-    <div class="chk-grid" style="margin-top:6px">
+    <div class="field" style="margin-top:12px"><label>病史與用藥（可複選）</label>
+    <div class="chk-grid">
       <div class="chk-row"><input type="checkbox" id="cv-dm"><label for="cv-dm">已診斷糖尿病</label></div>
       <div class="chk-row"><input type="checkbox" id="cv-bptx"><label for="cv-bptx">目前使用降血壓藥</label></div>
       <div class="chk-row"><input type="checkbox" id="cv-statin"><label for="cv-statin">目前使用降血脂藥</label></div>
       <div class="chk-row"><input type="checkbox" id="cv-cvd"><label for="cv-cvd">已有心血管疾病（心肌梗塞、冠心病、中風、心衰竭）</label></div>
     </div>
-    <div class="hint" style="margin-top:6px">藥物性因素勾了胰島素，會一併視為糖尿病；勾了乙型阻斷劑，會一併視為使用降血壓藥。</div>
+    </div>
   </div>
 
   <div class="card">
-    <h2>飲食與活動習慣</h2>
-    <h3 style="margin-top:0">飲食習慣</h3>
+    <h2>飲食習慣</h2>
     <div id="diet-category-group"></div>
-    <div class="field" style="margin-top:10px"><textarea id="diet-habit-text"></textarea></div>
-    <h3>活動習慣</h3>
+    <textarea id="diet-habit-text" hidden></textarea>
+  </div>
+
+  <div class="card">
+    <h2>活動習慣</h2>
     <div id="activity-category-group"></div>
-    <div class="field" style="margin-top:10px"><textarea id="activity-habit-text"></textarea></div>
+    <textarea id="activity-habit-text" hidden></textarea>
   </div>
 
   <div class="card">
-    <h2 style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="toggleCollapse('stopbang-body','stopbang-toggle')">
-      <span>睡眠評估（STOP-BANG 問卷）<span class="hint" style="font-weight:400; margin-left:8px">非必填，可視需要展開評估</span></span>
-      <span id="stopbang-toggle" style="color:var(--primary); font-size:15px; font-weight:700">展開填寫 ▾</span>
-    </h2>
-    <div id="stopbang-body" style="display:none; margin-top:14px">
-      <div id="stopbang-list"></div>
-      <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入分數（留空則自動計算）</label><input id="stopbang-manual" type="number" min="0" max="8"></div>
-      <div class="summary-box" id="stopbang-result" style="margin-top:10px">請勾選後查看結果</div>
-    </div>
+    <h2>睡眠評估 STOP-BANG</h2>
+    <div id="stopbang-list" class="chk-grid"></div>
+    <div class="hint" id="stopbang-neck-hint" style="margin-top:10px">總分 2 分或 4 分時請量頸圍：超過 40 cm 加 1 分，風險分級會改變。</div>
+    <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入分數</label><input id="stopbang-manual" type="number" min="0" max="8"></div>
+    <div class="summary-box" id="stopbang-result" style="margin-top:10px"></div>
   </div>
 
   <div class="card">
-    <h2 style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="toggleCollapse('phq9-body','phq9-toggle')">
-      <span>心理／飲食行為評估（PHQ-9）<span class="hint" style="font-weight:400; margin-left:8px">非必填，可視需要展開評估</span></span>
-      <span id="phq9-toggle" style="color:var(--primary); font-size:15px; font-weight:700">展開填寫 ▾</span>
-    </h2>
-    <div id="phq9-body" style="display:none; margin-top:14px">
-      <div class="hint">過去兩週內，下列問題困擾您的頻率</div>
-      <div id="phq9-list" style="margin-top:8px"></div>
-      <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入總分（留空則自動計算）</label><input id="phq9-manual" type="number" min="0" max="27"></div>
-      <div class="summary-box" id="phq9-result" style="margin-top:10px">請完成問卷後查看結果</div>
-    </div>
+    <h2>情緒評估 PHQ-9</h2>
+    <div id="phq9-list"></div>
+    <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入總分</label><input id="phq9-manual" type="number" min="0" max="27"></div>
+    <div class="summary-box" id="phq9-result" style="margin-top:10px"></div>
   </div>
 
   <div class="card">
-    <h2>睡眠與心理評估備註</h2>
-    <div class="field"><textarea id="sleep-note"></textarea></div>
-  </div>
-
-  <div class="card">
-    <h2>家族史 / 生育計畫 / 動機評估</h2>
-    <h3>家族史</h3>
+    <h2>家族史</h2>
     <div id="family-history-tags" class="tag-box"></div>
-    <div class="field" style="margin-top:10px"><label>家族史內容（點選上方項目自動帶入，可直接編輯）</label><textarea id="fam-note"></textarea></div>
-    <div id="w-preg-box">
-    <h3>生育計畫</h3>
+    <textarea id="fam-note" hidden></textarea>
+  </div>
+
+  <div class="card" id="w-preg-box">
+    <h2>生育計畫</h2>
     <div class="field">
-        <select id="preg-plan" class="as-buttons">
-          <option value="">未評估</option><option value="無相關計畫">無相關計畫</option>
-          <option value="計畫懷孕中">計畫懷孕中</option><option value="懷孕中">懷孕中</option><option value="哺乳中">哺乳中</option>
-        </select>
-      </div>
+      <select id="preg-plan" class="as-buttons">
+        <option value="">未評估</option><option value="無相關計畫">無相關計畫</option>
+        <option value="計畫懷孕中">計畫懷孕中</option><option value="懷孕中">懷孕中</option><option value="哺乳中">哺乳中</option><option value="其他">其他</option>
+      </select>
     </div>
-    <h3>減重動機評估 ／ 社會支持</h3>
-    <div class="grid">
-      <div class="field"><label>減重意願與準備度（1 至 10 分）</label><input id="motiv-score" type="number" min="1" max="10"></div>
-      <div class="field"><label>社會支持系統</label><input id="motiv-support"></div>
+    <div class="field" id="preg-other-box" style="margin-top:10px" hidden><input id="preg-other-text" type="text" aria-label="生育計畫：其他"></div>
+  </div>
+
+  <div class="card">
+    <h2>動機評估</h2>
+    <div class="field"><label>減重意願與準備度（1 至 10 分）</label>
+      <select id="motiv-score" class="as-buttons" data-row="score-row">
+        <option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+      </select>
     </div>
-    <div class="field" style="margin-top:10px"><label>家族史／生育／動機備註</label><textarea id="fam-motiv-note"></textarea></div>
+    <div class="field" style="margin-top:14px"><label>社會支持系統（可複選）</label>
+      <div id="motiv-support-tags" class="tag-box"></div>
+      <input type="hidden" id="motiv-support">
+    </div>
   </div>
 </section>
 
@@ -590,7 +620,6 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <section class="screen" id="screen-lab">
   <div class="card">
     <h2>檢驗數值</h2>
-    <div class="hint" style="margin-top:-4px">數值超出一般成人參考值時，欄位名稱旁會標示「偏高／偏低」，實際判讀以檢驗單位的參考範圍為準。</div>
     <div class="lab-group">
       <h3>血糖與胰島素阻抗</h3>
       <div class="grid">
@@ -635,7 +664,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       </div>
     </div>
     <div class="lab-group">
-      <h3>血液常規與尿液判讀<small class="w-uph">上傳優品的抽血 PDF 會列出全部項目；判讀規則與健檢報告相同。上面三格改過的數值以欄位為準</small></h3>
+      <h3>血液常規與尿液判讀</h3>
       <input type="hidden" id="lab-rows">
       <div id="w-labrows"></div>
     </div>
@@ -644,41 +673,38 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
   </div>
   <div class="card">
     <h2>代謝症候群評估</h2>
-    <div class="hint">符合下列 5 項指標中任 3 項以上，即符合代謝症候群診斷；糖尿病前期（HbA1c 5.7% 至 6.4%）另外標示，不算進五項<br>系統會依「基本資料」與本頁已輸入的數值自動勾選；若因已用藥治療等原因需人工調整，直接點選即可，該項會改以手動為準。</div>
     <div class="ms-grid">
-      <label class="ms-item w3" style="cursor:pointer">
+      <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-waist">
-        <div><div class="ms-title">腰圍</div><div class="ms-desc">男≥90、女≥80 cm（國健署標準，BMI 不列入）</div></div>
+        <div><div class="ms-title">腰圍</div><div class="ms-desc">男 ≥ 90、女 ≥ 80 cm</div></div>
       </label>
-      <label class="ms-item w3" style="cursor:pointer">
+      <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-bp">
-        <div><div class="ms-title">血壓</div><div class="ms-desc">≥ 130/85 mmHg，或用藥中（代謝症候群依國健署標準，一般血壓判讀為 130/80）</div></div>
+        <div><div class="ms-title">血壓</div><div class="ms-desc">≥ 130/85 mmHg，或用藥中</div></div>
       </label>
       <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-glucose">
-        <div><div class="ms-title">空腹血糖</div><div class="ms-desc">≥100 mg/dL，或用藥中</div></div>
+        <div><div class="ms-title">空腹血糖</div><div class="ms-desc">≥ 100 mg/dL，或用藥中</div></div>
       </label>
       <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-tg">
-        <div><div class="ms-title">三酸甘油酯</div><div class="ms-desc">≥150 mg/dL，或用藥中</div></div>
+        <div><div class="ms-title">三酸甘油酯</div><div class="ms-desc">≥ 150 mg/dL，或用藥中</div></div>
       </label>
       <label class="ms-item" style="cursor:pointer">
         <input type="checkbox" id="ms-hdl">
-        <div><div class="ms-title">高密度膽固醇</div><div class="ms-desc">男&lt;40、女&lt;50 mg/dL，或用藥中</div></div>
+        <div><div class="ms-title">高密度膽固醇</div><div class="ms-desc">男 &lt; 40、女 &lt; 50 mg/dL，或用藥中</div></div>
       </label>
     </div>
     <div class="btnrow" style="margin-top:4px"><button class="btn outline" onclick="resetMsAuto()">依實測值重新帶入</button></div>
-    <div class="ms-divider">或符合糖尿病前期者</div>
+    <div class="ms-divider">糖尿病前期</div>
     <div class="field" style="max-width:280px"><label>糖化血紅素 HbA1c (%)</label><input id="ms-hba1c" type="number" min="3" max="20" step="0.1"></div>
-    <div class="hint" id="ms-hba1c-readout" style="margin-top:8px">5.7% 至 6.4% 為糖尿病前期，另外標示，不算進代謝症候群五項</div>
+    <div class="hint" id="ms-hba1c-readout" style="margin-top:8px"></div>
     <div class="summary-box" id="metabolic-result" style="margin-top:14px; display:none"></div>
-    <div class="field" style="margin-top:12px"><label>代謝症候群備註</label><textarea id="metabolic-note"></textarea></div>
   </div>
 
   <div class="card">
     <h2>檢驗追蹤紀錄</h2>
     <div class="btnrow" style="margin-top:0"><button class="btn outline" onclick="addTrackRow('lab')">＋ 帶入目前頁面數值</button><button class="btn outline" onclick="addBlankTrackRow('lab')">＋ 新增空白列手動輸入</button></div>
-    <div class="hint">表格內容可直接點擊儲存格編輯</div>
     <div class="tt-wrap" style="margin-top:12px"><table class="dtable" id="track-lab-table"></table></div>
     <div id="track-lab-chart" style="margin-top:16px"></div>
   </div>
@@ -698,7 +724,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
         <option value="重度脂肪肝">重度脂肪肝</option>
       </select>
     </div>
-    <div class="field" style="margin-top:12px"><label>超音波所見（文字描述）</label>
+    <div class="field" style="margin-top:12px"><label>超音波所見</label>
       <textarea id="us-text"></textarea>
     </div>
   </div>
@@ -710,13 +736,12 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
         <option value="無異常">無異常</option>
         <option value="甲狀腺結節">甲狀腺結節</option>
         <option value="甲狀腺腫大">甲狀腺腫大</option>
-        <option value="其他異常">其他異常（詳見備註）</option>
+        <option value="其他異常">其他異常</option>
       </select>
     </div>
-    <div class="field" style="margin-top:12px"><label>甲狀腺超音波所見（文字描述）</label>
+    <div class="field" style="margin-top:12px"><label>甲狀腺超音波所見</label>
       <textarea id="us-thyroid-text"></textarea>
     </div>
-    <div class="hint" style="margin-top:10px">使用 GLP-1／GIP 類藥物前建議評估：禁忌症包含甲狀腺髓質癌（MTC）及 MEN2 病史／家族史</div>
   </div>
   </div>
 </section>
@@ -727,23 +752,23 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
   <div class="card">
     <h2>共病症整合評估</h2>
     <div id="comorbid-list" class="tag-box"></div>
-    <div class="field" style="margin-top:12px"><label>共病症內容（點選上方項目自動帶入，可直接編輯）</label><textarea id="cm-note"></textarea></div>
+    <div class="field" style="margin-top:12px"><label>共病症內容</label><textarea id="cm-note"></textarea></div>
   </div>
 
-  <div class="card">
-    <h2>治療分層流程</h2>
-    <div class="hint">肥胖治療為階梯式（stepwise），非一開始就跳到藥物或手術</div>
-    <div class="ladder" style="margin-top:12px">
-      <div class="ladder-step"><h4>第一層｜生活型態介入</h4><p>飲食調整＋運動＋行為改變＋睡眠管理（所有患者皆須進行，貫穿全程）</p></div>
-      <div class="ladder-arrow">↓ 3–6個月效果不足，或 BMI／共病已達介入標準</div>
-      <div class="ladder-step"><h4>第二層｜藥物治療</h4><p>GLP-1／GIP 受體促效劑為目前首選</p></div>
-      <div class="ladder-arrow">↓ 最大劑量使用3個月，減重未達初始體重5%，或無法用藥</div>
-      <div class="ladder-step"><h4>第三層｜內視鏡輔助減重</h4><p>胃內肉毒桿菌注射／胃內水球置放／內視鏡縮胃術（ESG）－目前為自費項目，需完整告知效果、風險與費用</p></div>
-      <div class="ladder-arrow">↓ BMI ≥37.5，或 ≥32.5 合併嚴重共病，經評估符合條件</div>
-      <div class="ladder-step"><h4>第四層｜轉介減重手術</h4><p>袖狀胃切除／胃繞道</p></div>
+  <details class="card ref-card" id="tier-card">
+    <summary><h2>治療分層流程</h2><span class="ref-tag" id="tier-now">尚未判定</span><span class="ref-toggle"></span></summary>
+    <input type="hidden" id="tx-tier">
+    <div class="ladder" id="tier-ladder" style="margin-top:12px">
+      <button type="button" class="ladder-step" data-tier="1"><h4>第一層｜生活型態介入</h4><p>飲食調整＋運動＋行為改變＋睡眠管理（所有患者皆須進行，貫穿全程）</p></button>
+      <div class="ladder-arrow">↓ 3 至 6 個月效果不足，或 BMI ≥ 27、BMI ≥ 24 合併代謝問題</div>
+      <button type="button" class="ladder-step" data-tier="2"><h4>第二層｜藥物治療</h4><p>GLP-1／GIP 受體促效劑為目前首選</p></button>
+      <div class="ladder-arrow">↓ 最大劑量使用 3 個月，減重未達初始體重 5%，或無法用藥</div>
+      <button type="button" class="ladder-step" data-tier="3"><h4>第三層｜內視鏡輔助減重</h4><p>胃內肉毒桿菌注射／胃內水球置放／內視鏡縮胃術（ESG），自費項目，需完整告知效果、風險與費用</p></button>
+      <div class="ladder-arrow">↓ BMI ≥ 37.5，或 ≥ 32.5 合併嚴重共病，經評估符合條件</div>
+      <button type="button" class="ladder-step" data-tier="4"><h4>第四層｜轉介減重手術</h4><p>袖狀胃切除／胃繞道</p></button>
     </div>
-    <div class="hint" style="margin-top:10px">介入時機參考：BMI ≥27，或 BMI ≥24 合併代謝性問題</div>
-  </div>
+    <div class="btnrow"><button type="button" class="btn outline" id="tier-auto">改回系統預設</button></div>
+  </details>
 
   <details class="card ref-card">
     <summary><h2>藥物選擇比較</h2><span class="ref-tag">醫療人員參考</span><span class="ref-toggle"></span></summary>
@@ -769,7 +794,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 
   <div class="card">
     <h2>本次治療建議</h2>
-    <div class="field"><label>本次治療用藥建議（可複選）</label>
+    <div class="field"><label>用藥（可複選）</label>
       <div class="choice-row" id="tx-buttons"></div>
       <input type="hidden" id="tx-choices">
       <select id="tx-choice" hidden>
@@ -779,7 +804,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
         <option value="mounjaro">Mounjaro 猛健樂（注射）</option>
       </select>
     </div>
-    <div class="field" style="margin-top:12px"><label>用藥衛教內容（依上方選擇自動帶入，可直接編輯）</label>
+    <div class="field" style="margin-top:12px"><label>用藥衛教內容</label>
       <textarea id="tx-edu" style="min-height:160px"></textarea>
     </div>
   </div>
@@ -789,7 +814,6 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <section class="screen" id="screen-calorie">
   <div class="card">
     <h2>基礎代謝率 (BMR) 與每日總消耗熱量 (TDEE)</h2>
-    <div class="hint">有 TANITA 實測 BMR（「身體組成」頁輸入或上傳擷取）時一律採用實測值；沒有時才以 Mifflin-St Jeor 公式由身高、體重、年齡估算。</div>
     <div class="field" style="margin-top:14px"><label>活動量等級</label>
       <select id="cal-activity" class="as-buttons">
         <option value=""></option>
@@ -828,9 +852,8 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 
   <div class="card">
     <h2>運動處方建議</h2>
-    <div class="hint">依 BMI、體脂、SMI、相位角決定運動分型，再依血壓、血糖、血脂、脂肪肝、問卷分數、用藥與目前活動量加上個人化提醒，可自由編輯。</div>
     <div class="btnrow"><button class="btn" onclick="genExercise()">產生運動建議草稿</button></div>
-    <div class="field" style="margin-top:14px"><label>運動建議內容（可編輯）</label>
+    <div class="field" style="margin-top:14px"><label>運動建議內容</label>
       <textarea id="ex-text" style="min-height:200px"></textarea>
     </div>
   </div>
@@ -840,11 +863,11 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <!-- ══════════ 8 飲食衛教 ══════════ -->
 <section class="screen" id="screen-diet">
   <div class="card">
-    <h2>飲食衛教主題（可複選，點選插入內容）</h2>
+    <h2>飲食衛教主題（可複選）</h2>
     <div id="edu-tags" class="tag-box"></div>
   </div>
   <div class="card">
-    <h2>飲食衛教內容（可編輯）</h2>
+    <h2>飲食衛教內容</h2>
     <div class="field"><textarea id="edu-text" style="min-height:260px"></textarea></div>
   </div>
 </section>
@@ -861,18 +884,14 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
       <tr><td>6個月</td><td>腹部超音波複查脂肪肝、共病指標追蹤（血壓/血糖/血脂）</td></tr>
       <tr><td>之後</td><td>每3–6個月規律追蹤，長期以「不復胖」為目標而非單純體重數字</td></tr>
     </table>
-    <div class="field" style="margin-top:12px"><label>追蹤與監測備註</label><textarea id="track-note"></textarea></div>
-    <div class="field" style="margin-top:12px"><label>提早就醫（報告上的紅色提示框，依用藥與性別自動產生，可直接修改；全部刪空就不印）</label><textarea id="warn-text" style="min-height:90px"></textarea></div>
-    <div style="margin-top:8px"><button type="button" class="btn outline" id="warn-reset">恢復預設</button></div>
+    <div class="field" style="margin-top:12px"><label>追蹤備註與提早就醫提醒</label><textarea id="track-note"></textarea></div>
   </div>
   <div class="card">
     <h2>心理支持與復胖預防</h2>
-    <div class="hint">肥胖者憂鬱症風險增加1.6倍，門診中留意情緒性進食、暴食傾向，必要時轉介身心科或心理諮商</div>
-    <div class="chk-grid" style="margin-top:10px">
+    <div class="chk-grid">
       <div class="chk-row"><input type="checkbox" id="psy-refer"><label for="psy-refer">建議轉介身心科／心理諮商</label></div>
       <div class="chk-row"><input type="checkbox" id="psy-support"><label for="psy-support">已建立支持系統（家人／朋友／定期回診）</label></div>
     </div>
-    <div class="field" style="margin-top:10px"><label>心理支持備註</label><textarea id="psy-note" style="min-height:60px"></textarea></div>
   </div>
 </section>
 
@@ -880,7 +899,6 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 <section class="screen" id="screen-report">
   <div class="card no-print">
     <h2>醫師綜合評語</h2>
-    <div class="hint">按下按鈕會依本次的身體組成、抽血、問卷與治療選擇組出評語草稿，已點選的標籤句會保留在後面，可自由編輯。</div>
     <div class="btnrow"><button class="btn" onclick="genDocComment()">依檢查結果產生評語草稿</button></div>
     <div id="comment-tags" class="tag-box" style="margin-top:8px"></div>
     <div class="field" style="margin-top:10px"><textarea id="doc-comment" style="min-height:130px"></textarea></div>
@@ -892,13 +910,13 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
   </div>
 
   <div class="card no-print">
-    <h2>已儲存的病人紀錄<small>按左側「儲存紀錄」存成一筆，之後可在這裡載入；系統也會自動暫存草稿，關閉分頁不會遺失</small></h2>
+    <h2>已儲存的病人紀錄</h2>
     <div class="btnrow">
       <button class="btn outline" onclick="exportRecords()">匯出備份</button>
       <button class="btn outline" onclick="WD.getElementById('records-import').click()">匯入備份</button>
       <input type="file" id="records-import" accept=".json,application/json" hidden onchange="importRecords(this)">
     </div>
-    <div class="hint" style="margin-top:10px">紀錄只存在這台電腦的瀏覽器裡，清除瀏覽器資料或換電腦就會消失，請定期匯出備份。匯入時與本機紀錄合併，不會刪除既有紀錄。備份檔含病人個資，請存在診所電腦或加密隨身碟，不要用 LINE 或電子郵件傳送。<br>紀錄含姓名與生日，打開這台電腦瀏覽器的人都看得到；共用電腦請匯出備份後刪除不再需要的紀錄。<br><b id="records-backup"></b></div>
+    <div class="hint" style="margin-top:10px">紀錄只存在這台電腦的瀏覽器，含病人個資，請定期匯出備份。<br><b id="records-backup"></b></div>
     <div id="records-list" style="margin-top:12px"></div>
   </div>
 </section>

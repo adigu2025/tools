@@ -36,13 +36,13 @@ function renderNav(){
     upload:  (uploadedFiles.lab.length + uploadedFiles.tanita.length) > 0,
     basic:   wFilled(['p-name']) && !!WD.getElementById('p-gender').value && wFilled(['b-height', 'b-weight']),
     body:    wFilled(['t-fat', 't-muscle', 't-visceral', 't-bmr']),
-    history: anyChk('#screen-history') || wFilled(['diet-habit-text', 'activity-habit-text', 'sleep-note', 'fam-note']),
+    history: anyChk('#screen-history') || wFilled(['diet-habit-text', 'activity-habit-text', 'fam-note', 'motiv-score', 'motiv-support']),
     lab:     wFilled(['lab-ac', 'lab-hba1c', 'lab-tcho', 'lab-tg', 'lab-alt', 'lab-cr', 'lab-wbc', 'lab-hgb']) || wLabRows().length > 0,
     image:   wFilled(['us-fatty', 'us-thyroid', 'us-text', 'us-thyroid-text']),
     treat:   wFilled(['tx-edu', 'cm-note']),
     calorie: wFilled(['cal-activity', 'ex-text']),
     diet:    anyChk('#screen-diet'),
-    track:   wFilled(['track-note', 'psy-note']) || anyChk('#screen-track'),
+    track:   wFilled(['track-note']) || anyChk('#screen-track'),
     report:  wFilled(['doc-comment'])
   };
   WD.querySelectorAll('.w-nav a[data-sec]').forEach(a=> a.classList.toggle('done', !!has[a.dataset.sec]));
@@ -131,17 +131,18 @@ function toggleCollapse(bodyId, toggleId){
 function renderStopBang(){
   const box = WD.getElementById('stopbang-list');
   box.innerHTML = '';
-  STOPBANG_ITEMS.forEach(it=>{
+  const add = (id, label, auto)=>{
     const div = document.createElement('div');
-    div.className = 'chk-row';
-    div.innerHTML = `<input type="checkbox" id="${it.id}"><label for="${it.id}">${it.label}</label>`;
+    div.className = 'chk-row' + (auto ? ' auto' : '');
+    div.innerHTML = `<input type="checkbox" id="${id}"${auto ? ' disabled tabindex="-1"' : ''}><label for="${id}">${label}</label>`;
     box.appendChild(div);
-  });
-  const extra = document.createElement('div');
-  extra.className = 'hint';
-  extra.style.marginTop = '6px';
-  extra.textContent = '以下項目將依「基本資料」頁的數值自動判定：BMI＞35、年齡＞50歲、頸圍＞40cm（需另行測量）、性別為男性';
-  box.appendChild(extra);
+  };
+  STOPBANG_ITEMS.forEach(it=> add(it.id, it.label));
+  add('sb-neck', '頸圍超過 40 cm');
+  // 這三項依基本資料自動判定，不能點
+  add('sb-auto-bmi', 'BMI 超過 35', true);
+  add('sb-auto-age', '年齡超過 50 歲', true);
+  add('sb-auto-male', '男性', true);
 }
 renderStopBang();
 function calcStopBang(){
@@ -151,16 +152,28 @@ function calcStopBang(){
   const bmi = (hM && w) ? w/(hM*hM) : null;
   const age = parseFloat(WD.getElementById('p-age').value);
   const gender = WD.getElementById('p-gender').value;
-  if(bmi && bmi > 35) score++;
-  if(!isNaN(age) && age > 50) score++;
-  if(gender === 'M') score++;
+  const auto = {'sb-auto-bmi': !!(bmi && bmi > 35), 'sb-auto-age': !isNaN(age) && age > 50, 'sb-auto-male': gender === 'M'};
+  Object.keys(auto).forEach(id=>{ const el = WD.getElementById(id); if(el) el.checked = auto[id]; if(auto[id]) score++; });
+  const neckEl = WD.getElementById('sb-neck');
+  const neck = !!(neckEl && neckEl.checked);
+  // 還沒量頸圍、而且多 1 分就會跨到下一級（2 分、4 分）時，把提醒標成醒目色
+  const hint = WD.getElementById('stopbang-neck-hint');
   const manualEl = WD.getElementById('stopbang-manual');
   const manual = manualEl ? manualEl.value : '';
-  if(manual !== '' && !isNaN(parseInt(manual))) score = parseInt(manual);
-  const risk = score >= 3;
+  const hasManual = manual !== '' && !isNaN(parseInt(manual));
+  if(hint){
+    const need = !neck && !hasManual && (score === 2 || score === 4);
+    hint.style.color = need ? 'var(--red)' : '';
+    hint.style.fontWeight = need ? '700' : '';
+  }
+  if(neck) score++;
+  if(hasManual) score = parseInt(manual);
+  const lv = score >= 5 ? 2 : score >= 3 ? 1 : 0;
   WD.getElementById('stopbang-result').innerHTML =
-    `STOP-BANG 分數：<b>${score}</b> / 8（不含頸圍項目，若頸圍&gt;40cm請手動+1分）　`+
-    (risk ? `<span class="flag high">中高風險，建議安排睡眠檢查評估阻塞性睡眠呼吸中止症</span>` : `<span class="flag low">低風險</span>`);
+    `STOP-BANG 分數：<b>${score}</b> / 8　` +
+    [`<span class="flag low">低風險</span>`,
+     `<span class="flag mid">中風險，建議安排睡眠檢查評估阻塞性睡眠呼吸中止症</span>`,
+     `<span class="flag high">高風險，建議安排睡眠檢查評估阻塞性睡眠呼吸中止症</span>`][lv];
   return score;
 }
 
@@ -189,7 +202,7 @@ function calcPhq9(){
   const manual = manualEl ? manualEl.value : '';
   const hasManual = manual !== '' && !isNaN(parseInt(manual));
   if(!hasManual && answered < PHQ9_ITEMS.length){
-    WD.getElementById('phq9-result').textContent = `已作答 ${answered}/9 題，請完成全部題目以計算總分（或直接手動輸入總分）`;
+    WD.getElementById('phq9-result').textContent = `已作答 ${answered}/9 題`;
     return null;
   }
   if(hasManual) total = parseInt(manual);
@@ -725,7 +738,7 @@ async function handleFiles(kind, files, listId){
       // 抽血報告：用健檢報告的擷取（lab/lab.js），同時拿到頁面圖片、原始文字和逐列的檢驗值
       if(kind === 'lab'){
         const {rep, pages, text} = await ckParsePdf(file);
-        Object.assign(entry, {pages, text, rows: rep.rows, date: rep.date || '', name: rep.name, chart: rep.chart, sex: rep.sex, birth: rep.birth});
+        Object.assign(entry, {pages, text, rows: rep.rows, date: rep.date || '', orderDate: rep.orderDate || '', name: rep.name, chart: rep.chart, sex: rep.sex, birth: rep.birth});
         uploadedFiles[kind].push(entry);
         continue;
       }
@@ -894,7 +907,8 @@ function wFillInfoFromLab(cur){
     done.push('出生日期');
   }
   const dt = WD.getElementById('p-date');
-  if(cur.date && !pDateTouched && dt.value !== cur.date){ dt.value = cur.date; flashField(dt); markUploaded(dt); done.push('檢查日期'); }
+  const od = cur.orderDate || cur.date;   // 開單日期優先，舊資料沒有就用收件日期
+  if(od && !pDateTouched && dt.value !== od){ dt.value = od; flashField(dt); markUploaded(dt); updateAge(); done.push('檢查日期'); }
   updateBirthHidden();
   if(WD.getElementById('p-age').value) done.push('年齡');
   return done;
@@ -1319,18 +1333,23 @@ function genExercise(){
 // ============================================================
 // 藥物衛教自動帶入
 // ============================================================
+// 2026-11 查核：漏打與更改施打日依各藥仿單（週纖達 5 天內補打、猛健樂 4 天內補打；兩劑至少間隔 3 天）。
+// 「♀」開頭的行只給女性看（懷孕、哺乳、避孕藥），男性整行不帶入。
+const MED_GI = '【腸胃不適時】\n• 少量多餐、細嚼慢嚥，有飽足感就停\n• 避免油炸、辛辣與太甜的食物\n• 飯後不要馬上躺下，睡前 2 至 3 小時不進食\n• 每天喝足水分，嘔吐或腹瀉時更要補水\n常見副作用：噁心、嘔吐、腹瀉、便祕、食慾降低，多在剛開始與調升劑量時出現。';
+const MED_TELL = (preg)=> '【請主動告知醫師】\n♀• 懷孕、哺乳中或計畫懷孕（' + preg + '）\n• 本人或家族有甲狀腺髓質癌、第二型多發性內分泌腫瘤（MEN2）病史\n• 曾有胰臟炎或膽結石\n• 正在使用胰島素或磺醯尿素類降血糖藥（低血糖風險較高）';
+const MED_INJ = '漏打處理：\n超過原訂日期 {D} 天內盡快補打；\n超過 {D} 天就跳過這一次，於原訂日期打下一劑。\n連續漏打兩劑以上，請先詢問醫師，可能需要從較低劑量重新開始。不可一次施打雙倍劑量。\n更改每週施打日：兩劑之間至少間隔 3 天（72 小時）。';
 const MED_EDU = {
-  '': '【生活型態介入為主】\n目前階段以飲食調整、運動、行為改變與睡眠管理為核心，暫不使用藥物治療。若 3 至 6 個月效果不足，或 BMI／共病已達介入標準，可與醫師討論藥物治療選項。',
-  'rybelsus': '【Rybelsus 瑞倍適 用藥衛教】\n每日早上空腹服用，配不超過120mL的白開水整顆吞服，服藥後至少等30分鐘再進食、喝水或服用其他口服藥物。切勿壓碎、剝半、咀嚼。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
-  'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在5天（120小時）內盡快補打；\n超過5天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
-  'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，起始劑量依照醫師建議，並依照醫囑逐月調整劑量至穩定控制。\n\n漏打處理：\n錯過的劑量在4天（96小時）內盡快補打；\n超過4天則跳過本次，於原訂日期打下一劑。\n連續漏打多劑時，請先詢問醫師，可能需從較低劑量重新開始。不可施打雙倍劑量。\n如需更改每週施打日：兩劑之間需間隔至少3天（超過72小時）。\n\n【緩解腸胃不良反應】\n• 適度運動\n• 飯後避免躺下\n• 避免睡前用餐\n• 避免油炸刺激食物\n• 少量多餐、慢食\n• 有飽足感就停止進食\n\n常見副作用：噁心、嘔吐、腹瀉、便秘、食慾降低。若懷孕、哺乳中，或有甲狀腺髓質癌／MEN2家族史、胰臟炎病史，請主動告知醫師。',
+  '': '【生活型態介入為主】\n目前階段以飲食調整、運動、行為改變與睡眠管理為核心，暫不使用藥物治療。若 3 至 6 個月效果不足，或 BMI、共病已達用藥標準，可與醫師討論藥物治療選項。',
+  'rybelsus': '【Rybelsus 瑞倍適 用藥衛教】\n每天早上空腹，用不超過 120 mL 的白開水整顆吞服；30 分鐘後才可以進食、喝水或吃其他藥。\n不可壓碎、剝半或咀嚼。\n漏服：當天跳過，隔天照常服用，不要一次吃兩顆。\n本藥在台灣核准用於第二型糖尿病，用於體重管理屬適應症外使用。\n\n' + MED_GI + '\n\n' + MED_TELL('計畫懷孕前至少停藥 2 個月'),
+  'wegovy': '【Wegovy 週纖達 用藥衛教】\n每週固定一天皮下注射，時間不限、與進食無關。注射在腹部、大腿或上臂，每次換位置。\n由低劑量開始，依醫囑每 4 週調升。未使用的筆放冰箱冷藏（2 至 8°C），不可冷凍。\n\n' + MED_INJ.replace(/\{D\}/g, '5') + '\n\n' + MED_GI + '\n\n' + MED_TELL('計畫懷孕前至少停藥 2 個月'),
+  'mounjaro': '【Mounjaro 猛健樂 用藥衛教】\n每週固定一天皮下注射，時間不限、與進食無關。注射在腹部、大腿或上臂，每次換位置。\n由低劑量開始，依醫囑每 4 週調升。未使用的筆放冰箱冷藏（2 至 8°C），不可冷凍。\n\n' + MED_INJ.replace(/\{D\}/g, '4') + '\n\n' + MED_GI + '\n\n' + MED_TELL('計畫懷孕前至少停藥 1 個月') + '\n♀• 正在吃口服避孕藥：開始用藥與每次調升劑量後 4 週內，避孕效果可能下降，請加用保險套或改用非口服避孕方式',
 };
 // 依複選結果合併衛教內容；沒有選任何項目時清空
 // 男性不帶懷孕、哺乳的提醒，甲狀腺髓質癌與胰臟炎照常提醒
 function medEduText(male){
   const parts = getTxChoices().map(k=> MED_EDU[TX_OPTIONS.find(o=> o.key === k).edu] || '').filter(Boolean);
   const t = parts.join('\n\n');
-  return male ? t.replace(/若懷孕、哺乳中，或有/g, '若有') : t;
+  return t.split('\n').filter(l=> !(male && l.charAt(0) === '♀')).map(l=> l.replace(/^♀/, '')).join('\n');
 }
 function genMedEdu(){
   const ta = WD.getElementById('tx-edu');
@@ -1352,7 +1371,7 @@ function wSexUi(){
 }
 
 // 報告「提早就醫」：wWarn 為 null 就用依用藥與性別產生的預設文字；醫師改過就照改過的存檔與列印，全部刪空就不印
-let wWarn = null;
+let wWarn = null;   // 2026-11 起不再開放修改，固定為 null
 // 腸胃副作用與脫水是用藥的警示；沒用藥時只留快速減重可能引起的膽結石。懷孕、哺乳只提醒女性
 function wWarnDefault(){
   const onMed = getTxChoices().some(k=> k !== 'lifestyle');
@@ -1364,14 +1383,7 @@ function wWarnDefault(){
     '任何疑問，歡迎來電木子澄安診所 07-3739496，或於回診時與醫師討論。'].filter(Boolean).join('\n');
 }
 function wWarnText(){ return wWarn == null ? wWarnDefault() : wWarn; }
-function wWarnSync(){
-  const ta = WD.getElementById('warn-text');
-  if(!ta) return;
-  ta.value = wWarnText();
-  if(typeof autoGrow === 'function') autoGrow(ta);
-}
-WD.getElementById('warn-text').addEventListener('input', e=>{ wWarn = e.target.value; scheduleDraftSave(); });
-WD.getElementById('warn-reset').addEventListener('click', ()=>{ wWarn = null; wWarnSync(); scheduleDraftSave(); });
+function wWarnSync(){}
 
 // ============================================================
 // 飲食衛教
@@ -1474,15 +1486,8 @@ function renderCategoryGroup(containerId, categories, textareaId){
   box.innerHTML = '';
   categories.forEach(cat=>{
     const h3 = document.createElement('h3');
-    h3.textContent = cat.label;
+    h3.textContent = cat.label.split('（')[0];
     box.appendChild(h3);
-    if(cat.intro){
-      const hint = document.createElement('div');
-      hint.className = 'hint';
-      hint.style.marginBottom = '8px';
-      hint.textContent = cat.intro;
-      box.appendChild(hint);
-    }
     const wrap = document.createElement('div');
     wrap.className = 'choice-grid';
     wrap.style.marginBottom = '14px';
@@ -1518,27 +1523,148 @@ function selectCategoryOption(textareaId, categories, catKey, optionText){
   const structuredLines = categories.filter(c => sel[c.key]).map(c => c.label + '：' + sel[c.key]);
   const allLines = header ? [header, ...structuredLines, ...freeLines] : [...structuredLines, ...freeLines];
   ta.value = allLines.join('\n');
+  if(textareaId === 'activity-habit-text' && catKey === 'exercise') wActivityAuto();
 }
 renderCategoryGroup('diet-category-group', DIET_CATEGORIES, 'diet-habit-text');
 renderCategoryGroup('activity-category-group', ACTIVITY_CATEGORIES, 'activity-habit-text');
 
+// 活動量等級依「運動習慣」問卷預選（對應 ACTIVITY_CATEGORIES 的 exercise 五個選項，依序）。
+// 醫師自己在「熱量與運動」點過活動量就以手動為準，不再跟著問卷改
+const W_PAL_BY_EXERCISE = ['1.725', '1.55', '1.375', '1.2', '1.2'];
+let wPalManual = false;
+function wActivityAuto(){
+  if(wPalManual) return;
+  const picked = (categorySelections['activity-habit-text'] || {}).exercise;
+  const i = ACTIVITY_CATEGORIES[0].options.indexOf(picked);
+  if(i < 0) return;
+  const sel = WD.getElementById('cal-activity');
+  if(sel.value === W_PAL_BY_EXERCISE[i]) return;
+  sel.value = W_PAL_BY_EXERCISE[i];
+  sel.dataset.picked = '1';
+  if(typeof refreshChoiceButtons === 'function') refreshChoiceButtons();
+}
+WD.getElementById('cal-activity').addEventListener('change', e=>{ wPalManual = e.target.value !== ''; });
+
+// 社會支持系統：複選，存成「家人、朋友、其他：內容」放在 motiv-support。
+// 舊紀錄是自由輸入的文字，對不上選項的部分放進「其他」
+function wSupportParts(){
+  const out = {picked: [], other: null};
+  String(WD.getElementById('motiv-support').value || '').split('、').map(t=> t.trim()).filter(Boolean).forEach(t=>{
+    if(QS_SUPPORT.includes(t)) out.picked.push(t);
+    else out.other = (out.other ? out.other + '、' : '') + t.replace(/^其他：?/, '');
+  });
+  return out;
+}
+function wSupportWrite(){
+  const box = WD.getElementById('motiv-support-tags');
+  const list = [...box.querySelectorAll('.tag.selected:not(.tag-other)')].map(t=> t.textContent);
+  const ot = box.querySelector('.tag-other'), inp = box.querySelector('.tag-other-text');
+  if(ot && ot.classList.contains('selected')) list.push('其他' + (inp.value.trim() ? '：' + inp.value.trim() : ''));
+  WD.getElementById('motiv-support').value = list.join('、');
+  scheduleDraftSave();
+}
+function wSupportSync(){
+  const box = WD.getElementById('motiv-support-tags');
+  const p = wSupportParts();
+  box.querySelectorAll('.tag:not(.tag-other)').forEach(t=> t.classList.toggle('selected', p.picked.includes(t.textContent)));
+  const ot = box.querySelector('.tag-other'), inp = box.querySelector('.tag-other-text');
+  ot.classList.toggle('selected', p.other !== null);
+  inp.value = p.other || '';
+  inp.hidden = p.other === null;
+}
+(function(){
+  const box = WD.getElementById('motiv-support-tags');
+  QS_SUPPORT.forEach(t=>{
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = t;
+    tag.onclick = ()=>{
+      tag.classList.toggle('selected');
+      // 「目前沒有」和其他選項互斥
+      if(tag.classList.contains('selected')) box.querySelectorAll('.tag.selected').forEach(x=>{ if(x !== tag && (t === '目前沒有' || x.textContent === '目前沒有')) x.classList.remove('selected'); });
+      const ot = box.querySelector('.tag-other'), inp = box.querySelector('.tag-other-text');
+      inp.hidden = !ot.classList.contains('selected');
+      wSupportWrite();
+    };
+    box.appendChild(tag);
+  });
+  const ot = document.createElement('span');
+  ot.className = 'tag tag-other';
+  ot.textContent = '其他';
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'tag-other-text'; inp.hidden = true;
+  inp.setAttribute('aria-label', '社會支持：其他');
+  ot.onclick = ()=>{
+    ot.classList.toggle('selected');
+    const on = ot.classList.contains('selected');
+    if(on) box.querySelectorAll('.tag.selected').forEach(x=>{ if(x.textContent === '目前沒有') x.classList.remove('selected'); });
+    inp.hidden = !on;
+    wSupportWrite();
+    if(on) inp.focus();
+  };
+  inp.addEventListener('input', wSupportWrite);
+  box.appendChild(ot); box.appendChild(inp);
+})();
+
+// 生育計畫選「其他」才出現輸入框
+function wPregSync(){
+  WD.getElementById('preg-other-box').hidden = WD.getElementById('preg-plan').value !== '其他';
+}
+WD.getElementById('preg-plan').addEventListener('change', ()=>{
+  wPregSync();
+  if(WD.getElementById('preg-plan').value === '其他') WD.getElementById('preg-other-text').focus();
+});
+function wPregText(){
+  const v = WD.getElementById('preg-plan').value;
+  if(v !== '其他') return v;
+  const t = WD.getElementById('preg-other-text').value.trim();
+  return t ? '其他：' + t : '其他';
+}
+
+/* 治療分層：系統依用藥選擇與 BMI 預設一層，醫師可以展開後自己點；tx-tier 空白＝系統預設，1 至 4＝手動 */
+const W_TIERS = ['第一層｜生活型態介入', '第二層｜藥物治療', '第三層｜內視鏡輔助減重', '第四層｜轉介減重手術'];
+function wTierAuto(){
+  const tx = getTxChoices();
+  if(tx.some(k=> k !== 'lifestyle')) return 2;
+  if(tx.length) return 1;
+  const hM = getHeightM(), w = parseFloat(WD.getElementById('b-weight').value);
+  const bmi = hM && w ? w / (hM * hM) : null;
+  if(bmi == null) return 0;
+  const ms = ['ms-waist', 'ms-bp', 'ms-glucose', 'ms-tg', 'ms-hdl'].some(id=> WD.getElementById(id).checked) || !!WD.getElementById('cm-note').value.trim();
+  if(bmi >= 27 || (bmi >= 24 && ms)) return 2;
+  if(bmi >= 24) return 1;
+  return 0;
+}
+function wTier(){
+  const m = parseInt(WD.getElementById('tx-tier').value, 10);
+  return m >= 1 && m <= 4 ? m : wTierAuto();
+}
+function wTierSync(){
+  const manual = !!WD.getElementById('tx-tier').value, t = wTier();
+  const now = WD.getElementById('tier-now');
+  now.textContent = t ? W_TIERS[t - 1] + (manual ? '（手動選擇）' : '（系統預設）') : '尚未判定';
+  now.classList.toggle('manual', manual);
+  WD.querySelectorAll('#tier-ladder .ladder-step').forEach(b=> b.classList.toggle('on', +b.dataset.tier === t));
+  WD.getElementById('tier-auto').style.display = manual ? '' : 'none';
+}
+WD.getElementById('tier-ladder').addEventListener('click', e=>{
+  const b = e.target.closest('.ladder-step');
+  if(!b) return;
+  const inp = WD.getElementById('tx-tier');
+  inp.value = inp.value === b.dataset.tier ? '' : b.dataset.tier;
+  wTierSync(); scheduleDraftSave();
+});
+WD.getElementById('tier-auto').addEventListener('click', ()=>{ WD.getElementById('tx-tier').value = ''; wTierSync(); scheduleDraftSave(); });
+
+
 const COMMENT_TAGS = [
   '已討論藥物治療選項並取得同意',
-  '共病控制穩定，維持目前治療計畫',
-  '體重下降未達預期目標，建議調整治療策略',
-  '建議加強運動處方遵從度',
-  '建議轉介營養師個別化飲食評估',
-  '建議轉介身心科／心理諮商',
-  '腸胃道副作用可耐受，劑量維持不變',
-  '建議下次回診複查抽血與身體組成',
-  '體重下降已達初始體重 5% 以上，成效良好',
-  '建議調整藥物劑量並密切追蹤反應',
-  '代謝症候群指標已改善，持續監測中',
-  '建議安排腹部超音波追蹤脂肪肝變化',
-  '患者減重動機與遵從度高，持續鼓勵',
-  '建議加強睡眠衛生衛教，改善睡眠品質',
   '已衛教用藥注意事項與可能副作用',
-  '建議搭配家庭支持系統以提升治療效果',
+  '腸胃道副作用可耐受，劑量維持不變',
+  '建議調整藥物劑量並密切追蹤反應',
+  '體重下降已達初始體重 5% 以上，成效良好',
+  '體重下降未達預期目標，建議調整治療策略',
+  '建議轉介營養師個別化飲食評估',
   '共病尚未達標，建議轉介相關專科共同照護',
 ];
 // 醫師綜合評語草稿：依本次檢查結果組出 4 至 6 句，保留已點選的標籤句（「• 」開頭）
@@ -1683,7 +1809,7 @@ WD.addEventListener('change', e=>{
 }, true);
 // 減重門診評估問卷：版面與題目在 forms/forms.js（與工作台共用），這裡帶入目前的病人姓名
 function buildBlankScalesHtml(){
-  return formScalesHtml({name: WD.getElementById('p-name').value});
+  return formScalesHtml({name: WD.getElementById('p-name').value, chart: WD.getElementById('p-chart').value});
 }
 function printBlankScales(){
   const tmp = document.createElement('div');
@@ -1854,6 +1980,14 @@ const COMPLETENESS_RULES = [
      if(!WD.getElementById('b-weight').value) miss.push('體重');
      if(!WD.getElementById('b-waist').value) miss.push('腰圍');
      if(!WD.getElementById('b-sbp').value || !WD.getElementById('b-dbp').value) miss.push('血壓');
+     if(!WD.getElementById('b-hr').value) miss.push('心跳');
+     return miss;
+   }},
+  {screen:'history', label:'睡眠與情緒評估', parent:'workflow-hub', check:()=>{
+     const miss = [];
+     const sbDone = STOPBANG_ITEMS.some(it=> WD.getElementById(it.id).checked) || WD.getElementById('sb-neck').checked || WD.getElementById('stopbang-manual').value !== '';
+     if(!sbDone) miss.push('STOP-BANG（四題都沒有請手動輸入分數）');
+     if(!calcPhq9()) miss.push('PHQ-9');
      return miss;
    }},
   {screen:'lab',     label:'抽血檢驗',   parent:'workflow-hub', check:()=>{
@@ -2022,22 +2156,22 @@ function printIsolated(bodyHtml, title, opts){
 // ============================================================
 function collectState(){
   const ids = ['p-name','p-gender','p-birth-y','p-birth-m','p-birth-d','p-date','b-height',
-    'sc-note','med-note','sc-other-text','med-other-text','diet-habit-text','activity-habit-text',
-    'fam-note','preg-plan','motiv-score','motiv-support','fam-motiv-note',
-    'b-weight','b-waist','b-sbp','b-dbp','b-target-weight',
+    'sc-other-text','med-other-text','diet-habit-text','activity-habit-text',
+    'fam-note','preg-plan','preg-other-text','motiv-score','motiv-support',
+    'b-weight','b-waist','b-sbp','b-dbp','b-hr','b-target-weight',
     't-fat','t-fatmass','t-muscle','t-visceral','t-water','t-bmr','t-bodyage','t-smi','t-phaseangle',
     'us-fatty','us-text','us-thyroid','us-thyroid-text',
     'lab-ac','lab-hba1c','lab-homa','lab-tcho','lab-ldl','lab-hdl','lab-tg','lab-ast','lab-alt','lab-cr','lab-egfr','lab-ua','lab-tsh',
     'lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke',
     'tx-choice','tx-choices','tx-edu','fam-other-text','cm-other-text','cm-note','ms-hba1c',
-    'cal-activity','cal-goal','ex-text','edu-text','psy-note','doc-comment','stopbang-manual','phq9-manual',
-    'body-note','metabolic-note','lab-note','sleep-note','track-note'];
+    'cal-activity','cal-goal','ex-text','edu-text','doc-comment','stopbang-manual','phq9-manual',
+    'body-note','lab-note','track-note','tx-tier'];
   const state = {};
   ids.forEach(id=> state[id] = WD.getElementById(id).value);
   ['sc-thyroid','sc-cushing','sc-pcos','sc-hypothal','sc-gh','sc-hypogonad','sc-genetic','sc-other',
    'med-steroid','med-psych','med-insulin','med-bb','med-antiepileptic','med-hormone','med-antihistamine','med-chemo','med-other',
    'ms-waist','ms-glucose','ms-bp','ms-tg','ms-hdl',
-   'psy-refer','psy-support','cv-dm','cv-bptx','cv-statin','cv-cvd',
+   'psy-refer','psy-support','cv-dm','cv-bptx','cv-statin','cv-cvd','sb-neck','rpt-att',
    ...STOPBANG_ITEMS.map(it=>it.id)]
    .forEach(id=> state[id] = WD.getElementById(id).checked);
   state._track = trackData;
@@ -2054,7 +2188,7 @@ function collectState(){
   // 飲食／活動習慣的分類單選
   state._catSel = JSON.parse(JSON.stringify(categorySelections));
   state._src = Object.assign({}, FIELD_SRC);
-  state._warn = wWarn;
+  state._palManual = wPalManual;
   // 代謝症候群醫師手動改過的項目（例如已服藥），載入時以勾選為準，不被實測值蓋回去
   state._msManual = Object.keys(MS_MANUAL).filter(k=> MS_MANUAL[k]);
   return state;
@@ -2068,7 +2202,7 @@ function applyState(state){
   WD.querySelectorAll('select.as-buttons').forEach(s=> s.dataset.picked = '');
   // 單選鈕（飲食與活動分類、PHQ-9）先全部取消，免得留著上一位病人的選項
   WD.querySelectorAll('input[type="radio"]').forEach(r=> r.checked = false);
-  wWarn = state && state._warn != null ? String(state._warn) : null;
+  wWarn = null;
   Object.keys(state).forEach(id=>{
     if(id === '_track'){ Object.assign(trackData, state._track || {body:[],lab:[]}); renderTrackTable('body'); renderTrackTable('lab'); return; }
     if(id === '_phq9'){
@@ -2087,7 +2221,7 @@ function applyState(state){
       });
       return;
     }
-    if(id === '_msManual') return;
+    if(id === '_msManual' || id === '_palManual' || id === '_warn') return;
     if(id === '_src'){
       Object.keys(FIELD_SRC).forEach(k=> delete FIELD_SRC[k]);
       Object.assign(FIELD_SRC, state._src || {});
@@ -2133,8 +2267,13 @@ function applyState(state){
   renderSrcTags();
   updateEgfrHint();
   // 這幾格是後來才加的，舊紀錄沒有：載入時清空，免得留著上一位病人的數值
-  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
-  ['cv-dm','cv-bptx','cv-statin','cv-cvd'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).checked = false; });
+  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke','b-hr','preg-other-text','tx-tier'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
+  ['cv-dm','cv-bptx','cv-statin','cv-cvd','sb-neck','rpt-att'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).checked = false; });
+  // 舊紀錄的動機分數可能不是 1 至 10 的整數，對不上按鈕就留空
+  if(state['motiv-score'] && WD.getElementById('motiv-score').value !== String(state['motiv-score'])) WD.getElementById('motiv-score').value = '';
+  // 舊紀錄已經存了活動量就視為手動，不被問卷蓋掉
+  wPalManual = '_palManual' in state ? !!state._palManual : !!state['cal-activity'];
+  wSupportSync(); wPregSync(); wTierSync();
   refreshChoiceButtons();
   wRestoreMsManual(state);
   renderLabRows();
@@ -2446,7 +2585,7 @@ function makeChoiceButtons(sel){
   sel.dataset.btnReady = '1';
   sel.hidden = true;
   const row = document.createElement('div');
-  row.className = 'choice-row';
+  row.className = 'choice-row' + (sel.dataset.row ? ' ' + sel.dataset.row : '');
   row.setAttribute('role', 'radiogroup');
   [...sel.options].forEach(o=>{
     if(!o.text.trim()) return;           // 空白選項只是「未選」的狀態，不做成按鈕
@@ -2520,7 +2659,7 @@ function renderTxButtons(){
         else list = list.filter(k=> k !== 'lifestyle').concat(o.key);
         setTxChoices(list);
         genMedEdu();
-        wWarnSync();
+        wTierSync();
         scheduleDraftSave();
       };
       box.appendChild(b);
@@ -2592,5 +2731,8 @@ function syncTagOtherInputs(){
 
 // 開頁時先畫一次左側目錄的綠點
 renderNav();
+wSupportSync(); wPregSync(); wTierSync(); calcStopBang(); calcPhq9();
+// 身高體重、代謝症候群、共病改了，治療分層的系統預設跟著重算
+['input', 'change', 'click'].forEach(t=> WD.addEventListener(t, ()=> setTimeout(wTierSync, 0), true));
 // 依目前性別顯示或隱藏只和女性有關的欄位
 wSexUi();

@@ -101,7 +101,7 @@ function ckChBody(d){
   const kv = [];
   if(b.waist) kv.push(['腰圍', `${b.waist.v} 公分　${ckPill(b.waist.g)}`, `${d.P.male ? '男' : '女'}性標準：小於 ${b.waist.cut} 公分`]);
   if(b.bp) kv.push(['血壓', `${b.bp.s}/${b.bp.d} mmHg　${ckPill(b.bp.g)}`, '台灣 2022 高血壓指引：居家血壓 130/80 以上為高血壓']);
-  if(ckNum(B.hr) != null) kv.push(['脈搏', `${ckEsc(B.hr)} 次／分`, '']);
+  if(ckNum(B.hr) != null) kv.push(['心跳', `${ckEsc(B.hr)} 次／分`, '']);
   if(kv.length) blocks.push(rBlock('腰圍與血壓', '', `<table class="rt kv">${kv.map(([k, v, n])=> `<tr><th>${k}</th><td>${v}${n ? `<br><span class="muted small">${n}</span>` : ''}</td></tr>`).join('')}</table>`));
   // 身體組成：項目、判讀標準與長條分區和減重報告一致
   const m = d.P.male, I = Infinity, E = 1e-9;

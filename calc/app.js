@@ -953,9 +953,12 @@
 
     $('lipidrx-result').innerHTML = cards.join('');
 
-    var hasResult = !!(s && isNum(age) && isNum(ldl));
+    // 檢驗截圖通常沒有性別，舊版要求性別、年齡、LDL-C 三項都有才開放複製，只上傳一張截圖時按鈕就一直是灰的。
+    // 改成有 LDL-C 就能複製，缺性別或年齡時在複製內容裡註明。
+    var hasResult = isNum(ldl);
     if (hasResult) {
-      COPY.lipidrx = '降血脂給付判定：' + lvName + '｜LDL-C ' + rxFmt(ldl) + ($('lx-date').value ? '（' + $('lx-date').value + '）' : '') + '（目標 ' + goal + '）' +
+      COPY.lipidrx = '降血脂給付判定：' + lvName + (sexWarn ? '（' + (!s ? '性別' : '') + (!s && !isNum(age) ? '、' : '') + (!isNum(age) ? '年齡' : '') + '未填，年齡與 HDL-C 風險因子未計入）' : '') +
+        '｜LDL-C ' + rxFmt(ldl) + ($('lx-date').value ? '（' + $('lx-date').value + '）' : '') + '（目標 ' + goal + '）' +
         (isNum(ldl0) ? '｜前次 LDL-C ' + rxFmt(ldl0) + ($('lx-date0').value ? '（' + $('lx-date0').value + '）' : '') + (gapTxt ? '，' + gapTxt : '') : '') +
         '｜表一 ' + RX_LABEL[t1] + '、表二 ' + RX_LABEL[t2] + '｜TG 藥物 ' + RX_LABEL[tgs];
     }
