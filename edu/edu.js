@@ -15,10 +15,12 @@ const W = p=> BASE + p;
 // 減重門診的衛教與表單併成一類（初診時衛教、問卷、同意書會一起用到）；檢查的衛教與同意書項目多，分成兩類。
 const EDU_GROUPS = [
   {key:'weight',  label:'減重門診'},
-  {key:'exam',    label:'檢查衛教'},
-  {key:'consent', label:'檢查同意書'},
+  {key:'exam',    label:'檢查治療衛教'},
+  {key:'consent', label:'檢查治療同意書'},
   {key:'ctrl',    label:'管藥與麻醉'},
   {key:'disease', label:'疾病衛教'},
+  // 2026/11/11 新增：用藥衛教（幽門桿菌除菌由檢查治療衛教移過來）
+  {key:'med',     label:'用藥衛教'},
   {key:'wound',   label:'傷口照護'},
 ];
 const svgIcon = d=> `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true">${d}</svg>`;
@@ -81,7 +83,6 @@ const EDU_LIST = [
   ['exam',   '治療後',   '異物取出術後',     ICON.stomach,  ['img/edu-a5-foreign-body-after.webp'], 'A5'],
   ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-a5-het-after.webp'], 'A5'],
   ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-a5-arbl-after.webp'], 'A5'],
-  ['exam',   '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
   // 疾病衛教（2026/11 新增，A5）：原始檔在 edu-src/a5.html，右下角放官方 LINE QR code
   ['disease', '肝膽',     '膽結石、膽砂',     ICON.liver,    ['img/edu-a5-gallstone.webp'], 'A5'],
   ['disease', '肝膽',     '膽囊瘜肉',         ICON.liver,    ['img/edu-a5-gb-polyp.webp'], 'A5'],
@@ -94,12 +95,20 @@ const EDU_LIST = [
   ['disease', '腸胃',     '便祕與腸躁症',     ICON.germ,     ['img/edu-a5-constipation-ibs.webp'], 'A5'],
   ['disease', '腸胃',     '低 FODMAP 飲食',   ICON.leaf,     ['img/edu-a5-low-fodmap.webp'], 'A5'],
   ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
+  // 2026/11/11 新增：痔瘡治療的順序與選擇（依 JAMA 2025 回顧），排在痔瘡分級後面
+  ['disease', '腸胃',     '痔瘡怎麼治療',     ICON.polyp,    ['img/edu-a5-hemorrhoid-treatment.webp'], 'A5'],
   ['disease', '腎臟',     '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
   ['disease', '腎臟',     '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
   ['disease', '慢性病',   '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
   ['disease', '慢性病',   '糖尿病前期與糖尿病', ICON.drop,   ['img/edu-a5-diabetes.webp'], 'A5'],
   ['disease', '慢性病',   '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
   ['disease', '慢性病',   '高尿酸與痛風',     ICON.drop,     ['img/edu-a5-gout.webp'], 'A5'],
+  // 用藥衛教（2026/11/11 新增，A5）：頁首左邊寫「用藥衛教」，編號「用藥 01 至 05」，同類相鄰（胃、痔瘡、血脂）
+  ['med',    '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
+  ['med',    '用藥',     '胃藥 PPI',         ICON.pill,     ['img/edu-a5-ppi.webp'], 'A5'],
+  ['med',    '用藥',     '痔瘡藥膏與塞劑',   ICON.pill,     ['img/edu-a5-hemorrhoid-topical.webp'], 'A5'],
+  ['med',    '用藥',     '痔瘡保護敷料',     ICON.bandage,  ['img/edu-a5-hemagel.webp'], 'A5'],
+  ['med',    '用藥',     '降血脂藥',         ICON.pill,     ['img/edu-a5-lipid-drugs.webp'], 'A5'],
   ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
   ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
 ];

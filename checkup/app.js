@@ -14,6 +14,13 @@ function ckBlank(){ return {info:{}, body:{}, hx:{}, us:{}, mod:{}, att:[], fu:{
 /* 舊存檔的家族史有各別癌症按鈕，現在合併成「癌症」＋自由輸入 */
 const CK_OLD_FAM_CANCER = {gastric:'胃癌', crc:'大腸癌', liver:'肝癌', lung:'肺癌', breast:'乳癌'};
 function ckMigrate(){
+  // 超音波「補充說明」欄已拿掉（2026/11）：舊資料有內容就併進結論，甲狀腺多顆結節的說明放甲狀腺，其餘放其他超音波
+  const us = CK.us = CK.us || {}, note = String(us.note || '').trim();
+  if(note){
+    const k = /甲狀腺/.test(note) ? 'thyImp' : 'othImp';
+    if(!String(us[k] || '').includes(note)) us[k] = [String(us[k] || '').trim(), note].filter(Boolean).join('\n');
+  }
+  delete us.note;
   const hx = CK.hx = CK.hx || {}, fam = Array.isArray(hx.fam) ? hx.fam : [];
   const old = fam.filter(k=> CK_OLD_FAM_CANCER[k]);
   if(!old.length) return;
@@ -411,7 +418,8 @@ function ckImportUs(text){
     U.thy = r.thy.list;
     ['tirads', 'nodSize'].forEach(k=>{ if(r.thy.u[k] != null) U[k] = r.thy.u[k]; });
     ckUsFindSync('thy');
-    if(r.thy.u.noteAdd && !String(U.note || '').includes(r.thy.u.noteAdd)) U.note = (U.note ? U.note + '\n' : '') + r.thy.u.noteAdd;
+    // 多顆結節：其餘幾顆的說明接在甲狀腺結論後面
+    if(r.thy.u.noteAdd && !String(U.thyImp || '').includes(r.thy.u.noteAdd)) U.thyImp = (String(U.thyImp || '').trim() ? String(U.thyImp).trim() + '\n' : '') + r.thy.u.noteAdd;
     done.push('甲狀腺：' + r.thy.list.map(k=> CK_THY[k].t).join('、') + (U.tirads ? `（TR${U.tirads}${U.nodSize ? ' ' + U.nodSize + ' cm' : ''}）` : ''));
   }
   return {ok: true, done, msg: r.msg};
@@ -497,6 +505,94 @@ async function ckOcr(srcs){
   }
   return t;
 }
+/* 優品報告的照片或截圖：用中英文影像辨識取得每個字的位置，再套和 PDF 同一套欄位判讀（lab/lab.js 的 ckParseRepLines）。
+   影像辨識可能認錯小數點或數字，報告會標示「影像辨識」，數值要逐項和原始報告核對。 */
+let ckLabOcrWorker = null, ckLabOcrIdle = null;
+async function ckOcrLab(canvas){
+  await ckEnsureOcr();
+  clearTimeout(ckLabOcrIdle);
+  // 與臨床計算同樣用 chi_tra＋eng，字庫下載過一次就由瀏覽器快取
+  if(!ckLabOcrWorker) ckLabOcrWorker = Tesseract.createWorker(['chi_tra', 'eng']).catch(err=>{ ckLabOcrWorker = null; throw err; });
+  const w = await ckLabOcrWorker;
+  try{ return (await w.recognize(canvas)).data; }
+  finally{
+    ckLabOcrIdle = setTimeout(()=>{ const p = ckLabOcrWorker; ckLabOcrWorker = null; if(p) p.then(x=> x.terminate()).catch(()=>{}); }, 120000);
+  }
+}
+// 放大到指定寬度、轉灰階，並擦掉表格的長橫線（橫線會讓小數點被吃掉）
+function ckLabImgCanvas(src, target){
+  return new Promise((ok, no)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const k = Math.max(1, Math.min(4, target / img.naturalWidth));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      const g = c.getContext('2d');
+      g.imageSmoothingQuality = 'high';
+      g.filter = 'grayscale(1)';
+      g.drawImage(img, 0, 0, c.width, c.height);
+      const d = g.getImageData(0, 0, c.width, c.height), p = d.data, min = Math.round(c.width / 25);
+      for(let y = 0; y < c.height; y++){
+        let run = 0; const row = y * c.width * 4;
+        for(let x = 0; x <= c.width; x++){
+          if(x < c.width && p[row + x * 4] < 170){ run++; continue; }
+          if(run >= min) for(let j = x - run; j < x; j++){ const o = row + j * 4; p[o] = p[o + 1] = p[o + 2] = 255; }
+          run = 0;
+        }
+      }
+      g.putImageData(d, 0, 0);
+      ok(c);
+    };
+    img.onerror = ()=> no(new Error('圖片無法開啟'));
+    img.src = src;
+  });
+}
+// 同一張圖用兩種放大倍率各辨識一次：兩次讀到相同數值才算數，不一致或只有一次讀到的項目標起來請特別核對。
+// 影像辨識認錯數字（55 認成 59）時不會有任何徵兆，只有比對兩次結果才抓得到
+async function ckParseImage(file){
+  const src = await ckReadImage(file);
+  if(!src) throw new Error('圖片無法讀取');
+  const A = await ckOcrRep(src, 2000, file.name), B = await ckOcrRep(src, 2800, file.name);
+  const [rep, other] = A.rows.length >= B.rows.length ? [A, B] : [B, A];
+  const id = r=> r.key || r.code.replace(/\s+/g, '').toUpperCase();
+  const om = new Map(other.rows.map(r=> [id(r), r]));
+  const doubt = new Set();
+  rep.rows.forEach(r=>{
+    const o = om.get(id(r));
+    const differ = o && (ckNum(o.raw) !== ckNum(r.raw) || (ckNum(r.raw) == null && o.raw !== r.raw));
+    if(differ) r.raw = '';   // 兩次讀到不同數值：不知道哪個對，留空請手動填
+    if(!String(r.raw || '').trim() || !o || differ) doubt.add(CK_LAB_BY[r.key] ? CK_LAB_BY[r.key][2] : r.code);
+  });
+  ['name', 'chart', 'sex', 'birth', 'age', 'date', 'orderDate', 'reportDate', 'sid'].forEach(k=>{ if(!rep[k] && other[k]) rep[k] = other[k]; });
+  rep.unverified = rep.unverified || other.unverified;
+  rep.doubt = [...doubt];
+  return {rep, pages: [src]};
+}
+async function ckOcrRep(src, target, fname){
+  const c = await ckLabImgCanvas(src, target);
+  const data = await ckOcrLab(c);
+  const k = 595 / c.width;   // 換算成 PDF 頁寬，欄位切點才能沿用
+  const half = s=> s.replace(/[！-～]/g, ch=> String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)).replace(/　/g, ' ');
+  const cjk = /[一-鿿]/;
+  const lines = (data.lines || []).map(l=>{
+    const ws = (l.words || []).filter(w=> w.bbox && String(w.text || '').trim()).sort((a, b)=> a.bbox.x0 - b.bbox.x0);
+    const h = l.bbox ? l.bbox.y1 - l.bbox.y0 : 30;
+    // 中文常被拆成一個字一個字，相鄰的中文字併成同一段（表頭才找得到「中文名稱」）；英文與數字維持原本分段
+    const items = [];
+    ws.forEach(w=>{
+      const s = half(String(w.text).trim()), last = items[items.length - 1];
+      if(last && cjk.test(last.s.slice(-1)) && cjk.test(s[0]) && w.bbox.x0 - last.x1 < h * 0.6){
+        last.s += s;
+        last.x1 = w.bbox.x1;
+      } else items.push({s, x0: w.bbox.x0, x1: w.bbox.x1});
+    });
+    return {y: -((l.bbox ? l.bbox.y0 + l.bbox.y1 : 0) / 2) * k, items: items.map(t=> ({s: t.s, x: t.x0 * k}))};
+  }).filter(l=> l.items.length);
+  const rep = {id: 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), file: fname, rows: [], unverified: false, ocr: true};
+  ckParseRepLines(lines, rep, true, '', true);
+  return rep;
+}
+
 async function ckAttach(kind, files){
   const box = KD.querySelector(`.k-att[data-att="${kind}"]`);
   const msgBox = box && box.querySelector('.k-amsg');
@@ -826,7 +922,7 @@ function ckModJudge(){
   const procTxt = (list, dict)=> (list || []).map(k=> dict[k]).filter(Boolean).join('、');
   (m.egd || []).forEach(k=>{
     const x = CK_EGD[k]; if(!x) return;
-    out.push({area:'胃鏡', t: x.t, g: x.g, d: x.d || '', adv: x.adv || ''});
+    out.push({area:'胃鏡', t: k === 'other' && String(m.egdOther || '').trim() ? String(m.egdOther).trim() : x.t, g: x.g, d: x.d || '', adv: x.adv || ''});
   });
   if((m.egdProc || []).includes('clo') && m.clo)
     out.push(m.clo === 'pos' ? {area:'胃鏡', t:'快速尿素酶檢查陽性', g:1, d:'有幽門桿菌感染，建議除菌治療', adv:'hp'} : {area:'胃鏡', t:'快速尿素酶檢查陰性', g:0});
@@ -852,7 +948,7 @@ function ckModJudge(){
   }
   cdx.forEach(k=>{
     const x = CK_CDX[k];
-    out.push({area:'大腸鏡', t: x.t, g: x.g, d: k === 'polyp' ? '病理分類要等病理報告，追蹤間隔之後再決定' : '', adv: x.adv || ''});
+    out.push({area:'大腸鏡', t: k === 'other' && String(m.cOther || '').trim() ? String(m.cOther).trim() : x.t, g: x.g, d: k === 'polyp' ? '病理分類要等病理報告，追蹤間隔之後再決定' : '', adv: x.adv || ''});
   });
   if(cn || cdx.length || m.colonNote || (m.cProc || []).length){
     if(!out.some(u=> u.area === '大腸鏡')) out.push({area:'大腸鏡', t:'已檢查', g:0});
@@ -1137,7 +1233,7 @@ function ckRenderFiles(){
   const reps = ckSortedReports();
   ckEl('k-files').innerHTML = reps.map((r, i)=> `<div class="k-file">
     <span class="tag${i === 0 ? ' cur' : ''}">${i === 0 ? '本次' : '歷次'}</span>
-    <span class="meta"><b>${ckEsc(r.date || '日期不明')}</b>${ckEsc(r.name || '')}　病歷號 ${ckEsc(r.chart || '—')}　${r.rows.length} 項${r.unverified ? '　<span class="g2">未審核</span>' : ''}${CK_PAGES[r.id] ? '' : '　（原始報告圖片需重新上傳）'}</span>
+    <span class="meta"><b>${ckEsc(r.date || '日期不明')}</b>${ckEsc(r.name || '')}　病歷號 ${ckEsc(r.chart || '—')}　${r.rows.length} 項${r.unverified ? '　<span class="g2">未審核</span>' : ''}${r.ocr ? `　<span class="g2">影像辨識，姓名與數值請逐項核對${r.doubt && r.doubt.length ? '；特別注意 ' + ckEsc(r.doubt.join('、')) : ''}</span>` : ''}${CK_PAGES[r.id] ? '' : '　（原始報告圖片需重新上傳）'}</span>
     <button class="del" data-del="${r.id}">移除</button></div>`).join('');
   const charts = [...new Set(reps.map(r=> r.chart).filter(Boolean))];
   const w = ckEl('k-warn-id');
@@ -1254,6 +1350,7 @@ function ckInitPlan(){
     const ta = box.querySelectorAll('textarea'); if(ta.length) ta[ta.length - 1].focus();
   });
 }
+const CK_SCOPE_KEYS = /^(egd\w*|clo|cDx|cProc|cPrep|cPiece|cHist|cNum|cSize|cOther|cNextOv|colon\w*)$/;
 function ckRenderNav(){
   const has = {
     upload: CK.reports.length > 0 || !!(CK.manual && CK.manual.length) || CK.att.length > 0,
@@ -1262,8 +1359,9 @@ function ckRenderNav(){
     hx: !!CK.hx.smoke,
     lab: ckCurrentRows().some(r=> String(r.raw || '').trim()),
     us: !!((CK.us.abd || []).length || (CK.us.thy || []).length || ['abdFind', 'abdImp', 'thyFind', 'thyImp', 'othFind', 'othImp'].some(k=> String(CK.us[k] || '').trim())),
-    mod: Object.values(CK.mod || {}).some(v=> Array.isArray(v) ? v.length : String(v || '').trim()),
-    scope: !!((CK.mod.egd || []).length || (CK.mod.cDx || []).length || CK.mod.cHist),
+    // 胃腸鏡的欄位也存在 CK.mod，算加選模組時要排除，否則只填胃腸鏡，加選模組也會亮綠點
+    mod: Object.entries(CK.mod || {}).some(([k, v])=> !CK_SCOPE_KEYS.test(k) && (Array.isArray(v) ? v.length : String(v || '').trim())),
+    scope: Object.entries(CK.mod || {}).some(([k, v])=> CK_SCOPE_KEYS.test(k) && k !== 'cNextOv' && (Array.isArray(v) ? v.length : String(v || '').trim())),
     cv: (()=>{ const c = ckCollect().cv; return c.prevent.cvd10 != null || c.tw.risk != null; })(),
     pub: ckNum(CK.info.age) != null,
     plan: !!(Object.keys(CK.fu || {}).length || (CK.fuAdd || []).length),
@@ -1456,14 +1554,20 @@ function ckChanged(opts){
 
 /* ---------- 上傳 ---------- */
 async function ckAddFiles(files){
-  const list = [...files].filter(f=> f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
-  if(!list.length){ alert('請選擇優品醫事檢驗所的 PDF 檔。'); return; }
+  const isImg = f=> /^image\/(jpeg|png|webp)$/.test(f.type);
+  const list = [...files].filter(f=> f.type === 'application/pdf' || /\.pdf$/i.test(f.name) || isImg(f));
+  if(!list.length){ alert('請選擇優品醫事檢驗所的報告（PDF、JPG 或 PNG）。'); return; }
   const drop = ckEl('k-drop'), orig = drop.innerHTML;
   drop.innerHTML = '<b>讀取中…</b>';
   for(const f of list){
     try{
-      const {rep, pages} = await ckParsePdf(f);
-      if(!rep.rows.length){ alert(`${f.name} 讀不到檢驗項目，可能不是優品的報告格式，請改用手動輸入。`); continue; }
+      if(isImg(f)) drop.innerHTML = `<b>影像辨識中…</b>${ckEsc(f.name)}：辨識兩次互相比對，約需 20 至 60 秒（第一次使用要先下載中文字庫）`;
+      const {rep, pages} = isImg(f) ? await ckParseImage(f) : await ckParsePdf(f);
+      if(!rep.rows.length){
+        alert(isImg(f) ? `${f.name} 辨識不出檢驗項目。請確認照片有拍到「檢驗項目、中文名稱、結果、參考區間」這一列表頭，而且拍正、不反光；仍不行請改用 PDF 或手動輸入。`
+                       : `${f.name} 讀不到檢驗項目，可能不是優品的報告格式，請改用手動輸入。`);
+        continue;
+      }
       // 同一份報告（檢體編號相同）重複上傳時取代舊的
       CK.reports = CK.reports.filter(r=> !(rep.sid && r.sid === rep.sid));
       CK.reports.push(rep);
@@ -1475,14 +1579,16 @@ async function ckAddFiles(files){
     }
   }
   drop.innerHTML = orig;
-  CK.manual = null;
+  // 至少讀進一份報告才清掉手動輸入的檢驗值；全部讀取失敗時，保留原本手動輸入的內容
+  if(CK.reports.length) CK.manual = null;
   ckDirty = true;
   // 基本資料以本次（日期最新）的報告帶入，已經填過的欄位不覆蓋
   const cur = ckSortedReports()[0];
   if(cur){
     const fill = (k, v)=>{ if(v && !CK.info[k]) CK.info[k] = v; };
     fill('name', cur.name); fill('chart', cur.chart); fill('sex', cur.sex); fill('birth', cur.birth); fill('date', cur.orderDate || cur.date);   // 檢查日期用開單日期，沒有才用收件日期
-    if(!CK.info.age){ const a = ckAgeAt(cur.birth, cur.date); CK.info.age = a != null ? String(a) : (cur.age || ''); }
+    // 年齡和報告上的檢查日期用同一天算
+    if(!CK.info.age){ const a = ckAgeAt(cur.birth, CK.info.date || cur.date); CK.info.age = a != null ? String(a) : (cur.age || ''); }
   }
   ckSave();
   ckRenderAll();
@@ -1551,6 +1657,12 @@ async function ckAddFiles(files){
 
   const drop = ckEl('k-drop'), fi = ckEl('k-file');
   drop.addEventListener('click', ()=> fi.click());
+  // 截圖（Win＋Shift＋S）點一下框框後直接貼上
+  drop.addEventListener('paste', e=>{
+    const imgs = [...(e.clipboardData ? e.clipboardData.items : [])].filter(it=> it.kind === 'file' && /^image\//.test(it.type))
+      .map((it, i)=> { const b = it.getAsFile(); return new File([b], `截圖${i ? i + 1 : ''}.png`, {type: b.type}); });
+    if(imgs.length){ e.preventDefault(); ckAddFiles(imgs); }
+  });
   fi.addEventListener('change', ()=>{ ckAddFiles(fi.files); fi.value = ''; });
   drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('over'); });
   drop.addEventListener('dragleave', ()=> drop.classList.remove('over'));

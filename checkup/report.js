@@ -239,8 +239,7 @@ function ckChUs(d){
     if(!list.length && !extra) return;
     blocks.push(rBlock(area + '超音波', '', `<div class="ru-host">${list.map(u=> `<div class="us-row ru"><div><b>${ckEsc(u.t)}</b>${u.d ? `<p>${rBr(u.d, 34)}</p>` : ''}</div>${ckPill(u.g)}</div>`).join('')}${extra}</div>`, {split:true}));
   });
-  const note = String(CK.us.note || '').trim();
-  if(note) blocks.push(rRichBlock('補充說明', '', note));
+  // 「補充說明」欄已拿掉，舊資料由 ckMigrate 併進各部位的結論
   return blocks;
 }
 

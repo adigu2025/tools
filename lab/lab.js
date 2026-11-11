@@ -125,14 +125,24 @@ async function ckParsePdf(file){
       if(ln) ln.items.push(t); else lines.push({y: t.y, items: [t]});
     });
     lines.forEach(l=> l.items.sort((a, b)=> a.x - b.x));
+    // 原始文字（減重報告的關鍵字擷取用，和以前逐頁串起來的格式相同）
+    raw += tc.items.map(it=> it.str).join(' ') + '\n';
+    sec = ckParseRepLines(lines, rep, i === 1, sec);
+  }
+  return {rep, pages, text: raw};
+}
+
+/* 一頁報告的逐列判讀。lines 由上往下排，每列 items 由左往右排，x 以 PDF 頁寬 595 為準。
+   PDF 與照片、截圖的影像辨識（checkup/app.js 的 ckParseImage）共用這一段；fuzzy 為影像辨識，表頭關鍵字放寬。
+   回傳目前所在的檢驗分組，跨頁時接著用。 */
+function ckParseRepLines(lines, rep, first, sec, fuzzy){
     const text = l=> l.items.map(t=> t.s).join(' ');
     const all = lines.map(text).join('\n');
     if(/未審核/.test(all)) rep.unverified = true;
-    // 原始文字（減重報告的關鍵字擷取用，和以前逐頁串起來的格式相同）
-    raw += tc.items.map(it=> it.str).join(' ') + '\n';
 
-    if(i === 1){
-      const flat = all.replace(/[ 　]+/g, '');
+    if(first){
+      let flat = all.replace(/[ 　]+/g, '');
+      if(fuzzy) flat = flat.replace(/:/g, '：');
       const g = re=> { const m = re.exec(flat); return m ? m[1] : ''; };
       rep.name = g(/姓名：(\S+?)(?=檢驗報告單|性別|開單日期|收件日期|報告日期|$)/m);
       rep.chart = g(/病歷號碼：(\d+)/);
@@ -147,12 +157,30 @@ async function ckParsePdf(file){
       rep.reportDate = ckRoc(g(/報告日期：(\d{2,3}\/\d{1,2}\/\d{1,2})/));
     }
 
-    const hi = lines.findIndex(l=> /檢驗項目/.test(text(l).replace(/\s+/g, '')));
-    if(hi < 0) continue;
-    const colX = re=> { const t = lines[hi].items.find(t=> re.test(t.s.replace(/\s+/g, ''))); return t ? t.x : null; };
-    const xZh = colX(/中文/), xVal = colX(/結果/), xRef = colX(/參考/), xUnit = colX(/單位/);
-    if(xZh == null || xVal == null || xRef == null) continue;
-    const bZh = xZh - 25, bVal = xVal - 20, bRef = xRef - 22, bUnit = xUnit == null ? Infinity : xUnit - 20;
+    // 影像辨識常把表頭認錯一兩個字（項目→項日、結果→早打、單位→時位），所以改認「中文名稱」「參考區間」和兩者之間的那一欄
+    const fz = {zh: /^中|中文|名稱|文名/, ref: /^參|參考|區間/, unit: /^單|單位|^位/};
+    const isHead = l=>{
+      const t = text(l).replace(/\s+/g, '');
+      return /檢驗項目/.test(t) || (fuzzy && fz.zh.test(t) && fz.ref.test(t));
+    };
+    const hi = lines.findIndex(isHead);
+    if(hi < 0) return sec;
+    const H = lines[hi].items;
+    const colX = (re, after)=> { const t = H.find(t=> t.x > (after == null ? -Infinity : after) && re.test(t.s.replace(/\s+/g, ''))); return t ? t.x : null; };
+    let xZh, xVal, xRef, xUnit;
+    if(fuzzy){
+      xZh = colX(fz.zh); xRef = colX(fz.ref, xZh);
+      // 結果欄：中文名稱與參考區間之間的第一段中文
+      const v = H.find(t=> xZh != null && xRef != null && t.x > xZh + 20 && t.x < xRef - 20 && /[一-鿿]/.test(t.s));
+      xVal = v ? v.x : null;
+      xUnit = colX(fz.unit, xRef);
+    } else {
+      xZh = colX(/中文/); xVal = colX(/結果/); xRef = colX(/參考/); xUnit = colX(/單位/);
+    }
+    if(xZh == null || xVal == null || xRef == null) return sec;
+    // 影像辨識的字框位置會偏移幾點，欄界多留一點空間
+    const pad = fuzzy ? 12 : 0;
+    const bZh = xZh - 25 - pad, bVal = xVal - 20 - pad, bRef = xRef - 22, bUnit = xUnit == null ? Infinity : xUnit - 20;
 
     for(let j = hi + 1; j < lines.length; j++){
       const l = lines[j], t = text(l);
@@ -161,10 +189,29 @@ async function ckParsePdf(file){
       if(/^[-─=\s]+$/.test(t)) continue;
       if(l.items.length === 1 && l.items[0].x < bZh && /[一-鿿]/.test(t)){ sec = t.replace(/\s+/g, ''); continue; }
       const col = (a, b)=> l.items.filter(it=> it.x >= a && it.x < b).map(it=> it.s).join(' ').trim();
-      const code = col(-Infinity, bZh);
+      let code = col(-Infinity, bZh);
       let zh = col(bZh, bVal), val = col(bVal, bRef);
-      const ref = col(bRef, bUnit), unit = col(bUnit, Infinity);
+      let ref = col(bRef, bUnit);
+      const unit = col(bUnit, Infinity);
       if(!code) continue;
+      if(fuzzy){
+        // 影像辨識：表格下方的報告說明、拆成好幾段的分組標題、底線與空白造成的雜訊
+        if(/報告說明/.test(t.replace(/\s+/g, '')) && !/見/.test(t)) break;
+        if(!/[A-Za-z]/.test(code)){ if(/[一-鿿]/.test(code) && !val) sec = t.replace(/\s+/g, ''); continue; }
+        val = val.replace(/(\d)\.\s+(\d)/g, '$1.$2').replace(/^[_|｜\s]+/, '').trim();
+        const vm = /^([<>≦≧]?\s*-?\d+(?:\.\d+)?)\s*([↑↓])?/.exec(val);
+        // 只取結果欄開頭的數值；數值對不對由 ckParseImage 比對兩次辨識決定
+        if(vm) val = vm[1].replace(/\s+/g, '') + (vm[2] ? ' ' + vm[2] : '');
+        else if(/\d/.test(val)){ const m = /-?\d+(?:\.\d+)?/.exec(val); val = m ? m[0] : ''; }
+        else if(!/^(\(?[+-]+\)?|neg\w*|pos\w*|normal|trace|clear|yellow|陰性|陽性|正常)/i.test(val)) val = '';
+        if(!val && !zh) continue;
+        code = code.replace(/^HbA[lI|]c/i, 'HbA1c');
+        ref = ref.replace(/(\d)\.\s+(\d)/g, '$1.$2').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
+        if(!/^[<>≦≧≤≥]|^\d/.test(ref)) ref = '';   // 「≦」「≧」認不出來時寧可留空，判讀改用內建標準
+        // 參考區間的「≦」常被認錯，有內建參考區間的項目改用內建的（和優品報告上的一樣）
+        const mr = CK_MANUAL_REF[ckKeyOf(code)];
+        if(mr && (!Array.isArray(mr) || rep.sex)) ref = Array.isArray(mr) ? mr[rep.sex === 'F' ? 1 : 0] : mr;
+      }
       // 中文名稱太長時會和結果黏成同一段文字（例如「平均紅血球血紅素量 30.1」）
       if(!val){ const m = /^(.*\S)\s+([<>≦≧]?-?\d[\d.,]*|\([+-]+\))$/.exec(zh); if(m){ zh = m[1]; val = m[2]; } }
       const fm = /\s*([↑↓])\s*$/.exec(val);
@@ -172,8 +219,7 @@ async function ckParsePdf(file){
       if(fm) val = val.slice(0, fm.index).trim();
       rep.rows.push({key: ckKeyOf(code), code, zh, raw: val, ref, unit, sec, labFlag: flag});
     }
-  }
-  return {rep, pages, text: raw};
+    return sec;
 }
 
 /* ---------- 參考區間與判讀 ---------- */
