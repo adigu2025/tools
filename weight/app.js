@@ -1534,7 +1534,8 @@ const W_PAL_BY_EXERCISE = ['1.725', '1.55', '1.375', '1.2', '1.2'];
 let wPalManual = false;
 function wActivityAuto(){
   if(wPalManual) return;
-  const picked = (categorySelections['activity-habit-text'] || {}).exercise;
+  // 舊紀錄的選項文字是「含重量訓練或 HIIT」（2026-11 改為「含重訓或 HIIT」），比對前先換成新寫法
+  const picked = ((categorySelections['activity-habit-text'] || {}).exercise || '').replace('重量訓練', '重訓');
   const i = ACTIVITY_CATEGORIES[0].options.indexOf(picked);
   if(i < 0) return;
   const sel = WD.getElementById('cal-activity');
@@ -1807,7 +1808,7 @@ function syncOtherInputs(focus){
 WD.addEventListener('change', e=>{
   if(e.target && e.target.closest && e.target.closest('.chk-other') && e.target.type === 'checkbox') syncOtherInputs(e.target);
 }, true);
-// 減重門診評估問卷：版面與題目在 forms/forms.js（與工作台共用），這裡帶入目前的病人姓名
+// 健康狀態評估問卷（原減重門診評估問卷）：版面與題目在 forms/forms.js（與工作台共用），這裡帶入目前的病人姓名
 function buildBlankScalesHtml(){
   return formScalesHtml({name: WD.getElementById('p-name').value, chart: WD.getElementById('p-chart').value});
 }
@@ -1815,7 +1816,7 @@ function printBlankScales(){
   const tmp = document.createElement('div');
   tmp.innerHTML = buildBlankScalesHtml();
   // 問卷頁自帶頁首頁尾（頁尾為絕對定位，不佔版面高度），不套用報告的 table 包裝
-  printIsolated(tmp.innerHTML, '減重門診評估問卷');
+  printIsolated(tmp.innerHTML, '健康狀態評估問卷');
 }
 
 // 鍵盤：焦點在選項上時方向鍵改成上下捲動頁面（版面已改成一頁捲到底，不再左右換頁）。
@@ -2238,7 +2239,8 @@ function applyState(state){
             const desc = r.parentNode.querySelector('.ms-desc');
             const full = desc && desc.textContent ? lab.textContent + '：' + desc.textContent : (lab ? lab.textContent : '');
             // 舊紀錄的選項文字可能是半形寫法（2~3次、/），比對前先統一
-            const norm = t=> (t || '').replace(/\s/g, '').replace(/~/g, '至').replace(/\//g, '／');
+            // 「含重量訓練或 HIIT」2026-11 改為「含重訓或 HIIT」，舊紀錄一併對得上
+            const norm = t=> (t || '').replace(/\s/g, '').replace(/~/g, '至').replace(/\//g, '／').replace(/重量訓練/g, '重訓');
             r.checked = (norm(full) === norm(val));
           });
         });

@@ -117,7 +117,7 @@ const sizeTag = p=> `<span class="sz${p.size === 'A5' ? ' a5' : ''}">${p.size}</
 // group 對應上方 EDU_GROUPS；sec 是側欄小標。
 const C = n=> Array.from({length:n.pages}, (_, i)=> W(`img/consent-${n.file}-${i + 1}.webp`));
 let FORMS = [
-  {group:'weight', sec:'表單', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'html', html:()=> formScalesHtml()},
+  {group:'weight', sec:'表單', label:'健康狀態評估問卷', note:'共 2 頁', pages:[], kind:'html', html:()=> formScalesHtml()},
   {group:'weight', sec:'表單', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'html', html:()=> formHealthRecordHtml()},
   {group:'weight', sec:'表單', label:'腸泌素自費同意書', note:'共 2 頁', pages:[W('img/consent-glp1-1.webp'), W('img/consent-glp1-2.webp')], kind:'img'},
   // 管制藥品處方箋為橫式 A4，列印時依圖片比例自動改橫式紙
@@ -157,6 +157,60 @@ if(!EDU_GROUPS.some(g=> g.key === eduGroup)) eduGroup = 'weight';
 // 桌機版的清單浮在側欄右邊（半透明，蓋在預覽左側留白上，預覽不會移動）；再按一次目前的分類可收起
 let railFirst = true;
 let railFly = recall('hub-edu-fly', true) !== false;
+// 搜尋：輸入關鍵字時，清單改列所有分類中名稱、系列或分類名稱符合的項目（不分大小寫、忽略空白）；清空就回到原本的分類清單
+let eduQuery = '';
+const normQ = t=> String(t || '').toLowerCase().replace(/[\s　]/g, '');
+function searchHits(q){
+  const n = normQ(q);
+  if(!n) return [];
+  return ITEMS.map((it, i)=> ({it, i})).filter(({it})=>{
+    const g = EDU_GROUPS.find(x=> x.key === it.group);
+    return normQ([it.label, it.sec, g ? g.label : '', it.kind === 'form' ? '表單' : '衛教', it.size].join('|')).includes(n);
+  });
+}
+// 側欄骨架只建一次：搜尋框固定不重畫，打字時不會因為清單重畫而失去焦點
+function railShell(rail){
+  if(rail.querySelector('.edu-search')) return;
+  rail.innerHTML = `<div class="edu-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>` +
+    `<input type="search" id="edu-q" aria-label="搜尋衛教與表單" title="搜尋衛教與表單（快速鍵 /）" autocomplete="off" spellcheck="false">` +
+    `<button class="q-x press" type="button" aria-label="清除搜尋" title="清除搜尋" hidden>×</button></div>` +
+    `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類"></div><div class="edu-list"></div>`;
+  const inp = rail.querySelector('#edu-q'), x = rail.querySelector('.q-x');
+  const run = ()=>{ eduQuery = inp.value.trim(); x.hidden = !inp.value; if(eduQuery) railFly = true; renderRail(); };
+  inp.addEventListener('input', run);
+  x.addEventListener('click', ()=>{ inp.value = ''; run(); inp.focus(); });
+  inp.addEventListener('keydown', e=>{
+    // Esc 先清空搜尋，再按一次離開搜尋框；Enter 開啟第一筆結果
+    if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); if(inp.value){ inp.value = ''; run(); } else inp.blur(); }
+    else if(e.key === 'Enter'){
+      e.preventDefault();
+      const h = searchHits(eduQuery);
+      if(h.length) pickItem(h[0].i);
+    }
+  });
+}
+// 點清單項目：搜尋結果可能在別的分類，先切到該分類再顯示（搜尋結果保留，可以繼續點其他筆）
+function pickItem(i){
+  const it = ITEMS[i];
+  if(it.group !== eduGroup){ eduGroup = it.group; store('hub-edu-group', eduGroup); }
+  showItem(i, 0);
+}
+function clearSearch(){
+  const inp = document.getElementById('edu-q');
+  if(inp) inp.value = '';
+  const x = document.querySelector('#edu-rail .q-x');
+  if(x) x.hidden = true;
+  eduQuery = '';
+}
+function setRailFly(on){
+  railFly = on; store('hub-edu-fly', on);
+  document.getElementById('edu-rail').classList.toggle('fly-off', !on);
+}
+function itemBtn(it, i){
+  const n = itemSheets(it);
+  return `<button class="edu-item press" data-i="${i}" aria-current="${i === cur}">` +
+    `<span class="ico">${it.icon || ICON_DOC}</span><span class="lb">${esc(it.label)}</span>${sizeTag(it)}${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
+}
 function renderRail(){
   const prev = cur;
   if(railFirst){
@@ -172,41 +226,56 @@ function renderRail(){
     eduPage = 0;
   }
   const rail = document.getElementById('edu-rail');
-  // 重畫清單（勾選模式每勾一份都會重畫）時保留捲動位置
-  const oldList = rail.querySelector('.edu-list');
-  const keepTop = oldList && oldList.dataset.g === eduGroup ? oldList.scrollTop : 0;
-  const tabs = EDU_GROUPS.map(g=>{
+  railShell(rail);
+  // 分類按鈕：搜尋中不標示目前分類（清單列的是搜尋結果）
+  const groups = rail.querySelector('.edu-groups');
+  groups.innerHTML = EDU_GROUPS.map(g=>{
     const n = ITEMS.filter(it=> it.group === g.key).length;
-    return `<button class="edu-group press" data-g="${g.key}" aria-pressed="${g.key === eduGroup}">${esc(g.label)}` +
+    return `<button class="edu-group press" data-g="${g.key}" aria-pressed="${!eduQuery && g.key === eduGroup}">${esc(g.label)}` +
       `<span class="n">${n}</span></button>`;
   }).join('');
-  let sec = null;
-  const items = ITEMS.map((it, i)=>{
-    if(it.group !== eduGroup) return '';
-    const head = (it.sec && it.sec !== sec) ? `<div class="edu-sec">${esc(it.sec)}</div>` : '';
-    sec = it.sec;
-    const n = itemSheets(it);
-    return head + `<button class="edu-item press" data-i="${i}" aria-current="${i === cur}">` +
-      `<span class="ico">${it.icon || ICON_DOC}</span><span class="lb">${esc(it.label)}</span>${sizeTag(it)}${n > 1 ? `<span class="pg">${n} 張</span>` : ''}</button>`;
-  }).join('');
-  const g = EDU_GROUPS.find(x=> x.key === eduGroup);
-  const flyHead = `<div class="edu-fly-head"><b>${esc(g ? g.label : '')}</b>` +
-    `<button class="fly-x press" type="button" title="收起清單（再按一次分類可展開）" aria-label="收起清單">‹</button></div>`;
-  rail.classList.toggle('fly-off', !railFly);
-  rail.innerHTML = `<div class="edu-groups" role="tablist" aria-label="衛教與表單分類">${tabs}</div>` +
-    `<div class="edu-list" data-g="${eduGroup}">${flyHead}${items}</div>`;
-  rail.querySelector('.edu-list').scrollTop = keepTop;
-  const setFly = on=>{ railFly = on; store('hub-edu-fly', on); rail.classList.toggle('fly-off', !on); };
-  rail.querySelector('.fly-x').addEventListener('click', ()=> setFly(false));
-  rail.querySelectorAll('.edu-group').forEach(b=> b.addEventListener('click', ()=>{
-    // 再按一次目前的分類：收起或展開清單；換分類時一律展開
-    if(b.dataset.g === eduGroup){ setFly(!railFly); return; }
+  groups.querySelectorAll('.edu-group').forEach(b=> b.addEventListener('click', ()=>{
+    // 搜尋中按分類：離開搜尋、顯示該分類。否則再按一次目前的分類可收起或展開清單；換分類時一律展開
+    if(eduQuery) clearSearch();
+    else if(b.dataset.g === eduGroup){ setRailFly(!railFly); return; }
     eduGroup = b.dataset.g;
     store('hub-edu-group', eduGroup);
     railFly = true; store('hub-edu-fly', true);
     renderRail();
   }));
-  rail.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> showItem(+b.dataset.i, 0)));
+  const list = rail.querySelector('.edu-list');
+  // 重畫同一份清單時保留捲動位置
+  const tag = eduQuery ? '?' + eduQuery : eduGroup;
+  const keepTop = list.dataset.g === tag ? list.scrollTop : 0;
+  let title, body;
+  if(eduQuery){
+    const hits = searchHits(eduQuery);
+    title = `搜尋結果 ${hits.length} 筆`;
+    let g = null;
+    body = hits.map(({it, i})=>{
+      const head = it.group !== g ? `<div class="edu-sec">${esc((EDU_GROUPS.find(x=> x.key === it.group) || {}).label || '')}</div>` : '';
+      g = it.group;
+      return head + itemBtn(it, i);
+    }).join('') || '<div class="edu-none">找不到符合的衛教或表單</div>';
+  } else {
+    const g = EDU_GROUPS.find(x=> x.key === eduGroup);
+    title = g ? g.label : '';
+    let sec = null;
+    body = ITEMS.map((it, i)=>{
+      if(it.group !== eduGroup) return '';
+      const head = (it.sec && it.sec !== sec) ? `<div class="edu-sec">${esc(it.sec)}</div>` : '';
+      sec = it.sec;
+      return head + itemBtn(it, i);
+    }).join('');
+  }
+  const flyHead = `<div class="edu-fly-head"><b>${esc(title)}</b>` +
+    `<button class="fly-x press" type="button" title="收起清單（再按一次分類可展開）" aria-label="收起清單">‹</button></div>`;
+  rail.classList.toggle('fly-off', !railFly);
+  list.dataset.g = tag;
+  list.innerHTML = flyHead + body;
+  list.scrollTop = keepTop;
+  list.querySelector('.fly-x').addEventListener('click', ()=> setRailFly(false));
+  list.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> pickItem(+b.dataset.i)));
   if(cur !== prev || shownKey !== itemKey(ITEMS[cur])) showItem(cur, eduPage);
 }
 // 雙面列印提醒：只在印 A5 衛教單時出現（A5 紙走雙面會印出空白頁）；A4 一律不提醒（2026/11/09 YT 決定）。

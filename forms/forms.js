@@ -1,4 +1,4 @@
-/* 列印表單共用：減重門診評估問卷、健康紀錄表的題目資料、版面與樣式。
+/* 列印表單共用：健康狀態評估問卷（原減重門診評估問卷，減重與健檢通用）、健康紀錄表的題目資料、版面與樣式。
    工作台（列印表單）與減重系統（weight/）都載入這個檔案，改一處兩邊同步。
    工作台印的是空白表；減重系統把目前畫面的資料傳進來，印出已帶入資料的版本。 */
 
@@ -41,7 +41,7 @@ const ACTIVITY_CATEGORIES = [
     label: '一、運動習慣（肌肉與心肺刺激、身體活動度）',
     intro: '評估除日常走路外，是否有刻意給予身體足夠的運動刺激與肌肉阻力訓練。',
     options: [
-      '高強度規律訓練：每週 4 次以上，含重量訓練或 HIIT',
+      '高強度規律訓練：每週 4 次以上，含重訓或 HIIT',
       '有氧與重訓兼顧：每週 2 至 3 次，達微喘流汗程度',
       '假日運動員／低頻率：每週僅 1 次或集中於週末',
       '靜態生活／以車代步：無運動習慣，能坐不站',
@@ -155,7 +155,7 @@ function LAB_META(male){
   ];
 }
 
-// 減重門診評估問卷（兩頁 A4），題目順序對應報告第 04 章「病史與身心評估」。
+// 健康狀態評估問卷（兩頁 A4，減重門診與健檢通用；2026-11 由「減重門診評估問卷」改名），題目順序對應報告第 04 章「病史與身心評估」。
 // 選項文字直接取自系統的資料陣列與表單標籤，紙本與螢幕上的選項一致，日後改一處即可同步。
 // 病人填寫的題目都有對應的系統欄位；身體測量、量表計分與本次治療留給醫療人員填寫。
 const QS_BOX = '<svg viewBox="0 0 16 16" fill="none" stroke="#152831" stroke-width="1.3"><rect x="1.5" y="1.5" width="13" height="13" rx="2"/></svg>';
@@ -211,7 +211,7 @@ function qsStaffLine(label, unit, w){
   return '<span class="qs-sf"><span class="l">' + label + '</span><span class="ln" style="min-width:' + (w || 46) + 'px"></span>' + (unit ? '<span class="u">' + unit + '</span>' : '') + '</span>';
 }
 
-/* 減重門診評估問卷（兩頁 A4，2026-11 改版）
+/* 健康狀態評估問卷（兩頁 A4，2026-11 改版；減重與健檢通用，減重專屬的題目標註「如無減重打算請跳過」）
    題目順序跟「製作報告」的輸入順序一致：基本資料與身體測量 → 目標體重 → 疾病、用藥、吸菸（次發性肥胖、藥物性因素、心血管風險）
    → 飲食習慣 → 活動習慣 → STOP-BANG → PHQ-9 → 家族史、生育計畫、動機 → 預算。
    醫療人員填寫的欄位全部集中在第 1 頁上方的虛線框；用藥禁忌相關病史併入「曾被醫師診斷的疾病」。
@@ -253,7 +253,7 @@ function formScalesHtml(d){
   const page1 = `
   <div class="report-page q2">
     ${q2Head(1)}
-    <div class="q2-title">減重門診評估問卷</div>
+    <div class="q2-title">健康狀態評估問卷</div>
     <div class="q2-basic">
       <span>姓名<span class="q2-fill" style="min-width:104px">${formEsc(name)}</span></span>
       <span>病歷號<span class="q2-fill" style="min-width:76px">${formEsc(chart)}</span></span>
@@ -266,7 +266,7 @@ function formScalesHtml(d){
       <span class="sf grow">評估人員<span class="q2-fill"></span></span>
     </div>
 
-    ${q2Sec('一', '減重目標')}
+    ${q2Sec('一', '減重目標', '如無減重打算請跳過')}
     <div class="q2-row">
       <div class="q2-q"><span class="n">1</span>目標體重<span class="q2-fill" style="min-width:56px; margin:0 6px 0 10px"></span><span class="w">公斤</span></div>
       <div class="q2-q"><span class="n">2</span>成年後最高體重<span class="q2-fill" style="min-width:50px; margin:0 6px 0 10px"></span><span class="w">公斤，當時</span><span class="q2-fill" style="min-width:36px; margin:0 6px"></span><span class="w">歲</span></div>
@@ -327,9 +327,10 @@ function formScalesHtml(d){
     <div class="q2-row">${q2Q(3, '現在想開始減重的意願有多強？', '請圈選')}
       <div class="q2-scale"><i>還在考慮</i>${Array.from({length: 10}, (_, i)=> `<span>${i + 1}</span>`).join('')}<i>已經準備好</i></div>
     </div>
-    <div class="q2-row">${q2Q(4, '誰可以支持您減重？', '可複選')}${QS_SUPPORT.map(t=> q2Opt(t)).join('')}${q2Other('其他', 90)}</div>
-    <div class="q2-row">${q2Q(5, '每月可安排的治療費用預算')}
-      ${['1,000 至 5,000 元','5,000 至 10,000 元','10,000 至 15,000 元','15,000 元以上','尚未考慮，想先了解'].map(t=> q2Opt(t)).join('')}</div>
+    ${q2Q(4, '誰可以支持您減重？', '可複選')}
+    <div class="q2-opts flow">${QS_SUPPORT.map(t=> q2Opt(t)).join('')}${q2Other('其他', 90)}</div>
+    ${q2Q(5, '每月可安排的治療費用預算', '如無減重打算請跳過')}
+    <div class="q2-opts flow">${['1,000 至 5,000 元','5,000 至 10,000 元','10,000 至 15,000 元','15,000 元以上','尚未考慮，想先了解'].map(t=> q2Opt(t)).join('')}</div>
     ${q2Foot()}
   </div>`;
 
@@ -569,7 +570,7 @@ const FORMS_CSS = `
 .rp-header{display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding-bottom:8px; margin-bottom:16px;}
 .rp-header .clinic{font-size:14px; color:var(--primary-dark); font-weight:700;}
 .rp-header .pagenum{font-size:12px; color:var(--muted); letter-spacing:.04em;}
-/* ── 減重門診評估問卷（2026-11 改版，q2-）：白底、深色字、只用一個點綴色 ───────────── */
+/* ── 健康狀態評估問卷（2026-11 改版，q2-）：白底、深色字、只用一個點綴色，醫療人員填寫區灰底 ───────────── */
 .report-page.q2{--q:#3F6470; --ink:#1C1C1C; --sub:#5F5F5F; --rule:#B9B9B9;
   padding:32px 52px 40px; position:relative; min-height:1123px; height:1123px; overflow:hidden;
   color:var(--ink); font-size:13.5px; line-height:1.6;}
@@ -580,8 +581,11 @@ const FORMS_CSS = `
 .q2-basic{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 14px; font-size:14px;}
 .q2-basic .sex{display:inline-flex; align-items:center; gap:10px;}
 .q2-basic .sex .q2-o{margin:0;}
+/* 醫療人員填寫區：整塊灰底加實線框，和病人填寫的白底區分開；列印時保留底色 */
 .q2-staff{display:flex; flex-wrap:wrap; align-items:center; gap:6px 18px; margin-top:12px; padding:8px 12px;
-  border:1px dashed #8C8C8C; border-radius:6px; font-size:13px;}
+  border:1.2px solid #8C9499; border-radius:6px; font-size:13px; background:#E9ECEE;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+.q2-staff .q2-o svg rect{fill:#fff;}
 .q2-staff b{font-size:12.5px; color:var(--q); letter-spacing:.06em; margin-right:2px;}
 .q2-staff .sf{display:inline-flex; align-items:center; gap:2px; white-space:nowrap;}
 .q2-staff .sf .q2-fill{margin:0 5px;}
@@ -589,7 +593,8 @@ const FORMS_CSS = `
 .q2-staff .sf.grow{flex:1;}
 .q2-staff .sf.grow .q2-fill{flex:1;}
 .q2-staff.top{position:relative; justify-content:space-between; gap:7px 12px; margin-top:16px; padding:11px 12px 8px;}
-.q2-staff.top b{position:absolute; left:10px; top:-9px; background:#fff; padding:0 6px; margin:0;}
+.q2-staff.top b{position:absolute; left:10px; top:-10px; background:#3F6470; color:#fff; border-radius:4px; padding:0 8px; margin:0; line-height:19px;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;}
 .q2-staff .brk{flex-basis:100%; height:0;}
 .q2-sec{font-size:16.5px; font-weight:700; line-height:1.3; margin:13px 0 6px; padding:1px 0 1px 11px; border-left:5px solid var(--q); letter-spacing:.04em;}
 .q2-sec .no{color:var(--q); margin-right:8px;}
