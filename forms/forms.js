@@ -327,7 +327,7 @@ function formScalesHtml(d){
     <div class="q2-row">${q2Q(3, '現在想開始減重的意願有多強？', '請圈選')}
       <div class="q2-scale"><i>還在考慮</i>${Array.from({length: 10}, (_, i)=> `<span>${i + 1}</span>`).join('')}<i>已經準備好</i></div>
     </div>
-    ${q2Q(4, '誰可以支持您減重？', '可複選')}
+    ${q2Q(4, '誰可以支持您減重？', '可複選，如無減重打算請跳過')}
     <div class="q2-opts flow">${QS_SUPPORT.map(t=> q2Opt(t)).join('')}${q2Other('其他', 90)}</div>
     ${q2Q(5, '每月可安排的治療費用預算', '如無減重打算請跳過')}
     <div class="q2-opts flow">${['1,000 至 5,000 元','5,000 至 10,000 元','10,000 至 15,000 元','15,000 元以上','尚未考慮，想先了解'].map(t=> q2Opt(t)).join('')}</div>
