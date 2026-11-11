@@ -182,7 +182,7 @@
   #panel-stoolcolor > .quiz-intro{grid-column:1; margin-bottom:12px !important;}
   #panel-stoolcolor > #stoolcolor-body{grid-column:1; grid-row:3;}
   #panel-stoolcolor > #stoolcolor-result{grid-column:2; grid-row:2 / 4; display:flex !important; flex-direction:column; margin:0 !important;}
-  #stoolcolor-result:empty::before{content:"點選左側最接近的顏色，這裡會顯示可能原因與建議"; flex:1; display:flex; align-items:center;
+  #stoolcolor-result:empty::before{content:""; flex:1; display:flex; align-items:center;
     justify-content:center; border:1px dashed #DEDBD1; border-radius:14px; background:#FBFAF7; color:var(--faint); font-size:14px;}
   #stoolcolor-result > .result-card{flex:1; columns:auto !important; margin:0 !important; display:flex; flex-direction:column;}
   #stoolcolor-result .notes{margin-top:auto !important; padding-top:14px;}
@@ -217,7 +217,7 @@
   #panel-waist > .quiz-intro{grid-column:1; grid-row:2; margin-bottom:14px !important;}
   #panel-waist > #waist-body{grid-column:1; grid-row:3 / 5;}
   #panel-waist > #waist-result{grid-column:2; grid-row:2 / 4; display:flex !important; flex-direction:column; margin:0 0 14px !important;}
-  #waist-result:empty::before{content:"選擇生理性別並填入腰圍後，這裡會顯示判定結果"; flex:1; display:flex; align-items:center;
+  #waist-result:empty::before{content:""; flex:1; display:flex; align-items:center;
     justify-content:center; border:1px dashed #DEDBD1; border-radius:14px; background:#FBFAF7; color:var(--faint); font-size:14px;}
   #waist-result > .result-card{flex:1; columns:auto !important; margin:0 !important; display:flex; flex-direction:column; justify-content:center;}
   #panel-waist > #waist-ref{grid-column:2; grid-row:4; margin:0 !important;}
@@ -587,10 +587,8 @@
     padding:16px 16px 14px; background:#FAF9F5; border:1px solid #EEEBE3; border-radius:14px;}
   .as-split > .assess-result{grid-column:2; grid-row:2 / 4; display:flex !important; flex-direction:column; margin:0 !important;
     container-type:size; overflow-y:auto; scrollbar-width:thin;}
-  .as-split > .assess-result:empty::before{content:"左邊開始作答，這裡會即時顯示分數、風險等級與建議"; flex:1; display:flex; align-items:center;
+  .as-split > .assess-result:empty::before{content:""; flex:1; display:flex; align-items:center;
     justify-content:center; border:1px dashed #DEDBD1; border-radius:14px; background:#FBFAF7; color:var(--faint); font-size:15px;}
-  #scope-result:empty::before{content:"勾選左邊在意的項目，這裡會顯示對應的檢查說明";}
-  #metsyn-result:empty::before{content:"勾選符合的指標，這裡會即時算出符合幾項；都不符合時按「查看評估結果」";}
 
   /* ---------- 左欄：題目式 ---------- */
   main.body > .tool-panel.as-split.active:not(.hub-split) .quiz-step{margin-bottom:8px; font-size:12.5px;}
@@ -699,4 +697,37 @@
   #panel-waist > #waist-result{container-type:size;}
   #waist-ref .si-grid{font-size:12.5px !important;}
   #waist-ref .si-grid.hit > :nth-child(-n+2){color:var(--red); font-weight:700;}
+}
+/* ===== 說明小字精簡（2026-11-11）=====
+   工作台只在診間使用：標題上方的副標、空白狀態的操作提示都不顯示，只留判讀說明與文獻附註 */
+.panel-title small{display:none !important;}
+.empty-hint p, #target-empty{display:none !important;}
+@media (min-width:1100px){
+  #panel-stoolcolor > .quiz-intro{display:none !important;}
+  /* 降血脂與 B 肝用藥：勾選題固定三欄，結果卡收緊，一個畫面放得下 */
+  .rx-panel .rx-cols{grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:10px !important; margin-bottom:0 !important;}
+  .rx-panel .rx-cols .rx-section{padding:8px 10px !important;}
+  .rx-panel .panel-head{margin-bottom:10px !important;}
+  .rx-panel .rx-cards{gap:8px !important;}
+  .rx-panel .rx-card{padding:10px 14px !important;}
+  .rx-panel .rx-card-head{margin-bottom:4px !important;}
+  .rx-panel .rx-card p{line-height:1.6 !important;}
+  .rx-panel .rx-card .rx-why{line-height:1.6 !important; margin-top:4px !important;}
+  .rx-panel .rx-calc{margin-bottom:8px !important;}
+}
+@media (min-width:1100px){
+  /* 藥品清單：品名與劑量排同一行 */
+  .rx-panel .drugs{gap:4px 5px !important; margin-top:4px !important;}
+  .rx-panel .drug{flex-direction:row !important; align-items:baseline; gap:5px; padding:2px 8px !important; font-size:12px !important;}
+  .rx-panel .field-head{white-space:nowrap;}
+  .rx-panel .field-unit{font-size:11px !important;}
+  .rx-panel .rx-rule{padding:6px 0 !important;}
+  /* 降血脂：結果卡片多，結果欄放寬並排成兩欄；風險等級橫跨兩欄 */
+  #panel-lipidrx.hub-split.active{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; column-gap:18px !important;}
+  #lipidrx-result{display:block !important; columns:2; column-gap:8px;}
+  #lipidrx-result > .rx-card{break-inside:avoid; margin:0 0 8px !important;}
+  #lipidrx-result > .rx-card.lead{column-span:all;}
+  #panel-lipidrx .rx-cols .flag{font-size:12.5px !important;}
+  /* 這兩個工具的結果欄不再限高捲動，倍率由 rxZoom 依內容決定 */
+  .rx-panel .hub-out{overflow:visible !important;}
 }

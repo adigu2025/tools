@@ -174,7 +174,7 @@ const QS_PREG = ['無相關計畫','計畫懷孕中','懷孕中','哺乳中'];
 const QS_CV_DX = ['心肌梗塞或冠心病','中風','心衰竭'];
 const QS_CV_MED = ['降血壓藥','降血脂藥','糖尿病藥物'];
 const QS_SMOKE = ['從未吸菸','已戒菸','目前吸菸'];
-const QS_PAGES = 3;
+const QS_PAGES = 2;
 const QS_SUPPORT = ['家人','伴侶','朋友','同事','病友或社群','目前沒有'];
 
 function qsOpt(text, splitKey){
@@ -211,17 +211,18 @@ function qsStaffLine(label, unit, w){
   return '<span class="qs-sf"><span class="l">' + label + '</span><span class="ln" style="min-width:' + (w || 46) + 'px"></span>' + (unit ? '<span class="u">' + unit + '</span>' : '') + '</span>';
 }
 
-/* 減重門診評估問卷（三頁 A4，2026-11 改版）
+/* 減重門診評估問卷（兩頁 A4，2026-11 改版）
    題目順序跟「製作報告」的輸入順序一致：基本資料與身體測量 → 目標體重 → 疾病、用藥、吸菸（次發性肥胖、藥物性因素、心血管風險）
-   → 飲食習慣 → 活動習慣 → STOP-BANG → PHQ-9 → 家族史、生育計畫、動機 → 治療安排。
-   版面以閱讀舒適為主：字級 13.5px 以上、白底、只用一個點綴色，不放灰色說明小字。 */
-function q2Opt(text, splitKey){
+   → 飲食習慣 → 活動習慣 → STOP-BANG → PHQ-9 → 家族史、生育計畫、動機 → 預算。
+   醫療人員填寫的欄位全部集中在第 1 頁上方的虛線框；用藥禁忌相關病史併入「曾被醫師診斷的疾病」。
+   版面：白底、只用一個點綴色，不放灰色說明小字。 */
+function q2Opt(text, splitKey, cls){
   let body = formEsc(text);
   if(splitKey){
     const i = text.indexOf('：');
     if(i >= 0) body = '<b>' + formEsc(text.slice(0, i)) + '</b>：' + formEsc(text.slice(i + 1));
   }
-  return '<div class="q2-o">' + QS_BOX + '<span>' + body + '</span></div>';
+  return '<div class="q2-o' + (cls ? ' ' + cls : '') + '">' + QS_BOX + '<span>' + body + '</span></div>';
 }
 function q2Other(label, w){
   return '<div class="q2-o">' + QS_BOX + '<span>' + formEsc(label || '其他') + ' <span class="q2-fill" style="min-width:' + (w || 120) + 'px"></span></span></div>';
@@ -254,73 +255,61 @@ function formScalesHtml(d){
     ${q2Head(1)}
     <div class="q2-title">減重門診評估問卷</div>
     <div class="q2-basic">
-      <span>姓名<span class="q2-fill" style="min-width:130px">${formEsc(name)}</span></span>
-      <span>病歷號<span class="q2-fill" style="min-width:100px">${formEsc(chart)}</span></span>
+      <span>姓名<span class="q2-fill" style="min-width:104px">${formEsc(name)}</span></span>
+      <span>病歷號<span class="q2-fill" style="min-width:76px">${formEsc(chart)}</span></span>
       <span class="sex">性別${q2Opt('男')}${q2Opt('女')}</span>
-      <span>出生日期<span class="q2-fill" style="min-width:52px"></span>年<span class="q2-fill" style="min-width:30px"></span>月<span class="q2-fill" style="min-width:30px"></span>日</span>
+      <span>生日<span class="q2-fill" style="min-width:42px"></span>年<span class="q2-fill" style="min-width:26px"></span>月<span class="q2-fill" style="min-width:26px"></span>日</span>
     </div>
-    <div class="q2-staff"><b>醫療人員填寫</b>
-      ${q2Staff('身高', 'cm')}${q2Staff('體重', 'kg')}${q2Staff('腰圍', 'cm')}${q2Staff('血壓', 'mmHg', 74)}${q2Staff('心跳', '次／分', 40)}
+    <div class="q2-staff top"><b>醫療人員填寫</b>
+      ${q2Staff('身高', 'cm', 52)}${q2Staff('體重', 'kg', 52)}${q2Staff('腰圍', 'cm', 52)}${q2Staff('血壓', 'mmHg', 84)}${q2Staff('心跳', '次／分', 44)}<span class="brk"></span>
+      ${q2Staff('PHQ-9', '分', 34)}<span class="sf">本次治療${TX_OPTIONS.map(o=> q2Opt(o.key === 'lifestyle' ? '生活型態' : o.title.replace(/^[A-Za-z]+\s*/, ''))).join('')}</span>
+      <span class="sf grow">評估人員<span class="q2-fill"></span></span>
     </div>
 
     ${q2Sec('一', '減重目標')}
-    <div class="q2-q"><span class="n">1</span>目標體重<span class="q2-fill" style="min-width:70px; margin:0 6px 0 12px"></span><span class="w">公斤</span></div>
-    ${q2Q(2, '希望多久達到這個體重？')}
-    <div class="q2-opts flow">${['1 個月','3 個月','6 個月','1 年','沒有特定時間，穩定就好'].map(t=> q2Opt(t)).join('')}</div>
-    <div class="q2-q"><span class="n">3</span>成年後的最高體重<span class="w" style="margin-left:12px">約</span><span class="q2-fill" style="min-width:60px; margin:0 6px"></span><span class="w">公斤，當時</span><span class="q2-fill" style="min-width:44px; margin:0 6px"></span><span class="w">歲</span></div>
-    ${q2Q(4, '過去是否曾嘗試減重？')}
-    <div class="q2-opts flow">${q2Opt('沒有')}${q2Other('有，方式為', 300)}</div>
-    ${q2Q(5, '這次想減重的原因', '可複選')}
-    <div class="q2-opts c2">
-      ${['改善健康檢查的異常數據','改善關節或行動上的不適','調整體態與外型','為特定活動做準備（如婚禮、同學會）'].map(t=> q2Opt(t)).join('')}
-      ${q2Other('其他', 200)}
+    <div class="q2-row">
+      <div class="q2-q"><span class="n">1</span>目標體重<span class="q2-fill" style="min-width:56px; margin:0 6px 0 10px"></span><span class="w">公斤</span></div>
+      <div class="q2-q"><span class="n">2</span>成年後最高體重<span class="q2-fill" style="min-width:50px; margin:0 6px 0 10px"></span><span class="w">公斤，當時</span><span class="q2-fill" style="min-width:36px; margin:0 6px"></span><span class="w">歲</span></div>
+    </div>
+    <div class="q2-row">${q2Q(3, '希望多久達到目標？')}${['1 個月','3 個月','6 個月','1 年','沒有特定時間'].map(t=> q2Opt(t)).join('')}</div>
+    <div class="q2-row">${q2Q(4, '過去曾嘗試減重？')}${q2Opt('沒有')}${q2Other('有，方式為', 300)}</div>
+    <div class="q2-row">${q2Q(5, '這次想減重的原因', '可複選')}
+      ${['改善健檢異常數據','改善關節或行動不適','調整體態與外型','為特定活動做準備'].map(t=> q2Opt(t)).join('')}
+      ${q2Other('其他', 150)}
     </div>
 
     ${q2Sec('二', '疾病、用藥與吸菸')}
-    ${q2Q(1, '曾被醫師診斷的疾病', '可複選')}
-    <div class="q2-opts c3">
+    ${q2Q(1, '曾被醫師診斷的疾病或狀況', '可複選')}
+    <div class="q2-opts flow">
       ${q2Opt('目前沒有')}
       ${COMORBID_TAGS.map(t=> q2Opt(t.replace(/第(\d)型/, '第 $1 型'))).join('')}
       ${q2Opt('甲狀腺功能低下')}
       ${QS_CV_DX.map(t=> q2Opt(t)).join('')}
-      ${q2Other('其他', 110)}
+      ${QS_MED_SAFETY.map(t=> q2Opt(t)).join('')}
+      ${q2Other('其他', 90)}
     </div>
-    ${q2Q(2, '目前正在使用的藥物', '可複選')}
-    <div class="q2-opts c3">
-      ${q2Opt('目前沒有用藥')}
-      ${QS_CV_MED.map(t=> q2Opt(t)).join('')}
-      ${QS_MED_LABELS.map(t=> q2Opt(t)).join('')}
-    </div>
-    <div class="q2-lines">
-      <div>其他藥物或保健食品<span class="q2-fill"></span></div>
-      <div>藥物過敏<span class="q2-fill"></span></div>
-    </div>
-    ${q2Q(3, '吸菸')}
-    <div class="q2-opts flow">${QS_SMOKE.map(t=> q2Opt(t)).join('')}</div>
-    ${q2Foot()}
-  </div>`;
+    <div class="q2-row">${q2Q(2, '目前正在使用的藥物')}${q2Opt('沒有用藥')}<span class="q2-o grow">有<span class="q2-fill"></span></span></div>
+    <div class="q2-row"><div class="q2-q grow"><span class="n">3</span>藥物過敏<span class="q2-fill"></span></div>
+      ${q2Q(4, '吸菸')}${QS_SMOKE.map(t=> q2Opt(t)).join('')}</div>
 
-  const page2 = `
-  <div class="report-page q2">
-    ${q2Head(2)}
     ${q2Sec('三', '飲食習慣', '每一類選一項最接近的')}
     <div class="q2-cats">${DIET_CATEGORIES.map(q2Cat).join('')}</div>
 
-    ${q2Sec('四', '活動習慣', '每一類選一項最接近的')}
-    <div class="q2-cats">${ACTIVITY_CATEGORIES.map(q2Cat).join('')}</div>
-
-    ${q2Sec('五', '睡眠')}
-    ${q2Q(1, '是否有下列狀況？', '可複選')}
-    <div class="q2-opts c2">${STOPBANG_ITEMS.map(it=> q2Opt(it.label)).join('')}</div>
     ${q2Foot()}
   </div>`;
 
   const phqRows = PHQ9_ITEMS.map((q, i)=>
     `<tr><td>${i + 1}. ${formEsc(q)}</td>${PHQ9_OPTS.map(()=> '<td>' + QS_BOX + '</td>').join('')}</tr>`).join('');
 
-  const page3 = `
+  const page2 = `
   <div class="report-page q2">
-    ${q2Head(3)}
+    ${q2Head(2)}
+    ${q2Sec('四', '活動習慣', '每一類選一項最接近的')}
+    <div class="q2-cats">${ACTIVITY_CATEGORIES.map(q2Cat).join('')}</div>
+
+    ${q2Sec('五', '睡眠', '有的請打勾，可複選')}
+    <div class="q2-opts c2">${STOPBANG_ITEMS.map(it=> q2Opt(it.label)).join('')}</div>
+
     ${q2Sec('六', '近兩週的情緒')}
     <table class="q2-phq">
       <tr><th>過去兩週，下列問題困擾您的頻率</th>${PHQ9_OPTS.map(o=> `<th>${formEsc(o)}</th>`).join('')}</tr>
@@ -329,39 +318,22 @@ function formScalesHtml(d){
 
     ${q2Sec('七', '家族史、生育計畫與動機')}
     ${q2Q(1, '父母、兄弟姊妹或子女是否有下列疾病？', '可複選')}
-    <div class="q2-opts c3">
+    <div class="q2-opts flow">
       ${q2Opt('都沒有或不清楚')}
       ${FAMILY_HISTORY_TAGS.map(t=> q2Opt(t.replace(/家族史/, ''))).join('')}
-      ${q2Other('其他', 110)}
+      ${q2Other('其他', 90)}
     </div>
-    ${q2Q(2, '生育計畫', '女性填寫')}
-    <div class="q2-opts flow">${QS_PREG.map(t=> q2Opt(t)).join('')}${q2Other('其他', 150)}</div>
-    <div class="q2-q"><span class="n">3</span>您現在想開始減重的意願有多強？<span class="hint">請圈選</span></div>
-    <div class="q2-scale">${Array.from({length: 10}, (_, i)=> `<span>${i + 1}</span>`).join('')}</div>
-    <div class="q2-scale-cap"><span>還在考慮</span><span>已經準備好</span></div>
-    ${q2Q(4, '減重過程中，誰可以支持您？', '可複選')}
-    <div class="q2-opts flow">${QS_SUPPORT.map(t=> q2Opt(t)).join('')}${q2Other('其他', 120)}</div>
-
-    ${q2Sec('八', '治療安排')}
-    ${q2Q(1, '是否有下列狀況？', '可複選')}
-    <div class="q2-opts c2">
-      ${q2Opt('以上皆無')}
-      ${QS_MED_SAFETY.map(t=> q2Opt(t)).join('')}
+    <div class="q2-row">${q2Q(2, '生育計畫', '女性')}${QS_PREG.map(t=> q2Opt(t)).join('')}${q2Other('其他', 60)}</div>
+    <div class="q2-row">${q2Q(3, '現在想開始減重的意願有多強？', '請圈選')}
+      <div class="q2-scale"><i>還在考慮</i>${Array.from({length: 10}, (_, i)=> `<span>${i + 1}</span>`).join('')}<i>已經準備好</i></div>
     </div>
-    ${q2Q(2, '每月可安排的治療費用預算')}
-    <div class="q2-opts flow">${['1,000 至 5,000 元','5,000 至 10,000 元','10,000 至 15,000 元','15,000 元以上','尚未考慮，想先了解'].map(t=> q2Opt(t)).join('')}</div>
-    <div class="q2-note">預算僅用於安排合適的治療組合，不影響專業醫療建議。</div>
-
-    <div class="q2-staff end"><b>醫療人員填寫</b>
-      ${q2Staff('PHQ-9 總分', '／27 分', 44)}<span class="sf">${q2Opt('第 9 題有作答，已評估自殺風險')}</span><span class="brk"></span>
-      <span class="sf">本次治療${TX_OPTIONS.map(o=> q2Opt(o.key === 'lifestyle' ? '生活型態介入' : o.title)).join('')}</span>
-      <span class="sf grow">備註<span class="q2-fill"></span></span>
-      ${q2Staff('評估人員', '', 110)}
-    </div>
+    <div class="q2-row">${q2Q(4, '誰可以支持您減重？', '可複選')}${QS_SUPPORT.map(t=> q2Opt(t)).join('')}${q2Other('其他', 90)}</div>
+    <div class="q2-row">${q2Q(5, '每月可安排的治療費用預算')}
+      ${['1,000 至 5,000 元','5,000 至 10,000 元','10,000 至 15,000 元','15,000 元以上','尚未考慮，想先了解'].map(t=> q2Opt(t)).join('')}</div>
     ${q2Foot()}
   </div>`;
 
-  return page1 + page2 + page3;
+  return page1 + page2;
 }
 
 // 健康紀錄表（兩頁 A4），欄位對應系統的追蹤紀錄（TRACK_COLS）、檢驗判讀標準（LAB_META）與報告的回診時程。
@@ -616,9 +588,10 @@ const FORMS_CSS = `
 .q2-staff .sf .q2-o{margin:0 0 0 10px;}
 .q2-staff .sf.grow{flex:1;}
 .q2-staff .sf.grow .q2-fill{flex:1;}
-.q2-staff.end{position:absolute; left:52px; right:52px; bottom:36px; margin:0; padding:6px 12px;}
+.q2-staff.top{position:relative; justify-content:space-between; gap:7px 12px; margin-top:16px; padding:11px 12px 8px;}
+.q2-staff.top b{position:absolute; left:10px; top:-9px; background:#fff; padding:0 6px; margin:0;}
 .q2-staff .brk{flex-basis:100%; height:0;}
-.q2-sec{font-size:16.5px; font-weight:700; line-height:1.3; margin:15px 0 6px; padding:1px 0 1px 11px; border-left:5px solid var(--q); letter-spacing:.04em;}
+.q2-sec{font-size:16.5px; font-weight:700; line-height:1.3; margin:13px 0 6px; padding:1px 0 1px 11px; border-left:5px solid var(--q); letter-spacing:.04em;}
 .q2-sec .no{color:var(--q); margin-right:8px;}
 .q2-sec .tag, .q2-q .tag{font-size:inherit; font-weight:inherit; margin-left:2px;}
 .q2-q{font-size:14px; font-weight:700; margin:9px 0 3px;}
@@ -628,23 +601,31 @@ const FORMS_CSS = `
 .q2-opts{display:grid; gap:2px 16px; padding-left:18px;}
 .q2-opts.c2{grid-template-columns:1fr 1fr;}
 .q2-opts.c3{grid-template-columns:1fr 1fr 1fr;}
-.q2-opts.flow{display:flex; flex-wrap:wrap; gap:2px 22px;}
-.q2-o{display:flex; align-items:flex-start; gap:7px; line-height:1.55;}
+.q2-opts.c4{grid-template-columns:repeat(4,1fr);}
+.q2-opts .w2{grid-column:span 2;}
+.q2-row{display:flex; flex-wrap:wrap; align-items:baseline; gap:1px 16px; margin-top:6px;}
+.q2-row > .q2-q{margin:0 2px 0 0;}
+.q2-row .grow{flex:1; display:flex; align-items:baseline;}
+.q2-row .grow .q2-fill{flex:1;}
+.q2-row > .q2-o{align-self:flex-start;}
+.q2-opts.flow{display:flex; flex-wrap:wrap; gap:2px 20px;}
+.q2-o{display:flex; align-items:flex-start; gap:7px; line-height:1.5;}
 .q2-o svg{flex:none; width:13px; height:13px; margin-top:4px;}
 .q2-o svg rect{stroke:var(--ink);}
 .q2-o b{font-weight:700;}
 .q2-lines{display:grid; grid-template-columns:3fr 2fr; gap:0 22px; padding-left:18px; margin-top:6px;}
 .q2-lines > div{display:flex; align-items:baseline;}
 .q2-lines .q2-fill{flex:1;}
-.q2-cats{display:grid; grid-template-columns:1fr 1fr; gap:10px 28px;}
+.q2-cats{display:grid; grid-template-columns:1fr 1fr; gap:8px 28px;}
 .q2-cat{font-size:14px; font-weight:700; margin-bottom:2px; color:var(--q);}
 .q2-phq{width:100%; border-collapse:collapse; font-size:13px; margin-top:4px;}
-.q2-phq th, .q2-phq td{border:1px solid var(--rule); padding:3px 7px; text-align:center; line-height:1.4;}
+.q2-phq th, .q2-phq td{border:1px solid var(--rule); padding:2px 7px; text-align:center; line-height:1.4;}
 .q2-phq th{font-weight:700; white-space:nowrap; font-size:12.5px;}
 .q2-phq td:first-child, .q2-phq th:first-child{text-align:left; width:58%;}
 .q2-phq svg{width:13px; height:13px; vertical-align:-2px;}
-.q2-scale{display:flex; gap:6px; padding-left:18px; margin-top:4px; max-width:440px;}
-.q2-scale span{flex:1; height:26px; line-height:24px; text-align:center; font-size:13.5px; font-weight:700; border:1px solid var(--ink); border-radius:5px;}
+.q2-scale{display:flex; align-items:center; gap:5px; flex:1; max-width:470px;}
+.q2-scale i{font-style:normal; font-size:12.5px; white-space:nowrap; margin:0 3px;}
+.q2-scale span{flex:1; height:24px; line-height:22px; text-align:center; font-size:13.5px; font-weight:700; border:1px solid var(--ink); border-radius:5px;}
 .q2-scale-cap{display:flex; justify-content:space-between; padding-left:18px; max-width:440px; font-size:12px; color:var(--sub); margin-top:2px;}
 .q2-note{font-size:12px; color:var(--sub); padding-left:18px; margin-top:3px;}
 /* ── 健康紀錄表與舊版問卷共用的樣式（qs-）───────────── */

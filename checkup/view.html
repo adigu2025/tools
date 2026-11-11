@@ -70,8 +70,8 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 .k-us-txt{margin-top:12px;}
 
 /* 上傳 */
-.k-drop{border:2px dashed var(--k-line2); border-radius:14px; padding:26px; text-align:center; color:var(--k-muted); cursor:pointer; background:#FBFAF6;}
-.k-drop b{display:block; font-size:17px; color:var(--k-ink); margin-bottom:4px;}
+.k-drop{border:2px dashed var(--k-line2); border-radius:14px; padding:14px; text-align:center; color:var(--k-muted); cursor:pointer; background:#FBFAF6;}
+.k-drop b{display:block; font-size:17px; color:var(--k-ink);}
 .k-drop.over{border-color:var(--k-teal); background:#EAF1F3;}
 .k-files{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
 .k-file{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:10px 14px; border:1px solid var(--k-line); border-radius:10px;}
@@ -105,14 +105,14 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 .k-recmsg{font-size:13px; color:var(--k-muted); margin:8px 0 0; line-height:1.6;}
 .k-att{margin:8px 0 12px;}
 .k-att .k-adrop{border:1.5px dashed var(--k-line2); border-radius:10px; padding:10px 14px; font-size:14.5px; color:var(--k-muted); cursor:pointer; background:#FBFAF6;}
-.k-att .k-adrop b{color:var(--k-ink); margin-right:8px;}
+.k-att .k-adrop b{color:var(--k-ink);}
 .k-att .k-adrop.over{border-color:var(--k-teal); background:#EAF1F3;}
 .k-att .k-alist{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
 .k-att .k-aitem{display:flex; align-items:center; gap:8px; font-size:14px; border:1px solid var(--k-line); border-radius:8px; padding:4px 6px 4px 4px; background:#fff;}
 .k-att .k-aitem img{width:38px; height:48px; object-fit:cover; border-radius:4px; border:1px solid var(--k-line);}
 .k-att .k-aitem button{font:inherit; font-size:13px; color:var(--k-red); background:none; border:0; cursor:pointer;}
 .k-att .k-amsg{margin-top:6px;}
-.k-upgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:0 16px;}
+.k-upgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:0 12px;}
 .k-upgrid .k-att{margin:4px 0 8px;}
 .k-uph{font-size:13px; font-weight:400; color:var(--k-muted); letter-spacing:0; margin-left:8px;}
 .k-cvg{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;}
@@ -182,23 +182,20 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
   <main class="k-main">
     <section class="k-card" id="k-sec-upload">
       <h2>上傳報告</h2>
-      <h3 style="margin-top:4px">優品檢驗</h3>
-      <div class="k-drop" id="k-drop"><b>點擊或拖曳上傳 PDF（可一次放入多份）</b></div>
+      <div class="k-drop" id="k-drop"><b>優品檢驗 PDF</b></div>
       <input type="file" id="k-file" accept="application/pdf" multiple hidden>
       <div class="k-files" id="k-files"></div>
       <div class="k-warn" id="k-warn-id" hidden></div>
       <div class="k-warn soft" id="k-warn-unv" hidden></div>
-      <h3>TANITA</h3>
-      <div class="k-att" data-att="tanita" data-label="TANITA 報告"></div>
-      <h3>其他報告</h3>
-      <div class="k-upgrid">
-        <div class="k-att" data-att="us" data-label="超音波報告"></div>
-        <div class="k-att" data-att="egd" data-label="胃鏡報告"></div>
-        <div class="k-att" data-att="egdpath" data-label="胃鏡病理報告"></div>
-        <div class="k-att" data-att="colon" data-label="大腸鏡報告"></div>
-        <div class="k-att" data-att="colonpath" data-label="大腸鏡病理報告"></div>
-        <div class="k-att" data-att="ldct" data-label="低劑量肺部電腦斷層報告"></div>
-        <div class="k-att" data-att="carotid" data-label="頸動脈超音波報告"></div>
+      <div class="k-upgrid" style="margin-top:12px">
+        <div class="k-att" data-att="tanita" data-label="TANITA"></div>
+        <div class="k-att" data-att="us" data-label="超音波"></div>
+        <div class="k-att" data-att="egd" data-label="胃鏡"></div>
+        <div class="k-att" data-att="egdpath" data-label="胃鏡病理"></div>
+        <div class="k-att" data-att="colon" data-label="大腸鏡"></div>
+        <div class="k-att" data-att="colonpath" data-label="大腸鏡病理"></div>
+        <div class="k-att" data-att="ldct" data-label="低劑量肺部電腦斷層"></div>
+        <div class="k-att" data-att="carotid" data-label="頸動脈超音波"></div>
         <div class="k-att" data-att="ecg" data-label="心電圖"></div>
       </div>
     </section>
@@ -252,16 +249,16 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <div class="k-row"><b>已知疾病</b><div>
         <div class="k-opts" data-k="hx.dx" data-multi="1" data-excl="none" data-opts="none:無|htn:高血壓|dm:糖尿病|lipid:血脂異常|fatty:脂肪肝|cvd:心臟病或中風|ckd:慢性腎臟病|gout:痛風或高尿酸|osa:睡眠呼吸中止症|hbv:B 型肝炎帶原|hcv:C 型肝炎|thy:甲狀腺疾病|cancer:癌症|other:其他"></div>
         <div class="k-sub" data-show="hx.dx:cancer"><label class="k-f" style="flex:1"><span>哪一種癌症、何時診斷</span><input type="text" data-k="hx.dxCancer"></label></div>
-        <div class="k-sub" data-show="hx.dx:other"><label class="k-f" style="flex:1"><span>其他疾病</span><input type="text" data-k="hx.dxOther"></label></div>
+        <div class="k-sub" data-show="hx.dx:other"><label class="k-f" style="flex:1"><span>病名</span><input type="text" data-k="hx.dxOther"></label></div>
       </div></div>
       <div class="k-row"><b>目前用藥</b><div>
         <div class="k-opts" data-k="hx.med" data-multi="1" data-excl="none" data-opts="none:無|bp:降血壓藥|statin:降血脂藥|dm:降血糖藥|thy:甲狀腺藥物|other:其他"></div>
-        <div class="k-sub" data-show="hx.med:other"><label class="k-f" style="flex:1"><span>其他用藥</span><input type="text" data-k="hx.medOther"></label></div>
+        <div class="k-sub" data-show="hx.med:other"><label class="k-f" style="flex:1"><span>藥名</span><input type="text" data-k="hx.medOther"></label></div>
       </div></div>
       <div class="k-row"><b>家族史</b><div>
         <div class="k-opts" data-k="hx.fam" data-multi="1" data-excl="none" data-opts="none:無或不清楚|ecvd:早發心血管疾病|htn:高血壓|dm:糖尿病|lipid:血脂異常|stroke:中風|fatty:脂肪肝|gout:痛風或高尿酸|thy:甲狀腺疾病|obese:肥胖|cancer:癌症|other:其他"></div>
         <div class="k-sub" data-show="hx.fam:cancer"><label class="k-f" style="flex:1"><span>哪一種癌症、哪位家人</span><input type="text" data-k="hx.famCancer"></label></div>
-        <div class="k-sub" data-show="hx.fam:other"><label class="k-f" style="flex:1"><span>其他家族史</span><input type="text" data-k="hx.famOther"></label></div>
+        <div class="k-sub" data-show="hx.fam:other"><label class="k-f" style="flex:1"><span>說明</span><input type="text" data-k="hx.famOther"></label></div>
       </div></div>
       <div class="k-row" id="k-row-preg" hidden><b>懷孕</b><div class="k-opts" data-k="hx.preg" data-opts="no:沒有懷孕|maybe:不確定|yes:已確認懷孕"></div></div>
       <div class="k-row"><b>其他</b><label class="k-f"><textarea data-k="hx.note" style="min-height:60px"></textarea></label></div>
@@ -271,7 +268,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <h2>檢驗數值</h2>
       <div id="k-lab-box"></div>
       <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
-        <button class="k-btn ghost" id="k-lab-manual">沒有 PDF：手動輸入常用項目</button>
+        <button class="k-btn ghost" id="k-lab-manual">手動輸入常用項目</button>
       </div>
       <h3>判讀重點</h3>
       <div class="k-find" id="k-find"></div>
@@ -282,18 +279,18 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <label class="k-f"><span>貼上英文報告</span><textarea id="k-us-paste" style="min-height:60px"></textarea></label>
       <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" id="k-us-import">帶入</button></div>
       <div class="k-find" id="k-us-msg" style="margin-top:8px"></div>
-      <h3>腹部超音波</h3>
+      <h3>腹部</h3>
       <div class="k-f"><span>診斷</span>
       <div class="k-opts" data-k="us.abd" data-multi="1" data-excl="normal" data-groups="fatty1,fatty2,fatty3;postchole,gbstone;postchole,gbpolyp;postchole,gbsludge" data-opts="normal:正常|fatty1:輕度脂肪肝|fatty2:中度脂肪肝|fatty3:重度脂肪肝|liverdz:慢性肝實質病變|cirrhosis:疑似肝硬化|lcyst:肝囊腫|hemangioma:肝血管瘤|lnod:肝臟結節|lcalc:肝內鈣化點|gbstone:膽結石|gbpolyp:膽囊瘜肉|gbsludge:膽泥|postchole:膽囊切除術後|cbd:總膽管擴張|panfat:胰臟脂肪浸潤|panvis:胰臟受腸氣遮蔽|pancyst:胰臟囊性病灶|splmeg:脾臟腫大|accspl:副脾|kstone:腎結石|kcyst:腎囊腫|hydro:腎水腫|ascites:腹水|other:其他"></div></div>
       <div class="k-sub" data-show="us.abd:gbpolyp"><label class="k-f"><span>膽囊瘜肉最大<i>mm</i></span><input type="number" step="0.1" data-k="us.gbpolyp"></label></div>
       <div class="k-sub" data-show="us.abd:hemangioma"><label class="k-f"><span>肝血管瘤最大<i>cm</i></span><input type="number" step="0.1" data-k="us.hemangioma"></label></div>
       <div class="k-sub" data-show="us.abd:other"><label class="k-f" style="flex:1"><span>其他發現</span><input type="text" data-k="us.abdOther"></label></div>
-      <div class="k-sub" data-show="us.abd:kstone"><div class="k-f"><span>腎結石側別</span><div class="k-opts" data-k="us.kstoneSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
-      <div class="k-sub" data-show="us.abd:kcyst"><div class="k-f"><span>腎囊腫側別</span><div class="k-opts" data-k="us.kcystSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
-      <div class="k-sub" data-show="us.abd:hydro"><div class="k-f"><span>腎水腫側別</span><div class="k-opts" data-k="us.hydroSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="us.abd:kstone"><div class="k-f"><span>腎結石</span><div class="k-opts" data-k="us.kstoneSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="us.abd:kcyst"><div class="k-f"><span>腎囊腫</span><div class="k-opts" data-k="us.kcystSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="us.abd:hydro"><div class="k-f"><span>腎水腫</span><div class="k-opts" data-k="us.hydroSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
       <div class="k-f k-us-txt"><span class="k-fh"><span>發現</span><button type="button" class="k-btn ghost sm" data-us-normal="abd">依診斷重新產生</button></span><textarea data-k="us.abdFind" style="min-height:60px"></textarea></div>
       <label class="k-f k-us-txt"><span>結論</span><textarea data-k="us.abdImp" style="min-height:44px"></textarea></label>
-      <h3>甲狀腺超音波</h3>
+      <h3>甲狀腺</h3>
       <div class="k-f"><span>診斷</span>
       <div class="k-opts" data-k="us.thy" data-multi="1" data-excl="normal" data-groups="goiter,atrophy,postop" data-opts="normal:正常|nodule:結節|cyst:單純囊腫|goiter:甲狀腺腫大|atrophy:甲狀腺萎縮|hetero:實質回音不均|hashimoto:橋本氏甲狀腺炎型態|graves:葛瑞夫茲病型態|postop:甲狀腺切除術後|lymph:頸部淋巴結腫大|other:其他"></div></div>
       <div class="k-sub" data-show="us.thy:nodule">
@@ -303,7 +300,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <div class="k-sub" data-show="us.thy:other"><label class="k-f" style="flex:1"><span>其他發現</span><input type="text" data-k="us.thyOther"></label></div>
       <div class="k-f k-us-txt"><span class="k-fh"><span>發現</span><button type="button" class="k-btn ghost sm" data-us-normal="thy">依診斷重新產生</button></span><textarea data-k="us.thyFind" style="min-height:60px"></textarea></div>
       <label class="k-f k-us-txt"><span>結論</span><textarea data-k="us.thyImp" style="min-height:44px"></textarea></label>
-      <h3>其他超音波</h3>
+      <h3>其他部位</h3>
       <label class="k-f"><span>發現</span><textarea data-k="us.othFind" style="min-height:60px"></textarea></label>
       <label class="k-f k-us-txt"><span>結論</span><textarea data-k="us.othImp" style="min-height:44px"></textarea></label>
       <h3>補充說明</h3>
@@ -312,7 +309,7 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 
     <section class="k-card" id="k-sec-scope">
       <h2>胃腸鏡</h2>
-      <label class="k-f"><span>貼上英文內視鏡報告</span><textarea id="k-scope-paste" style="min-height:60px"></textarea></label>
+      <label class="k-f"><span>貼上英文報告</span><textarea id="k-scope-paste" style="min-height:60px"></textarea></label>
       <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" id="k-scope-import">帶入</button></div>
       <div class="k-find" id="k-scope-msg" style="margin-top:8px"></div>
 
@@ -320,12 +317,12 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <div class="k-row"><b>診斷</b><div class="k-opts" data-k="mod.egd" data-multi="1" data-excl="normal" data-opts="normal:正常|gerd:逆流性食道炎|barrett:巴瑞特食道|hernia:食道裂孔疝氣|gastritis:胃炎|erosive:糜爛性胃炎|atrophy:萎縮性胃炎|im:胃炎併腸上皮化生|ulcer:胃潰瘍|duoulcer:十二指腸潰瘍|duodenitis:十二指腸炎|fgp:胃底腺瘜肉|polyp:胃瘜肉|tumor:疑似腫瘤|other:其他"></div></div>
       <div class="k-row"><b>處置</b><div>
         <div class="k-opts" data-k="mod.egdProc" data-multi="1" data-opts="biopsy:切片|clo:幽門桿菌快速尿素酶檢查|polypectomy:瘜肉切除|hemostasis:止血"></div>
-        <div class="k-sub" data-show="mod.egdProc:clo"><div class="k-f"><span>快速尿素酶檢查結果</span><div class="k-opts" data-k="mod.clo" data-opts="neg:陰性|pos:陽性"></div></div></div>
+        <div class="k-sub" data-show="mod.egdProc:clo"><div class="k-f"><span>結果</span><div class="k-opts" data-k="mod.clo" data-opts="neg:陰性|pos:陽性"></div></div></div>
       </div></div>
-      <label class="k-f"><span>胃鏡摘要</span><textarea data-k="mod.egdNote" style="min-height:60px"></textarea></label>
+      <label class="k-f"><span>摘要</span><textarea data-k="mod.egdNote" style="min-height:60px"></textarea></label>
       <h3>胃鏡病理</h3>
       <div class="k-opts" data-k="mod.egdPath" data-multi="1" data-opts="chronic:慢性胃炎|hp:幽門桿菌陽性|im:腸上皮化生|atrophy:萎縮性變化|fgp:胃底腺瘜肉|hyperplastic:增生性瘜肉|adenoma:腺瘤|dysplasia:分化不良|cancer:癌"></div>
-      <label class="k-f" style="margin-top:10px"><span>病理報告內容</span><textarea data-k="mod.egdPathNote" style="min-height:60px"></textarea></label>
+      <label class="k-f" style="margin-top:10px"><span>報告內容</span><textarea data-k="mod.egdPathNote" style="min-height:60px"></textarea></label>
       <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" data-path-read="egd">依病理文字自動勾選</button></div>
 
       <h3>大腸鏡</h3>
@@ -333,14 +330,14 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       <div class="k-row"><b>處置</b><div class="k-opts" data-k="mod.cProc" data-multi="1" data-opts="biopsy:切片|polypectomy:瘜肉切除|emr:黏膜切除術（EMR）|hemostasis:止血"></div></div>
       <div class="k-row"><b>腸道清潔</b><div class="k-opts" data-k="mod.cPrep" data-opts="good:良好|poor:不佳"></div></div>
       <div class="k-row"><b>分片切除</b><div class="k-opts" data-k="mod.cPiece" data-opts="yes:有 20 mm 以上分片切除"></div></div>
-      <label class="k-f"><span>大腸鏡摘要</span><textarea data-k="mod.colonNote" style="min-height:60px"></textarea></label>
+      <label class="k-f"><span>摘要</span><textarea data-k="mod.colonNote" style="min-height:60px"></textarea></label>
       <h3>大腸鏡病理</h3>
-      <div class="k-row"><b>病理分類</b><div class="k-opts" data-k="mod.cHist" data-opts="none:沒有瘜肉|hyper:增生性瘜肉|tubular:管狀腺瘤|advanced:絨毛狀或高度異生變化|ssl:無柄鋸齒狀病灶|ssldys:鋸齒狀病灶合併分化不良|cancer:癌"></div></div>
+      <div class="k-row"><b>分類</b><div class="k-opts" data-k="mod.cHist" data-opts="none:沒有瘜肉|hyper:增生性瘜肉|tubular:管狀腺瘤|advanced:絨毛狀或高度異生變化|ssl:無柄鋸齒狀病灶|ssldys:鋸齒狀病灶合併分化不良|cancer:癌"></div></div>
       <div class="k-sub" data-show-not="mod.cHist:none">
         <label class="k-f"><span>瘜肉數目</span><input type="number" data-k="mod.cNum"></label>
         <label class="k-f"><span>最大<i>mm</i></span><input type="number" step="0.1" data-k="mod.cSize"></label>
       </div>
-      <label class="k-f" style="margin-top:10px"><span>病理報告內容</span><textarea data-k="mod.colonPathNote" style="min-height:60px"></textarea></label>
+      <label class="k-f" style="margin-top:10px"><span>報告內容</span><textarea data-k="mod.colonPathNote" style="min-height:60px"></textarea></label>
       <div class="k-sub" style="margin-top:8px"><button class="k-btn ghost" data-path-read="colon">依病理文字自動勾選</button></div>
       <div class="k-calc" id="k-colon-next"></div>
       <label class="k-f" style="margin-top:8px; max-width:320px"><span>下次大腸鏡（空白依指引）</span><input type="text" data-k="mod.cNextOv"></label>
@@ -357,17 +354,17 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
       </div>
       <div class="k-row" style="margin-top:10px; border-top:1px solid var(--k-line)"><b>心電圖</b><div>
         <div class="k-opts" data-k="mod.ecg" data-opts="normal:正常|abn:異常"></div>
-        <div class="k-sub" data-show="mod.ecg:abn"><label class="k-f" style="flex:1"><span>心電圖發現</span><input type="text" data-k="mod.ecgNote"></label></div>
+        <div class="k-sub" data-show="mod.ecg:abn"><label class="k-f" style="flex:1"><span>發現</span><input type="text" data-k="mod.ecgNote"></label></div>
       </div></div>
 
       <h3>② 頸動脈超音波</h3>
       <div class="k-f"><span>診斷</span>
       <div class="k-opts" data-k="mod.carotid" data-multi="1" data-excl="normal" data-groups="imtb,imt;sten50,sten70" data-opts="normal:正常|imtb:內膜中層臨界增厚|imt:內膜中層增厚|plaque:有斑塊|softp:軟斑塊|calcp:鈣化斑塊|ulcer:斑塊表面不規則|sten50:中度狹窄（50 至 69%）|sten70:重度狹窄（70% 以上）|vhypo:椎動脈發育不全|steal:椎動脈逆流|other:其他"></div></div>
-      <div class="k-sub" data-show="mod.carotid:plaque"><div class="k-f"><span>斑塊側別</span><div class="k-opts" data-k="mod.plaqueSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
-      <div class="k-sub" data-show="mod.carotid:sten50"><div class="k-f"><span>中度狹窄側別</span><div class="k-opts" data-k="mod.sten50Side" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
-      <div class="k-sub" data-show="mod.carotid:sten70"><div class="k-f"><span>重度狹窄側別</span><div class="k-opts" data-k="mod.sten70Side" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
-      <div class="k-sub" data-show="mod.carotid:vhypo"><div class="k-f"><span>椎動脈發育不全側別</span><div class="k-opts" data-k="mod.vhypoSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
-      <div class="k-sub" data-show="mod.carotid:steal"><div class="k-f"><span>椎動脈逆流側別</span><div class="k-opts" data-k="mod.stealSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="mod.carotid:plaque"><div class="k-f"><span>斑塊</span><div class="k-opts" data-k="mod.plaqueSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="mod.carotid:sten50"><div class="k-f"><span>中度狹窄</span><div class="k-opts" data-k="mod.sten50Side" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="mod.carotid:sten70"><div class="k-f"><span>重度狹窄</span><div class="k-opts" data-k="mod.sten70Side" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="mod.carotid:vhypo"><div class="k-f"><span>椎動脈發育不全</span><div class="k-opts" data-k="mod.vhypoSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
+      <div class="k-sub" data-show="mod.carotid:steal"><div class="k-f"><span>椎動脈逆流</span><div class="k-opts" data-k="mod.stealSide" data-opts="r:右側|l:左側|b:雙側"></div></div></div>
       <div class="k-sub"><label class="k-f"><span>最大 IMT<i>mm</i></span><input type="number" step="0.01" data-k="mod.imt"></label><label class="k-f" style="flex:1"><span>補充</span><input type="text" data-k="mod.carotidNote"></label></div>
       <div class="k-f k-us-txt"><span class="k-fh"><span>發現</span><button type="button" class="k-btn ghost sm" data-us-normal="car">依診斷重新產生</button></span><textarea data-k="mod.carFind" style="min-height:60px"></textarea></div>
       <label class="k-f k-us-txt"><span>結論</span><textarea data-k="mod.carImp" style="min-height:44px"></textarea></label>
@@ -418,13 +415,13 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
     </section>
 
     <section class="k-card" id="k-sec-records">
-      <h2>已儲存的病人紀錄</h2>
+      <h2>病人紀錄</h2>
       <div style="display:flex; gap:10px; flex-wrap:wrap">
         <button class="k-btn ghost" id="k-export">匯出備份</button>
         <button class="k-btn ghost" id="k-import">匯入備份</button>
         <input type="file" id="k-import-file" accept=".json,application/json" hidden>
       </div>
-      <p class="k-note">紀錄只存在這台電腦的瀏覽器，含病人個資，請定期匯出備份。原始報告圖片不存進紀錄。<br><b id="k-backup"></b></p>
+      <p class="k-note"><b id="k-backup"></b></p>
       <div id="k-records" style="margin-top:12px"></div>
     </section>
   </main>

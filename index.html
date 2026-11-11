@@ -633,7 +633,9 @@ async function mountCalc(){
   fitCalc();
   setTimeout(()=>{ calcZ = null; fitCalc(); }, 400);
   // 切換到降血脂或 B 肝用藥時，結果欄才看得到；等面板淡入動畫（0.28 秒，會位移）結束再量
-  CD.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(()=>{ fitRxOut(); fitSideInfo(); }, 320); }, true);
+  CD.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(fitCalc, 320); }, true);
+  // 降血脂與 B 肝用藥：結果卡片隨輸入增減，停止輸入後重新調整倍率
+  { let t = null; CD.addEventListener('input', e=>{ if(e.target.closest('.rx-panel')){ clearTimeout(t); t = setTimeout(fitCalc, 500); } }); }
   // 輸入過程不再改變倍率：少數狀態（例如欄位錯誤提示）超出畫面時，寧可短暫出現捲軸，也不讓全部字級跳動
   updateChips();
   host.classList.remove('loading');
@@ -861,9 +863,26 @@ function fitCalc(){
   if(c.W < 1100){ c.card.style.zoom = 1; c.card.style.removeProperty("--fill-h"); fitRxOut(); return; }
   if(calcZ === null) calcZ = computeCalcZ(c);
   c.card.style.zoom = calcZ;
+  rxZoom(c);
   fillCalc(c);
   fitRxOut();
   fitSideInfo();
+}
+
+// 降血脂與 B 肝用藥的欄位與結果比其他工具多：共用倍率下放不進畫面時，這兩個工具自己再縮小（下限 CALC_MIN_Z），不必捲動
+function rxZoom(c){
+  const p = c.d.querySelector('.tool-panel.active');
+  if(!p || !CALC_SCROLL_OK.has(p.id)) return;
+  const o = p.querySelector('.hub-out');
+  c.card.style.removeProperty('--fill-h');
+  if(o) o.style.maxHeight = '';
+  // 只縮這個工具本身（左側目錄維持共用倍率，切換時不會忽大忽小）
+  const fits = k=>{ p.style.zoom = k; return c.root.scrollHeight <= c.H; };
+  if(fits(1)) return;
+  let lo = Math.min(1, CALC_MIN_Z / calcZ), hi = 1;
+  if(!fits(lo)) return;
+  for(let i = 0; i < 6; i++){ const mid = (lo + hi) / 2; if(fits(mid)) lo = mid; else hi = mid; }
+  p.style.zoom = lo;
 }
 
 // 參考資訊區（FIB-4、R Factor、Child-Pugh 輸入欄下方）放不完整就整塊藏起來
@@ -885,7 +904,7 @@ function fillCalc(c){
   c.card.style.setProperty("--fill-h", h + "px");
   const p = c.d.querySelector(".tool-panel.active");
   const over = c.root.scrollHeight - c.H;
-  if(over > 0 && p && !CALC_SCROLL_OK.has(p.id)) c.card.style.setProperty("--fill-h", (h - Math.ceil(over / z) - 1) + "px");
+  if(over > 0 && p) c.card.style.setProperty("--fill-h", (h - Math.ceil(over / z) - 1) + "px");
 }
 
 // 降血脂與 B 肝用藥：結果卡片很長，結果欄高度限制在畫面內、欄內捲動，左側輸入不必跟著捲
@@ -895,6 +914,7 @@ function fitRxOut(){
   const z = parseFloat(c.card.style.zoom) || 1;
   c.d.querySelectorAll('.rx-panel .hub-out').forEach(o=>{
     o.style.maxHeight = '';
+    return;   // 2026-11-11 起結果欄不再限高捲動，改由 rxZoom 把整個工具縮進一個畫面
     if(c.W < 1100 || !o.offsetParent) return;
     // 位置是螢幕像素，max-height 會再乘上倍率，所以要除回去
     const top = o.getBoundingClientRect().top - c.root.getBoundingClientRect().top + c.root.scrollTop;

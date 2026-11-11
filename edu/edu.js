@@ -117,7 +117,7 @@ const sizeTag = p=> `<span class="sz${p.size === 'A5' ? ' a5' : ''}">${p.size}</
 // group 對應上方 EDU_GROUPS；sec 是側欄小標。
 const C = n=> Array.from({length:n.pages}, (_, i)=> W(`img/consent-${n.file}-${i + 1}.webp`));
 let FORMS = [
-  {group:'weight', sec:'表單', label:'減重門診評估問卷', note:'共 3 頁', pages:[], kind:'html', html:()=> formScalesHtml()},
+  {group:'weight', sec:'表單', label:'減重門診評估問卷', note:'共 2 頁', pages:[], kind:'html', html:()=> formScalesHtml()},
   {group:'weight', sec:'表單', label:'健康紀錄表', note:'共 2 頁', pages:[], kind:'html', html:()=> formHealthRecordHtml()},
   {group:'weight', sec:'表單', label:'腸泌素自費同意書', note:'共 2 頁', pages:[W('img/consent-glp1-1.webp'), W('img/consent-glp1-2.webp')], kind:'img'},
   // 管制藥品處方箋為橫式 A4，列印時依圖片比例自動改橫式紙

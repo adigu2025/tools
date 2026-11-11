@@ -673,7 +673,8 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .rx-basis .unitline{display:block;}
 
 /* 檢驗截圖辨識：按鈕在右上角，這裡只有一行狀態；拖曳圖檔時整個面板加框 */
-.rx-ocr{margin:-2px 0 8px;min-height:20px;}
+.rx-ocr{margin:-2px 0 8px;}
+.rx-ocr:not(.busy):not(.done):not(.fail){display:none;}
 .tool-panel.drag{outline:2px dashed var(--teal);outline-offset:6px;border-radius:var(--radius-sm);}
 .rx-ocr-msg{font-size:12.5px;color:var(--faint);line-height:1.6;}
 .rx-ocr.busy .rx-ocr-msg{color:var(--teal-dark);font-weight:600;}
@@ -1207,7 +1208,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </div>
       </div>
 
-      <p class="rx-ocr" data-ocr="fib4"><span class="rx-ocr-msg">可上傳、Ctrl+V 貼上或拖進檢驗截圖，自動帶入年齡、AST、ALT、血小板；影像只在本機辨識，不上傳。</span></p>
+      <p class="rx-ocr" data-ocr="fib4"><span class="rx-ocr-msg"></span></p>
 
       <div class="formula">
         <strong>FIB-4 計算公式：</strong><br>
@@ -1287,7 +1288,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </div>
       </div>
 
-      <p class="rx-ocr" data-ocr="rfactor"><span class="rx-ocr-msg">可上傳、Ctrl+V 貼上或拖進檢驗截圖，自動帶入 ALT、ALP 與報告上的正常上限；影像只在本機辨識，不上傳。</span></p>
+      <p class="rx-ocr" data-ocr="rfactor"><span class="rx-ocr-msg"></span></p>
 
       <div class="formula">
         <strong>R Factor 公式：</strong><br>
@@ -1372,7 +1373,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </div>
       </div>
 
-      <p class="rx-ocr" data-ocr="childpugh"><span class="rx-ocr-msg">可上傳、Ctrl+V 貼上或拖進檢驗截圖，自動帶入總膽紅素、白蛋白、INR 的分數；腹水與肝性腦病變請依臨床判斷選擇。影像只在本機辨識，不上傳。</span></p>
+      <p class="rx-ocr" data-ocr="childpugh"><span class="rx-ocr-msg"></span></p>
 
       <div class="formula">
         <strong>五項評估指標：</strong>腹水、肝性腦病變、總膽紅素、白蛋白、凝血時間（PT 延長秒數或 INR）<br>
@@ -1475,7 +1476,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
     <!-- ===================== 降血脂 / TG 用藥給付 ===================== -->
     <section class="tool-panel rx-panel" id="panel-lipidrx" role="tabpanel" aria-labelledby="tab-lipidrx" tabindex="0" hidden>
       <div class="panel-head">
-        <div class="panel-title">降血脂／三酸甘油酯用藥健保給付判定<small>依 ASCVD 風險分級判斷 statin、ezetimibe、PCSK9 抑制劑與 TG 藥物給付資格</small></div>
+        <div class="panel-title">降血脂／三酸甘油酯用藥健保給付判定</div>
         <div class="panel-actions">
           <input type="file" id="lx-ocrFile" accept="image/*" multiple hidden>
           <button class="act primary" type="button" data-ocr-pick="lx-ocrFile">上傳檢驗截圖</button>
@@ -1485,7 +1486,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </div>
       </div>
 
-      <p class="rx-ocr" data-ocr="lipidrx"><span class="rx-ocr-msg" id="lx-ocrMsg">截圖可一次選多張、按 Ctrl+V 貼上或直接拖進來，自動帶入性別、年齡、血脂四項與腰圍；不同日期的兩次檢驗會分別帶入本次與前次。影像只在本機辨識，不上傳。</span></p>
+      <p class="rx-ocr" data-ocr="lipidrx"><span class="rx-ocr-msg" id="lx-ocrMsg"></span></p>
 
       <div class="rx-fields">
         <div class="field">
@@ -1507,7 +1508,6 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <p class="field-err" hidden></p>
         </div>
       </div>
-      <div class="rx-sub">檢驗數值<small>前次為選填：間隔 ≥3 個月的另一次數據，兩次都達起始值即可佐證生活型態調整後仍未達標</small></div>
       <div class="rx-fields rx-pair">
         <div class="field rx-wide">
           <div class="field-head"><label for="lx-date">本次檢驗日期</label></div>
@@ -1620,17 +1620,12 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
       </div>
 
       <div class="rx-cards" id="lipidrx-result" aria-live="polite"></div>
-
-      <div class="formula rx-basis">
-        <strong>依據：</strong>「藥品給付規定」修訂對照表第 2 節（降血脂，自 115 年 9 月 1 日生效，表一＋表二並存）；降三酸甘油酯規定本次未修訂。
-        <span class="unitline">表一／表二品項以健保代碼為準，非僅看商品名；最終以健保署公告及個案審查為準。</span>
-      </div>
     </section>
 
     <!-- ===================== B 型肝炎用藥給付 ===================== -->
     <section class="tool-panel rx-panel" id="panel-hbvrx" role="tabpanel" aria-labelledby="tab-hbvrx" tabindex="0" hidden>
       <div class="panel-head">
-        <div class="panel-title">B 型肝炎抗病毒藥物健保給付判定<small>依「藥品給付規定」第 10 節 10.7.3（自 114 年 6 月 1 日生效）</small></div>
+        <div class="panel-title">B 型肝炎抗病毒藥物健保給付判定</div>
         <div class="panel-actions">
           <input type="file" id="hb-ocrFile" accept="image/*" multiple hidden>
           <button class="act primary" type="button" data-ocr-pick="hb-ocrFile">上傳檢驗截圖</button>
@@ -1640,7 +1635,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </div>
       </div>
 
-      <p class="rx-ocr" data-ocr="hbvrx"><span class="rx-ocr-msg" id="hb-ocrMsg">截圖可一次選多張、按 Ctrl+V 貼上或直接拖進來，自動帶入年齡、HBsAg、HBeAg、ALT、AST、血小板、HBV DNA 等；不同日期的兩次檢驗會分別帶入 ALT 最近與前次，並依日期判斷間隔。影像只在本機辨識，不上傳。</span></p>
+      <p class="rx-ocr" data-ocr="hbvrx"><span class="rx-ocr-msg" id="hb-ocrMsg"></span></p>
 
       <div class="rx-fields">
         <div class="field">
@@ -1754,7 +1749,6 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
             <label class="flag sub"><input type="checkbox" id="hb-usSpl">合併脾腫大</label>
             <label class="flag"><input type="checkbox" id="hb-ctLc">CT／MRI 診斷肝硬化（因其他適應症）</label>
           </div>
-          <p class="rx-hint">超音波肝硬化且血小板 &lt;120,000/µL 由數值自動判斷。</p>
         </div>
 
         <div class="rx-section">
@@ -1768,11 +1762,6 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
       </div>
 
       <div class="rx-cards" id="hbvrx-result" aria-live="polite"></div>
-
-      <div class="formula rx-basis">
-        <strong>基層院所須有消化系內科專任專科醫師開立。</strong>
-        <span class="unitline">本工具為臨床判讀輔助，最終以健保署公告及個案審查為準。</span>
-      </div>
     </section>
 
     <!-- ===================== BRISTOL ===================== -->

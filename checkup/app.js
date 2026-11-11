@@ -537,7 +537,7 @@ async function ckAttach(kind, files){
 function ckInitAtt(){
   KD.querySelectorAll('.k-att[data-att]').forEach(box=>{
     const kind = box.dataset.att;
-    box.innerHTML = `<div class="k-adrop" tabindex="0"><b>上傳${ckEsc(box.dataset.label || CK_ATT_KIND[kind])}</b>PDF 或圖片，可拖曳多個檔案；截圖可以點一下這裡再按 Ctrl＋V 貼上</div>` +
+    box.innerHTML = `<div class="k-adrop" tabindex="0"><b>${ckEsc(box.dataset.label || CK_ATT_KIND[kind])}</b></div>` +
       `<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple hidden><div class="k-alist"></div><div class="k-find k-amsg"></div>`;
     const drop = box.querySelector('.k-adrop'), fi = box.querySelector('input');
     drop.addEventListener('click', ()=> fi.click());
@@ -1371,7 +1371,7 @@ function ckRenderRecords(){
   st.textContent = days === null ? '這台電腦還沒有匯出過備份。' : '上次匯出備份：' + at.toLocaleDateString('zh-TW') + '（' + (days === 0 ? '今天' : days + ' 天前') + '）';
   // 有紀錄卻超過兩週沒備份，用紅字提醒（與減重報告相同）
   st.style.color = list.length && (days === null || days >= 14) ? 'var(--k-red)' : '';
-  if(!list.length){ box.innerHTML = '<p class="k-note">尚無儲存的紀錄。填寫姓名後按左側「儲存紀錄」即可建立。</p>'; return; }
+  if(!list.length){ box.innerHTML = '<p class="k-note">尚無儲存的紀錄。</p>'; return; }
   box.innerHTML = '<table class="k-rec"><tr><th>病人｜檢查日期</th><th>儲存時間</th><th></th></tr>' + list.map(r=>{
     const d = new Date(r.savedAt), ts = isNaN(d) ? '' : d.toLocaleDateString('zh-TW') + ' ' + d.toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
     return `<tr><td>${ckEsc(r.label)}</td><td>${ckEsc(ts)}</td><td class="act"><button type="button" class="k-btn ghost sm" data-rec="load" data-key="${ckEsc(r.key)}">載入</button>` +

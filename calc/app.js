@@ -940,7 +940,7 @@
     cards.push(rxCard(t1, '表一（新制品項）', t1txt, '追蹤：' + fu1));
     cards.push(rxCard(t2, '表二（舊制品項）', '分級：' + esc(row.n) + '。' + esc(t2txt),
       '目標 ' + row.goal + '。第一年每 3–6 個月抽血，第二年起至少每 6–12 個月。' + (h.smoke ? '因吸菸而符合者，未戒菸要求用藥應自費。' : '')));
-    cards.push(
+    var statinCard = (
       '<div class="rx-card"><div class="rx-card-head"><h4>可開立 statin 品項</h4></div><p>' + brandNote + '</p>' +
       '<p class="rx-why" style="margin-top:8px">表一（新制）</p>' + rxDrugChips(LX_NEW, ok1) +
       '<p class="rx-why" style="margin-top:8px">表二（舊制）</p>' + rxDrugChips(LX_OLD, ok2) +
@@ -948,6 +948,7 @@
     );
     cards.push(rxCard(eze, 'Ezetimibe 與複方', ezeTxt, '複方不得與 gemfibrozil 併用。'));
     cards.push(rxCard(pc, 'PCSK9 抑制劑', pcTxt));
+    cards.push(statinCard);
     cards.push(rxCard(tgs, '三酸甘油酯藥物', tgTxt,
       '目標 ' + tgGoal + '。藥物如 fenofibrate、gemfibrozil；gemfibrozil 避免與 statin 併用。第一年每 3–6 個月抽血，注意肝功能與橫紋肌溶解。'));
 
@@ -1092,8 +1093,8 @@
 
     var cards = [];
     cards.push(
-      '<div class="rx-card lead"><div class="rx-card-head"><h4>判定結果</h4>' + rxBadge(headSt, head) + '</div>' +
-      '<div class="score" style="font-size:24px;margin:2px 0 6px;color:var(--teal-dark)">' + esc(head) + '</div>' +
+      '<div class="rx-card lead">' +
+      '<div class="score rx-verdict st-' + headSt + '" style="font-size:24px;margin:0 0 6px;color:var(--teal-dark)">' + esc(head) + '</div>' +
       '<p style="font-size:13px;color:var(--muted)">HBeAg ' + (e === 'P' ? '陽性' : e === 'N' ? '陰性' : '未選') +
       '　｜　ALT ' + (isNum(x1) ? x1.toFixed(2) + ' X ULN' : '－') + (isNum(x2) ? '／' + x2.toFixed(2) + ' X' : '') +
       '　｜　HBV DNA ' + (und ? '測不到' : (isNum(dnaRaw) ? rxFmt(dnaRaw) + ' IU/mL' : '－')) +
@@ -1101,11 +1102,11 @@
     );
     cards.push(
       '<div class="rx-card"><div class="rx-card-head"><h4>逐條比對</h4></div>' +
-      (items.length ? items.map(function(i){ return rxRule(i.st, i.title, i.detail); }).join('') : '<p class="rx-why">輸入資料後顯示符合的條款。</p>') + '</div>'
+      (items.length ? items.map(function(i){ return rxRule(i.st, i.title, i.detail); }).join('') : '') + '</div>'
     );
     cards.push(
       '<div class="rx-card"><div class="rx-card-head"><h4>可用藥物</h4></div>' + drugsHtml +
-      '<div class="rx-why">基層院所須有消化系內科專任專科醫師開立。纖維化門檻：F2＝Fibroscan ≥8 kPa、ARFI ≥1.5、FIB-4 ≥2.1；F3＝≥9.5、≥1.81、≥3.25；F4＝≥12、≥1.98。</div></div>'
+      '<div class="rx-why">纖維化門檻：F2＝Fibroscan ≥8 kPa、ARFI ≥1.5、FIB-4 ≥2.1；F3＝≥9.5、≥1.81、≥3.25；F4＝≥12、≥1.98。</div></div>'
     );
 
     $('hbvrx-result').innerHTML = cards.join('');
@@ -1691,7 +1692,7 @@
       (r.miss.length ? '未辨識：' + esc(r.miss.join('、')) + '。' : '') +
       (r.note ? '<b>' + esc(r.note) + '</b>' : '') +
       (recs.some(function(x){ return !x.date; }) && $('panel-' + tool).querySelector('input[type=date]') ? '有截圖沒辨識到檢驗日期，已併入最近一次，請核對日期欄位。' : '') +
-      '所有欄位都可以直接修改，改過的欄位之後上傳也不會被蓋掉；再上傳的截圖會累加，換病人請先按「重設」。');
+      '');
   }
 
   // 多張截圖依序辨識（同一個 worker 不能並行）；辨識中再貼上或拖進來的排進佇列
@@ -2481,7 +2482,7 @@
     var score = total + ' <span class="of">/ ' + spec.max + '</span>';
     if (done < n) {
       res.innerHTML = resultCard(spec, score, '尚未完成', 'none',
-        '還有 ' + (n - done) + ' 題未作答，答完會顯示風險等級與建議。', '',
+        '還有 ' + (n - done) + ' 題未作答。', '',
         { label: '目前得分（已答 ' + done + ' / ' + n + ' 題）', gauge: gaugeHtml(0, spec.max + 1, total + .5, bands, ticks), sheet: sheet });
       show(spec.id, false);
       return;
@@ -2829,7 +2830,7 @@
     var copyBtn = $('summary-copy'), printBtn = $('summary-print');
 
     if (!done.length) {
-      list.innerHTML = '<div class="summary-empty">完成任一項評估後，結果會自動收錄在這裡，可一次複製或列印帶去門診。</div>';
+      list.innerHTML = '';
       $('summary-count').textContent = '尚未完成任何評估';
       copyBtn.disabled = true;
       printBtn.disabled = true;
