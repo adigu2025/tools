@@ -21,6 +21,8 @@ const EDU_GROUPS = [
   {key:'disease', label:'疾病衛教'},
   // 2026/11/11 新增：用藥衛教（幽門桿菌除菌由檢查治療衛教移過來）
   {key:'med',     label:'用藥衛教'},
+  // 2026/11/11 新增：疫苗衛教（診所自費疫苗四種）
+  {key:'vaccine', label:'疫苗衛教'},
   {key:'wound',   label:'傷口照護'},
 ];
 const svgIcon = d=> `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true">${d}</svg>`;
@@ -34,6 +36,7 @@ const ICON = {
   globe:    svgIcon('<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/>'),
   dna:      svgIcon('<path d="M7 3c0 6 10 6 10 12M17 3c0 6-10 6-10 12"/><path d="M7 21c0-2 10-2 10 0M8 7h8M8.5 17h7"/>'),
   light:    svgIcon('<rect x="7" y="2" width="10" height="16" rx="3"/><circle cx="12" cy="6" r="1.3"/><circle cx="12" cy="10" r="1.3"/><circle cx="12" cy="14" r="1.3"/><path d="M12 18v4"/>'),
+  syringe:  svgIcon('<path d="M18 2l4 4M20 4l-3.5 3.5"/><path d="M16.5 7.5l-9 9-3 .5.5-3 9-9z"/><path d="M11 7l6 6M9.5 11.5l1.5 1.5M7.5 13.5l1.5 1.5M4.5 19.5L2 22"/>'),
   pill:     svgIcon('<rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M8.5 8.5l7 7"/>'),
   book:     svgIcon('<path d="M12 6.5C10.5 5 8.5 4.5 6 4.5H3v14h3c2.5 0 4.5.5 6 2 1.5-1.5 3.5-2 6-2h3v-14h-3c-2.5 0-4.5.5-6 2z"/><path d="M12 6.5v14"/>'),
   pen:      svgIcon('<path d="M17.5 3.5l3 3"/><path d="M19 8l-3-3L5.5 15.5 4 20l4.5-1.5z"/><path d="M13 7l4 4"/>'),
@@ -109,6 +112,11 @@ const EDU_LIST = [
   ['med',    '用藥',     '痔瘡藥膏與塞劑',   ICON.pill,     ['img/edu-a5-hemorrhoid-topical.webp'], 'A5'],
   ['med',    '用藥',     '痔瘡保護敷料',     ICON.bandage,  ['img/edu-a5-hemagel.webp'], 'A5'],
   ['med',    '用藥',     '降血脂藥',         ICON.pill,     ['img/edu-a5-lipid-drugs.webp'], 'A5'],
+  // 疫苗衛教（2026/11/11 新增，A5）：頁首左邊寫「疫苗衛教」，編號「疫苗 01 至 04」
+  ['vaccine', '疫苗',    '帶狀疱疹疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-shingrix.webp'], 'A5'],
+  ['vaccine', '疫苗',    '9 價 HPV 疫苗',    ICON.syringe,  ['img/edu-a5-vaccine-hpv.webp'], 'A5'],
+  ['vaccine', '疫苗',    'B 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hbv.webp'], 'A5'],
+  ['vaccine', '疫苗',    'A 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hav.webp'], 'A5'],
   ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
   ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
 ];
