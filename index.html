@@ -14,7 +14,7 @@
   var base = location.protocol === 'file:' ? 'https://adigu2025.github.io/tools/' : './';
   [['quote/view.html','fetch'],['quote/hub.css','fetch'],['quote/app.js','script'],
    ['calc/view.html','fetch'],['weight/view.html','fetch'],['checkup/view.html','fetch'],['calc/hub.css','fetch'],
-   ['lab/lab.js','script'],['kit/report-kit.js','script'],['weight/app.js','script'],['weight/report.js','script'],
+   ['lab/lab.js','script'],['kit/report-kit.js','script'],['kit/keep-words.js','script'],['weight/app.js','script'],['weight/report.js','script'],
    ['checkup/app.js','script'],['checkup/report.js','script'],['calc/rules.js','script'],['calc/app.js','script']].forEach(function(p){
     var l = document.createElement('link');
     l.rel = 'preload'; l.href = base + p[0]; l.as = p[1];
@@ -589,7 +589,7 @@ window.QUOTE_PRINT = ()=>{
 };
 
 /* 減重與健檢報告共用的判讀（lab/lab.js）與排版、判讀標準（kit/report-kit.js）。只載入一次，兩份報告都等它好了再裝 */
-const sharedReady = loadScripts([BASE + 'lab/lab.js', BASE + 'kit/report-kit.js']);
+const sharedReady = loadScripts([BASE + 'lab/lab.js', BASE + 'kit/report-kit.js', BASE + 'kit/keep-words.js']);
 
 /* 減重報告。WD、WB 是減重程式共用的全域變數 */
 let WD = null, WB = null, weightReady = false;

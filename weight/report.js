@@ -378,7 +378,7 @@ function rChLab(d){
       rBar(F.v, [0, 4], [[F.low, 0], [2.67, 1], [Infinity, 2]], 516) +
       `<p class="note-line">${rBr(`這次數值${F.d}。`, 40)}<br>${rBr(rFib4Note(F), 40)}<br>` +
       `${rBr('脂肪肝會隨體重下降逐步改善，但每個人的變化幅度不同，追蹤抽血時我會再算一次。', 40)}</p>`;
-    blocks.push(rBlock('肝纖維化指數 FIB-4', 'FIB-4 INDEX', inner));
+    blocks.push(rBlock('肝纖維化指數<br>FIB-4', 'FIB-4 INDEX', inner));
   }
 
   if(d.msAny){
@@ -594,14 +594,14 @@ function rChCv(d){
   const big = (v, lbl)=> `<div><div class="fib-v">${(Math.round(v * 1000) / 10).toFixed(1)}<small style="font-size:15px; margin-left:2px">%</small></div><p class="note-line" style="margin-top:4px">${lbl}</p></div>`;
 
   if(!ok(pv)){
-    blocks.push(rBlock('PREVENT 心血管風險', '', `<p>${rBr(why(pv), 40)}</p>`));
+    blocks.push(rBlock('PREVENT<br>心血管風險', '', `<p>${rBr(why(pv), 40)}</p>`));
     return blocks;
   }
   const kv = rows=> `<table class="rt kv cvkv" style="margin-top:8px">${rows.map(([k, v])=> `<tr class="ru"><th style="width:46%">${k}</th><td>${v}</td></tr>`).join('')}</table>`;
   const side = [];
   if(other) side.push([`${other} 年總心血管疾病`, pct(pv['cvd' + other])], [`${other} 年動脈硬化心血管疾病`, pct(pv['ascvd' + other])]);
   if(tw && tw.risk != null) side.push(['TwCCCC 10 年冠心病', `${pct(tw.risk)}（台灣模型，本次 ${tw.pts} 分）`]);
-  blocks.push(rBlock('PREVENT 心血管風險', '',
+  blocks.push(rBlock('PREVENT<br>心血管風險', '',
     `<div class="big-row" style="gap:36px; align-items:flex-start">${big(pv['cvd' + H], H + ' 年總心血管疾病')}${big(pv['ascvd' + H], H + ' 年動脈硬化心血管疾病')}</div>` +
     (side.length ? kv(side) : '') +
     // 兩行寫完，整章才排得進同一頁
@@ -618,7 +618,7 @@ function rChCv(d){
     // 只寫有代入目標的項目，順序固定為血壓、血糖、血脂
     const metab = [[/^收縮壓/, '血壓'], [/^HbA1c/, '血糖'], [/膽固醇|^LDL/, '血脂']].filter(([re])=> target.chg.some(c=> re.test(c))).map(([, t])=> t);
     const lead = metab.length ? `因為${metab.join('、')}改善，所以總心血管和動脈硬化心血管疾病（ASCVD）風險跟著下降。` : '這次血壓、血糖、血脂已在目標內，總心血管和動脈硬化心血管疾病（ASCVD）估計值不變。';
-    blocks.push(rBlock('控制到目標時的估計', '',
+    blocks.push(rBlock('達標後的估計', '',
       `<table class="rt"><colgroup><col style="width:46%"><col style="width:27%"><col style="width:27%"></colgroup>` +
       `<thead><tr><th>${H} 年風險</th><th>目前</th><th>達到目標</th></tr></thead><tbody class="ru-host">` +
       row('總心血管疾病', 'cvd' + H) + row('動脈硬化心血管疾病', 'ascvd' + H) + row('心衰竭', 'hf' + H) + `</tbody></table>` +
@@ -643,7 +643,7 @@ function rChCv(d){
       (pOk ? '' : `<p class="note-line">${rBr('上次' + why(P), 40)}</p>`)));
   }
 
-  blocks.push(rCallout('這些數字怎麼看', `<div class="li ru"><span class="nw">這是估計值，用來決定血壓、血糖、血脂要控制到什麼目標，不代表一定會發生。</span></div>` +
+  blocks.push(rCallout('這些數字<br>怎麼看', `<div class="li ru"><span class="nw">這是估計值，用來決定血壓、血糖、血脂要控制到什麼目標，不代表一定會發生。</span></div>` +
     `<div class="li ru">${rBr('目標情境假設各項數值達標，實際變化因人而異，請和醫師一起討論。', 40)}</div>`, true)
     .replace('class="rb callout', 'class="rb keep-prev callout'));   // 不讓這一框單獨落在下一頁
   return blocks;
@@ -736,6 +736,8 @@ async function layoutReport(doc, m, retry){
   stage.innerHTML = m.chapters.map(c=> `<div class="rc" data-id="${c.id}"><div class="rc-head"><h2>${c.zh}</h2>` +
     (c.id === 'summary' ? `<div class="rc-sign"><span>評估醫師</span><span class="ln"></span><span>日期</span><span class="ln"></span></div>` : '') +
     `<div class="lead">${rBr(c.lead, 42)}</div></div>${c.blocks.filter(Boolean).join('')}</div>`).join('');
+  // 詞語不跨行（kit/keep-words.js）：醫師評語、超音波發現等自由文字自動換行時，不會把詞切開
+  if(typeof keepWords === 'function') keepWords(stage);
   // 每章的段落依序編上 01、02…（左欄金色序號）
   stage.querySelectorAll(':scope > .rc').forEach(rc=>{
     rc.querySelectorAll(':scope > .rb > .rb-l > .rb-no').forEach((n, i)=>{ n.textContent = String(i + 1).padStart(2, '0'); });

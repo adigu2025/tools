@@ -12,3 +12,5 @@
 2. 主控台執行 `fitReport()`，每頁數字都要大於 0（等於 0 代表內容壓到頁尾）。
 3. 執行 `await renderAll()`，WebP 存進 `consent-src/out/tools/`。
 4. 複製到工作台的 `img/`，`sw.js` 的快取版號加一，頁數有變時改 `edu/edu.js` 的 `FORMS`，並更新 `revision.js`。
+
+詞語不跨行由 `kit/keep-words.js` 的 `keepWords()` 在載入後自動處理，規則見 `consent-src/README.md`。

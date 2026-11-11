@@ -221,7 +221,7 @@ function ckChLab(d){
     const inner = `<div class="big-row"><div class="fib-v">${F.v.toFixed(2)}</div><div style="padding-bottom:3px">${ckPill(F.g)}</div></div>` +
       rBar(F.v, [0, 4], [[F.low, 0], [2.67, 1], [Infinity, 2]], 516) +
       `<p class="note-line">${rBr(`這次數值${F.d}。`, 40)}<br>${rBr(rFib4Note(F), 40)}</p>`;
-    blocks.push(rBlock('肝纖維化指數 FIB-4', '', inner));
+    blocks.push(rBlock('肝纖維化指數<br>FIB-4', '', inner));
   }
   return blocks;
 }
@@ -270,14 +270,14 @@ function ckChCv(d){
   const pct = v=> (Math.round(v * 1000) / 10).toFixed(1);
   const why = x=> x.na ? x.na + '。' : x.miss ? `這次缺少${x.miss.join('、')}，無法計算。` : x.range ? '有數值超出模型的適用範圍，無法計算。' : '';
   const big = (v, lbl)=> `<div><div class="fib-v">${pct(v)}<small style="font-size:15px; margin-left:2px">%</small></div><p class="note-line" style="margin-top:4px">${lbl}</p></div>`;
-  blocks.push(rBlock('PREVENT 心血管風險', '', why(pv) ? `<p>${rBr(why(pv), 40)}</p>` :
+  blocks.push(rBlock('PREVENT<br>心血管風險', '', why(pv) ? `<p>${rBr(why(pv), 40)}</p>` :
     `<div class="big-row" style="gap:36px; align-items:flex-start">${big(pv.cvd10, '10 年總心血管疾病')}${big(pv.ascvd10, '10 年動脈硬化心血管疾病')}</div>` +
     (pv.cvd30 != null ? `<table class="rt kv" style="margin-top:8px"><tr><th>30 年總心血管疾病</th><td>${pct(pv.cvd30)}%</td></tr><tr><th>30 年動脈硬化心血管疾病</th><td>${pct(pv.ascvd30)}%</td></tr></table>` : '') +
     `<p class="note-line">${rBr('美國心臟學會 2023 年發表的模型，用年齡、膽固醇、血壓、血糖、腎功能、吸菸與用藥估計。總心血管疾病包含心肌梗塞、中風與心衰竭；動脈硬化心血管疾病指心肌梗塞與中風。', 40)}</p>`));
-  blocks.push(rBlock('TwCCCC 冠心病風險', '', why(tw) ? `<p>${rBr(why(tw), 40)}</p>` :
+  blocks.push(rBlock('TwCCCC<br>冠心病風險', '', why(tw) ? `<p>${rBr(why(tw), 40)}</p>` :
     `<div class="big-row">${big(tw.risk, '10 年冠心病風險')}</div>` +
     `<p class="note-line">${rBr(`以台灣竹山社區世代建立，2023 年台灣心臟學會指引採用，用年齡、性別、BMI、血壓、LDL、HDL 與吸菸計分（本次 ${tw.pts} 分），只預測冠心病。`, 40)}</p>`));
-  blocks.push(rCallout('兩個數字怎麼看', `<div class="li ru">${rBr('兩個模型預測的疾病與建立的族群不同，數字不能直接相比。', 40)}</div>` +
+  blocks.push(rCallout('兩個數字<br>怎麼看', `<div class="li ru">${rBr('兩個模型預測的疾病與建立的族群不同，數字不能直接相比。', 40)}</div>` +
     `<div class="li ru">${rBr('風險分數是估計值，用來決定血壓與血脂要控制得多積極，請和醫師一起討論。', 40)}</div>`, true));
   return blocks;
 }
@@ -290,7 +290,7 @@ function ckChPlan(d){
     `<div>${g.list.map(a=> `<div class="what">${rBr(a.t, 34)}</div>`).join('<div style="height:6px"></div>')}</div></div>`).join('');
   blocks.push(rBlock('建議與追蹤時程', '', `<div class="ru-host">${html}</div>`, {split:true}));
   if(d.pub.length){
-    blocks.push(rBlock('可以使用的公費篩檢', '', `<div class="ru-host">${d.pub.map(x=> `<div class="us-row ru"><div><b>${ckEsc(x.t)}</b><p>${rBr(x.rule + (x.done ? '。' + x.done : ''), 34)}</p></div></div>`).join('')}</div>` +
+    blocks.push(rBlock('可以使用的<br>公費篩檢', '', `<div class="ru-host">${d.pub.map(x=> `<div class="us-row ru"><div><b>${ckEsc(x.t)}</b><p>${rBr(x.rule + (x.done ? '。' + x.done : ''), 34)}</p></div></div>`).join('')}</div>` +
       `<p class="note-line tail">${rBr('依國民健康署公告整理。間隔從上次篩檢起算，實際資格以健保卡紀錄為準，可在門診或健保快易通 App 查詢。', 40)}</p>`, {split:true}));
   }
   // 文字在健檢畫面「追蹤時程」下方，醫師可改；全部刪掉就不印這一框
@@ -408,6 +408,8 @@ async function ckLayout(doc, m, retry){
   stage.innerHTML = m.chapters.map(c=> `<div class="rc" data-id="${c.id}"><div class="rc-head"><h2>${c.zh}</h2>` +
     (c.id === 'summary' ? `<div class="rc-sign"><span>醫師</span><span class="ln"></span><span>日期</span><span class="ln"></span></div>` : '') +
     `<div class="lead">${rBr(c.lead, 42)}</div></div>${c.blocks.filter(Boolean).join('')}</div>`).join('');
+  // 詞語不跨行（kit/keep-words.js）：醫師評語、超音波發現等自由文字自動換行時，不會把詞切開
+  if(typeof keepWords === 'function') keepWords(stage);
   stage.querySelectorAll(':scope > .rc').forEach(rc=>{
     rc.querySelectorAll(':scope > .rb > .rb-l > .rb-no').forEach((n, i)=>{ n.textContent = String(i + 1).padStart(2, '0'); });
   });

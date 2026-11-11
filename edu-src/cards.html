@@ -179,7 +179,10 @@ table.tb td:last-child{white-space:nowrap; font-weight:700; color:var(--ink);}
   <div class="foot"><div class="addr">木子澄安診所<br>高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div></div><img class="mark" src="../img/logo-mark.png" alt="">
 </section>
 
+<script src="../kit/keep-words.js"></script>
 <script>
+// 詞語不跨行（kit/keep-words.js）：字型載入後先把詞語包起來，fitReport 與 renderAll 量到的就是最後的版面
+const kwReady = document.fonts.ready.then(()=> keepWords());
 /* 每頁剩餘空間（px）：大於 0 代表內容沒有壓到頁尾 */
 function fitReport(){
   return [...document.querySelectorAll('.page')].map(p=>{
@@ -192,6 +195,7 @@ function fitReport(){
 }
 /* 輸出 WebP（1241 × 1755），存到 edu-src/out/ */
 async function renderAll(only){
+  await kwReady;
   await document.fonts.ready;
   const done = [];
   for(const el of document.querySelectorAll('.page')){

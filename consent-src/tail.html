@@ -1,6 +1,9 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="../kit/keep-words.js"></script>
 <script>
+// 詞語不跨行（kit/keep-words.js）：字型載入後先把詞語包起來，fitReport 與 renderAll 量到的就是最後的版面
+const kwReady = document.fonts.ready.then(()=> keepWords());
 // 共用的頁首、頁尾與簽名欄由這裡填入，九份同意書格式一致；頁首加 data-noinfo 就不顯示科別（腸泌素同意書）
 const VER = 'v. 2026/10';
 document.querySelectorAll('.head').forEach(h=>{
@@ -35,6 +38,7 @@ function fitReport(){
 }
 // 輸出：工作台用 WebP，存進 out/tools/
 async function renderAll(only){
+  await kwReady;
   await document.fonts.ready;
   const res = [];
   for(const el of document.querySelectorAll('[data-file]')){
