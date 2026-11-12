@@ -135,6 +135,31 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
 .btn.outline{background:#fff; color:var(--primary); border:1.5px solid var(--primary);}
 .btn.outline:hover{background:var(--primary-pale);}
 .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+/* 回診與追蹤時程：每一項一張小卡，左邊勾選是否列入報告 */
+.fu-hint{font-size:14.5px; color:var(--muted); margin:-4px 0 12px;}
+.fu-row{display:grid; grid-template-columns:92px 1fr auto; gap:12px; align-items:start; padding:12px 0; border-top:1px solid var(--border);}
+.fu-row:first-child{border-top:none; padding-top:2px;}
+/* 列入開關：整塊都可以點，勾選時實心底色＋白色打勾，取消時虛線框 */
+.fu-on{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; margin-top:26px; min-height:86px; padding:10px 4px;
+  border:2px solid var(--primary); border-radius:14px; background:var(--primary-pale); color:var(--primary); font-size:14px; font-weight:700;
+  cursor:pointer; text-align:center; user-select:none; transition:.15s;}
+.fu-on:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.fu-on input{appearance:none; -webkit-appearance:none; margin:0; width:30px; height:30px; border:2px solid var(--primary); border-radius:8px;
+  background:var(--primary); display:grid; place-content:center; cursor:pointer;}
+.fu-on input::after{content:''; width:8px; height:15px; border:solid #fff; border-width:0 3.5px 3.5px 0; transform:translate(0, -2px) rotate(45deg);}
+.fu-on input:focus-visible{outline:3px solid rgba(188,127,48,.35); outline-offset:2px;}
+.fu-row.off .fu-on{border:2px dashed #C9C2B5; background:#fff; color:var(--muted); font-weight:500;}
+.fu-row.off .fu-on input{background:#fff; border-color:#B9B1A3;}
+.fu-row.off .fu-on input::after{display:none;}
+.fu-row.off .fu-grid{opacity:.45;}
+.fu-grid{display:grid; grid-template-columns:minmax(150px, 1fr) minmax(150px, 1fr) minmax(170px, 1.4fr); gap:0 12px;}
+.fu-grid .field{margin-bottom:6px;}
+.fu-grid .fu-wide{grid-column:1 / -1;}
+.fu-grid textarea{resize:vertical;}
+.fu-date{font-size:13.5px; color:var(--muted); margin-top:4px; min-height:1.4em;}
+.fu-act{padding-top:26px;}
+.fu-act .btn{padding:6px 12px; font-size:14px; white-space:nowrap;}
+@media (max-width:760px){ .fu-row{grid-template-columns:64px 1fr;} .fu-act{grid-column:2; padding-top:0;} .fu-grid{grid-template-columns:1fr;} }
 
 .tag{display:inline-block; padding:7px 14px; margin:4px 6px 4px 0; border-radius:18px; background:#F1EEE7; border:1px solid var(--border); font-size:15px; cursor:pointer; color:var(--navy); transition:.15s;}
 .tag.selected{background:var(--primary); color:#fff; border-color:var(--primary);}
@@ -875,15 +900,11 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
 <!-- ══════════ 9 追蹤與心理支持 ══════════ -->
 <section class="screen" id="screen-track">
   <div class="card">
-    <h2>追蹤與監測時程</h2>
-    <table class="dtable">
-      <tr><th>時間點</th><th>追蹤重點</th></tr>
-      <tr><td>用藥/療程開始後1–2週</td><td>副作用評估（腸胃道症狀）、劑量調整</td></tr>
-      <tr><td>1個月</td><td>體重、腰圍、身體組成、飲食狀況</td></tr>
-      <tr><td>3個月</td><td>完整回診：抽血（血糖/血脂/肝腎功能）、療效評估（未達初始體重5%需檢討治療方案）</td></tr>
-      <tr><td>6個月</td><td>腹部超音波複查脂肪肝、共病指標追蹤（血壓/血糖/血脂）</td></tr>
-      <tr><td>之後</td><td>每3–6個月規律追蹤，長期以「不復胖」為目標而非單純體重數字</td></tr>
-    </table>
+    <h2>回診與追蹤時程</h2>
+    <p class="fu-hint">每一項都先勾好，取消勾選就不印在報告上；文字可以直接改。日期由檢查日期推算，依「日期推算」排序。</p>
+    <input type="hidden" id="fu-plan">
+    <div id="fu-list"></div>
+    <div class="btnrow" style="margin-top:10px"><button type="button" class="btn outline" id="fu-add">新增一項</button><button type="button" class="btn outline" id="fu-reset">全部恢復預設</button></div>
     <div class="field" style="margin-top:12px"><label>追蹤備註與提早就醫提醒</label><textarea id="track-note"></textarea></div>
   </div>
   <div class="card">

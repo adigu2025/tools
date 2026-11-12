@@ -1073,7 +1073,31 @@ const CK_ADV = {
   ldct3:    {when:'m3', t:'肺部結節屬 Lung-RADS 4A，建議 3 個月後追蹤低劑量電腦斷層，必要時安排正子攝影。'},
   ldct4b:   {when:'now', t:'肺部結節屬 Lung-RADS 4B 以上，請轉介胸腔科，安排進一步影像或切片。'},
 };
-const CK_WHEN = {now:'盡快回診', m3:'3 個月內', m6:'半年內', y1:'下次健檢', long:'長期追蹤'};
+const CK_WHEN = {now:'盡快回診', w2:'2 週內', m1:'1 個月內', m3:'3 個月內', m6:'半年內', y1:'下次健檢', long:'長期追蹤', c:'自訂時間'};
+// 追蹤時程分組：依 CK_WHEN 的順序；「自訂時間」用醫師打的文字當標題，同樣文字放在同一組，排在最後
+// 日期由健檢日期推算，印在分組標題下方（盡快、長期、自訂不推算）
+function ckPlanGroups(list){
+  const base = CK.info.date || ckToday();
+  const sub = {w2:()=> `約 ${rAddDays(base, 14)} 前`, m1:()=> `約 ${rAddMonths(base, 1)} 前`, m3:()=> `約 ${rAddMonths(base, 3)} 前`,
+    m6:()=> `約 ${rAddMonths(base, 6)} 前`, y1:()=> `約 ${rAddMonths(base, 12).slice(0, 7)}`};
+  const out = [];
+  Object.keys(CK_WHEN).forEach(w=>{
+    const items = list.filter(a=> a.when === w);
+    if(!items.length) return;
+    if(w !== 'c'){ out.push({w, label: CK_WHEN[w], sub: sub[w] && typeof rAddMonths === 'function' ? sub[w]() : '', list: items}); return; }
+    const labels = [];
+    items.forEach(a=>{ const l = String(a.wl || '').trim() || '其他追蹤'; if(!labels.includes(l)) labels.push(l); });
+    labels.forEach(l=> out.push({w, label: l, sub: '', list: items.filter(a=> (String(a.wl || '').trim() || '其他追蹤') === l)}));
+  });
+  return out;
+}
+// 常用的追蹤項目，按一下加入（加入後一樣可以改）
+const CK_FU_QUICK = [
+  {when:'w2', t:'2 週內回診看完整報告，討論異常的項目。'},
+  {when:'m1', t:'1 個月後回診，確認調整生活習慣或用藥後的變化。'},
+  {when:'m3', t:'3 個月後回診，複查這次異常的抽血項目。'},
+  {when:'m6', t:'半年後追蹤腹部超音波。'},
+];
 
 /* ---------- 彙整：本次檢驗、歷次、所有判讀 ---------- */
 function ckSortedReports(){ return [...CK.reports].sort((a, b)=> (b.date || '').localeCompare(a.date || '')); }
@@ -1152,11 +1176,12 @@ function ckCollect(){
     a.auto = {when: a.when, t: a.t};
     const o = fu[a.key]; if(!o) return;
     if(o.when && CK_WHEN[o.when]) a.when = o.when;
+    if(a.when === 'c') a.wl = String(o.wl || '');
     if(String(o.t || '').trim()) a.t = o.t.trim();
     if(o.off) a.off = true;
     a.edited = a.when !== a.auto.when || a.t !== a.auto.t || !!a.off;
   });
-  (CK.fuAdd || []).forEach((x, i)=> advice.push({key:'add' + i, add: i, when: CK_WHEN[x.when] ? x.when : 'm3', t: String(x.t || '').trim(), edited: true}));
+  (CK.fuAdd || []).forEach((x, i)=> advice.push({key:'add' + i, add: i, when: CK_WHEN[x.when] ? x.when : 'm3', wl: String(x.wl || ''), t: String(x.t || '').trim(), off: !!x.off, edited: true}));
   const reps = ckSortedReports();
   return {P, rows, body, us, mod, fib4, cv, pub, findings, findingsAll, adviceAll: advice, advice: advice.filter(a=> !a.off && a.t), reports: reps, current: reps[0] || null};
 }
@@ -1307,17 +1332,22 @@ function ckRenderPub(d){
     : '<div class="k-empty" style="display:block">依目前資料，沒有符合資格的公費篩檢。</div>';
 }
 
-// 追蹤時程：每一項可改時間分組與文字、可不列入；正在打字時不重畫，避免游標跳走
+// 追蹤時程：每一項預設勾選「列入」，可取消、可改時間分組與文字；時間選「自訂時間」可自己打標題
+// 依時間分組排序，畫面順序與報告相同；正在打字時不重畫，避免游標跳走
 function ckRenderPlan(d){
   const box = ckEl('k-plan');
   if(box.contains(KD.activeElement)) return;
   const sel = (v)=> `<select data-f="when">${Object.entries(CK_WHEN).map(([k, t])=> `<option value="${k}"${k === v ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
-  box.innerHTML = `<table class="k-plan">${d.adviceAll.map(a=> `<tr data-key="${a.key}"${a.add != null ? ` data-add="${a.add}"` : ''} class="${a.off ? 'off' : ''}">` +
-    `<td style="width:120px">${sel(a.when)}${a.edited ? '<br><span class="k-mod">已修改</span>' : ''}</td>` +
+  const order = Object.keys(CK_WHEN);
+  const rows = d.adviceAll.map((a, i)=> ({a, i})).sort((x, y)=> order.indexOf(x.a.when) - order.indexOf(y.a.when) || x.i - y.i).map(x=> x.a);
+  box.innerHTML = `<table class="k-plan">${rows.map(a=> `<tr data-key="${a.key}"${a.add != null ? ` data-add="${a.add}"` : ''} class="${a.off ? 'off' : ''}">` +
+    `<td style="width:76px"><label class="k-on"><input type="checkbox" data-f="on"${a.off ? '' : ' checked'}><span>${a.off ? '不列入' : '列入'}</span></label></td>` +
+    `<td style="width:132px">${sel(a.when)}` +
+      (a.when === 'c' ? `<input type="text" data-f="wl" class="k-wl" value="${ckEsc(a.wl || '')}" aria-label="自訂時間標題">` : '') +
+      (a.edited && a.add == null ? '<br><span class="k-mod">已修改</span>' : '') + `</td>` +
     `<td><textarea data-f="t">${ckEsc(a.t)}</textarea></td>` +
     `<td style="width:84px"><div class="k-pa">` +
-    (a.add != null ? '<button data-f="del">刪除</button>' :
-      `<label><input type="checkbox" data-f="off"${a.off ? ' checked' : ''}> 不列入</label>` + (a.edited ? '<button data-f="reset">恢復預設</button>' : '')) +
+    (a.add != null ? '<button data-f="del">刪除</button>' : (a.edited ? '<button data-f="reset">恢復預設</button>' : '')) +
     `</div></td></tr>`).join('')}</table>`;
 }
 function ckInitPlan(){
@@ -1327,14 +1357,14 @@ function ckInitPlan(){
     else { const k = tr.dataset.key; CK.fu = CK.fu || {}; CK.fu[k] = CK.fu[k] || {}; f(CK.fu[k]); }
   };
   box.addEventListener('input', e=>{
-    const tr = e.target.closest('tr[data-key]'); if(!tr || e.target.dataset.f !== 't') return;
-    upd(tr, o=> o.t = e.target.value); ckChanged();
+    const tr = e.target.closest('tr[data-key]'), f = e.target.dataset.f; if(!tr || (f !== 't' && f !== 'wl')) return;
+    upd(tr, o=> o[f] = e.target.value); ckChanged();
   });
   box.addEventListener('change', e=>{
     const tr = e.target.closest('tr[data-key]'), f = e.target.dataset.f; if(!tr) return;
     if(f === 'when') upd(tr, o=> o.when = e.target.value);
-    else if(f === 'off') upd(tr, o=> o.off = e.target.checked);
-    else if(f !== 't') return;
+    else if(f === 'on') upd(tr, o=> o.off = !e.target.checked);
+    else if(f !== 't' && f !== 'wl') return;
     e.target.blur(); ckChanged();
   });
   box.addEventListener('focusout', ()=> setTimeout(()=>{ if(!box.contains(KD.activeElement)) ckRenderFind(); }, 0));
@@ -1345,9 +1375,20 @@ function ckInitPlan(){
     else if(b.dataset.f === 'reset') delete CK.fu[tr.dataset.key];
     ckChanged();
   });
+  const focusAdd = ()=>{ const ta = box.querySelector(`tr[data-add="${CK.fuAdd.length - 1}"] textarea`); if(ta) ta.focus(); };
   ckEl('k-plan-add').addEventListener('click', ()=>{
-    CK.fuAdd = CK.fuAdd || []; CK.fuAdd.push({when:'m3', t:''}); ckChanged();
-    const ta = box.querySelectorAll('textarea'); if(ta.length) ta[ta.length - 1].focus();
+    CK.fuAdd = CK.fuAdd || []; CK.fuAdd.push({when:'m3', t:''}); ckChanged(); focusAdd();
+  });
+  const quick = ckEl('k-plan-quick');
+  quick.innerHTML = CK_FU_QUICK.map((q, i)=> `<button class="k-btn ghost sm" data-i="${i}">${ckEsc(q.t.replace(/。$/, ''))}</button>`).join('');
+  quick.addEventListener('click', e=>{
+    const b = e.target.closest('button[data-i]'); if(!b) return;
+    CK.fuAdd = CK.fuAdd || []; CK.fuAdd.push(Object.assign({}, CK_FU_QUICK[+b.dataset.i])); ckChanged();
+  });
+  ckEl('k-plan-reset').addEventListener('click', ()=>{
+    if(!Object.keys(CK.fu || {}).length && !(CK.fuAdd || []).length) return;
+    if(!confirm('會清掉追蹤時程的所有修改與新增項目，回到依檢查結果產生的內容，確定嗎？')) return;
+    CK.fu = {}; CK.fuAdd = []; ckChanged();
   });
 }
 const CK_SCOPE_KEYS = /^(egd\w*|clo|cDx|cProc|cPrep|cPiece|cHist|cNum|cSize|cOther|cNextOv|colon\w*)$/;

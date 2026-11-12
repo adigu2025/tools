@@ -572,6 +572,18 @@ function rSplit(text, max){
   return lines;
 }
 function rBr(text, max){ return rSplit(text, max).map(wEsc).join('<br>'); }
+// 追蹤時程左欄的時間標題（22px、欄寬 120px）：中文字算 1，英數與空白算 0.55，超過 5.3 就換行
+function rWhenBr(text, max){
+  max = max || 5.3;
+  const out = []; let cur = '', w = 0;
+  for(const ch of String(text || '')){
+    const cw = /[⺀-￯]/.test(ch) ? 1 : .55;
+    if(w + cw > max && cur.trim()){ out.push(cur); cur = ''; w = 0; }
+    cur += ch; w += cw;
+  }
+  if(cur.trim()) out.push(cur);
+  return out.map(t=> wEsc(t.trim())).join('<br>');
+}
 // 多行文字（使用者輸入）：保留原本的換行，每一行再依標點斷行
 function rLines(text, max){ return String(text || '').split('\n').filter(l=> l.trim()).map(l=> rBr(l.trim(), max)).join('<br>'); }
 

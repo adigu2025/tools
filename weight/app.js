@@ -42,7 +42,7 @@ function renderNav(){
     treat:   wFilled(['tx-edu', 'cm-note']),
     calorie: wFilled(['cal-activity', 'ex-text']),
     diet:    anyChk('#screen-diet'),
-    track:   wFilled(['track-note']) || anyChk('#screen-track'),
+    track:   wFilled(['track-note', 'fu-plan']) || anyChk('#screen-track'),
     report:  wFilled(['doc-comment'])
   };
   WD.querySelectorAll('.w-nav a[data-sec]').forEach(a=> a.classList.toggle('done', !!has[a.dataset.sec]));
@@ -1386,6 +1386,123 @@ function wWarnText(){ return wWarn == null ? wWarnDefault() : wWarn; }
 function wWarnSync(){}
 
 // ============================================================
+// 回診與追蹤時程：預設五項都先勾好，醫師可以取消、改文字、改日期推算，也可以新增
+// 隱藏欄位 fu-plan 存 JSON：{o:{預設項目 id:{改過的欄位}}, add:[自訂項目]}；空字串代表全部照預設
+// 預設內容隨用藥變動（沒用藥時 1 至 2 週的副作用回診預設不勾），所以只存醫師改過的部分
+// ============================================================
+const FU_DATE = {none:'不顯示日期', w1:'1 週後', w12:'1 至 2 週後', w2:'2 週後', m1:'1 個月後', m2:'2 個月後', m3:'3 個月後', m6:'6 個月後', y1:'1 年後', q36:'每 3 至 6 個月'};
+const FU_RANK = {w1:1, w12:2, w2:3, m1:4, m2:5, m3:6, m6:7, y1:8, q36:9, none:10};
+const FU_FIELDS = ['on', 'w', 'd', 'h', 't'];
+function wFuDefaults(){
+  const onMed = getTxChoices().some(k=> k !== 'lifestyle');
+  return [
+    {id:'w2', on:onMed, w:'1 至 2 週\n開始用藥後', d:'w12', h:'副作用與劑量', t:'噁心、便祕等腸胃狀況是否可以忍受，\n決定能不能調升劑量。'},
+    {id:'m1', on:true, w: onMed ? '1 個月\n或用完一盒藥' : '1 個月', d:'m1', h:'體重與身體組成', t:'測量體重、腰圍、體脂與肌肉量，\n一起檢視這個月的飲食與運動。'},
+    {id:'m3', on:true, w:'3 個月', d:'m3', h:'療效評估與抽血', t:'確認減重是否達到原本體重的 5%；\n抽血看血糖、血脂、肝腎功能。'},
+    {id:'m6', on:true, w:'6 個月', d:'m6', h:'腹部超音波', t:'看脂肪肝改善多少，\n追蹤血壓、血糖、血脂等共病指標。'},
+    {id:'long', on:true, w:'長期', d:'q36', h:'規律回診', t: onMed ? '目標是「不復胖」。\n停藥前後尤其要留意體重變化。' : '目標是「不復胖」。\n體重回升時提早回診，一起調整計畫。'},
+  ];
+}
+function wFuState(){
+  let s = null;
+  try{ s = JSON.parse(WD.getElementById('fu-plan').value || 'null'); }catch(e){}
+  s = s && typeof s === 'object' ? s : {};
+  return {o: s.o && typeof s.o === 'object' ? s.o : {}, add: Array.isArray(s.add) ? s.add : []};
+}
+function wFuSave(s){
+  const empty = !Object.keys(s.o).length && !s.add.length;
+  WD.getElementById('fu-plan').value = empty ? '' : JSON.stringify(s);
+}
+// 合併預設與醫師改過的內容，依日期推算排序（同一級維持原順序）
+function wFuItems(){
+  const s = wFuState();
+  const pre = wFuDefaults().map(x=>{
+    const o = s.o[x.id] || {};
+    const it = Object.assign({}, x, o, {preset:true});
+    it.edited = FU_FIELDS.some(k=> k in o && o[k] !== x[k]);
+    return it;
+  });
+  const add = s.add.map((x, i)=> Object.assign({on:true, w:'', d:'none', h:'', t:''}, x, {id:'a' + i, add:i}));
+  return pre.concat(add).map((x, i)=> ({x, i, r: FU_RANK[x.d] || 10})).sort((a, b)=> a.r - b.r || a.i - b.i).map(a=> a.x);
+}
+// 日期推算：以檢查日期為起點；報告與畫面共用
+function wFuDate(d, base){
+  if(typeof rAddMonths !== 'function') return '';
+  base = base || WD.getElementById('p-date').value || todayLocal();
+  const md = s=> s.slice(5);
+  const days = {w1:7, w2:14}[d], months = {m1:1, m2:2, m3:3, m6:6, y1:12}[d];
+  if(d === 'w12') return `約 ${md(rAddDays(base, 7))} 至 ${md(rAddDays(base, 14))}`;
+  if(days) return `約 ${rAddDays(base, days)}`;
+  if(months) return `約 ${rAddMonths(base, months)}`;
+  if(d === 'q36') return '每 3 至 6 個月';
+  return '';
+}
+function wFuRender(force){
+  const box = WD.getElementById('fu-list');
+  if(!box || (!force && box.contains(WD.activeElement))) return;
+  const ta = (f, v, h)=> `<textarea data-f="${f}" style="min-height:${h}px">${wEsc(v)}</textarea>`;
+  box.innerHTML = wFuItems().map(x=> `<div class="fu-row${x.on ? '' : ' off'}" data-id="${x.id}">` +
+    `<label class="fu-on"><input type="checkbox" data-f="on"${x.on ? ' checked' : ''}><span>${x.on ? '列入報告' : '不列入'}</span></label>` +
+    `<div class="fu-grid">` +
+      `<div class="field"><label>時間（第二行起印成小字）</label>${ta('w', x.w, 64)}</div>` +
+      `<div class="field"><label>日期推算</label><select data-f="d">${Object.entries(FU_DATE).map(([k, t])=> `<option value="${k}"${k === x.d ? ' selected' : ''}>${t}</option>`).join('')}</select><div class="fu-date">${wEsc(wFuDate(x.d))}</div></div>` +
+      `<div class="field"><label>重點</label><input type="text" data-f="h" value="${wEsc(x.h)}"></div>` +
+      `<div class="field fu-wide"><label>說明（按 Enter 換行）</label>${ta('t', x.t, 64)}</div>` +
+    `</div>` +
+    `<div class="fu-act">${x.preset ? (x.edited ? '<button type="button" class="btn outline small" data-f="reset">恢復預設</button>' : '') : '<button type="button" class="btn outline small" data-f="del">刪除</button>'}</div>` +
+    `</div>`).join('');
+  box.querySelectorAll('textarea').forEach(t=>{ if(t.offsetParent) autoGrow(t); });
+}
+function wFuInit(){
+  const box = WD.getElementById('fu-list');
+  if(!box) return;
+  const upd = (row, k, v)=>{
+    const s = wFuState(), id = row.dataset.id;
+    if(id[0] === 'a'){ const x = s.add[+id.slice(1)]; if(x) x[k] = v; }
+    else {
+      const def = wFuDefaults().find(x=> x.id === id);
+      s.o[id] = s.o[id] || {};
+      if(def && def[k] === v) delete s.o[id][k]; else s.o[id][k] = v;
+      if(!Object.keys(s.o[id]).length) delete s.o[id];
+    }
+    wFuSave(s);
+  };
+  box.addEventListener('input', e=>{
+    const f = e.target.dataset.f, row = e.target.closest('.fu-row');
+    if(!row || !['w', 'h', 't'].includes(f)) return;
+    upd(row, f, e.target.value);
+    renderNav();
+  });
+  box.addEventListener('change', e=>{
+    const f = e.target.dataset.f, row = e.target.closest('.fu-row');
+    if(!row || !['on', 'd'].includes(f)) return;
+    upd(row, f, f === 'on' ? e.target.checked : e.target.value);
+    wFuRender(true); renderNav(); scheduleDraftSave();
+  });
+  // 打完字離開這一區才重畫，免得游標跳走；重畫後改過的項目會出現「恢復預設」
+  box.addEventListener('focusout', ()=> setTimeout(()=>{ if(!box.contains(WD.activeElement)) wFuRender(); }, 0));
+  box.addEventListener('click', e=>{
+    const b = e.target.closest('button[data-f]'); if(!b) return;
+    const s = wFuState(), id = b.closest('.fu-row').dataset.id;
+    if(b.dataset.f === 'del') s.add.splice(+id.slice(1), 1);
+    else if(b.dataset.f === 'reset') delete s.o[id];
+    wFuSave(s); wFuRender(true); renderNav(); scheduleDraftSave();
+  });
+  WD.getElementById('fu-add').addEventListener('click', ()=>{
+    const s = wFuState(); s.add.push({on:true, w:'', d:'none', h:'', t:''}); wFuSave(s);
+    wFuRender(true); scheduleDraftSave();
+    const rows = box.querySelectorAll('.fu-row[data-id^="a"] textarea[data-f="w"]');
+    if(rows.length) rows[rows.length - 1].focus();
+  });
+  WD.getElementById('fu-reset').addEventListener('click', ()=>{
+    if(!WD.getElementById('fu-plan').value) return;
+    if(!confirm('會清掉這位病人追蹤時程的所有修改與新增項目，確定嗎？')) return;
+    WD.getElementById('fu-plan').value = ''; wFuRender(true); renderNav(); scheduleDraftSave();
+  });
+  WD.getElementById('p-date').addEventListener('change', ()=> wFuRender());
+}
+
+// ============================================================
 // 飲食衛教
 // ============================================================
 const EDU_TEXT = {
@@ -2166,7 +2283,7 @@ function collectState(){
     'lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke',
     'tx-choice','tx-choices','tx-edu','fam-other-text','cm-other-text','cm-note','ms-hba1c',
     'cal-activity','cal-goal','ex-text','edu-text','doc-comment','stopbang-manual','phq9-manual',
-    'body-note','lab-note','track-note','tx-tier'];
+    'body-note','lab-note','track-note','tx-tier','fu-plan'];
   const state = {};
   ids.forEach(id=> state[id] = WD.getElementById(id).value);
   ['sc-thyroid','sc-cushing','sc-pcos','sc-hypothal','sc-gh','sc-hypogonad','sc-genetic','sc-other',
@@ -2269,7 +2386,7 @@ function applyState(state){
   renderSrcTags();
   updateEgfrHint();
   // 這幾格是後來才加的，舊紀錄沒有：載入時清空，免得留著上一位病人的數值
-  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke','b-hr','preg-other-text','tx-tier'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
+  ['lab-bun','lab-ft4','lab-wbc','lab-hgb','lab-plt','lab-rows','p-chart','cv-smoke','b-hr','preg-other-text','tx-tier','fu-plan'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).value = ''; });
   ['cv-dm','cv-bptx','cv-statin','cv-cvd','sb-neck','rpt-att'].forEach(id=>{ if(!(id in state)) WD.getElementById(id).checked = false; });
   // 舊紀錄的動機分數可能不是 1 至 10 的整數，對不上按鈕就留空
   if(state['motiv-score'] && WD.getElementById('motiv-score').value !== String(state['motiv-score'])) WD.getElementById('motiv-score').value = '';
@@ -2281,6 +2398,7 @@ function applyState(state){
   renderLabRows();
   renderNav();
   wSexUi();
+  wFuRender(true);
 }
 // 還原代謝症候群的手動勾選。舊紀錄沒有這項記錄：存檔的勾選和實測判定不同的項目，視為醫師手動改過
 function wRestoreMsManual(state){
@@ -2672,6 +2790,8 @@ function renderTxButtons(){
     b.classList.toggle('on', on);
     b.setAttribute('aria-checked', String(on));
   });
+  // 用藥改變時，追蹤時程的預設（1 至 2 週回診、1 個月或用完一盒藥）跟著變
+  wFuRender();
 }
 function txChoiceText(){
   const list = getTxChoices();
@@ -2692,6 +2812,7 @@ function syncTagOtherInputs(){
 (function initStorage(){
   // 下一位病人要回到的空白狀態（開頁時、還沒載入任何草稿或紀錄）。
   // 「其他」標籤的輸入框是 makeTagPicker 用 setTimeout 補上的，等它們放好再記
+  wFuInit();
   setTimeout(()=>{ W_BLANK = JSON.parse(JSON.stringify(collectState())); }, 0);
   try{
     const legacy = localStorage.getItem(LEGACY_KEY);

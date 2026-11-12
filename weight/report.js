@@ -528,19 +528,20 @@ function rChPlan(d){
 function rChFollow(d){
   const blocks = [];
   const base = rS('p-date') || todayLocal();
-  const md = s=> s.slice(5);
-  // 有選藥物才排 1 至 2 週的副作用回診；只選生活型態介入或沒選，不排
-  const onMed = getTxChoices().some(k=> k !== 'lifestyle');
-  const plan = [
-    onMed && ['1 至 2 週', ['開始用藥後', `約 ${md(rAddDays(base, 7))} 至 ${md(rAddDays(base, 14))}`], '副作用與劑量', '噁心、便祕等腸胃狀況是否可以忍受，<br>決定能不能調升劑量。'],
-    ['1 個月', [`約 ${rAddMonths(base, 1)}`], '體重與身體組成', '體重、腰圍、體脂與肌肉量，<br>一起檢視這個月的飲食與運動。'],
-    ['3 個月', [`約 ${rAddMonths(base, 3)}`], '療效評估與抽血', '確認減重是否達到原本體重的 5%；<br>抽血看血糖、血脂、肝腎功能。'],
-    ['6 個月', [`約 ${rAddMonths(base, 6)}`], '腹部超音波', '看脂肪肝改善多少，<br>追蹤血壓、血糖、血脂等共病指標。'],
-    ['長期', ['每 3 至 6 個月'], '規律回診', onMed ? '目標是「不復胖」。<br>停藥前後尤其要留意體重變化。' : '目標是「不復胖」。<br>體重回升時提早回診，一起調整計畫。'],
-  ].filter(Boolean);
-  blocks.push(rBlock('回診與<br>追蹤時程', 'FOLLOW-UP SCHEDULE',
-    `<div class="ru-host">${plan.map(([w, sub, h, t], i)=> `<div class="tl-row ru" style="padding:${i ? 8 : 0}px 0 8px"><div><div class="tl-when">${w}</div>${sub.map(x=> `<div class="tl-sub">${x}</div>`).join('')}</div><div><h4>${h}</h4><div class="what">${t}</div></div></div>`).join('')}</div>` +
-    `<p class="note-line tail">日期由檢查日期推算，實際回診以預約為準。</p>`, {split:true}));
+  // 項目來自畫面「回診與追蹤時程」：勾選的才印；時間第一行是大字，第二行起與推算日期印成小字
+  const lines = (s, n)=> String(s || '').split('\n').map(t=> t.trim()).filter(Boolean).map(t=> rBr(t, n));
+  const plan = wFuItems().filter(x=> x.on && (String(x.w).trim() || String(x.h).trim() || String(x.t).trim()));
+  const dated = plan.some(x=> x.d !== 'q36' && wFuDate(x.d, base));
+  if(plan.length) blocks.push(rBlock('回診與<br>追蹤時程', 'FOLLOW-UP SCHEDULE',
+    `<div class="ru-host">${plan.map((x, i)=>{
+      const [w0, ...wSub] = String(x.w || '').split('\n').map(t=> t.trim()).filter(Boolean);
+      const dt = wFuDate(x.d, base);
+      const sub = wSub.concat(dt && !wSub.includes(dt) ? [dt] : []).map(wEsc);
+      const h = lines(x.h, 20).join('<br>'), t = lines(x.t, 21).join('<br>');
+      return `<div class="tl-row ru" style="padding:${i ? 8 : 0}px 0 8px"><div><div class="tl-when">${rWhenBr(w0)}</div>${sub.map(s=> `<div class="tl-sub">${s}</div>`).join('')}</div>` +
+        `<div>${h ? `<h4>${h}</h4>` : ''}${t ? `<div class="what">${t}</div>` : ''}</div></div>`;
+    }).join('')}</div>` +
+    (dated ? `<p class="note-line tail">日期由檢查日期推算，實際回診以預約為準。</p>` : ''), {split:true}));
 
   const psy = [];
   if(chk('psy-refer')) psy.push('建議轉介身心科或心理諮商');

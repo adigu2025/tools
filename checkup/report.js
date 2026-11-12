@@ -284,11 +284,12 @@ function ckChCv(d){
 
 function ckChPlan(d){
   const blocks = [];
-  const order = ['now', 'm3', 'm6', 'y1', 'long'];
-  const groups = order.map(w=> ({w, list: d.advice.filter(a=> a.when === w)})).filter(g=> g.list.length);
-  const html = groups.map(g=> `<div class="tl-row ru"><div><div class="tl-when">${CK_WHEN[g.w]}</div></div>` +
+  // 分組與推算日期由 ckPlanGroups 決定（app.js），畫面上的順序與這裡相同
+  const groups = ckPlanGroups(d.advice);
+  const html = groups.map(g=> `<div class="tl-row ru"><div><div class="tl-when">${rWhenBr(g.label)}</div>${g.sub ? `<div class="tl-sub">${ckEsc(g.sub)}</div>` : ''}</div>` +
     `<div>${g.list.map(a=> `<div class="what">${rBr(a.t, 34)}</div>`).join('<div style="height:6px"></div>')}</div></div>`).join('');
-  blocks.push(rBlock('建議與追蹤時程', '', `<div class="ru-host">${html}</div>`, {split:true}));
+  if(groups.length) blocks.push(rBlock('建議與追蹤時程', '', `<div class="ru-host">${html}</div>` +
+    (groups.some(g=> g.sub) ? `<p class="note-line tail">日期由健檢日期推算，實際回診以預約為準。</p>` : ''), {split:true}));
   if(d.pub.length){
     blocks.push(rBlock('可以使用的<br>公費篩檢', '', `<div class="ru-host">${d.pub.map(x=> `<div class="us-row ru"><div><b>${ckEsc(x.t)}</b><p>${rBr(x.rule + (x.done ? '。' + x.done : ''), 34)}</p></div></div>`).join('')}</div>` +
       `<p class="note-line tail">${rBr('依國民健康署公告整理。間隔從上次篩檢起算，實際資格以健保卡紀錄為準，可在門診或健保快易通 App 查詢。', 40)}</p>`, {split:true}));
@@ -789,11 +790,11 @@ function ckLineDraw(cv, d){
     });
     if(d.findings.length > 8) y += text(`另有 ${d.findings.length - 8} 項，詳見完整報告。`, P, 26, 400, C.mute, W - 2 * P, 40);
     // 接下來要做的事
-    const groups = ['now', 'm3', 'm6', 'y1', 'long'].map(w=> ({w, list: d.advice.filter(a=> a.when === w && a.key !== 'yearly')})).filter(g=> g.list.length);
+    const groups = ckPlanGroups(d.advice.filter(a=> a.key !== 'yearly'));
     if(groups.length){
       head('接下來要做的事');
       groups.forEach(g=>{
-        y += text(CK_WHEN[g.w], P, 28, 700, C.teal, W - 2 * P, 42) + 4;
+        y += text(g.label, P, 28, 700, C.teal, W - 2 * P, 42) + 4;
         g.list.slice(0, 4).forEach(a=>{
           if(!dry){ ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(P + 8, y + 22, 5, 0, Math.PI * 2); ctx.fill(); }
           y += text(a.t, P + 28, 28, 400, C.ink, W - 2 * P - 28, 44) + 8;

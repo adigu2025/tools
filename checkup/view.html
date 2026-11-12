@@ -129,7 +129,22 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 .k-plan td{padding:7px 6px; border-bottom:1px solid var(--k-line); vertical-align:top;}
 .k-plan select{font:inherit; padding:5px 6px; border:1px solid var(--k-line); border-radius:6px; background:#fff;}
 .k-plan textarea{width:100%; min-height:48px; font:inherit; padding:6px 8px; border:1px solid var(--k-line); border-radius:6px; resize:vertical; box-sizing:border-box;}
-.k-plan tr.off textarea, .k-plan tr.off select{opacity:.45;}
+.k-plan tr.off textarea, .k-plan tr.off select, .k-plan tr.off .k-wl{opacity:.45;}
+/* 列入開關：整塊都可以點，勾選時實心底色＋白色打勾，取消時虛線框 */
+.k-plan .k-on{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:64px; padding:6px 2px;
+  border:2px solid var(--k-teal); border-radius:12px; background:#EAF1F3; color:var(--k-teal); font-size:13px; font-weight:700;
+  cursor:pointer; user-select:none; transition:.15s;}
+.k-plan .k-on:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.k-plan .k-on input{appearance:none; -webkit-appearance:none; margin:0; width:26px; height:26px; border:2px solid var(--k-teal); border-radius:7px;
+  background:var(--k-teal); display:grid; place-content:center; cursor:pointer;}
+.k-plan .k-on input::after{content:''; width:7px; height:13px; border:solid #fff; border-width:0 3px 3px 0; transform:translate(0, -2px) rotate(45deg);}
+.k-plan .k-on input:focus-visible{outline:3px solid rgba(62,106,124,.35); outline-offset:2px;}
+.k-plan tr.off .k-on{border:2px dashed var(--k-line2); background:#fff; color:var(--k-faint); font-weight:500;}
+.k-plan tr.off .k-on input{background:#fff; border-color:var(--k-line2);}
+.k-plan tr.off .k-on input::after{display:none;}
+.k-plan .k-wl{display:block; width:100%; margin-top:6px; font:inherit; padding:5px 6px; border:1px solid var(--k-line); border-radius:6px; box-sizing:border-box;}
+.k-quick{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
+.k-quick .k-btn{font-size:13.5px; padding:6px 12px; min-height:34px; text-align:left; white-space:normal;}
 .k-plan .k-mod{display:inline-block; margin-top:4px; font-size:12px; color:#8A5A1E; background:#F6EBDC; border-radius:4px; padding:1px 6px;}
 .k-plan .k-pa{display:flex; flex-direction:column; gap:4px; white-space:nowrap; font-size:13px;}
 .k-plan .k-pa button{font:inherit; font-size:13px; padding:3px 8px; border:1px solid var(--k-line); border-radius:6px; background:#fff; cursor:pointer;}
@@ -446,8 +461,11 @@ textarea{resize:none; line-height:1.75; min-height:120px; overflow:hidden;}
 
     <section class="k-card" id="k-sec-plan">
       <h2>追蹤時程</h2>
+      <p class="k-note" style="margin:-4px 0 10px">依檢查結果自動列出，每一項都先勾好「列入」；取消勾選就不印在報告上。時間可改成其他分組，選「自訂時間」可自己打標題。</p>
       <div id="k-plan"></div>
-      <div style="margin-top:10px"><button class="k-btn ghost" id="k-plan-add">新增一項</button></div>
+      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap"><button class="k-btn ghost" id="k-plan-add">新增一項</button><button class="k-btn ghost" id="k-plan-reset">全部恢復預設</button></div>
+      <h3 style="margin-top:18px">常用項目（按一下加入）</h3>
+      <div id="k-plan-quick" class="k-quick"></div>
       <h3 style="margin-top:22px">提早就醫</h3>
       <label class="k-f"><textarea data-k="warn" style="min-height:60px"></textarea></label>
       <div style="margin-top:10px"><button class="k-btn ghost" id="k-warn-reset">帶入常用文字</button></div>
