@@ -5,7 +5,7 @@
 // 詞語不跨行（kit/keep-words.js）：字型載入後先把詞語包起來，fitReport 與 renderAll 量到的就是最後的版面
 const kwReady = document.fonts.ready.then(()=> keepWords());
 // 共用的頁首、頁尾與簽名欄由這裡填入，九份同意書格式一致；頁首加 data-noinfo 就不顯示科別（腸泌素同意書）
-const VER = 'v. 2026/10';
+const VER = 'v. 2026/11';
 document.querySelectorAll('.head').forEach(h=>{
   h.innerHTML = '<div class="brand"><img src="crop/muzi-mark-bw.png" alt="木子澄安診所標誌"><div><b>木子澄安診所</b><small>MUZI CHENG&#39;AN CLINIC</small></div></div>'
     + '<div class="info">' + (h.hasAttribute('data-noinfo') ? '' : '消化內科｜肝膽胃腸科<br>') + '高雄市仁武區仁孝路 282 號｜07-3739496</div>';

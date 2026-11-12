@@ -6,7 +6,7 @@
 
 | 檔案 | 用途 |
 |---|---|
-| `p-gastro.html` 等 `p-*.html` | 每份同意書一個檔案：胃鏡、大腸鏡、膠囊、輕中度鎮靜、冷凝刀、抗逆流結紮術、甲狀腺穿刺、腸泌素針劑 |
+| `p-gastro.html` 等 `p-*.html` | 每份同意書一個檔案：胃鏡、大腸鏡、膠囊、輕中度鎮靜、冷凝刀、抗逆流結紮術、甲狀腺穿刺、自費影像檢查（CT／MRI）個資、腸泌素針劑 |
 | `head.html`、`tail.html` | 共用樣式；頁首、頁尾與簽名欄（`.final[data-kind]`）由 `tail.html` 的程式填入 |
 | `pages.html` | 由上面檔案串接而成，實際打開輸出的頁面 |
 | `crop/` | 診所標誌與插圖（灰階），多數裁切自舊版同意書，裁切座標見 `crop.html` |
@@ -16,7 +16,7 @@
 
 ## 輸出步驟
 
-1. 改完 `p-*.html` 後重新串接：`cat head.html p-gastro.html p-colon.html p-capsule.html p-sedation.html p-het.html p-arbl.html p-thyroid.html p-glp1.html tail.html > pages.html`
+1. 改完 `p-*.html` 後重新串接：`cat head.html p-gastro.html p-colon.html p-capsule.html p-sedation.html p-het.html p-arbl.html p-thyroid.html p-imaging.html p-glp1.html tail.html > pages.html`
 2. 執行 `serve.ps1`（PowerShell），用瀏覽器打開 `http://localhost:8769/consent-src/pages.html`。
 3. 主控台執行 `fitReport()`，每頁數字都要大於 0（等於 0 代表內容壓到頁尾）。
 4. 執行 `await renderAll()`，WebP 存進 `out/tools/`。只輸出其中幾頁：`await renderAll(['consent-het-2'])`。
@@ -27,4 +27,5 @@
 - 自動換行由 `kit/keep-words.js` 處理：頁面載入後 `keepWords()` 用瀏覽器內建斷詞把每個詞包成不換行的 `<k-w>`，換行只落在詞與詞之間（不會出現「同｜時」「內｜視鏡」），數字和單位也綁在一起。`renderAll()` 會先等它做完。斷錯的醫學名詞加進 `KW_DICT`；flex、grid 容器裡直接放的文字不處理（拆開會被 gap 拉開）。
 - 黑白列印版，A4 直式；第 1 頁說明，最後一頁費用、同意與簽名。
 - 同意文字之後另起一行，縮排兩字寫「此致　木子澄安診所」（`.salute`）。簽署頁標題下方不放姓名與病歷號碼，簽名欄已有。
-- 版本標示在 `tail.html` 的 `VER`，改版時一起改。
+- 版本標示在 `tail.html` 的 `VER`，全部同意書共用同一個版本號。任何一份改版，就把 `VER` 改成當月（例如 `v. 2026/11`），全部重新輸出，讓每份同意書的版本號一致。
+- 自費影像檢查（CT／MRI）個資同意書（`p-imaging.html`）是轉介合作醫院用的個人資料同意，不是檢查同意；簽名欄要聯絡電話與通訊地址（寄報告），所以不用 `data-kind`，直接寫在頁面裡。
