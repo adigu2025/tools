@@ -98,21 +98,20 @@ const EDU_LIST = [
   ['disease', '腸胃',     '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
   ['disease', '腸胃',     '便祕與腸躁症',     ICON.germ,     ['img/edu-a5-constipation-ibs.webp'], 'A5'],
   ['disease', '腸胃',     '低 FODMAP 飲食',   ICON.leaf,     ['img/edu-a5-low-fodmap.webp'], 'A5'],
+  // 2026/11/12 把「痔瘡怎麼治療」併進這一張，只留一張
   ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
-  // 2026/11/11 新增：痔瘡治療的順序與選擇（依 JAMA 2025 回顧），排在痔瘡分級後面
-  ['disease', '腸胃',     '痔瘡怎麼治療',     ICON.polyp,    ['img/edu-a5-hemorrhoid-treatment.webp'], 'A5'],
   ['disease', '腎臟',     '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
   ['disease', '腎臟',     '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
   ['disease', '慢性病',   '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
   ['disease', '慢性病',   '糖尿病前期與糖尿病', ICON.drop,   ['img/edu-a5-diabetes.webp'], 'A5'],
   ['disease', '慢性病',   '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
   ['disease', '慢性病',   '高尿酸與痛風',     ICON.drop,     ['img/edu-a5-gout.webp'], 'A5'],
-  // 用藥衛教（2026/11/11 新增，A5）：頁首左邊寫「用藥衛教」，編號「用藥 01 至 05」，同類相鄰（胃、痔瘡、血脂）
+  // 用藥衛教（2026/11/11 新增，A5）：頁首左邊寫「用藥衛教」，編號「用藥 01 至 05」，順序：除菌、PPI、降血脂、痔瘡藥膏、痔瘡敷料（2026/11/12 降血脂移到第三個）
   ['med',    '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
   ['med',    '用藥',     '胃藥 PPI',         ICON.pill,     ['img/edu-a5-ppi.webp'], 'A5'],
+  ['med',    '用藥',     '降血脂藥',         ICON.pill,     ['img/edu-a5-lipid-drugs.webp'], 'A5'],
   ['med',    '用藥',     '痔瘡藥膏與塞劑',   ICON.pill,     ['img/edu-a5-hemorrhoid-topical.webp'], 'A5'],
   ['med',    '用藥',     '痔瘡保護敷料',     ICON.bandage,  ['img/edu-a5-hemagel.webp'], 'A5'],
-  ['med',    '用藥',     '降血脂藥',         ICON.pill,     ['img/edu-a5-lipid-drugs.webp'], 'A5'],
   // 疫苗衛教（2026/11/11 新增，A5）：頁首左邊寫「疫苗衛教」，編號「疫苗 01 至 04」
   ['vaccine', '疫苗',    '帶狀疱疹疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-shingrix.webp'], 'A5'],
   ['vaccine', '疫苗',    '9 價 HPV 疫苗',    ICON.syringe,  ['img/edu-a5-vaccine-hpv.webp'], 'A5'],
