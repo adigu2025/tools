@@ -158,6 +158,8 @@ function rChSummary(d){
   const blocks = [];
   const comment = rS('doc-comment');
   if(comment) blocks.push(rBlock('醫師綜合評語', 'PHYSICIAN SUMMARY', `<div class="memo"><div class="rich ru-host">${rRich(comment, 36)}</div></div>`, {split:true}));
+  const nv = rNextVisit(rFuRows(), 'NEXT VISIT');
+  if(nv) blocks.push(nv);
 
   const f = rFindings(d);
   const findHtml = f.length
@@ -525,23 +527,26 @@ function rChPlan(d){
   return blocks;
 }
 
+// 追蹤時程（畫面「回診與追蹤時程」勾選的項目）轉成 report-kit 的 rFuBlock 格式；評估總結的「下次回診」也用這一份
+function rFuRows(base){
+  base = base || rS('p-date') || todayLocal();
+  const lines = (s, n)=> String(s || '').split('\n').map(t=> t.trim()).filter(Boolean).map(t=> rBr(t, n));
+  return wFuItems().filter(x=> x.on && (String(x.w).trim() || String(x.h).trim() || String(x.t).trim())).map(x=>{
+    const [w0, ...wSub] = String(x.w || '').split('\n').map(t=> t.trim()).filter(Boolean);
+    const dt = wFuDate(x.d, base), isQ = x.d === 'q36';
+    const t = lines(x.t, 21).join('<br>');
+    return {when: w0 || '', subs: wSub.concat(dt && isQ && !wSub.includes(dt) ? [dt] : []), date: dt && !isQ && !wSub.includes(dt) ? dt : '',
+      h: lines(x.h, 20).join('<br>'), what: t ? [t] : []};
+  });
+}
+
 function rChFollow(d){
   const blocks = [];
   const base = rS('p-date') || todayLocal();
   // 項目來自畫面「回診與追蹤時程」：勾選的才印；時間第一行是大字，第二行起與推算日期印成小字
-  const lines = (s, n)=> String(s || '').split('\n').map(t=> t.trim()).filter(Boolean).map(t=> rBr(t, n));
-  const plan = wFuItems().filter(x=> x.on && (String(x.w).trim() || String(x.h).trim() || String(x.t).trim()));
-  const dated = plan.some(x=> x.d !== 'q36' && wFuDate(x.d, base));
-  if(plan.length) blocks.push(rBlock('回診與<br>追蹤時程', 'FOLLOW-UP SCHEDULE',
-    `<div class="ru-host">${plan.map((x, i)=>{
-      const [w0, ...wSub] = String(x.w || '').split('\n').map(t=> t.trim()).filter(Boolean);
-      const dt = wFuDate(x.d, base);
-      const sub = wSub.concat(dt && !wSub.includes(dt) ? [dt] : []).map(wEsc);
-      const h = lines(x.h, 20).join('<br>'), t = lines(x.t, 21).join('<br>');
-      return `<div class="tl-row ru" style="padding:${i ? 8 : 0}px 0 8px"><div><div class="tl-when">${rWhenBr(w0)}</div>${sub.map(s=> `<div class="tl-sub">${s}</div>`).join('')}</div>` +
-        `<div>${h ? `<h4>${h}</h4>` : ''}${t ? `<div class="what">${t}</div>` : ''}</div></div>`;
-    }).join('')}</div>` +
-    (dated ? `<p class="note-line tail">日期由檢查日期推算，實際回診以預約為準。</p>` : ''), {split:true}));
+  const rows = rFuRows(base);
+  const fu = rFuBlock(rows, 'FOLLOW-UP SCHEDULE', rows.some(r=> r.date) ? '日期由檢查日期推算，實際回診以預約為準。' : '');
+  if(fu) blocks.push(fu);
 
   const psy = [];
   if(chk('psy-refer')) psy.push('建議轉介身心科或心理諮商');

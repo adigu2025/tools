@@ -1396,8 +1396,9 @@ const FU_FIELDS = ['on', 'w', 'd', 'h', 't'];
 function wFuDefaults(){
   const onMed = getTxChoices().some(k=> k !== 'lifestyle');
   return [
-    {id:'w2', on:onMed, w:'1 至 2 週\n開始用藥後', d:'w12', h:'副作用與劑量', t:'噁心、便祕等腸胃狀況是否可以忍受，\n決定能不能調升劑量。'},
-    {id:'m1', on:true, w: onMed ? '1 個月\n或用完一盒藥' : '1 個月', d:'m1', h:'體重與身體組成', t:'測量體重、腰圍、體脂與肌肉量，\n一起檢視這個月的飲食與運動。'},
+    // 1 至 2 週以開始用藥那天起算，病人自己知道，不換算日期
+    {id:'w2', on:onMed, w:'1 至 2 週\n開始用藥後', d:'none', k:'w12', h:'副作用與劑量', t:'噁心、便祕等腸胃狀況是否可以忍受，\n決定能不能調升劑量。'},
+    {id:'m1', on:true, w: onMed ? '1 個月\n或用完一盒藥' : '1 個月', d:'m1', h:'體重與身體組成', t: onMed ? '測量體重、腰圍、體脂與肌肉量，\n評估是否調整劑量。' : '測量體重、腰圍、體脂與肌肉量，\n一起檢視這個月的飲食與運動。'},
     {id:'m3', on:true, w:'3 個月', d:'m3', h:'療效評估與抽血', t:'確認減重是否達到原本體重的 5%；\n抽血看血糖、血脂、肝腎功能。'},
     {id:'m6', on:true, w:'6 個月', d:'m6', h:'腹部超音波', t:'看脂肪肝改善多少，\n追蹤血壓、血糖、血脂等共病指標。'},
     {id:'long', on:true, w:'長期', d:'q36', h:'規律回診', t: onMed ? '目標是「不復胖」。\n停藥前後尤其要留意體重變化。' : '目標是「不復胖」。\n體重回升時提早回診，一起調整計畫。'},
@@ -1423,7 +1424,8 @@ function wFuItems(){
     return it;
   });
   const add = s.add.map((x, i)=> Object.assign({on:true, w:'', d:'none', h:'', t:''}, x, {id:'a' + i, add:i}));
-  return pre.concat(add).map((x, i)=> ({x, i, r: FU_RANK[x.d] || 10})).sort((a, b)=> a.r - b.r || a.i - b.i).map(a=> a.x);
+  // 不推算日期的預設項目（k）仍排在原本的時間位置
+  return pre.concat(add).map((x, i)=> ({x, i, r: FU_RANK[x.d === 'none' && x.k ? x.k : x.d] || 10})).sort((a, b)=> a.r - b.r || a.i - b.i).map(a=> a.x);
 }
 // 日期推算：以檢查日期為起點；報告與畫面共用
 function wFuDate(d, base){
@@ -1444,9 +1446,11 @@ function wFuRender(force){
   box.innerHTML = wFuItems().map(x=> `<div class="fu-row${x.on ? '' : ' off'}" data-id="${x.id}">` +
     `<label class="fu-on"><input type="checkbox" data-f="on"${x.on ? ' checked' : ''}><span>${x.on ? '列入報告' : '不列入'}</span></label>` +
     `<div class="fu-grid">` +
-      `<div class="field"><label>時間（第二行起印成小字）</label>${ta('w', x.w, 64)}</div>` +
+      // 時間存成一個欄位（第一行大字、第二行起小字），畫面拆成「時間」與「補充說明」兩格，免得整句打在大字那行
+      `<div class="field"><label>時間（報告上的大字）</label><input type="text" data-f="w0" value="${wEsc(String(x.w || '').split('\n')[0])}"></div>` +
+      `<div class="field"><label>補充說明（小字）</label><input type="text" data-f="ws" value="${wEsc(String(x.w || '').split('\n').slice(1).join('、'))}"></div>` +
       `<div class="field"><label>日期推算</label><select data-f="d">${Object.entries(FU_DATE).map(([k, t])=> `<option value="${k}"${k === x.d ? ' selected' : ''}>${t}</option>`).join('')}</select><div class="fu-date">${wEsc(wFuDate(x.d))}</div></div>` +
-      `<div class="field"><label>重點</label><input type="text" data-f="h" value="${wEsc(x.h)}"></div>` +
+      `<div class="field fu-wide"><label>重點</label><input type="text" data-f="h" value="${wEsc(x.h)}"></div>` +
       `<div class="field fu-wide"><label>說明（按 Enter 換行）</label>${ta('t', x.t, 64)}</div>` +
     `</div>` +
     `<div class="fu-act">${x.preset ? (x.edited ? '<button type="button" class="btn outline small" data-f="reset">恢復預設</button>' : '') : '<button type="button" class="btn outline small" data-f="del">刪除</button>'}</div>` +
@@ -1469,8 +1473,11 @@ function wFuInit(){
   };
   box.addEventListener('input', e=>{
     const f = e.target.dataset.f, row = e.target.closest('.fu-row');
-    if(!row || !['w', 'h', 't'].includes(f)) return;
-    upd(row, f, e.target.value);
+    if(!row || !['w0', 'ws', 'h', 't'].includes(f)) return;
+    if(f === 'w0' || f === 'ws'){
+      const w0 = row.querySelector('[data-f="w0"]').value.trim(), ws = row.querySelector('[data-f="ws"]').value.trim();
+      upd(row, 'w', w0 + (ws ? '\n' + ws : ''));
+    } else upd(row, f, e.target.value);
     renderNav();
   });
   box.addEventListener('change', e=>{
@@ -1491,7 +1498,7 @@ function wFuInit(){
   WD.getElementById('fu-add').addEventListener('click', ()=>{
     const s = wFuState(); s.add.push({on:true, w:'', d:'none', h:'', t:''}); wFuSave(s);
     wFuRender(true); scheduleDraftSave();
-    const rows = box.querySelectorAll('.fu-row[data-id^="a"] textarea[data-f="w"]');
+    const rows = box.querySelectorAll('.fu-row[data-id^="a"] input[data-f="w0"]');
     if(rows.length) rows[rows.length - 1].focus();
   });
   WD.getElementById('fu-reset').addEventListener('click', ()=>{
@@ -1827,18 +1834,7 @@ function genDocComment(silent){
   const ta = WD.getElementById('doc-comment');
   ta.value.split('\n').filter(l=> /^•/.test(l.trim())).forEach(l=> s.push(l));
 
-  const base = rS('p-date') || todayLocal();
-  const onMed = txs.some(k=> k !== 'lifestyle');
-  // 以「- 」開頭：報告排成條列，重新產生時也不會被當成片語保留下來
-  s.push('【預計回診】');
-  if(onMed){
-    s.push(`- 一週後（${rAddDays(base, 7)}）確認副作用與劑量`);
-    s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重並評估是否調整劑量`);
-    s.push('- 一個療程（用完一盒藥物）測量身體組成');
-  }else{
-    s.push(`- 一個月後（${rAddMonths(base, 1)}）測量體重與身體組成，檢視飲食與運動執行狀況`);
-  }
-  s.push(`- 三個月後（${rAddMonths(base, 3)}）評估療效並複查抽血`);
+  // 回診時間與日期只寫在「追蹤計畫」，評估總結頁另有「下次回診」小框，評語不再重複列
 
   ta.value = s.join('\n');
 }

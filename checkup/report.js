@@ -55,6 +55,10 @@ function ckChSummary(d){
   const blocks = [];
   const comment = String(CK.comment || '').trim();
   if(comment) blocks.push(rBlock('醫師綜合評語', '', `<div class="memo"><div class="rich ru-host">${rRich(comment, 36)}</div></div>`, {split:true}));
+  // 下次回診：追蹤時程第一組（長期追蹤不算）；重點寫第一項建議
+  const nvRows = ckFuRows(d).filter(r=> r.w !== 'long').map(r=> Object.assign({}, r, {h: r.what[0] || ''}));
+  const nv = rNextVisit(nvRows, '');
+  if(nv) blocks.push(nv);
   const f = d.findings;
   const findHtml = f.length
     ? f.map((x, i)=> `<div class="find ru"><span class="i">${String(i + 1).padStart(2, '0')}</span><span class="t">${x.html}</span>${ckPill(x.g)}</div>`).join('')
@@ -282,14 +286,17 @@ function ckChCv(d){
   return blocks;
 }
 
+// 追蹤時程分組轉成 rFuBlock 格式（時間大字、推算日期、每項建議一段）
+function ckFuRows(d){
+  return ckPlanGroups(d.advice).map(g=> ({w: g.w, when: g.label, subs: [], date: g.sub || '', h: '', what: g.list.map(a=> rBr(a.t, 32.5))}));
+}
 function ckChPlan(d){
   const blocks = [];
   // 分組與推算日期由 ckPlanGroups 決定（app.js），畫面上的順序與這裡相同
-  const groups = ckPlanGroups(d.advice);
-  const html = groups.map(g=> `<div class="tl-row ru"><div><div class="tl-when">${rWhenBr(g.label)}</div>${g.sub ? `<div class="tl-sub">${ckEsc(g.sub)}</div>` : ''}</div>` +
-    `<div>${g.list.map(a=> `<div class="what">${rBr(a.t, 34)}</div>`).join('<div style="height:6px"></div>')}</div></div>`).join('');
-  if(groups.length) blocks.push(rBlock('建議與追蹤時程', '', `<div class="ru-host">${html}</div>` +
-    (groups.some(g=> g.sub) ? `<p class="note-line tail">日期由健檢日期推算，實際回診以預約為準。</p>` : ''), {split:true}));
+  // 排版與減重報告共用 report-kit 的 rFuBlock
+  const rows = ckFuRows(d);
+  const fu = rFuBlock(rows, '', rows.some(r=> r.date) ? '日期由健檢日期推算，實際回診以預約為準。' : '');
+  if(fu) blocks.push(fu);
   if(d.pub.length){
     blocks.push(rBlock('可以使用的<br>公費篩檢', '', `<div class="ru-host">${d.pub.map(x=> `<div class="us-row ru"><div><b>${ckEsc(x.t)}</b><p>${rBr(x.rule + (x.done ? '。' + x.done : ''), 34)}</p></div></div>`).join('')}</div>` +
       `<p class="note-line tail">${rBr('依國民健康署公告整理。間隔從上次篩檢起算，實際資格以健保卡紀錄為準，可在門診或健保快易通 App 查詢。', 40)}</p>`, {split:true}));
@@ -332,7 +339,7 @@ function ckBuildModel(){
     {id:'us',      no:'04', zh:'超音波檢查',   lead:'腹部與甲狀腺超音波的發現。',                      blocks: ckChUs(d)},
     {id:'mod',     no:'05', zh:'加選檢查',     lead:'心電圖、頸動脈、幽門桿菌、糞便潛血、胃腸鏡與病理、肺部電腦斷層的結果。', blocks: ckChMod(d)},
     {id:'cv',      no:'06', zh:'心血管風險',   lead:'用國際與台灣兩個模型，估計未來發生心血管疾病的機率。', blocks: ckChCv(d)},
-    {id:'plan',    no:'07', zh:'建議與追蹤',   lead:'依這次結果整理的建議、下次檢查的時間，以及可以使用的公費篩檢。', blocks: ckChPlan(d)},
+    {id:'plan',    no:'07', zh:'追蹤計畫',   lead:'依這次結果整理的建議、下次檢查的時間，以及可以使用的公費篩檢。', blocks: ckChPlan(d)},
     {id:'appx',    no:'A',  zh:'附錄',         lead:'報告中用到的名詞與判讀標準。',                    blocks: ckChAppendix()},
   ].filter(c=> c.blocks.length);
   chapters.forEach((c, i)=>{ if(c.id !== 'appx') c.no = String(i + 1).padStart(2, '0'); });
@@ -719,10 +726,7 @@ function ckDraftComment(d){
     L.push('【心血管風險】');
     L.push([pv.cvd10 != null && `PREVENT 估計 10 年總心血管疾病風險 ${pc(pv.cvd10)}`, tw.risk != null && `TwCCCC 估計 10 年冠心病風險 ${pc(tw.risk)}`].filter(Boolean).join('，') + '。');
   }
-  if(d.advice.length){
-    L.push('【我的建議】');
-    d.advice.filter(a=> a.key !== 'yearly').slice(0, 5).forEach(a=> L.push('• ' + a.t));
-  }
+  // 建議項目與日期只寫在「追蹤計畫」，評估總結頁另有「下次回診」小框，評語不再重複列
   // 中文與英文、數字之間留一個半形空格
   return L.join('\n').replace(/([一-鿿])([A-Za-z0-9β])/g, '$1 $2').replace(/([A-Za-z0-9%])([一-鿿])/g, '$1 $2');
 }
@@ -741,10 +745,12 @@ function ckLineDraw(cv, d){
   const ctx = cv.getContext('2d');
   const C = {teal:'#3E6A7C', gold:'#BC7F30', navy:'#152831', ink:'#1F262A', mute:'#6F6A62', line:'#E4DED3', bg:'#FBF9F5'};
   const plain = h=> String(h).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-  // 斷行：中文逐字、英數字整段不拆
+  // 斷行：只在詞與詞之間（report-kit 的 rWhenToks：字典詞、數字加單位、瀏覽器斷詞），英數字整段不拆
   const wrap = (t, size, weight, maxW)=>{
     ctx.font = `${weight} ${size}px ${F}`;
-    const toks = String(t).match(/[A-Za-z0-9.%/()\-+≥≤<>]+|\s+|./gu) || [];
+    const toks = typeof rWhenToks === 'function'
+      ? rWhenToks(String(t)).flatMap(s=> s.match(/[A-Za-z0-9.%/()\-+≥≤<>]+|\s+|[^A-Za-z0-9.%/()\-+≥≤<>\s]+/gu) || [])
+      : (String(t).match(/[A-Za-z0-9.%/()\-+≥≤<>]+|\s+|./gu) || []);
     const lines = []; let cur = '';
     toks.forEach(tk=>{
       if(ctx.measureText(cur + tk).width > maxW && cur.trim()){ lines.push(cur.trimEnd()); cur = tk.trimStart(); }
@@ -793,8 +799,9 @@ function ckLineDraw(cv, d){
     const groups = ckPlanGroups(d.advice.filter(a=> a.key !== 'yearly'));
     if(groups.length){
       head('接下來要做的事');
-      groups.forEach(g=>{
-        y += text(g.label, P, 28, 700, C.teal, W - 2 * P, 42) + 4;
+      // 第一組（下次回診）用金色，時間後面接推算日期，和報告的「下次回診」一致
+      groups.forEach((g, gi)=>{
+        y += text(g.label + (g.sub ? `　${g.sub}` : ''), P, 28, 700, gi === 0 && g.w !== 'long' ? C.gold : C.teal, W - 2 * P, 42) + 4;
         g.list.slice(0, 4).forEach(a=>{
           if(!dry){ ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(P + 8, y + 22, 5, 0, Math.PI * 2); ctx.fill(); }
           y += text(a.t, P + 28, 28, 400, C.ink, W - 2 * P - 28, 44) + 8;

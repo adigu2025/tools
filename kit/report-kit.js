@@ -273,7 +273,7 @@ const REPORT_CSS = `
 html,body{background:#fff;}
 body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:#24292B; font-size:13px; line-height:1.8;
   text-wrap:pretty; line-break:strict; -webkit-font-smoothing:antialiased;}
-.serif,.rc-head h2,.rb-h,.rb-no,.toc .no,.toc .t,.toc .p,.kcal .v,.goal .w,.find .i,.big,.co-l,.tier h5,.tl-when,.rpt-hd b,.toc-head h2{
+.serif,.rc-head h2,.rb-h,.rb-no,.toc .no,.toc .t,.toc .p,.kcal .v,.goal .w,.find .i,.big,.co-l,.tier h5,.tl-when,.nv-when,.rpt-hd b,.toc-head h2{
   font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif;}
 #stage{position:absolute; left:-10000px; top:0; width:666px;}
 body.preview{background:#E7E3DC; padding:28px 0 8px;}
@@ -441,11 +441,15 @@ body.preview .rpt-page{margin:0 auto 28px; box-shadow:0 2px 16px rgba(21,40,49,.
 .items{margin-top:10px; font-size:12px; color:#4A4740; line-height:1.75;}
 
 /* 回診時程：左欄時間（襯線大字），右欄重點 */
-.tl-row{display:grid; grid-template-columns:120px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid #ECE7DE;}
+.tl-row{display:grid; grid-template-columns:140px 1fr; gap:14px; padding:12px 0; border-bottom:1px solid #ECE7DE;}
 .tl-row:first-child{padding-top:0;}
 .tl-when{font-size:22px; font-weight:700; color:#1F262A; line-height:1.3; white-space:nowrap;}
 .tl-row:first-child .tl-when{color:#9A6E2A;}
 .tl-sub{font-size:11px; color:#66615A; line-height:1.6; white-space:nowrap;}
+.tl-date{font-size:12px; font-weight:700; color:#3E6A7C; margin-top:2px; white-space:nowrap;}
+.nv{display:flex; align-items:baseline; gap:18px;}
+.nv-when{font-size:24px; font-weight:700; color:#9A6E2A; line-height:1.3; white-space:nowrap;}
+.nv-h{font-size:13.5px; color:#1F262A; font-weight:700; line-height:1.6;}
 .tl-row h4{font-size:13.5px; color:#1F262A; font-weight:700; line-height:1.6;}
 .tl-row .what{font-size:12.5px; color:#3B3A36; line-height:1.75;}
 .chart svg{width:100%; height:auto; display:block; border:0 !important; border-top:1px solid #24292B !important; border-radius:0 !important; padding-top:6px; margin-top:16px;}
@@ -572,17 +576,62 @@ function rSplit(text, max){
   return lines;
 }
 function rBr(text, max){ return rSplit(text, max).map(wEsc).join('<br>'); }
-// 追蹤時程左欄的時間標題（22px、欄寬 120px）：中文字算 1，英數與空白算 0.55，超過 5.3 就換行
+// 追蹤時程左欄的時間標題（22px、欄寬 140px）：中文字算 1，英數與空白算 0.55，超過 6.2 就換行。
+// 只在詞與詞之間換行（不會出現「用｜完」），「1 個月」「1 至 2 週」這類數字加單位綁在一起；最後一行不留單獨一個字。
+function rWhenToks(s){
+  const toks = [];
+  const dict = typeof KW_DICT !== 'undefined' ? KW_DICT : [];
+  const re = dict.length ? new RegExp('(' + dict.map(x=> x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')') : null;
+  // 數字（含範圍「1 至 2」）＋單位先整段切出來，其餘用 keep-words.js 的字典與瀏覽器斷詞
+  String(s).split(/(\d[\d.]*(?:\s*[至到～-]\s*\d[\d.]*)?\s*(?:個月|個|週|周|天|日|年|歲|小時|次|盒)?)/).forEach((p, i)=>{
+    if(!p) return;
+    if(i % 2){ toks.push(p); return; }
+    (re ? p.split(re) : [p]).forEach((q, j)=>{
+      if(!q) return;
+      if(j % 2){ toks.push(q); return; }
+      if(window.Intl && Intl.Segmenter) for(const x of new Intl.Segmenter('zh-Hant', {granularity:'word'}).segment(q)) toks.push(x.segment);
+      else toks.push(...q);
+    });
+  });
+  return toks;
+}
 function rWhenBr(text, max){
-  max = max || 5.3;
-  const out = []; let cur = '', w = 0;
-  for(const ch of String(text || '')){
-    const cw = /[⺀-￯]/.test(ch) ? 1 : .55;
-    if(w + cw > max && cur.trim()){ out.push(cur); cur = ''; w = 0; }
-    cur += ch; w += cw;
+  max = max || 6.2;
+  const cw = t=> [...t].reduce((a, ch)=> a + (/[⺀-￯]/.test(ch) ? 1 : .55), 0);
+  const s = String(text || '').trim();
+  // 放不下一行、又剛好能在「或、及、和」前面切成兩行時，優先在那裡換行（「1 個月｜或用完一盒藥」）
+  if(cw(s) > max){
+    const m = s.match(/^(.+?)([或及和].+)$/);
+    if(m && cw(m[1].trim()) <= max && cw(m[2]) <= max) return wEsc(m[1].trim()) + '<br>' + wEsc(m[2]);
   }
-  if(cur.trim()) out.push(cur);
-  return out.map(t=> wEsc(t.trim())).join('<br>');
+  const lines = [[]];
+  rWhenToks(s).forEach(t=>{
+    const cur = lines[lines.length - 1];
+    if(cur.length && t.trim() && cw(cur.join('') + t) > max) lines.push([t]);
+    else cur.push(t);
+  });
+  // 最後一行只剩一個字（加標點）：從上一行拿一個詞下來
+  const last = lines[lines.length - 1], prev = lines[lines.length - 2];
+  if(prev && prev.length > 1 && cw(last.join('').replace(/[，。、；：！？）」]/g, '')) <= 1) last.unshift(prev.pop());
+  return lines.map(l=> wEsc(l.join('').trim())).filter(Boolean).join('<br>');
+}
+/* 回診與追蹤時程：減重報告與健檢報告共用同一個排版，改這裡兩份報告一起變。
+   rows：[{when 時間大字, subs [小字], date 推算日期, h 重點（已轉義 HTML）, what [每段說明（已轉義 HTML）]}] */
+function rFuBlock(rows, en, note){
+  if(!rows.length) return null;
+  const html = rows.map(r=> `<div class="tl-row ru"><div><div class="tl-when">${rWhenBr(r.when)}</div>` +
+    (r.subs || []).map(s=> `<div class="tl-sub">${wEsc(s)}</div>`).join('') + (r.date ? `<div class="tl-sub tl-date">${wEsc(r.date)}</div>` : '') + `</div>` +
+    `<div>${r.h ? `<h4>${r.h}</h4>` : ''}${(r.what || []).map(t=> `<div class="what">${t}</div>`).join('<div style="height:6px"></div>')}</div></div>`).join('');
+  return rBlock('回診與<br>追蹤時程', en || '', `<div class="ru-host">${html}</div>` + (note ? `<p class="note-line tail">${note}</p>` : ''), {split:true});
+}
+// 評估總結頁的「下次回診」：取追蹤時程第一項，詳細內容仍在「追蹤計畫」
+function rNextVisit(rows, en){
+  const r = rows[0];
+  if(!r) return null;
+  return rBlock('下次回診', en || '', `<div class="nv"><div class="nv-when">${wEsc(r.when)}</div><div class="nv-body">` +
+    `${(r.subs || []).length ? `<div class="tl-sub">${wEsc(r.subs.join('，'))}</div>` : ''}${r.date ? `<div class="tl-date">${wEsc(r.date)}</div>` : ''}` +
+    `${r.h ? `<div class="nv-h">${r.h}</div>` : ''}</div></div>` +
+    `<p class="note-line">${rows.length > 1 ? '之後的回診時間與每次要做的事，見「追蹤計畫」。' : '完整說明見「追蹤計畫」。'}</p>`);
 }
 // 多行文字（使用者輸入）：保留原本的換行，每一行再依標點斷行
 function rLines(text, max){ return String(text || '').split('\n').filter(l=> l.trim()).map(l=> rBr(l.trim(), max)).join('<br>'); }
