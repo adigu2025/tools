@@ -69,7 +69,8 @@ const EDU_LIST = [
   // 2026/11 由「用藥注意事項」與「針劑注射與保存」合併；瑞倍適服法移到「減重藥物怎麼選」
   // 側欄名稱的例外：圖卡標題仍是「腸泌素針劑怎麼打？」，側欄依 YT 要求寫「針劑注意事項」（2026/11/09）
   ['weight', '用藥',     '針劑注意事項',     ICON.pen,     ['img/edu-glp1-guide-1.webp', 'img/edu-glp1-guide-2.webp']],
-  ['weight', '用藥',     '腸泌素副作用',     ICON.pen,      ['img/edu-a5-glp1-side-effects.webp'], 'A5'],
+  // 2026/11/12：原「腸泌素副作用」A5 併入上面的針劑注意事項第 2 頁並刪除；用藥 03 改成瑞倍適服法與注意事項
+  ['weight', '用藥',     '瑞倍適怎麼吃',     ICON.pill,     ['img/edu-a5-rybelsus.webp'], 'A5'],
   // 地中海飲食衛教原本放在列印表單，合併後歸到減重衛教
   ['weight', '飲食',     '地中海飲食衛教',   ICON.leaf,     ['img/diet-mediterranean-1.webp', 'img/diet-mediterranean-2.webp']],
   // 2026/11/09 重新排列：同類的衛教相鄰（內視鏡檢查前、瘜肉切除與追蹤、上消化道、下消化道），圖卡角落編號一併改過
