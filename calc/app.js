@@ -5,6 +5,11 @@
 
   // 各工具最近一次的結果文字，供「複製結果」使用
   var COPY = {};
+  // 「複製結果」在 COPY 那一行（數值摘要，「已完成的評估」也用這一行）下面，再附上判讀、建議、
+  // 符合的條件與用藥建議（2026-11-17 YT 要求）。每項一行，貼進病歷就是完整的評估
+  var COPY_MORE = {};
+  // 結果卡片的文字有些帶 HTML（<b>、&lt;），複製時轉成純文字
+  function plain(h){ var d = document.createElement('div'); d.innerHTML = String(h || ''); return d.textContent.replace(/[ \t]+\n/g, '\n').trim(); }
   // 自我評估模組的分頁與面板由資料產生，必須早於下方所有事件綁定，
   // 因此這些狀態變數也必須在 buildAssessments() 之前就完成指派
   var RESETTERS = {};
@@ -214,7 +219,7 @@
     if (res) res.style.display = hasResult ? 'block' : 'none';
     var btn = CD.querySelector('[data-copy="' + tool + '"]');
     if (btn) { btn.disabled = !hasResult; btn.classList.remove('done'); btn.textContent = btn.dataset.label || '複製結果'; }
-    if (!hasResult) COPY[tool] = '';
+    if (!hasResult) { COPY[tool] = ''; COPY_MORE[tool] = ''; }
     renderSummary();
     saveState();
   }
@@ -257,7 +262,7 @@
       var tool = btn.dataset.copy;
       if (!COPY[tool]) return;
       // 附上日期，貼進病歷或帶去門診時才看得出是哪一天做的
-      copyText(COPY[tool] + '（' + today() + '）', function(){
+      copyText(COPY[tool] + '（' + today() + '）' + (COPY_MORE[tool] ? '\n' + COPY_MORE[tool] : ''), function(){
         btn.classList.add('done');
         btn.textContent = '已複製';
         setTimeout(function(){ btn.classList.remove('done'); btn.textContent = btn.dataset.label || '複製結果'; }, 1800);
@@ -332,7 +337,7 @@
     { max:Infinity, label:'重度肥胖', color:'#922B21', bg:'#FBEBE9', note:'建議儘早就醫，進行全面健康評估。' }
   ];
 
-  var bmiBase = '';
+  var bmiBase = '', bmiMore = '';
 
   function calcBMI(){
     var h = num('height'), w = num('weight');
@@ -370,6 +375,8 @@
     bmiBase = 'BMI ' + bmi.toFixed(1) + '（' + s.label + '）｜身高 ' + h + ' cm、體重 ' + w +
               ' kg｜標準體重範圍 ' + lo + '–' + hi + ' kg';
     COPY.bmi = bmiBase;
+    bmiMore = '評估：' + plain(s.note) + '\n建議：' + extra;
+    COPY_MORE.bmi = bmiMore;
     show('bmi', true);
     calcTarget();
   }
@@ -387,7 +394,7 @@
       box.style.display = 'none';
       detail.style.display = 'none';
       if (empty) empty.style.display = '';
-      if (bmiBase) COPY.bmi = bmiBase;
+      if (bmiBase) { COPY.bmi = bmiBase; COPY_MORE.bmi = bmiMore; }
     };
 
     if (!isNum(w) || !isNum(t)) { hide(); return; }
@@ -407,7 +414,10 @@
     detail.textContent = '目前 ' + w + ' kg → 目標 ' + t + ' kg，需減少 ' + diff + ' kg（占目前體重 ' + pct + '%）。' +
                          '以每週減重 0.5 kg 估算，約需 ' + Math.ceil(parseFloat(diff) / 0.5) + ' 週。';
     detail.style.display = 'block';
-    if (bmiBase) COPY.bmi = bmiBase + '｜目標 ' + t + ' kg（需減 ' + diff + ' kg，' + pct + '%）';
+    if (bmiBase) {
+      COPY.bmi = bmiBase + '｜目標 ' + t + ' kg（需減 ' + diff + ' kg，' + pct + '%）';
+      COPY_MORE.bmi = bmiMore + '\n減重目標：' + detail.textContent;
+    }
   }
 
   bind(['height','weight'], calcBMI);
@@ -569,6 +579,10 @@
                 'BMR ' + Math.round(bmr) + ' kcal／天｜TDEE ' + Math.round(tdee) +
                 ' kcal／天｜減重目標 ' + Math.round(target) + ' kcal／天（−' + deficit + '）｜' +
                 '蛋白質 ' + protein + ' g、碳水 ' + carbs + ' g、脂肪 ' + fat + ' g';
+    COPY_MORE.tdee =
+      '減重時程預估（每日減少 ' + deficit + ' kcal）：' + labels.map(function(l, i){ return l + ' −' + loss[i] + ' kg'; }).join('、') +
+      '\n建議：每日攝取 ' + fmtInt(Math.round(target)) + ' kcal（蛋白質 30%、碳水 40%、脂肪 30%）；' + $('tdee-water').textContent + '。' +
+      (floorNote ? '\n注意：' + floorNote : '');
     show('tdee', true);
   }
 
@@ -642,6 +656,7 @@
     COPY.fib4 = 'FIB-4 = ' + fib4.toFixed(2) + '（' + status + '）｜年齡 ' + age +
                 '、AST ' + ast + '、ALT ' + alt + '、PLT ' + plt + ' ×10⁹/L' +
                 (senior ? '｜採 ≥65 歲調整下限 2.0' : '');
+    COPY_MORE.fib4 = '判讀：' + interp.replace(/\n建議/, '\n建議：').replace(/：：/, '：');
     show('fib4', true);
   }
 
@@ -686,6 +701,7 @@
 
     COPY.rfactor = 'R factor = ' + r.toFixed(2) + '（' + label + '）｜ALT ' + alt + '／ULN ' + altULN +
                    '、ALP ' + alp + '／ULN ' + alpULN;
+    COPY_MORE.rfactor = '判讀：' + interp + '\n' + detail;
     show('rfactor', true);
   }
 
@@ -740,6 +756,7 @@
     markRow('childpugh-table', band);
 
     COPY.childpugh = 'Child-Pugh ' + grade + '（' + total + ' 分）｜' + parts.join('、');
+    COPY_MORE.childpugh = '判讀：' + interp;
     show('childpugh', true);
   }
 
@@ -792,7 +809,7 @@
   function lipidrxShow(ok){
     var btn = CD.querySelector('[data-copy="lipidrx"]');
     if (btn) { btn.disabled = !ok; btn.classList.remove('done'); btn.textContent = '複製結果'; }
-    if (!ok) COPY.lipidrx = '';
+    if (!ok) { COPY.lipidrx = ''; COPY_MORE.lipidrx = ''; }
     renderSummary();
     saveState();
   }
@@ -962,6 +979,18 @@
         '｜LDL-C ' + rxFmt(ldl) + ($('lx-date').value ? '（' + $('lx-date').value + '）' : '') + '（目標 ' + goal + '）' +
         (isNum(ldl0) ? '｜前次 LDL-C ' + rxFmt(ldl0) + ($('lx-date0').value ? '（' + $('lx-date0').value + '）' : '') + (gapTxt ? '，' + gapTxt : '') : '') +
         '｜表一 ' + RX_LABEL[t1] + '、表二 ' + RX_LABEL[t2] + '｜TG 藥物 ' + RX_LABEL[tgs];
+      var drugNames = function(list){ return list.map(function(d){ return d[0] + ' ' + d[1]; }).join('；'); };
+      COPY_MORE.lipidrx = [
+        '起始 LDL-C ≥ ' + start + ' mg/dL，目標 LDL-C ' + goal + '，' + (needLS ? '給藥前需 3–6 個月生活型態改變' : '與藥物治療並行') + '。',
+        '・表一（新制品項）［' + RX_LABEL[t1] + '］' + plain(t1txt) + '追蹤：' + fu1,
+        '・表二（舊制品項）［' + RX_LABEL[t2] + '］分級：' + row.n + '。' + plain(t2txt) + '目標 ' + row.goal + '。',
+        '・可開立 statin：' + plain(brandNote) +
+          (ok1 ? '表一：' + drugNames(LX_NEW) + '。' : '') + (ok2 ? '表二：' + drugNames(LX_OLD) + '。' : '') +
+          (ok1 || ok2 ? (ok1 && !needLS ? '強度參考：高強度 atorvastatin 40–80、rosuvastatin 20–40 mg；中強度 atorvastatin 10–20、rosuvastatin 5–10、pitavastatin 2–4 mg。' : '中強度參考：atorvastatin 10–20、rosuvastatin 5–10、pitavastatin 2–4、simvastatin 20–40 mg。') : ''),
+        '・Ezetimibe 與複方［' + RX_LABEL[eze] + '］' + plain(ezeTxt),
+        '・PCSK9 抑制劑［' + RX_LABEL[pc] + '］' + plain(pcTxt),
+        '・三酸甘油酯藥物［' + RX_LABEL[tgs] + '］' + plain(tgTxt) + '目標 ' + tgGoal + '。'
+      ].join('\n');
     }
     lipidrxShow(hasResult);
   }
@@ -989,7 +1018,7 @@
   function hbvrxShow(ok){
     var btn = CD.querySelector('[data-copy="hbvrx"]');
     if (btn) { btn.disabled = !ok; btn.classList.remove('done'); btn.textContent = '複製結果'; }
-    if (!ok) COPY.hbvrx = '';
+    if (!ok) { COPY.hbvrx = ''; COPY_MORE.hbvrx = ''; }
     renderSummary();
     saveState();
   }
@@ -1117,6 +1146,12 @@
           (isNum(a2) ? '、前次 ' + rxFmt(a2) + ($('hb-date2').value ? '（' + $('hb-date2').value + '）' : '') : '') +
           (isNum(gapM) ? '，間隔 ' + gapM.toFixed(1) + ' 個月' : '') : '') +
         '｜HBV DNA ' + (und ? '測不到' : (isNum(dnaRaw) ? rxFmt(dnaRaw) + ' IU/mL' : '－')) + '｜纖維化 ' + fLabel;
+      COPY_MORE.hbvrx =
+        (items.length ? '逐條比對：\n' + items.map(function(i){
+          return '・［' + (i.st === 'part' ? '受限' : RX_LABEL[i.st]) + '］' + i.title + '：' + plain(i.detail);
+        }).join('\n') : '逐條比對：' + head + '。') +
+        '\n可用藥物：' + (restricted ? 'Entecavir 0.5 mg（未列名品項，如 Baraclude）、TAF 25 mg（Vemlidy）；TDF 300 mg 等列名品項不可用。' :
+          headSt === 'yes' ? 'Entecavir 0.5 mg（代償不全 1.0 mg）、TDF 300 mg（Viread 等）、TAF 25 mg（Vemlidy）。' : '目前未符合給付。');
     }
     hbvrxShow(!!hbsag);
   }
@@ -1214,13 +1249,21 @@
     });
   }
 
+  // 等寬字型的報告（例如優品）小數點後面有空隙，「0.90」會被認成「0.」「90」兩個字，
+  // 只取到 0，INR 因此超出合理範圍被丟掉。小數點後面接空白再接數字時，接回同一個數
+  function ocrJoinDot(s){ return s.replace(/(\d)\s*\.\s+(?=\d)/g, '$1.'); }
+
   // 全形轉半形、數字中的千分位去掉、常見複合名稱先合併，避免 HDL Cholesterol 被當成總膽固醇
   function ocrNormalize(text){
-    return text
-      .replace(/[！-～]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+    return ocrJoinDot(text
+      .replace(/[！-～]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }))
       .replace(/　/g, ' ')
       .replace(/([一-鿿])\s+(?=[一-鿿])/g, '$1')   // 中文辨識常在字與字之間插空白
       .replace(/(\d),(\d{3})(?!\d)/g, '$1$2')
+      // 血小板單位「x10^3/uL」的 ^ 常被認成「"」「'」「*」或「7」（x10" 3/uL、x1073/uL），
+      // 單位沒認出來時，裡面的「10」會被當成結果（2026-11-17 優品報告的血小板 211 讀成 10）。統一改回 x10^3/uL
+      .replace(/[x×X*]\s*10\s*(?:[\^"'`‘’“”*°]\s*|7\s*)?([39])\s*\/\s*([uµ]?L)\b/g, ' x10^$1/$2')
+      .replace(/(?<![\d.xX×*])10\s*["'`‘’“”*°]\s*([39])\s*\/\s*([uµ]?L)\b/g, 'x10^$1/$2')
       .replace(/non[-\s]?HDL[-\s]?(?:C(?:holesterol)?)?/ig, ' NONHDL ')
       .replace(/(?:T[-.\s]?CHO\w*|Chol\w*|TC)\s*\/\s*HDL\w*/ig, ' RATIO ')
       .replace(/LDL\s*\/\s*HDL\w*/ig, ' RATIO ')
@@ -1279,9 +1322,9 @@
           if (k === 'left' && /^[\d.,:;]+$/.test(w.text)) return;   // 名稱欄裡單獨的數字是中文名稱辨識成的亂碼
           (cell[k] || cell.other).push(w.text);
         });
-        var res = cell.res.join(' ').match(OCR_NUM);
+        var res = ocrJoinDot(cell.res.join(' ')).match(OCR_NUM);
         if (!res || !cell.left.length) return l.text.trim();
-        var refTxt = cell.ref.join(' '), ref = '';
+        var refTxt = ocrJoinDot(cell.ref.join(' ')), ref = '';
         var r = refTxt.match(/(\d+(?:\.\d+)?)\s*[-–~～]\s*(\d+(?:\.\d+)?)/);
         if (r) ref = r[1] + '-' + r[2];
         else if ((r = refTxt.match(OCR_NUM))) ref = (/[>≧≥]/.test(refTxt) ? '>' : '≦') + r[1];
@@ -2099,6 +2142,7 @@
       if (mk) { mk.hidden = false; mk.style.left = ((type - .5) / 7 * 100) + '%'; mk.style.color = d.color; }
 
       COPY.bristol = 'Bristol Type ' + type + '（' + d.label + '）：' + d.interp;
+      COPY_MORE.bristol = d.detail ? '說明：' + plain(d.detail) : '';
       show('bristol', true);
     });
   });
@@ -2491,6 +2535,7 @@
     res.innerHTML = resultCard(spec, score, g.level, g.tone, esc(g.advice), g.extra,
       { gauge: gaugeHtml(0, spec.max + 1, total + .5, bands, ticks), sheet: sheet });
     COPY[spec.id] = spec.title + '：' + total + ' / ' + spec.max + '（' + g.level + '）';
+    COPY_MORE[spec.id] = g.advice ? '建議：' + plain(g.advice) : '';
     show(spec.id, true);
   }
 
@@ -2558,6 +2603,7 @@
     $(spec.id + '-body').hidden = true;
 
     COPY[spec.id] = spec.title + '：' + total + ' / ' + spec.max + '（' + g.level + '）';
+    COPY_MORE[spec.id] = g.advice ? '建議：' + plain(g.advice) : '';
 
     show(spec.id, true);
   }
@@ -2618,6 +2664,7 @@
     if (!HUB) $(spec.id + '-body').hidden = true;
 
     COPY[spec.id] = '內視鏡檢查疑慮：' + picked.map(function(g){ return g.tag + ' ' + g.label; }).join('、');
+    COPY_MORE[spec.id] = '建議：\n' + picked.map(function(g){ return '・' + g.label + '：' + plain(g.solution); }).join('\n');
 
     show(spec.id, true);
   }
@@ -2673,6 +2720,9 @@
     if (!HUB) $(spec.id + '-body').hidden = true;
 
     COPY[spec.id] = '代謝症候群評估：' + count + ' / 5 項異常（' + level + '）' + (names ? '｜' + names : '');
+    COPY_MORE[spec.id] = (advice ? '建議：' + plain(advice) : '') + (count >= 1 ?
+      '\n改善建議：飲食減少精緻澱粉與含糖飲料，增加蔬菜、全穀、魚類與堅果；每週至少 150 分鐘中強度有氧運動；' +
+      '體重減少 5–10% 可顯著改善多項代謝指標；戒菸限酒；每年抽血檢查血糖、血脂並量測腰圍。' : '');
 
     show(spec.id, true);
   }
@@ -2720,6 +2770,7 @@
           '</div>';
 
         COPY[spec.id] = '糞便顏色：' + it.label + '（' + it.status + '）';
+        COPY_MORE[spec.id] = it.detail ? '說明：' + plain(it.detail) : '';
 
         show(spec.id, true);
       });
@@ -2785,6 +2836,7 @@
       );
       COPY[spec.id] = '腰圍 ' + val + ' cm（' + (over ? '超標' : '正常範圍') +
                       '，' + (sex === 'male' ? '男性標準 < 90' : '女性標準 < 80') + ' cm）';
+      COPY_MORE[spec.id] = '建議：' + plain(advice);
       show(spec.id, true);
     };
     bind(['waist-sex', 'waist-val'], calc);
