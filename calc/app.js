@@ -1227,7 +1227,17 @@
       .replace(/\b(HDL|LDL)[-\s]*C(?:hol(?:esterol)?)?\b/ig, ' $1 ')
       .replace(/\bALT\s*[\/(]\s*S?GPT\s*\)?|\bS?GPT\s*[\/(]\s*ALT\s*\)?/ig, ' ALT ')
       .replace(/\bAST\s*[\/(]\s*S?GOT\s*\)?|\bS?GOT\s*[\/(]\s*AST\s*\)?/ig, ' AST ')
-      .replace(/Alb(?:umin)?\s*\/\s*Glob\w*(?:\s*ratio)?|\bA\s*\/\s*G(?:\s*ratio)?\b/ig, ' AGRATIO ');   // A/G 比值不能當成白蛋白
+      .replace(/Alb(?:umin)?\s*\/\s*Glob\w*(?:\s*ratio)?|\bA\s*\/\s*G(?:\s*ratio)?\b/ig, ' AGRATIO ')   // A/G 比值不能當成白蛋白
+      // 「PT/INR 11.5 / 1.02」「PT (INR) 11.5 sec 1.02」這種把兩項寫在同一個名稱下的列：
+      // 名稱後第一個數字是 PT 秒數，不是 INR，直接取會把正常的人判成 INR > 2.3（3 分）。
+      // 做法：扣掉參考範圍（9.4-12.5）後，有兩個數字就取較小的那個當 INR（PT 秒數一定比 INR 大）；
+      // 只有一個數字時，6 以下才當成 INR，否則不帶入，讓使用者自己選（寧可不帶，不可帶錯）。
+      .replace(/\bP\.?T\.?\s*(?:\/\s*INR\b|\(\s*INR\s*\))([^\n]*)/ig, function(all, rest){
+        var nums = [];
+        rest.replace(/(\d+(?:\.\d+)?)(\s*[-–~～]\s*\d+(?:\.\d+)?)?/g, function(m, a, range){ if (!range) nums.push(parseFloat(a)); return m; });
+        var v = nums.length >= 2 ? Math.min(nums[0], nums[1]) : nums.length === 1 && nums[0] <= 6 ? nums[0] : null;
+        return v === null ? ' PT_INR_UNREAD ' : ' INR ' + v + ' ';
+      });
   }
 
   var OCR_NUM = /(\d+(?:\.\d+)?)/;
@@ -2952,4 +2962,16 @@
   // 作答過程隨時暫存，重新整理不會白填
   CD.addEventListener('input', saveState);
   CD.addEventListener('change', saveState);
+
+  /* 測試用的入口（tests/calc.test.js）。只有外面先準備好 CALC_TEST 物件時才掛上，一般頁面不會有這個變數，行為不受影響。
+     ocrRead：把檢驗單的文字（等同 Tesseract 辨識出來的內容）解析成數值；ocrApply：把數值帶進欄位並換算分數。 */
+  if (typeof CALC_TEST === 'object' && CALC_TEST) {
+    CALC_TEST.ocrRead = function(tool, rawText){
+      var text = ocrNormalize(rawText);
+      var lines = text.split(/\n+/).map(function(l){ return l.trim(); }).filter(Boolean);
+      return ocrClean(OCR_READ[tool](text, lines));
+    };
+    CALC_TEST.ocrApply = function(tool, v){ return OCR_APPLY[tool]([{ date: '', v: v }]); };
+    CALC_TEST.copy = function(tool){ return COPY[tool] || ''; };
+  }
 })();
