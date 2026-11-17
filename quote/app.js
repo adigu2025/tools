@@ -224,6 +224,7 @@ const CATEGORIES = [
       { id:'lb_02012', name:'Anti-HAV IgM A 型肝炎抗體 IgM', price:500 },
       { id:'lb_02013', name:'Anti-HAV（IgG＋IgM）A 型肝炎抗體', price:350 },
       { id:'lb_02014', name:'Anti-HCV C 型肝炎抗體', price:400 },
+      { id:'lb_02015', name:'Anti-HDV Ab D 型肝炎抗體', price:800 },
       { id:'lb_s2', type:'section', name:'糖尿病檢查' },
       { id:'lb_03001', name:'HbA1c 糖化血色素', price:300 },
       { id:'lb_03002', name:'Insulin 胰島素', price:400 },
@@ -2690,7 +2691,7 @@ QD.getElementById('btnPrint').addEventListener('click',()=>{
    日後對帳或費用爭議時可回推當時適用的價目表；程式或排版改版不動它
    ═══════════════════════════════════════════════════════════════════ */
 const Q_REVISION = REVISION.quote;
-const Q_PRICE_VERSION = '2026-11-04';
+const Q_PRICE_VERSION = '2026-11-17';
 window.Q_REVISION = Q_REVISION;
 
 function renderEndoNote(){

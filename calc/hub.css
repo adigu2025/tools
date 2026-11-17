@@ -129,6 +129,10 @@
   .rx-panel.hub-split.active{grid-template-columns:minmax(0,1.75fr) minmax(0,1fr); column-gap:26px;}
   .rx-panel .hub-out{overflow:auto; padding-right:4px; scrollbar-width:thin;}
   .rx-panel .hub-in > :last-child{margin-bottom:0;}
+  /* 輸入過程不重算倍率，結果變長時可能出現捲軸：先預留捲軸寬度，捲軸出現時版面才不會往左跳 */
+  .c-body:has(.rx-panel.active){scrollbar-gutter:stable;}
+  /* 面板被撐高時，多出的高度不分給標題列，否則結果變長或變短，左側輸入欄會跟著上下移 */
+  .rx-panel.hub-split.active{align-content:start;}
   /* 判讀結果先保留填值後的高度，預估倍率才準，填完不會再縮 */
   #fib4-result{min-height:200px;} #rfactor-result{min-height:180px;} #childpugh-result{min-height:180px;}
   #bristol-result{min-height:150px;}

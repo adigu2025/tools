@@ -645,8 +645,12 @@ async function mountCalc(){
   setTimeout(()=>{ calcZ = null; fitCalc(); }, 400);
   // 切換到降血脂或 B 肝用藥時，結果欄才看得到；等面板淡入動畫（0.28 秒，會位移）結束再量
   CD.addEventListener('click', e=>{ if(e.target.closest('.tab, .group-btn')) setTimeout(fitCalc, 320); }, true);
-  // 降血脂與 B 肝用藥：結果卡片隨輸入增減，停止輸入後重新調整倍率
-  { let t = null; CD.addEventListener('input', e=>{ if(e.target.closest('.rx-panel')){ clearTimeout(t); t = setTimeout(fitCalc, 500); } }); }
+  // 降血脂與 B 肝用藥：上傳截圖帶入數值（程式送出的 input，isTrusted 為 false）或按「重設」後才重新調整倍率。
+  // 手動輸入、勾選時不調整：2026-11-17 勾選「已完成 3–6 個月生活型態調整」，結果卡片變高，
+  // 先冒出捲軸把畫面往左推，0.5 秒後倍率重算又整個縮放，畫面水平、垂直各跳一次。寧可短暫出現捲軸（hub.css 已預留捲軸寬度）。
+  { let t = null; const refit = ()=>{ clearTimeout(t); t = setTimeout(fitCalc, 500); };
+    CD.addEventListener('input', e=>{ if(!e.isTrusted && e.target.closest('.rx-panel')) refit(); });
+    CD.addEventListener('click', e=>{ if(e.target.closest('.rx-panel [data-reset]')) refit(); }); }
   // 輸入過程不再改變倍率：少數狀態（例如欄位錯誤提示）超出畫面時，寧可短暫出現捲軸，也不讓全部字級跳動
   updateChips();
   host.classList.remove('loading');
