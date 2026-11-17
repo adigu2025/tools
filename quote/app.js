@@ -969,7 +969,7 @@ function appendCustomAddCard(grid,catLabel){
       +'<span class="custom-add-label">項目名稱</span>'
       +'<input class="custom-add-input" type="text" autocomplete="off">'
       +'<span class="custom-add-label">金額（元）</span>'
-      +'<input class="custom-add-input" type="number" min="0">'
+      +'<input class="custom-add-input" type="number" inputmode="decimal" min="0">'
       +'<div class="custom-add-btn-row">'
       +'<button class="custom-add-confirm">確認加入</button>'
       +'<button class="custom-add-cancel-btn">取消</button>'
@@ -2969,7 +2969,7 @@ QD.addEventListener('keydown', function(e){
   cards[j].scrollIntoView({block:'nearest'});
 });
 QD.addEventListener('keydown', function(e){
-  if(e.key !== 'Enter' && e.key !== ' ') return;
+  if(e.key !== 'Enter' && e.key !== ' ') return;   /* ime-ok：卡片不是文字輸入，不會組字 */
   const card = e.target.closest && e.target.closest('.cat-card, .item-card');
   if(!card || isTypingTarget(e.target)) return;
   e.preventDefault();

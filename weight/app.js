@@ -1468,16 +1468,18 @@ function wFuDate(d, base){
 function wFuRender(force){
   const box = WD.getElementById('fu-list');
   if(!box || (!force && box.contains(WD.activeElement))) return;
-  const ta = (f, v, h)=> `<textarea data-f="${f}" style="min-height:${h}px">${wEsc(v)}</textarea>`;
+  // 每列欄位的 id（label 的 for 要指得到，點標籤才會跳到欄位）
+  const fid = (x, f)=> wEsc('fu-' + x.id + '-' + f);
+  const ta = (x, f, v, h)=> `<textarea id="${fid(x, f)}" data-f="${f}" style="min-height:${h}px">${wEsc(v)}</textarea>`;
   box.innerHTML = wFuItems().map(x=> `<div class="fu-row${x.on ? '' : ' off'}" data-id="${x.id}">` +
     `<label class="fu-on"><input type="checkbox" data-f="on"${x.on ? ' checked' : ''}><span>${x.on ? '列入報告' : '不列入'}</span></label>` +
     `<div class="fu-grid">` +
       // 時間存成一個欄位（第一行大字、第二行起小字），畫面拆成「時間」與「補充說明」兩格，免得整句打在大字那行
-      `<div class="field"><label>時間（報告上的大字）</label><input type="text" data-f="w0" value="${wEsc(String(x.w || '').split('\n')[0])}"></div>` +
-      `<div class="field"><label>補充說明（小字）</label><input type="text" data-f="ws" value="${wEsc(String(x.w || '').split('\n').slice(1).join('、'))}"></div>` +
-      `<div class="field"><label>日期推算</label><select data-f="d">${Object.entries(FU_DATE).map(([k, t])=> `<option value="${k}"${k === x.d ? ' selected' : ''}>${t}</option>`).join('')}</select><div class="fu-date">${wEsc(wFuDate(x.d))}</div></div>` +
-      `<div class="field fu-wide"><label>重點</label><input type="text" data-f="h" value="${wEsc(x.h)}"></div>` +
-      `<div class="field fu-wide"><label>說明（按 Enter 換行）</label>${ta('t', x.t, 64)}</div>` +
+      `<div class="field"><label for="${fid(x, 'w0')}">時間（報告上的大字）</label><input id="${fid(x, 'w0')}" type="text" data-f="w0" value="${wEsc(String(x.w || '').split('\n')[0])}"></div>` +
+      `<div class="field"><label for="${fid(x, 'ws')}">補充說明（小字）</label><input id="${fid(x, 'ws')}" type="text" data-f="ws" value="${wEsc(String(x.w || '').split('\n').slice(1).join('、'))}"></div>` +
+      `<div class="field"><label for="${fid(x, 'd')}">日期推算</label><select id="${fid(x, 'd')}" data-f="d">${Object.entries(FU_DATE).map(([k, t])=> `<option value="${k}"${k === x.d ? ' selected' : ''}>${t}</option>`).join('')}</select><div class="fu-date">${wEsc(wFuDate(x.d))}</div></div>` +
+      `<div class="field fu-wide"><label for="${fid(x, 'h')}">重點</label><input id="${fid(x, 'h')}" type="text" data-f="h" value="${wEsc(x.h)}"></div>` +
+      `<div class="field fu-wide"><label for="${fid(x, 't')}">說明（按 Enter 換行）</label>${ta(x, 't', x.t, 64)}</div>` +
     `</div>` +
     `<div class="fu-act">${x.preset ? (x.edited ? '<button type="button" class="btn outline small" data-f="reset">恢復預設</button>' : '') : '<button type="button" class="btn outline small" data-f="del">刪除</button>'}</div>` +
     `</div>`).join('');
