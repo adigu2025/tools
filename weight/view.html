@@ -132,7 +132,7 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
 .btn:hover{background:var(--primary-dark);}
 .btn.teal{background:var(--teal);}
 .btn.teal:hover{background:#2C4E5C;}
-.btn.outline{background:#fff; color:var(--primary); border:1.5px solid var(--primary);}
+.btn.outline{background:#fff; color:var(--navy); border:1.5px solid var(--primary);}
 .btn.outline:hover{background:var(--primary-pale);}
 .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
 /* 回診與追蹤時程：每一項一張小卡，左邊勾選是否列入報告 */
@@ -141,7 +141,7 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
 .fu-row:first-child{border-top:none; padding-top:2px;}
 /* 列入開關：整塊都可以點，勾選時實心底色＋白色打勾，取消時虛線框 */
 .fu-on{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; margin-top:26px; min-height:86px; padding:10px 4px;
-  border:2px solid var(--primary); border-radius:14px; background:var(--primary-pale); color:var(--primary); font-size:14px; font-weight:700;
+  border:2px solid var(--primary); border-radius:14px; background:var(--primary-pale); color:var(--navy); font-size:14px; font-weight:700;
   cursor:pointer; text-align:center; user-select:none; transition:.15s;}
 .fu-on:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);}
 .fu-on input{appearance:none; -webkit-appearance:none; margin:0; width:30px; height:30px; border:2px solid var(--primary); border-radius:8px;
@@ -205,7 +205,7 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .ref-card > summary::-webkit-details-marker{display:none;}
 .ref-card > summary h2{margin:0;}
 .ref-card .ref-tag{font-size:12.5px; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:2px 10px;}
-.ref-card .ref-toggle{margin-left:auto; font-size:13.5px; color:var(--primary);}
+.ref-card .ref-toggle{margin-left:auto; font-size:13.5px; color:var(--navy);}
 .ref-card .ref-toggle::after{content:'展開 ▾';}
 .ref-card[open] .ref-toggle::after{content:'收起 ▴';}
 .ref-card[open] > summary{margin-bottom:8px;}
@@ -305,7 +305,7 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 
 /* ── 版面與健檢報告一致：一頁捲到底，左側固定目錄（樣式照 checkup/view.html 的 k- 系列） ── */
 .w-body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif !important; font-size:16px; line-height:1.6;
-  --w-serif:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; --w-line2:#D6D2C6; --w-ink2:#3A3935; --w-faint:#9C978C; --w-green:#4C7A5A; --w-gold:#BC7F30;}
+  --w-serif:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; --w-line2:#D6D2C6; --w-ink2:#3A3935; --w-faint:#6F6B63; --w-green:#4C7A5A; --w-gold:#BC7F30;}
 .w-wrap{max-width:1320px; margin:0 auto; padding:18px 18px 80px; display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:start;}
 @media (max-width:900px){ .w-wrap{grid-template-columns:1fr;} .w-nav{position:static !important;} .w-nav a{display:none;} }
 .w-nav{position:sticky; top:18px; display:flex; flex-direction:column; gap:2px;}
@@ -356,7 +356,7 @@ main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display
 .chk-row.auto label{cursor:default; border-style:dashed;}
 .chk-row.auto label:hover{border-color:var(--border); background:#FAF9F6;}
 .chk-row.auto input:checked + label, .chk-row.auto input:checked + label:hover{background:var(--sel); border-color:var(--sel); border-style:solid;}
-.chk-row.auto label::after{content:'自動'; font-size:11.5px; margin-left:8px; opacity:.65;}
+.chk-row.auto label::after{content:'自動'; font-size:12px; margin-left:8px; opacity:.65;}
 /* 代謝症候群五項排成一列 */
 .ms-grid{grid-template-columns:repeat(5,minmax(0,1fr));}
 .ms-grid .ms-item, .ms-grid .ms-item.w3{grid-column:auto; position:relative; cursor:pointer;}
@@ -445,10 +445,10 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
   <div class="card">
     <h2>基本資料</h2>
     <div class="grid">
-      <div class="field"><label>姓名</label><input id="p-name"></div>
-      <div class="field"><label>病歷號</label><input id="p-chart" type="text"></div>
-      <div class="field"><label>性別</label><select id="p-gender"><option value="" selected></option><option value="M">男</option><option value="F">女</option></select></div>
-      <div class="field"><label>出生年月日（西元）</label>
+      <div class="field"><label for="p-name">姓名</label><input id="p-name"></div>
+      <div class="field"><label for="p-chart">病歷號</label><input id="p-chart" type="text"></div>
+      <div class="field"><label for="p-gender">性別</label><select id="p-gender"><option value="" selected></option><option value="M">男</option><option value="F">女</option></select></div>
+      <div class="field"><label for="p-birth-y">出生年月日（西元）</label>
         <div style="display:flex; gap:4px; align-items:center">
           <input id="p-birth-y" type="text" inputmode="numeric" maxlength="4" style="width:78px">
           <span>-</span>
@@ -458,23 +458,23 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
           <input id="p-birth" type="hidden">
         </div>
       </div>
-      <div class="field"><label>檢查日期</label><input id="p-date" type="date"></div>
-      <div class="field"><label>年齡</label><input id="p-age" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label for="p-date">檢查日期</label><input id="p-date" type="date"></div>
+      <div class="field"><label for="p-age">年齡</label><input id="p-age" readonly style="background:#F4F2EE"></div>
     </div>
   </div>
   <div class="card">
     <h2>身高體重、腰圍、血壓、心跳</h2>
     <div class="grid w-vitals">
-      <div class="field"><label>身高 (cm)</label><input id="b-height" type="number" min="100" max="250" step="0.1"></div>
-      <div class="field"><label>體重 (kg)</label><input id="b-weight" type="number" min="20" max="400" step="0.1"></div>
-      <div class="field"><label>腰圍 (cm)</label><input id="b-waist" type="number" min="40" max="250" step="0.1"></div>
-      <div class="field"><label>血壓 收縮／舒張 (mmHg)</label><div style="display:flex; gap:6px"><input id="b-sbp" type="number" min="60" max="300"><input id="b-dbp" type="number" min="30" max="200"></div></div>
-      <div class="field"><label>心跳 (次/分)</label><input id="b-hr" type="number" min="30" max="220" step="1"></div>
+      <div class="field"><label for="b-height">身高 (cm)</label><input id="b-height" type="number" inputmode="decimal" min="100" max="250" step="0.1"></div>
+      <div class="field"><label for="b-weight">體重 (kg)</label><input id="b-weight" type="number" inputmode="decimal" min="20" max="400" step="0.1"></div>
+      <div class="field"><label for="b-waist">腰圍 (cm)</label><input id="b-waist" type="number" inputmode="decimal" min="40" max="250" step="0.1"></div>
+      <div class="field"><label for="b-sbp">血壓 收縮／舒張 (mmHg)</label><div style="display:flex; gap:6px"><input id="b-sbp" aria-label="收縮壓" type="number" inputmode="decimal" min="60" max="300"><input id="b-dbp" aria-label="舒張壓" type="number" inputmode="decimal" min="30" max="200"></div></div>
+      <div class="field"><label for="b-hr">心跳 (次/分)</label><input id="b-hr" type="number" inputmode="decimal" min="30" max="220" step="1"></div>
     </div>
     <div class="grid" style="margin-top:14px">
-      <div class="field"><label>目標體重 (kg)</label><input id="b-target-weight" type="number" min="20" max="400" step="0.1"></div>
-      <div class="field"><label>預計減重比例</label><input id="target-loss-pct" readonly style="background:#F4F2EE"></div>
-      <div class="field"><label>標準體重範圍（BMI 18.5 至 24）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label for="b-target-weight">目標體重 (kg)</label><input id="b-target-weight" type="number" inputmode="decimal" min="20" max="400" step="0.1"></div>
+      <div class="field"><label for="target-loss-pct">預計減重比例</label><input id="target-loss-pct" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label for="standard-weight-range">標準體重範圍（BMI 18.5 至 24）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
     </div>
     <div id="bmi-result" style="margin-top:20px; display:none">
       <div style="display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap">
@@ -510,17 +510,17 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
   <div class="card">
     <h2>身體組成數值</h2>
     <div class="grid">
-      <div class="field"><label>體脂肪率 (%)</label><input id="t-fat" type="number" min="1" max="80" step="0.1"></div>
-      <div class="field"><label>肌肉量 (kg)</label><input id="t-muscle" type="number" min="5" max="150" step="0.1"></div>
-      <div class="field"><label>內臟脂肪等級</label><input id="t-visceral" type="number" min="1" max="60" step="1"></div>
-      <div class="field"><label>體脂肪量 (kg)</label><input id="t-fatmass" type="number" min="1" max="250" step="0.1"></div>
-      <div class="field"><label>身體水分率 (%)</label><input id="t-water" type="number" min="10" max="90" step="0.1"></div>
-      <div class="field"><label>基礎代謝量 BMR（機器實測, kcal）</label><input id="t-bmr" type="number" min="500" max="5000" step="1"></div>
-      <div class="field"><label>身體年齡</label><input id="t-bodyage" type="number" min="10" max="120" step="1"></div>
-      <div class="field"><label>四肢骨骼肌指數 SMI (kg/m²)</label><input id="t-smi" type="number" min="2" max="20" step="0.1"></div>
-      <div class="field"><label>相位角 Phase Angle</label><input id="t-phaseangle" type="number" min="1" max="15" step="0.1"></div>
+      <div class="field"><label for="t-fat">體脂肪率 (%)</label><input id="t-fat" type="number" inputmode="decimal" min="1" max="80" step="0.1"></div>
+      <div class="field"><label for="t-muscle">肌肉量 (kg)</label><input id="t-muscle" type="number" inputmode="decimal" min="5" max="150" step="0.1"></div>
+      <div class="field"><label for="t-visceral">內臟脂肪等級</label><input id="t-visceral" type="number" inputmode="decimal" min="1" max="60" step="1"></div>
+      <div class="field"><label for="t-fatmass">體脂肪量 (kg)</label><input id="t-fatmass" type="number" inputmode="decimal" min="1" max="250" step="0.1"></div>
+      <div class="field"><label for="t-water">身體水分率 (%)</label><input id="t-water" type="number" inputmode="decimal" min="10" max="90" step="0.1"></div>
+      <div class="field"><label for="t-bmr">基礎代謝量 BMR（機器實測, kcal）</label><input id="t-bmr" type="number" inputmode="decimal" min="500" max="5000" step="1"></div>
+      <div class="field"><label for="t-bodyage">身體年齡</label><input id="t-bodyage" type="number" inputmode="decimal" min="10" max="120" step="1"></div>
+      <div class="field"><label for="t-smi">四肢骨骼肌指數 SMI (kg/m²)</label><input id="t-smi" type="number" inputmode="decimal" min="2" max="20" step="0.1"></div>
+      <div class="field"><label for="t-phaseangle">相位角 Phase Angle</label><input id="t-phaseangle" type="number" inputmode="decimal" min="1" max="15" step="0.1"></div>
     </div>
-    <div class="field" style="margin-top:14px"><label>身體組成備註</label><textarea id="body-note"></textarea></div>
+    <div class="field" style="margin-top:14px"><label for="body-note">身體組成備註</label><textarea id="body-note"></textarea></div>
     <div class="btnrow"><button class="btn" onclick="calcBody()">套用分析</button></div>
     <div id="body-result" style="margin-top:14px; display:none" class="summary-box"></div>
   </div>
@@ -567,7 +567,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
   <div class="card">
     <h2>心血管風險評估資料</h2>
     <div class="field">
-      <label>吸菸</label>
+      <label for="cv-smoke">吸菸</label>
       <select id="cv-smoke" class="as-buttons">
         <option value="">未評估</option><option value="never">從未吸菸</option><option value="former">已戒菸</option><option value="current">目前吸菸</option>
       </select>
@@ -598,14 +598,14 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
     <h2>睡眠評估 STOP-BANG</h2>
     <div id="stopbang-list" class="chk-grid"></div>
     <div class="hint" id="stopbang-neck-hint" style="margin-top:10px">總分 2 分或 4 分時請量頸圍：超過 40 cm 加 1 分，風險分級會改變。</div>
-    <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入分數</label><input id="stopbang-manual" type="number" min="0" max="8"></div>
+    <div class="field" style="max-width:220px; margin-top:10px"><label for="stopbang-manual">手動輸入分數</label><input id="stopbang-manual" type="number" inputmode="decimal" min="0" max="8"></div>
     <div class="summary-box" id="stopbang-result" style="margin-top:10px"></div>
   </div>
 
   <div class="card">
     <h2>情緒評估 PHQ-9</h2>
     <div id="phq9-list"></div>
-    <div class="field" style="max-width:220px; margin-top:10px"><label>手動輸入總分</label><input id="phq9-manual" type="number" min="0" max="27"></div>
+    <div class="field" style="max-width:220px; margin-top:10px"><label for="phq9-manual">手動輸入總分</label><input id="phq9-manual" type="number" inputmode="decimal" min="0" max="27"></div>
     <div class="summary-box" id="phq9-result" style="margin-top:10px"></div>
   </div>
 
@@ -628,7 +628,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
 
   <div class="card">
     <h2>動機評估</h2>
-    <div class="field"><label>減重意願與準備度（1 至 10 分）</label>
+    <div class="field"><label for="motiv-score">減重意願與準備度（1 至 10 分）</label>
       <select id="motiv-score" class="as-buttons" data-row="score-row">
         <option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
         <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
@@ -648,44 +648,44 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
     <div class="lab-group">
       <h3>血糖與胰島素阻抗</h3>
       <div class="grid">
-        <div class="field"><label for="lab-ac">空腹血糖 AC Sugar <span class="unit">mg/dL</span></label><input id="lab-ac" type="number" min="20" max="800"></div>
-        <div class="field"><label for="lab-hba1c">糖化血色素 HbA1c <span class="unit">%</span></label><input id="lab-hba1c" type="number" min="3" max="20" step="0.1"></div>
-        <div class="field"><label for="lab-homa">胰島素阻抗 HOMA-IR</label><input id="lab-homa" type="number" min="0.1" max="50" step="0.1"></div>
+        <div class="field"><label for="lab-ac">空腹血糖 AC Sugar <span class="unit">mg/dL</span></label><input id="lab-ac" type="number" inputmode="decimal" min="20" max="800"></div>
+        <div class="field"><label for="lab-hba1c">糖化血色素 HbA1c <span class="unit">%</span></label><input id="lab-hba1c" type="number" inputmode="decimal" min="3" max="20" step="0.1"></div>
+        <div class="field"><label for="lab-homa">胰島素阻抗 HOMA-IR</label><input id="lab-homa" type="number" inputmode="decimal" min="0.1" max="50" step="0.1"></div>
       </div>
     </div>
     <div class="lab-group">
       <h3>血脂</h3>
       <div class="grid">
-        <div class="field"><label for="lab-tcho">總膽固醇 T-CHO <span class="unit">mg/dL</span></label><input id="lab-tcho" type="number" min="50" max="600"></div>
-        <div class="field"><label for="lab-tg">三酸甘油酯 TG <span class="unit">mg/dL</span></label><input id="lab-tg" type="number" min="20" max="2000"></div>
-        <div class="field"><label for="lab-hdl">高密度膽固醇 HDL-C <span class="unit">mg/dL</span></label><input id="lab-hdl" type="number" min="10" max="150"></div>
-        <div class="field"><label for="lab-ldl">低密度膽固醇 LDL-C <span class="unit">mg/dL</span></label><input id="lab-ldl" type="number" min="10" max="400"></div>
+        <div class="field"><label for="lab-tcho">總膽固醇 T-CHO <span class="unit">mg/dL</span></label><input id="lab-tcho" type="number" inputmode="decimal" min="50" max="600"></div>
+        <div class="field"><label for="lab-tg">三酸甘油酯 TG <span class="unit">mg/dL</span></label><input id="lab-tg" type="number" inputmode="decimal" min="20" max="2000"></div>
+        <div class="field"><label for="lab-hdl">高密度膽固醇 HDL-C <span class="unit">mg/dL</span></label><input id="lab-hdl" type="number" inputmode="decimal" min="10" max="150"></div>
+        <div class="field"><label for="lab-ldl">低密度膽固醇 LDL-C <span class="unit">mg/dL</span></label><input id="lab-ldl" type="number" inputmode="decimal" min="10" max="400"></div>
       </div>
     </div>
     <div class="lab-group">
       <h3>肝腎功能</h3>
       <div class="grid">
-        <div class="field"><label for="lab-alt">ALT（GPT） <span class="unit">U/L</span></label><input id="lab-alt" type="number" min="1" max="2000"></div>
-        <div class="field"><label for="lab-ast">AST（GOT） <span class="unit">U/L</span></label><input id="lab-ast" type="number" min="1" max="2000"></div>
-        <div class="field"><label for="lab-cr">肌酸酐 Cr <span class="unit">mg/dL</span></label><input id="lab-cr" type="number" min="0.1" max="20" step="0.01"></div>
-        <div class="field"><label for="lab-egfr">腎絲球過濾率 eGFR <span class="unit">mL/min/1.73m²</span></label><input id="lab-egfr" type="number" min="1" max="200"><div class="hint" id="egfr-est" style="margin-top:4px"></div></div>
-        <div class="field"><label for="lab-bun">尿素氮 BUN <span class="unit">mg/dL</span></label><input id="lab-bun" type="number" min="1" max="200" step="0.1"></div>
+        <div class="field"><label for="lab-alt">ALT（GPT） <span class="unit">U/L</span></label><input id="lab-alt" type="number" inputmode="decimal" min="1" max="2000"></div>
+        <div class="field"><label for="lab-ast">AST（GOT） <span class="unit">U/L</span></label><input id="lab-ast" type="number" inputmode="decimal" min="1" max="2000"></div>
+        <div class="field"><label for="lab-cr">肌酸酐 Cr <span class="unit">mg/dL</span></label><input id="lab-cr" type="number" inputmode="decimal" min="0.1" max="20" step="0.01"></div>
+        <div class="field"><label for="lab-egfr">腎絲球過濾率 eGFR <span class="unit">mL/min/1.73m²</span></label><input id="lab-egfr" type="number" inputmode="decimal" min="1" max="200"><div class="hint" id="egfr-est" style="margin-top:4px"></div></div>
+        <div class="field"><label for="lab-bun">尿素氮 BUN <span class="unit">mg/dL</span></label><input id="lab-bun" type="number" inputmode="decimal" min="1" max="200" step="0.1"></div>
       </div>
     </div>
     <div class="lab-group">
       <h3>甲狀腺與尿酸</h3>
       <div class="grid">
-        <div class="field"><label for="lab-tsh">甲狀腺促素 TSH <span class="unit">μIU/mL</span></label><input id="lab-tsh" type="number" min="0.01" max="100" step="0.01"></div>
-        <div class="field"><label for="lab-ft4">游離甲狀腺素 free T4 <span class="unit">ng/dL</span></label><input id="lab-ft4" type="number" min="0.1" max="10" step="0.01"></div>
-        <div class="field"><label for="lab-ua">尿酸 Uric Acid <span class="unit">mg/dL</span></label><input id="lab-ua" type="number" min="1" max="20" step="0.1"></div>
+        <div class="field"><label for="lab-tsh">甲狀腺促素 TSH <span class="unit">μIU/mL</span></label><input id="lab-tsh" type="number" inputmode="decimal" min="0.01" max="100" step="0.01"></div>
+        <div class="field"><label for="lab-ft4">游離甲狀腺素 free T4 <span class="unit">ng/dL</span></label><input id="lab-ft4" type="number" inputmode="decimal" min="0.1" max="10" step="0.01"></div>
+        <div class="field"><label for="lab-ua">尿酸 Uric Acid <span class="unit">mg/dL</span></label><input id="lab-ua" type="number" inputmode="decimal" min="1" max="20" step="0.1"></div>
       </div>
     </div>
     <div class="lab-group">
       <h3>血液常規</h3>
       <div class="grid">
-        <div class="field"><label for="lab-wbc">白血球 WBC <span class="unit">/uL</span></label><input id="lab-wbc" type="number" min="0.1" max="100000"></div>
-        <div class="field"><label for="lab-hgb">血色素 Hb <span class="unit">g/dL</span></label><input id="lab-hgb" type="number" min="2" max="25" step="0.1"></div>
-        <div class="field"><label for="lab-plt">血小板 PLT <span class="unit">10³/uL</span></label><input id="lab-plt" type="number" min="1" max="2000"></div>
+        <div class="field"><label for="lab-wbc">白血球 WBC <span class="unit">/uL</span></label><input id="lab-wbc" type="number" inputmode="decimal" min="0.1" max="100000"></div>
+        <div class="field"><label for="lab-hgb">血色素 Hb <span class="unit">g/dL</span></label><input id="lab-hgb" type="number" inputmode="decimal" min="2" max="25" step="0.1"></div>
+        <div class="field"><label for="lab-plt">血小板 PLT <span class="unit">10³/uL</span></label><input id="lab-plt" type="number" inputmode="decimal" min="1" max="2000"></div>
       </div>
     </div>
     <div class="lab-group">
@@ -694,7 +694,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
       <div id="w-labrows"></div>
     </div>
 
-    <div class="field" style="margin-top:12px"><label>檢驗數值備註</label><textarea id="lab-note"></textarea></div>
+    <div class="field" style="margin-top:12px"><label for="lab-note">檢驗數值備註</label><textarea id="lab-note"></textarea></div>
   </div>
   <div class="card">
     <h2>代謝症候群評估</h2>
@@ -722,7 +722,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
     </div>
     <div class="btnrow" style="margin-top:4px"><button class="btn outline" onclick="resetMsAuto()">依實測值重新帶入</button></div>
     <div class="ms-divider">糖尿病前期</div>
-    <div class="field" style="max-width:280px"><label>糖化血紅素 HbA1c (%)</label><input id="ms-hba1c" type="number" min="3" max="20" step="0.1"></div>
+    <div class="field" style="max-width:280px"><label for="ms-hba1c">糖化血紅素 HbA1c (%)</label><input id="ms-hba1c" type="number" inputmode="decimal" min="3" max="20" step="0.1"></div>
     <div class="hint" id="ms-hba1c-readout" style="margin-top:8px"></div>
     <div class="summary-box" id="metabolic-result" style="margin-top:14px; display:none"></div>
   </div>
@@ -740,7 +740,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
   <div class="image-cols">
   <div class="card">
     <h2>腹部超音波檢查</h2>
-    <div class="field"><label>脂肪肝分級</label>
+    <div class="field"><label for="us-fatty">脂肪肝分級</label>
       <select id="us-fatty" class="as-buttons">
         <option value="">未檢查 / 無</option>
         <option value="無脂肪肝">無脂肪肝</option>
@@ -749,13 +749,13 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
         <option value="重度脂肪肝">重度脂肪肝</option>
       </select>
     </div>
-    <div class="field" style="margin-top:12px"><label>超音波所見</label>
+    <div class="field" style="margin-top:12px"><label for="us-text">超音波所見</label>
       <textarea id="us-text"></textarea>
     </div>
   </div>
   <div class="card">
     <h2>甲狀腺超音波檢查</h2>
-    <div class="field"><label>甲狀腺超音波結果</label>
+    <div class="field"><label for="us-thyroid">甲狀腺超音波結果</label>
       <select id="us-thyroid" class="as-buttons">
         <option value="">未檢查</option>
         <option value="無異常">無異常</option>
@@ -764,7 +764,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
         <option value="其他異常">其他異常</option>
       </select>
     </div>
-    <div class="field" style="margin-top:12px"><label>甲狀腺超音波所見</label>
+    <div class="field" style="margin-top:12px"><label for="us-thyroid-text">甲狀腺超音波所見</label>
       <textarea id="us-thyroid-text"></textarea>
     </div>
   </div>
@@ -777,7 +777,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
   <div class="card">
     <h2>共病症整合評估</h2>
     <div id="comorbid-list" class="tag-box"></div>
-    <div class="field" style="margin-top:12px"><label>共病症內容</label><textarea id="cm-note"></textarea></div>
+    <div class="field" style="margin-top:12px"><label for="cm-note">共病症內容</label><textarea id="cm-note"></textarea></div>
   </div>
 
   <details class="card ref-card" id="tier-card">
@@ -819,7 +819,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
 
   <div class="card">
     <h2>本次治療建議</h2>
-    <div class="field"><label>用藥（可複選）</label>
+    <div class="field"><label for="tx-choice">用藥（可複選）</label>
       <div class="choice-row" id="tx-buttons"></div>
       <input type="hidden" id="tx-choices">
       <select id="tx-choice" hidden>
@@ -829,7 +829,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
         <option value="mounjaro">Mounjaro 猛健樂（注射）</option>
       </select>
     </div>
-    <div class="field" style="margin-top:12px"><label>用藥衛教內容</label>
+    <div class="field" style="margin-top:12px"><label for="tx-edu">用藥衛教內容</label>
       <textarea id="tx-edu" style="min-height:160px"></textarea>
     </div>
   </div>
@@ -839,7 +839,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
 <section class="screen" id="screen-calorie">
   <div class="card">
     <h2>基礎代謝率 (BMR) 與每日總消耗熱量 (TDEE)</h2>
-    <div class="field" style="margin-top:14px"><label>活動量等級</label>
+    <div class="field" style="margin-top:14px"><label for="cal-activity">活動量等級</label>
       <select id="cal-activity" class="as-buttons">
         <option value=""></option>
         <option value="1.2">久坐（幾乎無運動，辦公室工作）</option>
@@ -849,7 +849,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
         <option value="1.9">非常高度活動（勞力工作或每日高強度訓練）</option>
       </select>
     </div>
-    <div class="field" style="margin-top:10px"><label>減重目標速度</label>
+    <div class="field" style="margin-top:10px"><label for="cal-goal">減重目標速度</label>
       <select id="cal-goal" class="as-buttons">
         <option value=""></option>
         <option value="0">維持體重（不設熱量赤字）</option>
@@ -878,7 +878,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
   <div class="card">
     <h2>運動處方建議</h2>
     <div class="btnrow"><button class="btn" onclick="genExercise()">產生運動建議草稿</button></div>
-    <div class="field" style="margin-top:14px"><label>運動建議內容</label>
+    <div class="field" style="margin-top:14px"><label for="ex-text">運動建議內容</label>
       <textarea id="ex-text" style="min-height:200px"></textarea>
     </div>
   </div>
@@ -905,7 +905,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
     <input type="hidden" id="fu-plan">
     <div id="fu-list"></div>
     <div class="btnrow" style="margin-top:10px"><button type="button" class="btn outline" id="fu-add">新增一項</button><button type="button" class="btn outline" id="fu-reset">全部恢復預設</button></div>
-    <div class="field" style="margin-top:12px"><label>追蹤備註與提早就醫提醒</label><textarea id="track-note"></textarea></div>
+    <div class="field" style="margin-top:12px"><label for="track-note">追蹤備註與提早就醫提醒</label><textarea id="track-note"></textarea></div>
   </div>
   <div class="card">
     <h2>心理支持與復胖預防</h2>

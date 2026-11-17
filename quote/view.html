@@ -48,6 +48,7 @@
   --gold-pale:    #FDF6EA;
   --gold-line:    #E4C793;
   --gold-deep:    #7A4F14;
+  --gold-text:    #152831;   /* 金色系小字改用 Navy：#BC7F30 對白底只有 3.4，不夠小字用 */
   --gold-rgb:     188,127,48;
   --danger:       #C0453C;
   --danger-pale:  #FCF2F1;
@@ -172,7 +173,7 @@
   letter-spacing: 0.08em; line-height: 1.5; margin: 0 0 8px 20px;
 }
 .field-label kbd {
-  font-family: inherit; font-size: 11px; background: var(--surface);
+  font-family: inherit; font-size: 12px; background: var(--surface);
   border: 1px solid var(--border); border-bottom-width: 2px;
   border-radius: 5px; padding: 1px 5px; margin-left: 6px; color: var(--muted);
 }
@@ -233,7 +234,7 @@
 /* item 圓角由 parent overflow:hidden+border-radius 統一處理 */
 
 .sr-cat-badge {
-  font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 10px;
+  font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 10px;
   background: var(--accent-pale); color: var(--accent);
   white-space: nowrap; flex-shrink: 0; letter-spacing: 0.04em;
 }
@@ -403,7 +404,7 @@
   position: absolute; bottom: 12px; right: 12px;
   width: 22px; height: 22px; border-radius: 50%;
   background: var(--accent); color: white;
-  display: flex; align-items: center; justify-content: center; font-size: 11px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
   opacity: 0; transform: scale(0.4);
   transition: opacity 0.18s var(--ease), transform 0.22s var(--ease);
 }
@@ -479,7 +480,7 @@
 .tooltip-popup.visible { opacity: 1; }
 .tooltip-popup::-webkit-scrollbar { width: 3px; }
 .tooltip-popup::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
-.tooltip-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
+.tooltip-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 8px; }
 .tooltip-line  { display: flex; align-items: flex-start; gap: 6px; padding: 1px 0; }
 .tooltip-bullet { color: var(--accent-light); flex-shrink: 0; margin-top: 2px; }
 
@@ -526,7 +527,7 @@
 .cart-item-body { flex: 1; min-width: 0; }
 .cart-item-name { font-size: 15px; font-weight: 600; color: var(--text); white-space: normal; word-break: break-word; margin-bottom: 3px; }
 .cart-item-meta { display: flex; align-items: center; gap: 5px; }
-.cart-badge { font-size: 11.5px; font-weight: 700; padding: 1px 7px; border-radius: 8px; letter-spacing: 0.04em; }
+.cart-badge { font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 8px; letter-spacing: 0.04em; }
 .cart-badge.self { background: rgba(var(--accent-rgb),0.1); color: var(--accent); }
 .cart-badge.ins  { background: rgba(var(--ins-rgb),0.1); color: var(--ins-color); }
 .cart-item-cat   { font-size: 12px; color: var(--muted); }
@@ -544,13 +545,13 @@
 .cart-item-price:hover:not(.ins-p):not(.tbd) { background: rgba(var(--accent-rgb),0.1); }
 .cart-item-price.ins-p { color: var(--ins-color); cursor: default; }
 .cart-item-price.tbd   { color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; }
-.cart-item-price.edited { color: var(--gold); }
-.price-edit-hint { font-size: 10px; color: var(--muted); opacity: 0.6; display: none; }
+.cart-item-price.edited { color: var(--gold-text); }
+.price-edit-hint { font-size: 12px; color: var(--muted); display: none; }
 .cart-item:hover .price-edit-hint:not(.ins-hint) { display: block; }
 /* 還原定價 */
 .price-revert-btn {
   background: none; border: none; cursor: pointer; font-family: inherit;
-  font-size: 10px; color: var(--gold); padding: 1px 3px; border-radius: 4px;
+  font-size: 12px; color: var(--gold-text); padding: 1px 3px; border-radius: 4px;
   white-space: nowrap; transition: background 0.15s;
 }
 .price-revert-btn:hover { background: rgba(var(--gold-rgb),0.12); }
@@ -604,7 +605,7 @@
 .ext-pay-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gold-line); }
 .ext-pay-row[hidden] { display: none; }
 .ext-pay-row .sub-label, .ext-pay-row .sub-value { color: var(--gold-deep); }
-.ext-pay-tag { display: block; font-size: 11px; color: var(--gold-deep); text-align: right; margin-top: 2px; }
+.ext-pay-tag { display: block; font-size: 12px; color: var(--gold-deep); text-align: right; margin-top: 2px; }
 .divider   { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
 .grand-row { display: flex; justify-content: space-between; align-items: center; }
 .grand-label { font-size: 17px; font-weight: 600; color: var(--text); }
@@ -616,7 +617,7 @@
 
 /* ─── 已付金額 ──────────────────────────────────────────────────── */
 .paid-display, .discount-display {
-  font-size: 14px; font-weight: 600; color: var(--gold);
+  font-size: 14px; font-weight: 600; color: var(--gold-text);
   cursor: pointer; border-radius: 4px; padding: 1px 5px;
   transition: background 0.15s;
 }
@@ -772,7 +773,7 @@
 
 /* ─── 自訂項目欄位標籤（依規範不使用 placeholder） ────────────────── */
 .custom-add-label {
-  display: block; font-size: 11.5px; color: var(--muted);
+  display: block; font-size: 12px; color: var(--muted);
   letter-spacing: 0.04em; margin: 0 0 3px 2px;
 }
 
@@ -838,7 +839,7 @@
 }
 .doc-tab:hover { background: var(--accent-pale); color: var(--accent); }
 .doc-tab.current { background: var(--accent); color: #FFF; font-weight: 700; }
-.doc-tab-pages { font-size: 11.5px; opacity: 0.8; flex-shrink: 0; }
+.doc-tab-pages { font-size: 12px; opacity: 0.8; flex-shrink: 0; }
 
 /* 右鍵選單 */
 .doc-ctx-menu {
@@ -899,7 +900,7 @@
   font-size: 12px; color: var(--muted); flex-shrink: 0;
 }
 .nav-hint kbd {
-  font-family: inherit; font-size: 11px; background: var(--surface);
+  font-family: inherit; font-size: 12px; background: var(--surface);
   border: 1px solid var(--border); border-bottom-width: 2px;
   border-radius: 5px; padding: 1px 6px; color: var(--muted);
 }
@@ -940,11 +941,11 @@
 }
 .banner::after { height: 2px; background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold) 70%, transparent 100%); opacity: .9; }
 .banner-name { font-family: var(--serif); font-weight: 700; color: #FFF; letter-spacing: 0.18em; font-size: 23px; }
-.banner-sub  { color: var(--gold-line); letter-spacing: 0.32em; font-size: 11.5px; margin-top: 3px; }
+.banner-sub  { color: var(--gold-line); letter-spacing: 0.32em; font-size: 12px; margin-top: 3px; }
 .banner-date { color: rgba(255,255,255,0.62); }
 
 /* 首頁 */
-.home-hero-eyebrow { color: var(--gold); letter-spacing: 0.34em; font-weight: 700; font-size: 12px; }
+.home-hero-eyebrow { color: var(--gold-text); letter-spacing: 0.34em; font-weight: 700; font-size: 12px; }
 .home-hero-title { font-family: var(--serif); font-weight: 600; letter-spacing: 0.1em; }
 .home-hero-title strong { font-weight: 700; color: var(--primary); }
 .search-input { border: 1px solid var(--border-strong); box-shadow: var(--shadow-sm); height: 52px; border-radius: 26px; padding-left: 24px; }
@@ -977,7 +978,7 @@
 .item-card.ins-mode { box-shadow: 0 0 0 1px var(--ins-color), var(--shadow-sm); transform: none; }
 .item-name { font-size: 15.5px; letter-spacing: 0.02em; }
 .item-desc { font-size: 12.8px; line-height: 1.6; }
-.mode-badge { font-size: 11px; font-weight: 500; padding: 1px 8px; letter-spacing: 0.08em; }
+.mode-badge { font-size: 12px; font-weight: 500; padding: 1px 8px; letter-spacing: 0.08em; }
 .mode-badge.self { background: var(--surface-warm); color: var(--muted); border: 1px solid var(--border); }
 .item-card.selected .mode-badge.self { background: var(--surface); color: var(--accent); border-color: rgba(var(--accent-rgb),0.35); }
 .price-currency { font-size: 12px; letter-spacing: 0.04em; }
@@ -995,12 +996,12 @@
 .panel-head-title .head-icon { color: var(--gold); }
 .panel-body { padding: 12px 16px; background: var(--surface-warm); }
 .cart-group-label {
-  font-size: 11.5px; font-weight: 700; letter-spacing: 0.24em; color: var(--accent);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.24em; color: var(--accent);
   border-bottom: 1px solid var(--border); padding: 12px 2px 5px; margin-bottom: 8px;
 }
 .cart-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 12px 12px 14px; box-shadow: var(--shadow-sm); }
 .cart-item-name { font-size: 14.5px; letter-spacing: 0.02em; }
-.cart-badge { font-weight: 500; font-size: 11px; letter-spacing: 0.08em; }
+.cart-badge { font-weight: 500; font-size: 12px; letter-spacing: 0.08em; }
 .cart-item-price { font-family: var(--serif); font-size: 17px; }
 .cart-item-price.ins-p, .cart-item-price.tbd { font-family: inherit; }
 .discount-block { border-radius: 12px; }
@@ -1171,7 +1172,7 @@
   }
   .discount-row { padding: 0.6mm 0 !important; border: none !important; }
   .discount-name { font-size: 9.5pt !important; color: #7A4F14 !important; }
-  .discount-amt  { font-size: 10pt !important; color: #BC7F30 !important; padding: 0 !important; }
+  .discount-amt  { font-size: 10pt !important; color: #152831 !important; padding: 0 !important; }
   .discount-remove-btn { display: none !important; }
 
   /* 結算：靠右的小計欄，應收總額加粗 */
@@ -1428,14 +1429,14 @@
         <span class="sub-label">優惠折扣</span>
         <div class="cart-price-wrap">
           <span class="discount-display" id="discountDisplay">− NT$ 0</span>
-          <span class="price-edit-hint" style="color:var(--gold);opacity:0.6">點擊修改金額</span>
+          <span class="price-edit-hint" style="color:var(--gold-text)">點擊修改金額</span>
         </div>
       </div>
       <div class="sub-total-row">
-        <span class="sub-label" style="color:var(--gold)">已付金額</span>
+        <span class="sub-label" style="color:var(--gold-text)">已付金額</span>
         <div class="cart-price-wrap">
           <span class="paid-display" id="paidDisplay">− NT$ 0</span>
-          <span class="price-edit-hint" style="color:var(--gold);opacity:0.6">點擊修改金額</span>
+          <span class="price-edit-hint" style="color:var(--gold-text)">點擊修改金額</span>
         </div>
       </div>
       <hr class="divider">

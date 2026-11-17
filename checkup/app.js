@@ -4,6 +4,32 @@
 const CK_REVISION = REVISION.checkup;  // 日期集中在 revision.js
 const CK_DRAFT = 'checkup_draft_v1';
 
+/* 提示訊息（取代 ckNotice()）：畫面底部浮出，不擋操作；字多就停留久一點，可按 × 關閉。
+   同時有好幾則（例如一次上傳多個檔案）會往上疊。失敗類訊息左側加紅條。 */
+function ckNotice(msg){
+  const root = KD;
+  let box = root.getElementById('k-notice');
+  if(!box){
+    box = Object.assign(document.createElement('div'), {id:'k-notice'});
+    box.setAttribute('role', 'status'); box.setAttribute('aria-live', 'polite');
+    box.style.cssText = 'position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; width:min(560px, calc(100vw - 32px)); pointer-events:none;';
+    root.appendChild(box);
+  }
+  const text = String(msg == null ? '' : msg);
+  const err = /失敗|無法|錯誤|找不到|不是/.test(text);
+  const item = document.createElement('div');
+  item.style.cssText = 'pointer-events:auto; display:flex; gap:10px; align-items:flex-start; width:100%; box-sizing:border-box; padding:12px 14px 12px 16px; border-radius:12px; background:#152831; color:#fff; font-size:15px; line-height:1.6; white-space:pre-line; box-shadow:0 6px 24px rgba(21,40,49,.25);' + (err ? ' border-left:5px solid #E07A6E;' : '');
+  const span = Object.assign(document.createElement('span'), {textContent: text});
+  span.style.flex = '1';
+  const x = Object.assign(document.createElement('button'), {type:'button', textContent:'×', title:'關閉'});
+  x.setAttribute('aria-label', '關閉提示');
+  x.style.cssText = 'flex:none; border:none; background:none; color:#fff; font-size:20px; line-height:1; cursor:pointer; padding:0 2px;';
+  const close = ()=> item.remove();
+  x.addEventListener('click', close);
+  item.append(span, x); box.appendChild(item);
+  setTimeout(close, Math.min(15000, Math.max(4500, text.length * 120)));
+}
+
 /* ---------- 資料 ----------
    CK.reports：上傳的檢驗報告（可多份），日期最新的是本次，其餘當作歷次比較。
    CK.manual：沒有 PDF 時手動輸入的檢驗列。PDF 轉出的頁面圖片只放記憶體（CK_PAGES），不存進暫存。 */
@@ -1437,7 +1463,7 @@ function ckLoadRecords(){
 }
 function ckPersistRecords(list){
   try{ localStorage.setItem(CK_RECORDS, JSON.stringify(list)); return true; }
-  catch(e){ alert('儲存失敗：' + e.message + '\n瀏覽器儲存空間可能已滿，請先匯出備份並刪除舊紀錄。'); return false; }
+  catch(e){ ckNotice('儲存失敗：' + e.message + '\n瀏覽器儲存空間可能已滿，請先匯出備份並刪除舊紀錄。'); return false; }
 }
 function ckRecKey(ck){ const i = ck.info || {}; return [i.name || '', i.birth || '', i.date || ''].map(s=> String(s).trim()).join('||'); }
 function ckRecLabel(ck){
@@ -1448,7 +1474,7 @@ function ckRecLabel(ck){
 function ckHasData(){ return JSON.stringify(CK) !== JSON.stringify(ckBlank()); }
 let ckDirty = false;
 function ckSaveRecord(){
-  if(!String(CK.info.name || '').trim()){ alert('請先在「基本資料」填寫姓名，再儲存紀錄。'); return; }
+  if(!String(CK.info.name || '').trim()){ ckNotice('請先在「基本資料」填寫姓名，再儲存紀錄。'); return; }
   const list = ckLoadRecords(), key = ckRecKey(CK);
   const i = list.findIndex(r=> r.key === key);
   const rec = {key, label: ckRecLabel(CK), savedAt: new Date().toISOString(), ck: JSON.parse(JSON.stringify(CK))};
@@ -1463,7 +1489,7 @@ function ckSaveRecord(){
 }
 function ckLoadRecord(key){
   const rec = ckLoadRecords().find(r=> r.key === key);
-  if(!rec){ alert('找不到該筆紀錄'); return; }
+  if(!rec){ ckNotice('找不到該筆紀錄'); return; }
   if(ckDirty && ckHasData() && !confirm('目前畫面上的資料還沒儲存，載入其他紀錄會覆蓋掉。要繼續嗎？')) return;
   ckReset(Object.assign(ckBlank(), JSON.parse(JSON.stringify(rec.ck))));
   ckToast('已載入 ' + rec.label + '。紀錄不含原始報告檔，要附在報告後面請重新上傳。');
@@ -1527,7 +1553,7 @@ window.addEventListener('beforeunload', e=>{
 });
 function ckExport(){
   const list = ckLoadRecords();
-  if(!list.length && !ckHasData()){ alert('目前沒有紀錄可以匯出。'); return; }
+  if(!list.length && !ckHasData()){ ckNotice('目前沒有紀錄可以匯出。'); return; }
   ckPagesUnsaved = false;
   const pages = {};
   [...CK.reports, ...CK.att].forEach(x=>{ if(CK_PAGES[x.id]) pages[x.id] = CK_PAGES[x.id]; });
@@ -1548,11 +1574,11 @@ async function ckImport(input){
   if(!file) return;
   let data;
   try{ data = JSON.parse(await file.text()); }
-  catch(e){ alert('無法讀取這個檔案，請確認是健檢報告匯出的備份檔（.json）。'); return; }
+  catch(e){ ckNotice('無法讀取這個檔案，請確認是健檢報告匯出的備份檔（.json）。'); return; }
   const v1 = data && data.app === 'muzi-checkup' && data.ck && typeof data.ck === 'object';
   const v2 = data && data.app === 'muzi-checkup' && Array.isArray(data.records);
   if(!v1 && !v2){
-    alert(data && data.app === 'muzi-weight' ? '這是減重報告的備份檔，請到減重報告匯入。' : '這不是健檢報告的備份檔。');
+    ckNotice(data && data.app === 'muzi-weight' ? '這是減重報告的備份檔，請到減重報告匯入。' : '這不是健檢報告的備份檔。');
     return;
   }
   // 紀錄合併：備份裡沒有的新增；兩邊都有的保留儲存時間較新的一份。本機紀錄不會被刪除
@@ -1581,7 +1607,7 @@ async function ckImport(input){
     }
     return;
   }
-  alert(msg);
+  ckNotice(msg);
 }
 
 function ckChanged(opts){
@@ -1597,7 +1623,7 @@ function ckChanged(opts){
 async function ckAddFiles(files){
   const isImg = f=> /^image\/(jpeg|png|webp)$/.test(f.type);
   const list = [...files].filter(f=> f.type === 'application/pdf' || /\.pdf$/i.test(f.name) || isImg(f));
-  if(!list.length){ alert('請選擇優品醫事檢驗所的報告（PDF、JPG 或 PNG）。'); return; }
+  if(!list.length){ ckNotice('請選擇優品醫事檢驗所的報告（PDF、JPG 或 PNG）。'); return; }
   const drop = ckEl('k-drop'), orig = drop.innerHTML;
   drop.innerHTML = '<b>讀取中…</b>';
   for(const f of list){
@@ -1605,7 +1631,7 @@ async function ckAddFiles(files){
       if(isImg(f)) drop.innerHTML = `<b>影像辨識中…</b>${ckEsc(f.name)}：辨識兩次互相比對，約需 20 至 60 秒（第一次使用要先下載中文字庫）`;
       const {rep, pages} = isImg(f) ? await ckParseImage(f) : await ckParsePdf(f);
       if(!rep.rows.length){
-        alert(isImg(f) ? `${f.name} 辨識不出檢驗項目。請確認照片有拍到「檢驗項目、中文名稱、結果、參考區間」這一列表頭，而且拍正、不反光；仍不行請改用 PDF 或手動輸入。`
+        ckNotice(isImg(f) ? `${f.name} 辨識不出檢驗項目。請確認照片有拍到「檢驗項目、中文名稱、結果、參考區間」這一列表頭，而且拍正、不反光；仍不行請改用 PDF 或手動輸入。`
                        : `${f.name} 讀不到檢驗項目，可能不是優品的報告格式，請改用手動輸入。`);
         continue;
       }
@@ -1616,7 +1642,7 @@ async function ckAddFiles(files){
       ckPagesUnsaved = true;
     }catch(err){
       console.error(err);
-      alert(`${f.name} 讀取失敗：${err.message}`);
+      ckNotice(`${f.name} 讀取失敗：${err.message}`);
     }
   }
   drop.innerHTML = orig;
@@ -1677,7 +1703,7 @@ async function ckAddFiles(files){
   // 數字欄位：點進去全選、Enter 跳下一格、滾輪不改數值
   KD.addEventListener('focusin', e=>{ if(e.target.matches('input[type=number], input[type=text]')) setTimeout(()=> e.target.select(), 0); });
   KD.addEventListener('keydown', e=>{
-    if(e.key !== 'Enter' || !e.target.matches('input')) return;
+    if(e.key !== 'Enter' || e.isComposing || e.keyCode === 229 || !e.target.matches('input')) return;
     e.preventDefault();
     const all = [...KD.querySelectorAll('input:not([type=file]), textarea')].filter(x=> x.offsetParent);
     const n = all[all.indexOf(e.target) + 1];

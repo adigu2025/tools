@@ -7,7 +7,7 @@
   :host{
     --primary:#3E4C6B; --primary-dark:#323E58; --primary-mid:#4F5E7E;
     --accent:#5B6B8C; --accent-light:#7584A3; --accent-pale:#E8ECF3; --accent-rgb:91,107,140;
-    --gold:#A88A62; --gold-pale:#F3EDE4; --gold-line:#D9C7AC; --gold-deep:#6E5634; --gold-rgb:168,138,98;
+    --gold:#A88A62; --gold-pale:#F3EDE4; --gold-line:#D9C7AC; --gold-deep:#6E5634; --gold-rgb:168,138,98; --gold-text:#3E4C6B;
     --green:#5E8A6E; --green-pale:#E8F0EA; --green-deep:#3B6149;
     --bg:#F5F4EE; --surface:#FFFFFF; --surface-warm:#FAF9F5;
     --text:#1F1E1D; --muted:#6F6B63; --border:#E6E3DA; --border-strong:#D6D2C6;
@@ -128,9 +128,9 @@
   .item-desc{font-size:12.5px; line-height:1.55; margin-bottom:6px;}
   .item-price-row{padding-top:6px;}
   .price-val{font-size:19px;}
-  .price-currency{font-size:11.5px;}
-  .mode-badge{top:9px; right:9px; font-size:10.5px; padding:0 6px; border-radius:6px;}
-  .check-dot{width:20px; height:20px; bottom:10px; right:10px; font-size:10px;}
+  .price-currency{font-size:12px;}
+  .mode-badge{top:9px; right:9px; font-size:12px; padding:0 6px; border-radius:6px;}
+  .check-dot{width:20px; height:20px; bottom:10px; right:10px; font-size:12px;}
   .item-card.solo{grid-column:1 / -1; display:grid; grid-template-columns:minmax(150px,220px) minmax(0,1fr) auto; align-items:center;
     column-gap:22px; min-height:0; padding:12px 92px 12px 16px;}
   .item-card.solo .item-name{margin:0; padding-right:0;}
@@ -154,7 +154,7 @@
   .sec-rail-btn{display:flex; align-items:baseline; justify-content:space-between; gap:6px; width:100%; padding:5px 10px;
     border:0; border-radius:7px; background:none; font:inherit; font-size:13.5px; line-height:1.45; color:var(--muted);
     text-align:left; cursor:pointer;}
-  .sec-rail-btn em{font-style:normal; font-size:11.5px; color:var(--border-strong); font-variant-numeric:tabular-nums;}
+  .sec-rail-btn em{font-style:normal; font-size:12px; color:var(--border-strong); font-variant-numeric:tabular-nums;}
   .sec-rail-btn:hover{background:var(--surface-warm); color:var(--text);}
   .sec-rail-btn.active{background:var(--accent-pale); color:var(--primary); font-weight:600;}
   .sec-rail-btn.active em{color:var(--accent);}

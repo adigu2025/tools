@@ -796,6 +796,7 @@ searchInput.addEventListener('keydown', e=>{
     kbIndex = Math.max(kbIndex-1, -1);
     updateKbActive(items);
   } else if(e.key==='Enter'){
+    if(e.isComposing||e.keyCode===229) return;   /* 注音選字中的 Enter 不算送出 */
     e.preventDefault();
     const target = kbIndex>=0 ? items[kbIndex] : items[0];
     if(target) target.click();
@@ -990,8 +991,8 @@ function appendCustomAddCard(grid,catLabel){
     card.querySelector('.custom-add-cancel-btn').addEventListener('click',function(){
       if(currentCat) buildItemsGrid(currentCat);
     });
-    nameEl.addEventListener('keydown',function(e){if(e.key==='Enter')priceEl.focus();});
-    priceEl.addEventListener('keydown',function(e){if(e.key==='Enter')card.querySelector('.custom-add-confirm').click();});
+    nameEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!(e.isComposing||e.keyCode===229))priceEl.focus();});
+    priceEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!(e.isComposing||e.keyCode===229))card.querySelector('.custom-add-confirm').click();});
   });
   grid.appendChild(card);
 }
@@ -2084,7 +2085,7 @@ function startEditPrice(el, itemId){
   }
   input.addEventListener('blur',save);
   input.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){ e.preventDefault(); save(); }
+    if(e.key==='Enter' && !(e.isComposing||e.keyCode===229)){ e.preventDefault(); save(); }
     if(e.key==='Escape') renderCart();
   });
 }
@@ -2781,7 +2782,7 @@ function startEditAmount(el, cfg){
   const elId=el.id, cls=el.className;
   const input=document.createElement('input');
   input.type='number'; input.min='0'; input.className='price-edit-input';
-  input.style.color='var(--gold)'; input.value=cfg.get()||'';
+  input.style.color='var(--gold-text)'; input.value=cfg.get()||'';
   el.replaceWith(input); input.focus(); input.select();
   let done=false;
   function save(cancel){
@@ -2796,7 +2797,7 @@ function startEditAmount(el, cfg){
   }
   input.addEventListener('blur',()=>save(false));
   input.addEventListener('keydown',function(e){
-    if(e.key==='Enter'){ e.preventDefault(); save(false); }
+    if(e.key==='Enter' && !(e.isComposing||e.keyCode===229)){ e.preventDefault(); save(false); }
     else if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); save(true); }   /* Esc 取消，不存 */
   });
 }

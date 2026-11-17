@@ -200,7 +200,7 @@ function railShell(rail){
   inp.addEventListener('keydown', e=>{
     // Esc 先清空搜尋，再按一次離開搜尋框；Enter 開啟第一筆結果
     if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); if(inp.value){ inp.value = ''; run(); } else inp.blur(); }
-    else if(e.key === 'Enter'){
+    else if(e.key === 'Enter' && !(e.isComposing || e.keyCode === 229)){
       e.preventDefault();
       const h = searchHits(eduQuery);
       if(h.length) pickItem(h[0].i);

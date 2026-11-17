@@ -9,7 +9,7 @@
   --teal:#587562 !important; --teal-dark:#3F5A48 !important; --teal-soft:#E5EDE7 !important;
   --gold:#7F878C !important; --gold-soft:#EEF0F1 !important; --navy:#3F5A48 !important;
   --bg:#F5F4EE !important; --surface-alt:#FAF9F5 !important; --line:#E6E3DA !important;
-  --text:#1F1E1D !important; --muted:#6F6B63 !important; --faint:#9C978C !important;
+  --text:#1F1E1D !important; --muted:#6F6B63 !important; --faint:#6F6B63 !important;
   --shadow:0 1px 2px rgba(31,30,29,.04), 0 6px 24px rgba(31,30,29,.06) !important;
   --ring:0 0 0 3px rgba(88,117,98,.25) !important;
 }
@@ -115,7 +115,7 @@
 .field-unit{font-size:12.5px !important;}
 .field-err{font-size:13px !important;}
 .panel-title small{font-size:12.5px !important;}
-.tab .tab-en{font-size:11px !important;}
+.tab .tab-en{font-size:12px !important;}
 .group-btn{font-size:15px !important;}
 @media (min-width:1100px){
   .tool-panel.hub-split.active{display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
@@ -386,7 +386,7 @@
   /* TDEE：時程與營養素改成「標籤一列、數值與單位同一列」 */
   #tdee-result .mini{display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline; column-gap:3px;}
   #tdee-result .mini-label{width:100%; margin-bottom:1px !important;}
-  #tdee-result .section-box .notes{font-size:11.5px !important;}
+  #tdee-result .section-box .notes{font-size:12px !important;}
   #tdee-result .section-title{margin-bottom:8px !important;}
   #tdee-result .stat{min-height:104px;}
 }
@@ -399,7 +399,7 @@
   /* TDEE 衛教：標題接在內文前面（run-in），少一行 */
   #tdee-result .edu-card{display:block !important;}
   #tdee-result .edu-title{display:inline; margin-right:6px;}
-  #tdee-result .edu-text{display:inline; font-size:11.5px !important;}
+  #tdee-result .edu-text{display:inline; font-size:12px !important;}
   #tdee-result .edu-grid{gap:8px 16px !important; padding:8px 12px 10px !important;}
 }
 @media (min-width:1100px){
@@ -478,7 +478,7 @@
   #fib4-result > .scale{grid-area:scale;}
 }
 @media (min-width:1100px){
-  .hub-out > .notes{font-size:11.5px !important; line-height:1.55 !important;}
+  .hub-out > .notes{font-size:12px !important; line-height:1.55 !important;}
   .tool-panel.hub-split:not(.rx-panel) > .hub-out{gap:12px;}
   #fib4-result, #rfactor-result, #childpugh-result{padding:16px 24px !important;}
   :is(#rfactor-result,#childpugh-result) .scale{padding-top:12px;}
@@ -570,7 +570,7 @@
   #rfactor-table td:nth-child(2){white-space:nowrap;}
 }
 @media (min-width:1100px){
-  .hub-in > .notes{font-size:11.5px !important; line-height:1.55 !important; padding-top:10px !important;}
+  .hub-in > .notes{font-size:12px !important; line-height:1.55 !important; padding-top:10px !important;}
   #panel-childpugh > .hub-in{gap:12px !important;}
 }
 
@@ -613,7 +613,7 @@
   main.body > .tool-panel.as-split.active:not(.hub-split) .check-item{container-type:normal; flex:none; min-height:0; padding:7px 14px !important; align-items:center !important;}
   main.body > .tool-panel.as-split.active:not(.hub-split) .check-label{font-size:16px !important;}
   main.body > .tool-panel.as-split.active:not(.hub-split) .check-desc{font-size:12px !important; line-height:1.45 !important;}
-  main.body > .tool-panel.as-split.active:not(.hub-split) .check-tag{font-size:11.5px !important;}
+  main.body > .tool-panel.as-split.active:not(.hub-split) .check-tag{font-size:12px !important;}
   main.body > .tool-panel.as-split.active:not(.hub-split) [id$="-body"] > .quiz-nav{padding-top:10px;}
   main.body > .tool-panel.as-split.active:not(.hub-split) [data-submit]{width:100%; min-height:42px; font-size:15px !important;}
   #scope-body .quiz-nav{display:none;}
@@ -644,7 +644,7 @@
   .tone-none .rc-mark{border-color:#B5B1A7;}
   .rc-bands{display:flex; margin-top:8px; font-size:12.5px; font-weight:600; color:var(--muted);}
   .rc-bands span{text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 2px;}
-  .rc-ticks{position:relative; height:16px; margin-top:2px; font-size:11.5px; color:var(--faint); font-variant-numeric:tabular-nums;}
+  .rc-ticks{position:relative; height:16px; margin-top:2px; font-size:12px; color:var(--faint); font-variant-numeric:tabular-nums;}
   .rc-ticks span{position:absolute; transform:translateX(-50%);}
   .rc-ticks span:first-child{transform:none;} .rc-ticks span:last-child{transform:translateX(-100%);}
   /* 代謝症候群五項 */
@@ -670,7 +670,7 @@
   .rc-sheet b{text-align:right; font-variant-numeric:tabular-nums; color:var(--muted);}
   .rc-sheet li.todo .a{color:var(--faint); font-weight:500;}
   .rc-sheet li.flag .a, .rc-sheet li.flag b{color:var(--red);}
-  :is(.as-split > .assess-result, #waist-result) .notes{margin-top:auto !important; font-size:11.5px !important; line-height:1.55 !important;}
+  :is(.as-split > .assess-result, #waist-result) .notes{margin-top:auto !important; font-size:12px !important; line-height:1.55 !important;}
   /* 內視鏡疑慮：說明卡兩欄 */
   #scope-result .result-card > div:nth-child(2){display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px;}
   #scope-result .solution-card{margin:0 !important;}
@@ -724,7 +724,7 @@
   .rx-panel .drugs{gap:4px 5px !important; margin-top:4px !important;}
   .rx-panel .drug{flex-direction:row !important; align-items:baseline; gap:5px; padding:2px 8px !important; font-size:12px !important;}
   .rx-panel .field-head{white-space:nowrap;}
-  .rx-panel .field-unit{font-size:11px !important;}
+  .rx-panel .field-unit{font-size:12px !important;}
   .rx-panel .rx-rule{padding:6px 0 !important;}
   /* 降血脂：結果卡片多，結果欄放寬並排成兩欄；風險等級橫跨兩欄 */
   #panel-lipidrx.hub-split.active{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important; column-gap:18px !important;}

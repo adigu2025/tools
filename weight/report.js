@@ -977,7 +977,7 @@ function rHasUploads(){ return ['lab', 'tanita'].some(k=> (uploadedFiles[k] || [
 function rAttOn(){ const box = WD.getElementById('rpt-att'); return !box || box.checked; }
 function rNeedGender(){
   if(rS('p-gender')) return false;
-  alert('請先在「基本資料」選擇性別，報告的判讀標準依性別不同。');
+  wNotice('請先在「基本資料」選擇性別，報告的判讀標準依性別不同。');
   const g = WD.getElementById('p-gender');
   if(g) g.focus();
   return true;

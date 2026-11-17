@@ -626,7 +626,7 @@ function ckDocHtml(title, preview){
 function ckFilename(){ return (CK.info.name ? CK.info.name + '_' : '') + '健檢_' + String(CK.info.date || ckToday()).replace(/-/g, ''); }
 function ckNeedSex(){
   if(CK.info.sex) return false;
-  alert('請先在「基本資料」選擇性別，報告的判讀標準依性別不同。');
+  ckNotice('請先在「基本資料」選擇性別，報告的判讀標準依性別不同。');
   ckEl('k-sec-info').scrollIntoView({behavior:'smooth'});
   return true;
 }
@@ -686,7 +686,7 @@ async function ckPrint(){
   const win = frame.contentWindow, doc = win.document;
   doc.open(); doc.write(ckDocHtml(title, false)); doc.close();
   try{ await ckLayout(doc, m); }
-  catch(e){ console.error(e); alert('排版失敗：' + e.message); frame.remove(); return; }
+  catch(e){ console.error(e); ckNotice('排版失敗：' + e.message); frame.remove(); return; }
   const orig = document.title;
   document.title = title;
   let done = false;

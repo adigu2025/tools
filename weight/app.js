@@ -1,6 +1,32 @@
 // 問卷與健康紀錄表的樣式在 forms/forms.js（與工作台共用），開頁時放進頁面
 WD.appendChild(Object.assign(document.createElement('style'), {id:'forms-css', textContent: FORMS_CSS}));
 
+/* 提示訊息（取代 wNotice()）：畫面底部浮出，不擋操作；字多就停留久一點，可按 × 關閉。
+   同時有好幾則（例如一次上傳多個檔案）會往上疊。失敗類訊息左側加紅條。 */
+function wNotice(msg){
+  const root = WD;
+  let box = root.getElementById('w-notice');
+  if(!box){
+    box = Object.assign(document.createElement('div'), {id:'w-notice'});
+    box.setAttribute('role', 'status'); box.setAttribute('aria-live', 'polite');
+    box.style.cssText = 'position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; width:min(560px, calc(100vw - 32px)); pointer-events:none;';
+    root.appendChild(box);
+  }
+  const text = String(msg == null ? '' : msg);
+  const err = /失敗|無法|錯誤|找不到|不是/.test(text);
+  const item = document.createElement('div');
+  item.style.cssText = 'pointer-events:auto; display:flex; gap:10px; align-items:flex-start; width:100%; box-sizing:border-box; padding:12px 14px 12px 16px; border-radius:12px; background:#152831; color:#fff; font-size:15px; line-height:1.6; white-space:pre-line; box-shadow:0 6px 24px rgba(21,40,49,.25);' + (err ? ' border-left:5px solid #E07A6E;' : '');
+  const span = Object.assign(document.createElement('span'), {textContent: text});
+  span.style.flex = '1';
+  const x = Object.assign(document.createElement('button'), {type:'button', textContent:'×', title:'關閉'});
+  x.setAttribute('aria-label', '關閉提示');
+  x.style.cssText = 'flex:none; border:none; background:none; color:#fff; font-size:20px; line-height:1; cursor:pointer; padding:0 2px;';
+  const close = ()=> item.remove();
+  x.addEventListener('click', close);
+  item.append(span, x); box.appendChild(item);
+  setTimeout(close, Math.min(15000, Math.max(4500, text.length * 120)));
+}
+
 // ============================================================
 // NAVIGATION（版面與健檢報告一致：一頁捲到底，左側目錄點了捲到該區）
 // ============================================================
@@ -374,7 +400,7 @@ Object.keys(FIELD_RANGES).forEach(id=>{
 function calcBMI(silent){
   const hM = getHeightM();
   const w = parseFloat(WD.getElementById('b-weight').value);
-  if(!hM || !w){ if(!silent) alert('請先填寫身高與體重'); return; }
+  if(!hM || !w){ if(!silent) wNotice('請先填寫身高與體重'); return; }
   // 身高體重超出生理範圍時不計算，避免打錯字產生錯誤分級
   if(!validateField('b-height') || !validateField('b-weight')){
     WD.getElementById('bmi-value').textContent = '--';
@@ -727,10 +753,10 @@ async function handleFiles(kind, files, listId){
       if(url) uploadedFiles[kind].push({ name:file.name, pages:[url], text:'', image:true });
       continue;
     }
-    if(file.type !== 'application/pdf'){ alert(file.name+' 不是 PDF 或圖檔（JPG、PNG），已略過'); continue; }
+    if(file.type !== 'application/pdf'){ wNotice(file.name+' 不是 PDF 或圖檔（JPG、PNG），已略過'); continue; }
     const entry = { name:file.name, pages:[], text:'' };
     if(typeof pdfjsLib === 'undefined'){
-      alert('PDF預覽元件載入失敗（可能是離線環境），已記錄檔名但無法產生預覽圖，需連網後重新整理頁面再試');
+      wNotice('PDF預覽元件載入失敗（可能是離線環境），已記錄檔名但無法產生預覽圖，需連網後重新整理頁面再試');
       uploadedFiles[kind].push(entry);
       continue;
     }
@@ -759,7 +785,7 @@ async function handleFiles(kind, files, listId){
       }
     }catch(err){
       console.error(err);
-      alert(file.name+' 無法解析預覽，仍會保留檔名記錄');
+      wNotice(file.name+' 無法解析預覽，仍會保留檔名記錄');
     }
     uploadedFiles[kind].push(entry);
   }
@@ -856,7 +882,7 @@ function fillCurrentLabFieldsFromUpload(){
   const info = cur ? wFillInfoFromLab(cur) : [];
   const infoMsg = info.length ? `基本資料已帶入${info.join('、')}。` : '';
   const keys = Object.keys(fields);
-  if(keys.length === 0){ alert(infoMsg + '未能自動辨識出可用數值，請於上方欄位手動輸入。'); return; }
+  if(keys.length === 0){ wNotice(infoMsg + '未能自動辨識出可用數值，請於上方欄位手動輸入。'); return; }
   keys.forEach(k=>{
     const el = WD.getElementById('lab-'+k);
     if(el){ el.value = fields[k]; flashField(el); markUploaded(el); }
@@ -1049,7 +1075,7 @@ function fillCurrentBodyFieldsFromUpload(){
   const files = uploadedFiles.tanita.filter(f=> f.text && f.text.trim());
   const src = tanitaPick(files);
   const {f: fields} = tanitaParse(src.text, src.lines || '', WD.getElementById('b-height').value, FIELD_SRC['b-height'] !== 'upload');
-  if(!Object.keys(fields).length){ alert('未能自動辨識出可用數值，此PDF可能無文字層或欄位名稱為圖片，請於下方欄位手動輸入。'); return; }
+  if(!Object.keys(fields).length){ wNotice('未能自動辨識出可用數值，此PDF可能無文字層或欄位名稱為圖片，請於下方欄位手動輸入。'); return; }
   // 帶入後不跳提示：帶入的欄位會閃一下並標「上傳」，自己改過的欄位維持不動
   Object.keys(fields).forEach(k=>{
     const el = WD.getElementById(k === 'weight' ? 'b-weight' : k === 'height' ? 'b-height' : 't-' + k);
@@ -1063,7 +1089,7 @@ function fillCurrentBodyFieldsFromUpload(){
 
 function extractFromUploads(kind){
   const files = uploadedFiles[kind];
-  if(!files || !files.length){ alert('請先上傳PDF檔案'); return; }
+  if(!files || !files.length){ wNotice('請先上傳PDF檔案'); return; }
   let added = 0;
   files.forEach(f=>{
     if(!f.text) return;
@@ -1081,9 +1107,9 @@ function extractFromUploads(kind){
   });
   renderTrackTable(kind);
   if(added){
-    alert(`已自動擷取 ${added} 筆資料到追蹤表，擷取結果為關鍵字比對，非AI判讀，請務必核對數值與日期是否正確，如有誤請直接於表格內修改。`);
+    wNotice(`已自動擷取 ${added} 筆資料到追蹤表，擷取結果為關鍵字比對，非AI判讀，請務必核對數值與日期是否正確，如有誤請直接於表格內修改。`);
   } else {
-    alert('未能自動辨識出可用數值，請於下方表格手動輸入。若PDF為掃描圖檔（無文字層）則無法自動擷取。');
+    wNotice('未能自動辨識出可用數值，請於下方表格手動輸入。若PDF為掃描圖檔（無文字層）則無法自動擷取。');
   }
 }
 
@@ -1173,7 +1199,7 @@ function computeCalorie(){
 
 function calcCalorie(){
   const c = computeCalorie();
-  if(c.error){ alert(c.error); return; }
+  if(c.error){ wNotice(c.error); return; }
   const {bmr, tdee, target, proteinG, proteinKcal, fatG, fatKcal, carbG, carbKcal, safetyNote, macroNote, perKg, refLabel, phenotype} = c;
   WD.getElementById('cal-bmr').innerHTML = Math.round(bmr) + '<span class="unit"> kcal</span>' +
     `<div class="hint" style="font-size:13px">${bmrSrcText(c)}</div>`;
@@ -1284,7 +1310,7 @@ function genExercise(){
   const nafld = cmText.includes('脂肪肝');
   const pmos = /PMOS|PCOS|多囊/.test(cmText);
 
-  if(bmi === null){ alert('請先於「基本資料」頁填寫身高體重'); return; }
+  if(bmi === null){ wNotice('請先於「基本資料」頁填寫身高體重'); return; }
 
   const classification = classifyExercisePhenotype(gender, bmi, bodyFat, smi, phaseAngle);
   const rx = EXERCISE_PRESCRIPTIONS[classification];
@@ -1894,9 +1920,9 @@ function flashField(el){
 
 function getUploadedPdfText(kind){
   const files = uploadedFiles[kind];
-  if(!files || !files.length){ alert('請先上傳PDF檔案'); return null; }
+  if(!files || !files.length){ wNotice('請先上傳PDF檔案'); return null; }
   const allText = files.map(f=>f.text||'').join('\n');
-  if(!allText.trim()){ alert('未能讀取文字內容。圖檔與掃描的 PDF（沒有文字層）無法自動擷取，請於欄位手動輸入；檔案仍會附在報告最後。'); return null; }
+  if(!allText.trim()){ wNotice('未能讀取文字內容。圖檔與掃描的 PDF（沒有文字層）無法自動擷取，請於欄位手動輸入；檔案仍會附在報告最後。'); return null; }
   return allText;
 }
 
@@ -2245,7 +2271,7 @@ function printIsolated(bodyHtml, title, opts){
       setTimeout(cleanup, 60000);
     }catch(e){
       cleanup();
-      alert('列印失敗：' + e.message);
+      wNotice('列印失敗：' + e.message);
     }
   };
 
@@ -2254,7 +2280,7 @@ function printIsolated(bodyHtml, title, opts){
   if(opts.prepare){
     showPrintBusy('正在排版報告…');
     Promise.resolve().then(()=> opts.prepare(doc, win))
-      .catch(e=>{ console.error(e); alert('報告排版失敗：' + e.message); })
+      .catch(e=>{ console.error(e); wNotice('報告排版失敗：' + e.message); })
       .then(()=> setTimeout(run, 80));
     return;
   }
@@ -2421,7 +2447,7 @@ function loadRecords(){
 }
 function persistRecords(list){
   try{ localStorage.setItem(RECORDS_KEY, JSON.stringify(list)); return true; }
-  catch(e){ alert('儲存失敗：'+e.message+'\n瀏覽器儲存空間可能已滿，請先刪除舊紀錄。'); return false; }
+  catch(e){ wNotice('儲存失敗：'+e.message+'\n瀏覽器儲存空間可能已滿，請先刪除舊紀錄。'); return false; }
 }
 function setStatus(text, dirty){
   isDirty = !!dirty;
@@ -2446,7 +2472,7 @@ function recordLabel(st){
 function saveRecord(){
   const st = collectState();
   const name = (st['p-name'] || '').trim();
-  if(!name){ alert('請先在「基本資料」填寫姓名，再儲存紀錄。'); return; }
+  if(!name){ wNotice('請先在「基本資料」填寫姓名，再儲存紀錄。'); return; }
   const list = loadRecords();
   // 識別值含出生日期，同一天兩位同名病人才不會互相覆蓋。
   // 舊版紀錄的識別值沒有生日（姓名||日期），生日相同時視為同一筆，存檔時順便換成新識別值
@@ -2468,7 +2494,7 @@ function saveRecord(){
 
 function loadRecord(key){
   const rec = loadRecords().find(r => r.key === key);
-  if(!rec){ alert('找不到該筆紀錄'); return; }
+  if(!rec){ wNotice('找不到該筆紀錄'); return; }
   if(isDirty && !confirm('目前有未儲存的變更，載入其他紀錄會覆蓋掉。要繼續嗎？')) return;
   wClearUploads(true);
   applyState(rec.state);
@@ -2559,7 +2585,7 @@ function renderBackupStatus(list){
 
 function exportRecords(){
   const list = loadRecords();
-  if(!list.length){ alert('目前沒有已儲存的紀錄可以匯出。'); return; }
+  if(!list.length){ wNotice('目前沒有已儲存的紀錄可以匯出。'); return; }
   const data = {app:'muzi-weight', version:1, exportedAt:new Date().toISOString(), records:list};
   const url = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'}));
   const a = document.createElement('a');
@@ -2579,12 +2605,12 @@ async function importRecords(input){
   let incoming;
   try{
     const data = JSON.parse(await file.text());
-    if(data && data.app === 'muzi-checkup'){ alert('這是健檢報告的備份檔，請到健檢報告匯入。'); return; }
+    if(data && data.app === 'muzi-checkup'){ wNotice('這是健檢報告的備份檔，請到健檢報告匯入。'); return; }
     incoming = Array.isArray(data) ? data : data.records;
     if(!Array.isArray(incoming)) throw new Error('format');
     incoming = incoming.filter(r=> r && typeof r.key === 'string' && r.state && typeof r.state === 'object');
-  }catch(e){ alert('無法讀取這個檔案，請確認是本系統匯出的備份檔（.json）。'); return; }
-  if(!incoming.length){ alert('備份檔裡沒有紀錄。'); return; }
+  }catch(e){ wNotice('無法讀取這個檔案，請確認是本系統匯出的備份檔（.json）。'); return; }
+  if(!incoming.length){ wNotice('備份檔裡沒有紀錄。'); return; }
   const list = loadRecords();
   let added = 0, updated = 0, kept = 0;
   incoming.forEach(r=>{
@@ -2597,7 +2623,7 @@ async function importRecords(input){
   list.sort((a, b)=> String(b.savedAt).localeCompare(String(a.savedAt)));
   if(!persistRecords(list)) return;
   renderRecords();
-  alert('匯入完成：新增 ' + added + ' 筆，更新 ' + updated + ' 筆' + (kept ? '，另有 ' + kept + ' 筆本機版本較新或相同，維持不變' : '') + '。');
+  wNotice('匯入完成：新增 ' + added + ' 筆，更新 ' + updated + ' 筆' + (kept ? '，另有 ' + kept + ' 筆本機版本較新或相同，維持不變' : '') + '。');
 }
 
 // 草稿自動暫存：輸入後 1.5 秒無動作即寫入，關閉分頁不致遺失
@@ -2648,7 +2674,7 @@ function recalcAll(){
 //    文字欄位保留原本行為，多行文字框照常換行。
 WD.addEventListener('keydown', e=>{
   const t = e.target;
-  if(e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.isComposing) return;
+  if(e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.isComposing || e.keyCode === 229) return;
   if(!t || t.tagName !== 'INPUT' || !['number','date','text'].includes(t.type)) return;
   if(t.closest('.other-text') || t.classList.contains('other-text')) return;
   const scope = t.closest('.screen') || document;

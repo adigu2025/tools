@@ -20,7 +20,7 @@
   --surface-alt:#F6F9FA;
   --text:#1B2B33;
   --muted:#6B7C86;
-  --faint:#98A8B2;
+  --faint:#646F75;
   --line:#E1E9ED;
 
   --green:#2E7D4F;      --green-soft:#E9F5EE;
@@ -156,10 +156,10 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .group-btn:hover{color:var(--teal);}
 .group-btn[aria-selected="true"]{color:var(--teal-dark);border-bottom-color:var(--gold);}
 .group-btn .group-count{
-  font-size:10.5px;font-weight:700;color:var(--faint);
+  font-size:12px;font-weight:700;color:var(--faint);
   margin-left:5px;
 }
-.group-btn[aria-selected="true"] .group-count{color:var(--gold);}
+.group-btn[aria-selected="true"] .group-count{color:var(--navy);}
 
 /* 第二層：工具 */
 .tabs{
@@ -183,7 +183,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
   cursor:pointer;white-space:nowrap;
   transition:background .18s var(--ease),color .18s var(--ease),border-color .18s var(--ease),transform .18s var(--ease);
 }
-.tab .tab-en{font-size:10px;font-weight:600;letter-spacing:.6px;opacity:.65;text-transform:uppercase;}
+.tab .tab-en{font-size:12px;font-weight:600;letter-spacing:.6px;opacity:.65;text-transform:uppercase;}
 .tab:hover{border-color:var(--teal);color:var(--teal);}
 /* 選取中：淡底＋深色字，不加有色陰影（與工作台頂端分頁同一種做法） */
 .tab[aria-selected="true"]{
@@ -205,7 +205,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
   padding-bottom:11px;margin-bottom:20px;flex-wrap:wrap;
 }
 .panel-title{font-size:17px;font-weight:700;color:var(--teal);}
-.panel-title small{display:block;font-size:11.5px;font-weight:500;color:var(--faint);letter-spacing:.3px;margin-top:2px;}
+.panel-title small{display:block;font-size:12px;font-weight:500;color:var(--faint);letter-spacing:.3px;margin-top:2px;}
 .panel-actions{display:flex;gap:8px;}
 .act{
   border:1.5px solid var(--line);background:var(--surface);
@@ -233,7 +233,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .field{min-width:0;}
 .field-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px;}
 .field-head label{font-size:12.5px;color:var(--muted);font-weight:600;}
-.field-unit{font-size:11px;color:var(--faint);font-weight:600;letter-spacing:.3px;white-space:nowrap;}
+.field-unit{font-size:12px;color:var(--faint);font-weight:600;letter-spacing:.3px;white-space:nowrap;}
 .field input,.field select{
   width:100%;padding:11px 13px;
   border:1.5px solid #D9E3E9;border-radius:var(--radius-sm);
@@ -249,7 +249,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 }
 .field input:focus,.field select:focus{border-color:var(--teal);box-shadow:var(--ring);}
 .field input.invalid,.field select.invalid{border-color:var(--red);box-shadow:0 0 0 3px rgba(192,57,43,.14);}
-.field-err{font-size:11.5px;color:var(--red);margin-top:5px;line-height:1.5;}
+.field-err{font-size:12px;color:var(--red);margin-top:5px;line-height:1.5;}
 .field input[type=number]::-webkit-outer-spin-button,
 .field input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .field input[type=number]{-moz-appearance:textfield;}
@@ -297,7 +297,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .ref-table tbody tr:nth-child(even){background:var(--surface-alt);}
 .ref-table tbody tr.hit{background:var(--gold-soft);}
 .ref-table tbody tr.hit td:first-child{font-weight:700;}
-.notes{font-size:11.5px;color:var(--faint);line-height:1.9;}
+.notes{font-size:12px;color:var(--faint);line-height:1.9;}
 
 /* ==========================================================
    BMI
@@ -325,8 +325,8 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 }
 .bar-marker:hover,.bar-marker:focus-visible{width:24px;height:24px;top:-7px;}
 .bar-marker.dragging{cursor:grabbing;transition:width .15s var(--ease),height .15s var(--ease),top .15s var(--ease);}
-.bar-labels{display:flex;justify-content:space-between;font-size:11.5px;color:var(--faint);font-weight:600;}
-.bar-bands{display:flex;font-size:11.5px;color:var(--faint);line-height:1.35;}
+.bar-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--faint);font-weight:600;}
+.bar-bands{display:flex;font-size:12px;color:var(--faint);line-height:1.35;}
 .bar-bands span{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;border-left:1px solid var(--line);padding:2px 2px 0;}
 .bar-bands span:first-child{border-left:0;}
 .bar-bands b{font-weight:600;white-space:nowrap;}
@@ -368,7 +368,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .bristol-card[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft);box-shadow:inset 0 0 0 1px var(--teal);}
 .bristol-card[aria-pressed="true"] .bristol-num{background:var(--teal);color:#fff;}
 .bristol-num{
-  font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.3px;text-align:center;
+  font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.3px;text-align:center;
   padding:3px 0;border-radius:999px;background:var(--teal-soft);
   transition:background .18s var(--ease),color .18s var(--ease);
 }
@@ -377,7 +377,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .bristol-txt{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .bristol-label{font-size:15px;font-weight:700;color:var(--text);line-height:1.35;}
 .bristol-desc{font-size:12.5px;color:var(--muted);line-height:1.5;}
-.bristol-tag{display:inline-block;vertical-align:2px;margin-left:8px;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap;}
+.bristol-tag{display:inline-block;vertical-align:2px;margin-left:8px;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap;}
 .bristol-tag.tag-c,.bristol-tag.tag-d{color:#9B3A2A;background:#FBEDE9;}
 .bristol-tag.tag-n{color:#2D6A43;background:#E2F0E6;}
 .bristol-tag.tag-s{color:#A86A12;background:#FCF4E4;}
@@ -393,7 +393,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .transit-bar i:nth-child(5){background:#E8D2A2;}
 .transit-mark{position:absolute;top:0;width:0;height:0;transform:translateX(-50%);
   border:7px solid transparent;border-top:9px solid currentColor;border-bottom:0;transition:left .25s var(--ease);}
-.transit-num{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11.5px;font-weight:700;color:var(--faint);margin-top:4px;}
+.transit-num{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;font-weight:700;color:var(--faint);margin-top:4px;}
 .transit-ends{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:2px;}
 #bristol-rome{margin-top:14px;}
 #bristol-rome caption{caption-side:top;text-align:left;font-size:12.5px;font-weight:700;color:var(--muted);padding:0 0 6px;}
@@ -416,13 +416,13 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .scale-bar .s-g{background:#9DC2A6;} .scale-bar .s-a{background:#E8C98E;} .scale-bar .s-r{background:#D99A8C;} .scale-bar .s-b{background:#9DBBD3;}
 .scale-mark{position:absolute;top:0;width:0;height:0;transform:translateX(-50%);
   border:7px solid transparent;border-top:9px solid currentColor;border-bottom:0;transition:left .25s var(--ease);}
-.scale-ticks{position:relative;height:18px;margin-top:4px;font-size:11.5px;font-weight:700;color:var(--muted);}
+.scale-ticks{position:relative;height:18px;margin-top:4px;font-size:12px;font-weight:700;color:var(--muted);}
 .scale-ticks span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap;}
 .scale-ticks .scale-end{left:0;transform:none;color:var(--faint);font-weight:600;}
 .scale-ticks .scale-end.r{left:auto;right:0;}
 @media (max-width:600px){
   .bristol-card{grid-template-columns:48px 96px minmax(0,1fr);gap:8px;padding:6px 8px;}
-  .bristol-desc{font-size:11.5px;}
+  .bristol-desc{font-size:12px;}
   .bristol-label{font-size:13.5px;}
 }
 
@@ -452,7 +452,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .mini{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:11px 8px;text-align:center;}
 .mini-label{font-size:12.5px;color:var(--muted);margin-bottom:3px;}
 .mini-val{font-size:19px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums;}
-.mini-unit{font-size:11.5px;color:var(--faint);}
+.mini-unit{font-size:12px;color:var(--faint);}
 .edu-head{display:block;width:100%;text-align:left;border:0;font:inherit;cursor:default;background:var(--teal);padding:10px 16px;color:#fff;font-size:14.5px;font-weight:700;}
 .edu-wrap{border:1.5px solid var(--line);border-radius:var(--radius-md);overflow:hidden;}
 .edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:14px 16px;}
@@ -473,7 +473,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .progress-fill{height:100%;background:var(--teal);border-radius:3px;transition:width .3s var(--ease);}
 .quiz-step{font-size:12px;color:var(--faint);font-weight:600;letter-spacing:.4px;margin-bottom:12px;}
 .quiz-tag{
-  display:inline-block;font-size:11.5px;font-weight:700;
+  display:inline-block;font-size:12px;font-weight:700;
   padding:2px 11px;border-radius:999px;margin-bottom:9px;
   background:var(--teal-soft);color:var(--teal);
 }
@@ -529,7 +529,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .check-box span{opacity:0;transition:opacity .14s var(--ease);}
 .check-item[aria-pressed="true"] .check-box span{opacity:1;}
 .check-body{flex:1;min-width:0;}
-.check-tag{display:block;font-size:11.5px;font-weight:700;color:var(--teal);letter-spacing:.3px;margin-bottom:2px;}
+.check-tag{display:block;font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.3px;margin-bottom:2px;}
 .check-label{display:block;font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
 .check-desc{display:block;font-size:12.5px;color:var(--muted);line-height:1.7;}
 
@@ -576,7 +576,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
   border:1.5px solid var(--line);border-radius:var(--radius-md);
   padding:14px 16px;margin-bottom:11px;background:var(--surface-alt);
 }
-.solution-gate{font-size:11.5px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:3px;}
+.solution-gate{font-size:12px;font-weight:700;color:var(--navy);letter-spacing:.5px;margin-bottom:3px;}
 .solution-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
 .solution-body{font-size:13.5px;color:#53656F;line-height:1.9;}
 
@@ -624,7 +624,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .flag input{margin-top:4px;flex:none;width:16px;height:16px;accent-color:var(--teal);}
 .flag.sub{padding-left:33px;font-size:12.5px;color:#4C5D66;}
 .chips{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:6px;}
-.chip{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;border-radius:999px;padding:3px 12px;background:var(--surface);color:var(--muted);border:1px solid var(--line);}
+.chip{display:inline-flex;align-items:center;font-size:12px;font-weight:600;border-radius:999px;padding:3px 12px;background:var(--surface);color:var(--muted);border:1px solid var(--line);}
 .chip.on{background:var(--teal-soft);color:var(--teal-dark);border-color:var(--teal);font-weight:700;}
 .chip-count{font-size:12.5px;font-weight:700;color:var(--text);margin-left:2px;}
 
@@ -695,7 +695,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .rx-card-head h4{font-size:14px;color:var(--teal-dark);font-weight:700;}
 .rx-card p{font-size:13.5px;color:#3E4E56;line-height:1.8;}
 .rx-card .rx-why{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.8;}
-.rx-status{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 12px;white-space:nowrap;letter-spacing:.2px;}
+.rx-status{font-size:12px;font-weight:700;border-radius:999px;padding:3px 12px;white-space:nowrap;letter-spacing:.2px;}
 .rx-status.st-yes{background:var(--green-soft);color:var(--green);}
 .rx-status.st-no{background:var(--red-soft);color:var(--red);}
 .rx-status.st-wait,.rx-status.st-part{background:var(--amber-soft);color:var(--amber);}
@@ -751,14 +751,14 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
    ========================================================== */
 .footer{
   background:var(--surface-alt);padding:16px 22px;
-  font-size:11.5px;color:var(--muted);text-align:center;line-height:1.9;
+  font-size:12px;color:var(--muted);text-align:center;line-height:1.9;
   border-top:1px solid var(--line);
 }
 .footer strong{color:var(--teal);}
 .footer .addr{color:var(--faint);}
 .privacy-note{
   max-width:640px;margin:10px auto 0;
-  font-size:11px;line-height:1.8;color:var(--faint);
+  font-size:12px;line-height:1.8;color:var(--faint);
 }
 /* 最後改版日期：主畫面左下角的灰色小字 */
 .app-revision{
@@ -782,19 +782,19 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 
   .header{padding:14px 14px 13px;gap:10px;}
   .clinic-name{font-size:21px;letter-spacing:1.5px;}
-  .clinic-sub{font-size:9.5px;letter-spacing:1.6px;margin-top:2px;}
+  .clinic-sub{font-size:12px;letter-spacing:1.6px;margin-top:2px;}
   .clinic-tool{font-size:12px;margin-top:7px;padding:2px 12px;}
   .qr-block{width:64px;gap:4px;}
   .qr-btn{width:60px;height:60px;padding:3px;border-radius:9px;}
-  .qr-label{font-size:10px;}
+  .qr-label{font-size:12px;}
   .header-spacer{width:64px;}
 
   .group-bar{padding:8px 12px 0;}
   .group-btn{font-size:12.5px;margin-right:12px;}
-  .staff-toggle{font-size:11.5px;}
-  .staff-notice{padding:8px 14px 10px;font-size:11.5px;}
+  .staff-toggle{font-size:12px;}
+  .staff-notice{padding:8px 14px 10px;font-size:12px;}
   .summary-head{gap:10px;}
-  .privacy-note{font-size:10.5px;}
+  .privacy-note{font-size:12px;}
   .tabs{padding:9px 12px;gap:7px;}
   .tab{padding:7px 13px;font-size:13px;}
   .quiz-q{font-size:15.5px;}
@@ -811,8 +811,8 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 
   .bmi-number{font-size:40px;min-width:84px;}
   .ideal-range{font-size:19px;}
-  .bar-labels{font-size:10px;}
-  .bar-bands{font-size:9.5px;letter-spacing:-.02em;}
+  .bar-labels{font-size:12px;}
+  .bar-bands{font-size:12px;letter-spacing:-.02em;}
   .bar-bands span{padding:2px 0 0;}
   .target-field{max-width:none;}
   .target-result{width:100%;}
@@ -1148,7 +1148,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <div class="section-box">
           <div class="section-title" id="tdee-timeline-title">減重時程預估（每日減少 500 kcal）</div>
           <div class="mini-grid-4" id="tdee-timeline"></div>
-          <p class="notes" id="tdee-floor" style="margin-top:10px;color:var(--gold);" hidden></p>
+          <p class="notes" id="tdee-floor" style="margin-top:10px;color:var(--navy);" hidden></p>
           <p class="notes" style="margin-top:10px;">以 7,700 kcal ≈ 1 kg 體脂換算，為線性推估值；實際減重速度會隨體重下降而趨緩。</p>
         </div>
 
