@@ -264,7 +264,11 @@
     background:transparent !important; border-left-width:2px !important; padding:2px 0 2px 12px !important;}
   .hub-in > .formula strong{color:#3A3833;}
   .hub-in > .notes{order:99;}
-  .hub-in > .rx-ocr{order:-1;}
+  /* 截圖辨識訊息排在欄位與參考資訊下方、公式上方：「辨識中」出現、「判讀完成」變長時，
+     由參考資訊區（flex:1）讓出高度，欄位與參考資訊的上緣都不動（2026-11-18 修 Child-Pugh 判讀完成時欄位往下跳） */
+  .hub-in > .rx-ocr{order:80;}
+  /* 用藥兩個工具的輸入欄原本是一般區塊，order 無效：改成直排 flex（gap 0，量過位置與原本一致），訊息排到最下方 */
+  .rx-panel .hub-in{display:flex; flex-direction:column; gap:0;}
 
   /* ---------- 共用：結果主框 ---------- */
   .hub-out > [id$="-hint"]{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 !important;}

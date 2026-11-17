@@ -16,6 +16,8 @@
    6. 不用 alert()：會擋住整個畫面、要多按一次確定。改用各工具的浮出提示（例如 wNotice、ckNotice、showToast）。
    7. type="number" 要有 inputmode，手機與平板才會直接叫出數字鍵盤。預設用 decimal（含小數點）。
    8. 輸入欄位不放 placeholder（診所規範：會被誤認成已填的值）。
+   9. 截圖辨識訊息（.rx-ocr）在工作台不可排在輸入欄上方（order 不可為負數）：訊息出現、變長時會把欄位往下推，畫面跳動。
+      要放在欄位下方，由參考資訊區讓出空間（calc/hub.css）。
 
    全部通過時最後一行是「全部通過」。自我測試：node tests/ux.test.js --self-test */
 const fs = require('fs');
@@ -112,6 +114,8 @@ function check(file, src){
     for(const m of l.matchAll(/<input\b[^>]*>/g)) if(/type\s*=\s*["']?number\b/.test(m[0]) && !/inputmode=/.test(m[0])) push(i + 1, 7, 'type="number" 沒有 inputmode');
     // 規則 8：placeholder
     if(/<(?:input|textarea)\b[^>]*\splaceholder\s*=\s*["'][^"']+/.test(l) || /\.placeholder\s*=\s*['"][^'"]+/.test(l)) push(i + 1, 8, '輸入欄位放了 placeholder');
+    // 規則 9：辨識訊息排在輸入欄上方
+    if(/\.rx-ocr\s*\{[^}]*\border\s*:\s*-/.test(l)) push(i + 1, 9, '截圖辨識訊息排在輸入欄上方，出現時會把欄位往下推');
   });
   return errs;
 }
@@ -136,6 +140,8 @@ if(process.argv.includes('--self-test')){
     [T('checkup/view.html', '<input type="number" data-k="a">'), ['規則 7']],
     [T('checkup/view.html', '<input type="number" inputmode="decimal">'), []],
     [T('quote/view.html', '<input type="text" placeholder="輸入名稱">'), ['規則 8']],
+    [T('calc/hub.css', '  .hub-in > .rx-ocr{order:-1;}'), ['規則 9']],
+    [T('calc/hub.css', '  .hub-in > .rx-ocr{order:80;}'), []],
   ];
   let bad = 0;
   cases.forEach(([got, want], i)=>{ if(JSON.stringify(got) !== JSON.stringify(want)){ bad++; console.log(`✗ 自我測試第 ${i + 1} 例：預期 ${JSON.stringify(want)}，得到 ${JSON.stringify(got)}`); } });

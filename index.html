@@ -639,6 +639,9 @@ async function mountCalc(){
   calcReady = true;
   watchChips(CD, ['bmi-result', 'bmi-val', 'bmi-badge']);
   splitCalcPanels();
+  // 參考資訊區被截圖辨識訊息擠矮（或訊息清掉變高）時重新判斷，不會露出被切掉一半的字
+  { const ro = new ResizeObserver(()=> fitSideInfo());
+    CD.querySelectorAll('.side-wrap').forEach(w=> ro.observe(w)); }
   // 倍率只在載入與視窗大小改變時計算一次，所有工具共用，切換時字級不跳動
   calcZ = null;
   fitCalc();
