@@ -17,6 +17,25 @@ const CLEAR_KEYS = {
 };
 
 const main = document.getElementById('hub-main');
+/* 深色模式：主題記在 <html data-theme>（index.html 開頭已依 hub-theme 或系統設定套上）。
+   四個工具在 shadow root 裡，外面的選擇器進不去，所以同時把 data-theme 放在各工具的外框，工具樣式用 :host([data-theme="dark"]) 換色票 */
+const THEME_HOSTS = ['quote-host', 'calc-host', 'weight-host', 'checkup-host'];
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  THEME_HOSTS.forEach(id=>{ const el = document.getElementById(id); if(el) el.dataset.theme = t; });
+}
+function toggleTheme(){
+  const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(t);
+  try{ localStorage.setItem('hub-theme', JSON.stringify(t)); }catch(err){}
+}
+applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+// 沒選過的話跟著系統設定即時切換
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e=>{
+  let t = null; try{ t = JSON.parse(localStorage.getItem('hub-theme')); }catch(err){}
+  if(t !== 'dark' && t !== 'light') applyTheme(e.matches ? 'dark' : 'light');
+});
 const cover = document.getElementById('hub-cover');
 
 /* 報價。QD、QB 是報價程式共用的全域變數；工作台外觀 quote/hub.css 只在這裡加上 */
@@ -25,7 +44,7 @@ async function mountQuote(){
   const host = document.getElementById('quote-host');
   try{
     await mountView(host, BASE + 'quote/view.html', {
-      css: [BASE + 'quote/hub.css'],
+      css: [BASE + 'quote/hub.css', BASE + 'quote/dark.css'],
       onRoot: root=>{ QD = root; QB = root.getElementById('q-body'); },
       scripts: [BASE + 'quote/data.js', BASE + 'quote/app.js']
     });
@@ -55,6 +74,7 @@ async function mountWeight(){
   try{
     await sharedReady;
     await mountView(host, BASE + 'weight/view.html', {
+      css: [BASE + 'weight/dark.css'],
       onRoot: root=>{ WD = root; WB = root.getElementById('w-body'); },
       scripts: [BASE + 'weight/app.js', BASE + 'weight/report.js']
     });
@@ -74,6 +94,7 @@ async function mountCheckup(){
   try{
     await sharedReady;
     await mountView(host, BASE + 'checkup/view.html', {
+      css: [BASE + 'checkup/dark.css'],
       onRoot: root=>{ KD = root; KB = root.getElementById('k-body'); },
       scripts: [BASE + 'checkup/app.js', BASE + 'checkup/report.js']
     });
@@ -88,7 +109,7 @@ async function mountCalc(){
   const host = document.getElementById('calc-host');
   try{
     await mountView(host, BASE + 'calc/view.html', {
-      css: [BASE + 'calc/hub.css'],
+      css: [BASE + 'calc/hub.css', BASE + 'calc/dark.css'],
       onRoot: root=>{ CD = root; CB = root.getElementById('c-body'); },
       scripts: [BASE + 'calc/rules.js', BASE + 'calc/assess.js', BASE + 'calc/app.js']
     });

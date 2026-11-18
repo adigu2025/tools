@@ -6,7 +6,8 @@
    1. Enter 要擋注音組字：keydown 判斷 Enter 的地方，前後 3 行內要有 isComposing（並一起擋 keyCode 229）。
       注音選字按的 Enter 會被當成送出，報價搜尋會選錯項目、欄位會跳走。
       Enter 綁在按鈕或卡片（不是文字輸入）時不會組字，那一行加註解 ime-ok。
-   2. 灰色系文字變數（名稱含 faint、muted、mute、sub）對工作台最深的底色 #EFEDE6 對比要 4.5 以上。
+   2. 灰色系文字變數（名稱含 faint、muted、mute、sub）對工作台最深的底色 #EFEDE6 對比要 4.5 以上；
+      深色模式區塊（[data-theme="dark"]）裡的改比深色模式最亮的底色 #302D29。
    3. 金色 #BC7F30（以及 --gold、--k-gold、--w-gold）不可當文字色：對白底只有 3.4，小字看不清楚。
       小字改用 Navy 或 Teal；工作台內各分頁有自己的配色，改用該工具的 --navy 或 --gold-text 變數。
       大字（24px 以上，或 19px 以上粗體）對比 3 就夠，寫進下面 ALLOW 並註明原因。
@@ -48,6 +49,8 @@ const ALLOW = [
 ];
 
 const DARKEST_BG = '#EFEDE6';
+// 深色模式（[data-theme="dark"] 區塊）的灰字改比深色模式最亮的底色（工作台 --sunken）：淺字在越亮的深底上越不清楚
+const DARK_BG = '#302D29';
 
 function lum(hex){
   const h = hex.replace('#', '');
@@ -95,12 +98,16 @@ function check(file, src){
 
   const s = stripPrint(src);
   const sl = s.split('\n');
+  let depth = 0, darkAt = -1;   // 目前大括號深度；在深色區塊裡時記下區塊開始前的深度
   sl.forEach((l, i)=>{
-    // 規則 2：灰色系文字變數
+    // 規則 2：灰色系文字變數（深色區塊裡改比深色底）
+    if(darkAt < 0 && /data-theme="dark"[^{]*\{/.test(l)) darkAt = depth;
+    const bg = darkAt >= 0 ? DARK_BG : DARKEST_BG;
     for(const m of l.matchAll(/--([\w-]*(?:faint|muted|mute|sub)[\w-]*)\s*:\s*(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})\b/g)){
-      const c = contrast(m[2], DARKEST_BG);
-      if(c < 4.5) push(i + 1, 2, `--${m[1]}:${m[2]} 對 ${DARKEST_BG} 只有 ${c.toFixed(2)}`);
+      const c = contrast(m[2], bg);
+      if(c < 4.5) push(i + 1, 2, `--${m[1]}:${m[2]} 對 ${bg} 只有 ${c.toFixed(2)}`);
     }
+    for(const ch of l){ if(ch === '{') depth++; else if(ch === '}'){ depth--; if(darkAt >= 0 && depth <= darkAt) darkAt = -1; } }
     // 規則 3：金色當文字色（color: 前面不是 - 才算，排除 border-color、background-color）
     // 減重工具的 --primary 是金色；其他工具的 --primary 是深色，不算
     const goldVars = file.startsWith('weight/') ? 'gold|k-gold|w-gold|primary' : 'gold|k-gold|w-gold';
@@ -134,6 +141,8 @@ if(process.argv.includes('--self-test')){
     [T('weight/report.js', "wNotice('請先選性別');"), []],
     [T('index.html', ':root{--faint:#9C978C;}'), ['規則 2']],
     [T('index.html', ':root{--faint:#6F6B63;}'), []],
+    [T('index.html', ':root[data-theme="dark"]{\n  --muted:#ADA79C; --faint:#ADA79C;\n}\n.x{--sub:#6F6B63;}'), []],
+    [T('index.html', ':root[data-theme="dark"]{\n  --faint:#5A564F;\n}'), ['規則 2']],
     [T('quote/view.html', '.x{ color: var(--gold); }'), ['規則 3']],
     [T('quote/view.html', '.x{ border-color: var(--gold); background-color:#BC7F30; }'), []],
     [T('calc/view.html', '.x{font-size:11.5px;}'), ['規則 4']],

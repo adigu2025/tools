@@ -10,6 +10,7 @@
       分組按鈕、項目按鈕、頁首的位置，以及共用倍率（.card 的 zoom）。
       降血脂與 B 肝用藥另外縮小的是自己的面板（rxZoom），不影響共用倍率，所以不算跳動。
    3. Esc 叫出與收起封面時頁首不移位，封面上的常用項目捷徑要開到對應的工具或分類。
+   4. 四個分頁各切換一次深色模式，頁首與工具畫面都不可以移位（深色只換顏色）。
    差超過 1px 或倍率不同就列出來。全部沒問題時最後一行是「全部通過」。
    自我測試：node tests/stable.test.js --self-test，故意讓切到臨床計算時分頁變寬、某個計算項目改變倍率，要抓得到才算過。 */
 const fs = require('fs');
@@ -89,6 +90,17 @@ async function run(){
     }
   }
   if(z0===null)res.push('臨床計算沒有找到任何項目');
+  // 4. 切換深色模式：每個分頁的頁首與工具畫面都不可以動（深色只換顏色）
+  var ROOTS={quote:function(){return QD;},calc:function(){return CD;},edu:function(){return document.getElementById('pane-edu');},weight:function(){return document.getElementById('pane-weight');}};
+  for(var vi=0;vi<VIEWS.length;vi++){
+    setView(VIEWS[vi]);await tick(400);
+    var rt=ROOTS[VIEWS[vi]]();
+    var els=head().concat([].slice.call(rt.querySelectorAll('*')).filter(vis).slice(0,400)),b=snap(els);
+    toggleTheme();await tick(100);
+    var md=moved(els,b,null);
+    toggleTheme();await tick(100);
+    if(md.length)res.push('切換深色模式（'+VIEWS[vi]+'）：'+md.length+' 個移位 '+md.slice(0,4).join('、'));
+  }
   // 3. Esc 封面：叫出與收起時頁首不移位；常用項目捷徑要真的開到對應的地方
   setView('quote');await tick(400);
   function esc(){document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));}
