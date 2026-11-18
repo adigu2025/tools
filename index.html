@@ -665,9 +665,13 @@ function mountFailed(host, name, err){
   host.innerHTML = `<div class="msg" style="padding:40px;text-align:center">${name}載入失敗，請重新整理頁面。</div>`;
 }
 // 臨床計算「已完成的評估」的列印：只印臨床計算這一區（見樣式 body.print-calc）
+// 和 QUOTE_PRINT 一樣在主頁面放一份 @page（邊界 0），shadow root 裡的 @page 不一定有作用
 window.CALC_PRINT = ()=>{
+  const page = document.createElement('style');
+  page.textContent = '@page{size:A4;margin:0;}';
+  document.head.appendChild(page);
   document.body.classList.add('print-calc');
-  const done = ()=>{ document.body.classList.remove('print-calc'); window.removeEventListener('afterprint', done); };
+  const done = ()=>{ document.body.classList.remove('print-calc'); page.remove(); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
   setTimeout(done, 1000);

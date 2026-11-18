@@ -845,9 +845,10 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 /* ==========================================================
    Print
    ========================================================== */
-@page{margin:14mm;}
+/* 邊界 0：瀏覽器才不會印出網址與日期的頁首頁尾（tests/print.test.js 規則 1）；留白改由 .c-body 的 padding 負責 */
+@page{size:A4;margin:0;}
 @media print{
-  .c-body{background:#fff;padding:0;}
+  .c-body{background:#fff;padding:14mm;}
   .card{box-shadow:none;border-radius:0;max-width:100%;}
   .tabs-wrap,.panel-actions,.empty-hint,.qr-block,.header-spacer,.qr-overlay,.rx-ocr{display:none!important;}
 
