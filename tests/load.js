@@ -20,6 +20,17 @@ function loadCalc(){
   return {doc, T, run};
 }
 
+/* 載入報價（quote/app.js）。回傳 app.js 掛在 QUOTE_TEST 上的資料與函式（品項、優惠規則、套組成分、findConflicts）。 */
+function loadQuote(){
+  const doc = makeDoc().seed(read('quote/view.html'));
+  const win = makeGlobals(doc);
+  const Q = {};
+  const names = Object.keys(win);
+  const src = read('revision.js') + '\n' + read('quote/app.js');
+  new Function('QD', 'QB', 'QUOTE_TEST', ...names, src)(doc, doc.body, Q, ...names.map(k=> win[k]));
+  return Q;
+}
+
 /* 載入不碰頁面的共用程式（lab/lab.js、kit/report-kit.js 的純計算），回傳指定名稱的函式或常數。 */
 function loadGlobals(files, names){
   const doc = makeDoc();
@@ -59,4 +70,4 @@ function suite(title){
   const done = ()=> { console.log(`${title}：通過 ${pass}，失敗 ${fail}`); return fail; };
   return {eq, near, has, done};
 }
-module.exports = {loadCalc, loadGlobals, pickFunction, suite, makeDoc, makeGlobals, read};
+module.exports = {loadQuote, loadCalc, loadGlobals, pickFunction, suite, makeDoc, makeGlobals, read};

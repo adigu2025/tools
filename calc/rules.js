@@ -3,6 +3,13 @@
    aria 每週週報會查健保署新公告；有新修訂時，改判讀邏輯（calc/app.js）並同步改這裡，
    只確認沒有新修訂時，把 checked 改成查核當天即可。
    內容是本工具採用的條文重點，不是條文全文，正式內容以健保署公告為準。 */
+/* 最後查核超過這個天數：給付規定視窗顯示提醒，tests/calc.test.js 也會擋下（提醒 aria 查健保署新公告後更新 checked）。
+   aria 每週查一次，35 天等於漏了將近一個月。 */
+const RX_STALE_DAYS = 35;
+function rxCheckedAgo(r, today){
+  const d = new Date(r.checked + 'T00:00:00'), now = today ? new Date(today + 'T00:00:00') : new Date();
+  return isNaN(d) ? Infinity : Math.floor((now - d) / 86400000);
+}
 const RX_RULES = {
   lipidrx: {
     title: '降血脂藥物給付規定',

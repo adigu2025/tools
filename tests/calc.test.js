@@ -68,5 +68,17 @@ t.near('PREVENT 30 年 53.0%', pv.cvd30 * 100, 53.0, 0.05); t.near('PREVENT 10 �
 const eg = (cr, age, sex)=> { const wd = makeDoc(); wd.set({'lab-cr': cr, 'p-age': age, 'p-gender': sex}); return pickFunction('weight/app.js', 'egfrEstimate', {WD: wd})(); };
 t.near('eGFR 男 50 歲 Cr 1.0', eg(1.0, 50, 'M'), 91.7, 0.2); t.near('eGFR 女 60 歲 Cr 0.7', eg(0.7, 60, 'F'), 99.0, 0.3);
 
+// 給付規定的最後查核日（calc/rules.js）：超過 RX_STALE_DAYS 天沒查，就請 aria 查健保署新公告後更新 checked
+const RX = loadGlobals(['calc/rules.js'], ['RX_RULES', 'RX_STALE_DAYS', 'rxCheckedAgo']);
+t.eq('查核天數：同一天', RX.rxCheckedAgo({checked: '2026-11-04'}, '2026-11-04'), 0);
+t.eq('查核天數：40 天', RX.rxCheckedAgo({checked: '2026-11-04'}, '2026-12-14'), 40);
+t.eq('查核天數：日期寫錯算過期', RX.rxCheckedAgo({checked: '2026/11/04'}, '2026-11-04') === Infinity, true);
+const rxToday = process.env.RX_TODAY;   // 只在測試這個檢查本身時用：RX_TODAY=2027-01-01 node tests/calc.test.js 應該失敗
+Object.entries(RX.RX_RULES).forEach(([k, r])=> {
+  t.eq(k + ' 查核日格式 YYYY-MM-DD', /^\d{4}-\d{2}-\d{2}$/.test(r.checked), true);
+  const ago = RX.rxCheckedAgo(r, rxToday);
+  t.eq(k + ' 最後查核 ' + r.checked + '（' + ago + ' 天前）要在 ' + RX.RX_STALE_DAYS + ' 天內：超過就請 aria 查健保署新公告，確認後改 calc/rules.js 的 checked', ago <= RX.RX_STALE_DAYS, true);
+});
+
 if(t.done()) process.exit(1);
 console.log('全部通過');

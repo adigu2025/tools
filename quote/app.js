@@ -2550,6 +2550,19 @@ function renderConflictWarning(){
   const box=QD.getElementById('warnBlock');
   if(!box) return;
   box.innerHTML='';
+  const {warns,rules,clin}=findConflicts(cart);
+  [['請確認是否重複計費',warns],['健保規定與前提條件',rules],['臨床提醒',clin]].forEach(([title,list])=>{
+    if(!list.length) return;
+    const div=document.createElement('div');
+    div.className='warn-block';
+    div.innerHTML='<div class="warn-title">'+title+'</div>'
+      + list.map(w=>'<div class="warn-text">'+w+'</div>').join('');
+    box.appendChild(div);
+  });
+}
+
+/* 清單 → 三類提醒文字（重複計費、健保規定與前提條件、臨床提醒）。不碰畫面，tests/quote.test.js 直接測這一段。 */
+function findConflicts(cart){
   /* 免自費項目價格為 0，不構成重複收費 */
   const items=cart.filter(c=>c.mode!=='ins');
   const isPanel=id=>!!PANEL_PARTS[id];
@@ -2635,15 +2648,7 @@ function renderConflictWarning(){
     clin.push('已安排大腸鏡，同時做糞便潛血檢查的意義不大，請確認是否需要。');
   if(hasHpTest(items) && items.some(c=>['hc_m4','lb_08001','lb_09009','lb_14004','lb_14003'].indexOf(c.id)!==-1))
     clin.push('胃鏡已加驗幽門桿菌，另有幽門桿菌呼氣、糞便抗原或抗體檢查，請確認是否重複。');
-
-  [['請確認是否重複計費',warns],['健保規定與前提條件',rules],['臨床提醒',clin]].forEach(([title,list])=>{
-    if(!list.length) return;
-    const div=document.createElement('div');
-    div.className='warn-block';
-    div.innerHTML='<div class="warn-title">'+title+'</div>'
-      + list.map(w=>'<div class="warn-text">'+w+'</div>').join('');
-    box.appendChild(div);
-  });
+  return {warns,rules,clin};
 }
 
 /* 新加入的項目：捲入可視範圍並短暫標示（長清單時才看得出加了什麼） */
@@ -3487,4 +3492,10 @@ QD.addEventListener('keydown',function(e){
 /* Init */
 buildHome(); buildExtraCards(); renderCart(); applyCardA11y();
 _initDone = true;
+
+/* 測試用的入口（tests/quote.test.js）。只有外面先準備好 QUOTE_TEST 物件時才掛上，一般頁面不會有這個變數。 */
+if(typeof QUOTE_TEST==='object'&&QUOTE_TEST){
+  Object.assign(QUOTE_TEST,{CATEGORIES,ENDO_TREE,DISCOUNT_RULES,PANEL_PARTS,P,ITEM_BY_ID,SAME_TEST,findConflicts,
+    Q_PRICE_VERSION, discounts:c=>DISCOUNT_RULES.filter(r=>r.check(c)).map(r=>r.id)});
+}
 })();

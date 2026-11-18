@@ -1852,9 +1852,11 @@
       if (!r) return;
       opener = btn;
       $('rule-title').textContent = r.title + '（' + r.code + '）';
+      var ago = typeof rxCheckedAgo === 'function' ? rxCheckedAgo(r) : 0;
       $('rule-meta').innerHTML =
         '<b>規定生效日：</b>' + esc(r.effective) + '　｜　<b>最後查核：</b>' + esc(r.checked) +
         '（查核當天健保署未見更新的修訂）' +
+        (ago > RX_STALE_DAYS ? '<br><b class="rule-stale">最後查核已經 ' + (ago === Infinity ? '很久' : ago + ' 天') + '，申報前請先到健保署確認有沒有新的修訂。</b>' : '') +
         (r.change ? '<br><b>這一版改了什麼：</b>' + esc(r.change) : '') +
         (r.source ? '<br><b>出處：</b><a href="' + esc(r.source.url) + '" target="_blank" rel="noopener">' + esc(r.source.label) + '</a>' :
           '<br><b>出處：</b>健保署' + esc(r.code));
