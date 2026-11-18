@@ -29,7 +29,9 @@ const SCREEN = ['index.html', 'hub.js', 'mount.js', 'edu/edu.js',
   'quote/view.html', 'quote/hub.css', 'quote/data.js', 'quote/app.js', 'quote/index.html',
   'calc/view.html', 'calc/hub.css', 'calc/assess.js', 'calc/app.js', 'calc/index.html',
   'weight/view.html', 'weight/app.js', 'weight/index.html',
-  'checkup/view.html', 'checkup/app.js'];
+  'checkup/view.html', 'checkup/app.js',
+  // 報告系統是另一個 repo（Desktop/Claude/report），兩個 repo 並排 clone 才檢查得到，沒有就跳過
+  '../report/index.html'];
 // 會在畫面上跳提示或處理按鍵的程式（規則 1、6），含報告產生程式
 const SCRIPTS = SCREEN.concat(['weight/report.js', 'checkup/report.js', 'lab/lab.js', 'forms/view.js']);
 
@@ -42,6 +44,7 @@ const ALLOW = [
   ['quote/view.html', '.endo-nav-arrow { color: var(--gold) !important; }', '規則 3：箭頭圖示'],
   ['quote/view.html', '.screen-cat-icon { color: var(--gold); }', '規則 3：圖示'],
   ['quote/view.html', '.head-icon { color: var(--gold); }', '規則 3：圖示'],
+  ['../report/index.html', '--text-muted:#a7b3b0;--text-faint:#85928f', '規則 2：深色模式的灰字，底色是深色 #13191b，不是米白'],
 ];
 
 const DARKEST_BG = '#EFEDE6';
