@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 標題字型不擋畫面：先用系統字型顯示，下載好再換上，Google 字型連線慢時不會整頁白畫面 -->
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script>
 /* 開頁就同時下載四個工具的畫面與程式，不必等前一個裝好才開始抓下一個（減重與健檢報告共用的 lab/lab.js、kit/report-kit.js 先執行） */
 (function(){
@@ -60,12 +60,15 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .qr-btn:hover{border-color:var(--line-strong);}
 .qr-btn img{width:100%; height:100%; display:block;}
 .hub-brand{display:flex; align-items:center; gap:10px; white-space:nowrap; flex:none; margin-right:4px;}
-/* 診所標誌用遮罩上色，跟著目前分頁的字色 */
+/* 診所標誌用遮罩上色，跟著目前分頁的字色（封面用） */
 .logo{display:block; flex:none; width:24px; aspect-ratio:220/240; background:var(--acc-text);
   -webkit-mask:url(img/logo-mark.png) center/contain no-repeat; mask:url(img/logo-mark.png) center/contain no-repeat;}
-/* 字標寬度固定（6 字×（1em＋字距））：網路字型載入前後字寬不同，不固定的話右邊的分頁會在重新整理時左右跳一下 */
-.hub-brand .wm{font-family:var(--serif); font-size:22px; font-weight:600; letter-spacing:.16em; line-height:1; color:var(--ink); width:6.96em;}
-.hub-brand .wm-sub{font-size:14px; color:var(--muted); letter-spacing:.08em; padding-left:10px; border-left:1px solid var(--line-strong); line-height:1;}
+/* 頁首只放英文字標＋tools（中文名稱與標誌放在封面）。英文字型同健檢報告封面（Cormorant Garamond）。
+   寬度固定：網路字型載入前後字寬不同，不固定的話右邊的分頁會在重新整理時左右跳一下 */
+.hub-brand .wm-en{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:19px; font-weight:600; letter-spacing:.2em;
+  line-height:1; color:var(--ink); width:16.3em; white-space:nowrap;}
+.hub-brand .wm-sub{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:19px; font-style:italic; font-weight:500; letter-spacing:.06em;
+  color:var(--muted); padding-left:12px; border-left:1px solid var(--line-strong); line-height:1;}
 .hub-tabs{display:flex; align-items:center; gap:2px; height:100%;}
 .hub-tab{position:relative; border:0; background:none; color:var(--muted); padding:8px 16px; border-radius:9px;
   font-size:16.5px; font-weight:500; white-space:nowrap; transition:color .12s, background .12s;}
@@ -78,14 +81,17 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .hub-tab kbd{font:inherit; font-size:12px; color:var(--faint); margin-left:7px; font-weight:400;}
 /* ── Esc 封面：比照 report 首頁，左邊刊頭、右邊一份目錄（一列一個分頁，大號序號＋宋體標題＋常用項目捷徑）。
    不用卡片與色塊，靠字級、細線與留白分層；滑過只改底色與序號顏色，不位移。蓋在工具區上層，頁首維持可用。 */
-.hub-cover{position:absolute; inset:0; z-index:30; background:var(--bg); overflow:auto;
+.hub-cover{position:absolute; inset:0; z-index:30; background:var(--bg); overflow:auto; isolation:isolate;
   display:grid; grid-template-columns:minmax(300px,30%) minmax(0,1fr); gap:clamp(28px,4vw,80px);
   padding:clamp(28px,4vh,56px) clamp(20px,3.4vw,64px);}
 .hub-cover[hidden]{display:none;}
 .cv-mast{display:flex; flex-direction:column; gap:18px; padding-top:6px;}
-.cv-mast .logo{width:clamp(48px,4vw,64px);}
-.hub-cover h1{font-family:var(--serif); font-size:clamp(40px,3.6vw,60px); font-weight:700; letter-spacing:.12em; line-height:1.15; margin:6px 0 0; color:var(--ink);}
-.cv-org{font-size:15px; letter-spacing:.24em; color:var(--muted);}
+/* 背景的淡色大標誌：比照健檢報告封面，這次靠左、超出上緣（往左、往上超出不會產生捲軸） */
+.hub-cover::before{content:""; position:absolute; z-index:-1; top:-14%; bottom:0; left:-7%; aspect-ratio:220/240; background:var(--acc-text); opacity:.06;
+  -webkit-mask:url(img/logo-mark.png) center/contain no-repeat; mask:url(img/logo-mark.png) center/contain no-repeat; pointer-events:none;}
+.cv-name{display:flex; align-items:center; gap:clamp(14px,1.2vw,22px); margin-top:6px;}
+.cv-name .logo{width:clamp(44px,3.8vw,64px);}
+.hub-cover h1{font-family:var(--serif); font-size:clamp(40px,3.6vw,60px); font-weight:700; letter-spacing:.12em; line-height:1.15; margin:0; color:var(--ink); white-space:nowrap;}
 .cv-keys{display:grid; grid-template-columns:auto 1fr; gap:10px 16px; align-items:center; font-size:15px; color:var(--muted); margin:auto 0 0;}
 .cv-keys dt{white-space:nowrap;} .cv-keys dd{margin:0;}
 .cv-keys kbd{font:inherit; font-size:12.5px; padding:1px 6px; border-radius:5px; background:var(--surface); border:1px solid var(--line); border-bottom-width:2px; color:var(--ink);}
@@ -97,8 +103,8 @@ button{font:inherit; cursor:pointer; color:inherit;}
   grid-template-columns:3.2em minmax(9em,13em) minmax(0,1fr) 2em; grid-template-areas:"key title secs arr" "key desc secs arr";
   column-gap:clamp(12px,1.6vw,28px); row-gap:4px; padding:10px 12px 10px 4px; border-bottom:1px solid var(--line); transition:background .15s;}
 .cv-row:hover{background:var(--sunken);}
-/* 鍵盤選到的那一列：淡底加左側細條，不用粗外框 */
-.cv-row:focus-visible{outline:none; border-radius:0; background:var(--sunken); box-shadow:inset 3px 0 0 var(--dot-ink);}
+/* 鍵盤選到的那一列：淡底加四邊等粗的細框（畫在列的內側，不會被上方的粗線蓋住） */
+.cv-row:focus-visible{outline:none; border-radius:8px; background:var(--sunken); box-shadow:inset 0 0 0 1.5px var(--dot-ink);}
 .cv-row[data-to="quote"]{--dot-ink:#3E4C6B;} .cv-row[data-to="calc"]{--dot-ink:#3F5A48;} .cv-row[data-to="edu"]{--dot-ink:#7A3F3D;} .cv-row[data-to="weight"]{--dot-ink:#6B5520;}
 .cv-key{grid-area:key; font-family:var(--serif); font-size:clamp(30px,2.6vw,44px); font-weight:500; color:var(--muted); text-align:center; line-height:1;}
 .cv-title{grid-area:title; align-self:end; font-family:var(--serif); font-size:clamp(21px,1.7vw,28px); font-weight:600; letter-spacing:.06em; white-space:nowrap; color:var(--ink);}
@@ -407,7 +413,7 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   .hub-tab{padding:9px 15px;}
 }
 @media (max-width:1100px){
-  .hub-brand .wm{font-size:20px; letter-spacing:.1em; width:6.6em;} .hub-brand .wm-sub{display:none;}
+  .hub-brand .wm-sub{display:none;}
   .chip .k{display:none;}
 }
 /* ── 窄螢幕 ── */
@@ -440,7 +446,7 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
 
 <header class="hub-bar">
   <button class="qr-btn" id="qr-btn" title="LINE 官方帳號 QR Code（點按放大）"><img id="qr-img" alt="LINE QR Code"></button>
-  <div class="hub-brand"><span class="logo" aria-hidden="true"></span><span class="wm">木子澄安診所</span><span class="wm-sub">工作台</span></div>
+  <div class="hub-brand"><span class="wm-en">MUZI CHENG’AN CLINIC</span><span class="wm-sub">tools</span></div>
   <nav class="hub-tabs" role="tablist" aria-label="切換工具">
     <button class="hub-tab" role="tab" data-view="quote"  aria-selected="true">報價系統<kbd>Alt+1</kbd></button>
     <button class="hub-tab" role="tab" data-view="calc"   aria-selected="false">臨床計算<kbd>Alt+2</kbd></button>
@@ -462,9 +468,7 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   <!-- Esc 封面：叫出時蓋在工具區上，點目錄或再按 Esc 回到原分頁 -->
   <section class="hub-cover" id="hub-cover" hidden aria-label="工作台目錄">
     <div class="cv-mast">
-      <span class="logo" aria-hidden="true"></span>
-      <h1>工作台</h1>
-      <div class="cv-org">木子澄安診所</div>
+      <div class="cv-name"><span class="logo" aria-hidden="true"></span><h1>木子澄安診所</h1></div>
       <dl class="cv-keys">
         <dt><kbd>1</kbd> 至 <kbd>4</kbd></dt><dd>在目錄上直接開啟</dd>
         <dt><kbd>Alt</kbd>＋<kbd>1</kbd> 至 <kbd>4</kbd></dt><dd>隨時切換分頁</dd>
