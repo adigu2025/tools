@@ -16,6 +16,8 @@
 
 ## 輸出步驟
 
+一個指令做完串接、輸出、複製到 img/ 與 sw.js 版號加一：`node kit/render-images.js consent consent-het-1 consent-het-2`（在 tools 資料夾；不列名稱就是全部）。以下是手動步驟：
+
 1. 改完 `p-*.html` 後重新串接：`cat head.html p-gastro.html p-colon.html p-capsule.html p-sedation.html p-het.html p-arbl.html p-thyroid.html p-imaging.html p-glp1.html tail.html > pages.html`
 2. 執行 `serve.ps1`（PowerShell），用瀏覽器打開 `http://localhost:8769/consent-src/pages.html`。
 3. 主控台執行 `fitReport()`，每頁數字都要大於 0（等於 0 代表內容壓到頁尾）。

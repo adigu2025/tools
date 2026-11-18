@@ -92,6 +92,7 @@ const EDU_LIST = [
   ['disease', '肝膽',     '膽囊瘜肉',         ICON.liver,    ['img/edu-a5-gb-polyp.webp'], 'A5'],
   ['disease', '肝膽',     '脂肪肝',           ICON.liver,    ['img/edu-a5-fatty-liver.webp'], 'A5'],
   ['disease', '肝膽',     'B 肝、C 肝追蹤',   ICON.liver,    ['img/edu-a5-hepatitis-bc.webp'], 'A5'],
+  ['disease', '肝膽',     '肝指數偏高',       ICON.liver,    ['img/edu-a5-liver-enzymes.webp'], 'A5'],
   ['disease', '腸胃',     '胃食道逆流',       ICON.stomach,  ['img/edu-a5-gerd.webp'], 'A5'],
   ['disease', '腸胃',     '胃潰瘍、十二指腸潰瘍', ICON.stomach, ['img/edu-a5-peptic-ulcer.webp'], 'A5'],
   ['disease', '腸胃',     '功能性消化不良',   ICON.stomach,  ['img/edu-a5-functional-dyspepsia.webp'], 'A5'],
@@ -100,12 +101,15 @@ const EDU_LIST = [
   ['disease', '腸胃',     '低 FODMAP 飲食',   ICON.leaf,     ['img/edu-a5-low-fodmap.webp'], 'A5'],
   // 2026/11/12 把「痔瘡怎麼治療」併進這一張，只留一張
   ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
+  ['disease', '腸胃',     '糞便潛血陽性',     ICON.drop,     ['img/edu-a5-fit-positive.webp'], 'A5'],
+  ['disease', '腸胃',     '缺鐵性貧血',       ICON.drop,     ['img/edu-a5-iron-deficiency.webp'], 'A5'],
   ['disease', '腎臟',     '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
   ['disease', '腎臟',     '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
   ['disease', '慢性病',   '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
   ['disease', '慢性病',   '糖尿病前期與糖尿病', ICON.drop,   ['img/edu-a5-diabetes.webp'], 'A5'],
   ['disease', '慢性病',   '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
   ['disease', '慢性病',   '高尿酸與痛風',     ICON.drop,     ['img/edu-a5-gout.webp'], 'A5'],
+  ['disease', '慢性病',   '甲狀腺結節',       ICON.us,       ['img/edu-a5-thyroid-nodule.webp'], 'A5'],
   // 用藥衛教（2026/11/11 新增，A5）：頁首左邊寫「用藥衛教」，編號「用藥 01 至 05」，順序：除菌、PPI、降血脂、痔瘡藥膏、痔瘡敷料（2026/11/12 降血脂移到第三個）
   ['med',    '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
   ['med',    '用藥',     '胃藥 PPI',         ICON.pill,     ['img/edu-a5-ppi.webp'], 'A5'],

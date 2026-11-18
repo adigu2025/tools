@@ -8,6 +8,8 @@
 
 ## 輸出步驟
 
+一個指令：`node kit/render-images.js guide`（在 tools 資料夾）。以下是手動步驟：
+
 1. 執行 `consent-src/serve.ps1`（PowerShell），用瀏覽器打開 `http://localhost:8769/guide-src/sedation-guide.html`。
 2. 主控台執行 `fitReport()`，每頁數字都要大於 0（等於 0 代表內容壓到頁尾）。
 3. 執行 `await renderAll()`，WebP 存進 `consent-src/out/tools/`。
