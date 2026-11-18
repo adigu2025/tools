@@ -17,6 +17,7 @@ const CLEAR_KEYS = {
 };
 
 const main = document.getElementById('hub-main');
+const cover = document.getElementById('hub-cover');
 
 /* 報價。QD、QB 是報價程式共用的全域變數；工作台外觀 quote/hub.css 只在這裡加上 */
 let QD = null, QB = null;
@@ -136,6 +137,7 @@ window.CALC_PRINT = ()=>{
 // 分頁還沒打開時先把圖片網址放在 data-src，不佔開頁的頻寬；setView 打開分頁時才換成 src
 function imgSrcAttr(view, src){ return (main.dataset.view === view ? 'src' : 'data-src') + `="${src}"`; }
 function setView(v){
+  cover.hidden = true;
   // 最大化只用在衛教與表單，切到其他分頁時先結束，否則上方分頁列會一直隱藏
   if(document.body.classList.contains('edu-max') && v !== 'edu') toggleMax();
   if(document.body.classList.contains('q-max') && v !== 'quote' && window.Q_EXIT_MAX) Q_EXIT_MAX();
@@ -170,6 +172,52 @@ const FOOT_HINT = {
 function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(err){} }
 function recall(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v === null ? d : v; }catch(err){ return d; } }
 document.querySelectorAll('.hub-tab').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.view)));
+
+/* ── Esc 封面（目錄）：任何分頁按 Esc（工具自己沒用到這次 Esc 時）叫出，點目錄、按 1 至 4 或再按 Esc 回去。
+   開啟時仍直接進報價（或上次的分頁），封面只在需要時叫出。 */
+function openCover(){
+  cover.hidden = false;
+  const row = cover.querySelector('.cv-row[data-to="' + main.dataset.view + '"]') || cover.querySelector('.cv-row');
+  row.focus({preventScroll:true});
+  document.getElementById('foot-hint').textContent = '1 至 4 開啟　↑ ↓ 選擇　Enter 開啟　Esc 回到原分頁';
+}
+// 回到原本的分頁（setView 會收起封面，並把焦點放回該工具）
+function closeCover(){ setView(main.dataset.view); }
+// 常用項目捷徑：q＝報價分類、c＝臨床計算項目、e＝衛教分類、r＝報告種類
+const COVER_ACT = {
+  q(id){ setView('quote'); const c = QD && QD.querySelector('.cat-card[data-cat="' + id + '"]'); if(c) c.click(); },
+  c(id){ setView('calc'); const t = CD && CD.getElementById('tab-' + id); if(t) t.click(); },
+  e(g){
+    setView('edu');
+    if(typeof eduGroup === 'undefined') return;
+    if(eduQuery || eduGroup !== g){ const b = document.querySelector('#edu-rail .edu-group[data-g="' + g + '"]'); if(b) b.click(); }
+    else if(!railFly) setRailFly(true);
+  },
+  r(r){ setView('weight'); setRep(r); }
+};
+cover.addEventListener('click', e=>{
+  const sec = e.target.closest('.cv-sec');
+  if(sec){ const [k, id] = sec.dataset.act.split(':'); COVER_ACT[k](id); return; }
+  const row = e.target.closest('.cv-row');
+  if(row) setView(row.dataset.to);
+});
+// 封面開著時的按鍵：1 至 4 直接開、上下鍵換列、Enter／空白鍵開啟焦點所在的列、Esc 回去
+function onCoverKey(e){
+  if(e.ctrlKey || e.metaKey || e.altKey) return false;
+  const rows = [...cover.querySelectorAll('.cv-row')];
+  const k = e.key;
+  if(k === 'Escape'){ e.preventDefault(); closeCover(); return true; }
+  if(/^[1-4]$/.test(k)){ e.preventDefault(); setView(rows[+k - 1].dataset.to); return true; }
+  const i = rows.indexOf(document.activeElement);
+  if(k === 'ArrowDown' || k === 'ArrowUp'){
+    e.preventDefault();
+    const n = i < 0 ? 0 : (i + (k === 'ArrowDown' ? 1 : rows.length - 1)) % rows.length;
+    rows[n].focus();
+    return true;
+  }
+  if((k === 'Enter' || k === ' ') && i >= 0){ e.preventDefault(); setView(rows[i].dataset.to); return true; }
+  return false;
+}
 document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
 
 /* ── 製作報告：home＝選報告種類，weight＝減重報告，checkup＝體檢報告 ── */
@@ -234,6 +282,12 @@ document.addEventListener('keydown', e=>{
     return;
   }
   if(e.key === 'Escape' && !qrOverlay.hidden){ qrOverlay.hidden = true; return; }
+  if(!cover.hidden){ onCoverKey(e); return; }
+  // Esc 叫出封面：工具自己用掉的 Esc（關預覽、回上一層、清搜尋，都會 preventDefault）、輸入欄位裡的 Esc、最大化中的 Esc 不算
+  if(e.key === 'Escape' && !e.defaultPrevented && !e.ctrlKey && !e.metaKey && !e.altKey && !typingInField(e)
+     && !document.body.classList.contains('edu-max') && !document.body.classList.contains('q-max')){
+    e.preventDefault(); openCover(); return;
+  }
   // 報價的搜尋快速鍵（/、Ctrl+K）：焦點不在報價畫面裡（例如點過頂端列）時，事件到不了報價的 shadow root，這裡轉送過去
   const qSearchKey = e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey || (e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K');
   if(main.dataset.view === 'quote' && QB && qSearchKey && !typingInField(e) && !e.composedPath().includes(QB)){

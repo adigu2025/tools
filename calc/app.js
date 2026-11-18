@@ -112,7 +112,7 @@
     openBtn.addEventListener('click', openQr);
     closeBtn.addEventListener('click', closeQr);
     overlay.addEventListener('click', function(e){ if (e.target === overlay) closeQr(); });
-    CD.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) closeQr(); });
+    CD.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !overlay.hidden) { e.preventDefault(); closeQr(); } });
   })();
   var TOOLS = tabs.map(function(t){ return t.dataset.tool; });
 

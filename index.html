@@ -61,7 +61,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .qr-btn img{width:100%; height:100%; display:block;}
 .hub-brand{display:flex; align-items:center; gap:10px; white-space:nowrap; flex:none; margin-right:4px;}
 /* 診所標誌用遮罩上色，跟著目前分頁的字色 */
-.hub-brand .logo{display:block; flex:none; width:24px; aspect-ratio:220/240; background:var(--acc-text);
+.logo{display:block; flex:none; width:24px; aspect-ratio:220/240; background:var(--acc-text);
   -webkit-mask:url(img/logo-mark.png) center/contain no-repeat; mask:url(img/logo-mark.png) center/contain no-repeat;}
 /* 字標寬度固定（6 字×（1em＋字距））：網路字型載入前後字寬不同，不固定的話右邊的分頁會在重新整理時左右跳一下 */
 .hub-brand .wm{font-family:var(--serif); font-size:22px; font-weight:600; letter-spacing:.16em; line-height:1; color:var(--ink); width:6.96em;}
@@ -76,6 +76,44 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .hub-tab:hover::before, .hub-tab:hover + .hub-tab::before, .hub-tab[aria-selected="true"]::before, .hub-tab[aria-selected="true"] + .hub-tab::before{opacity:0;}
 .hub-tab[aria-selected="true"] kbd{color:inherit; opacity:.7;}
 .hub-tab kbd{font:inherit; font-size:12px; color:var(--faint); margin-left:7px; font-weight:400;}
+/* ── Esc 封面：比照 report 首頁，左邊刊頭、右邊一份目錄（一列一個分頁，大號序號＋宋體標題＋常用項目捷徑）。
+   不用卡片與色塊，靠字級、細線與留白分層；滑過只改底色與序號顏色，不位移。蓋在工具區上層，頁首維持可用。 */
+.hub-cover{position:absolute; inset:0; z-index:30; background:var(--bg); overflow:auto;
+  display:grid; grid-template-columns:minmax(300px,30%) minmax(0,1fr); gap:clamp(28px,4vw,80px);
+  padding:clamp(28px,4vh,56px) clamp(20px,3.4vw,64px);}
+.hub-cover[hidden]{display:none;}
+.cv-mast{display:flex; flex-direction:column; gap:18px; padding-top:6px;}
+.cv-mast .logo{width:clamp(48px,4vw,64px);}
+.hub-cover h1{font-family:var(--serif); font-size:clamp(40px,3.6vw,60px); font-weight:700; letter-spacing:.12em; line-height:1.15; margin:6px 0 0; color:var(--ink);}
+.cv-org{font-size:15px; letter-spacing:.24em; color:var(--muted);}
+.cv-keys{display:grid; grid-template-columns:auto 1fr; gap:10px 16px; align-items:center; font-size:15px; color:var(--muted); margin:auto 0 0;}
+.cv-keys dt{white-space:nowrap;} .cv-keys dd{margin:0;}
+.cv-keys kbd{font:inherit; font-size:12.5px; padding:1px 6px; border-radius:5px; background:var(--surface); border:1px solid var(--line); border-bottom-width:2px; color:var(--ink);}
+.cv-index{display:flex; flex-direction:column; min-width:0;}
+.cv-head{display:flex; align-items:baseline; gap:14px; padding:0 0 8px; border-bottom:2px solid var(--ink);}
+.cv-head b{font-family:var(--serif); font-size:16px; font-weight:600; letter-spacing:.3em; color:var(--ink);}
+.cv-head span{font-size:12.5px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase;}
+.cv-row{flex:1 1 auto; display:grid; align-items:center; cursor:pointer; text-align:left;
+  grid-template-columns:3.2em minmax(9em,13em) minmax(0,1fr) 2em; grid-template-areas:"key title secs arr" "key desc secs arr";
+  column-gap:clamp(12px,1.6vw,28px); row-gap:4px; padding:10px 12px 10px 4px; border-bottom:1px solid var(--line); transition:background .15s;}
+.cv-row:hover{background:var(--sunken);}
+/* 鍵盤選到的那一列：淡底加左側細條，不用粗外框 */
+.cv-row:focus-visible{outline:none; border-radius:0; background:var(--sunken); box-shadow:inset 3px 0 0 var(--dot-ink);}
+.cv-row[data-to="quote"]{--dot-ink:#3E4C6B;} .cv-row[data-to="calc"]{--dot-ink:#3F5A48;} .cv-row[data-to="edu"]{--dot-ink:#7A3F3D;} .cv-row[data-to="weight"]{--dot-ink:#6B5520;}
+.cv-key{grid-area:key; font-family:var(--serif); font-size:clamp(30px,2.6vw,44px); font-weight:500; color:var(--muted); text-align:center; line-height:1;}
+.cv-title{grid-area:title; align-self:end; font-family:var(--serif); font-size:clamp(21px,1.7vw,28px); font-weight:600; letter-spacing:.06em; white-space:nowrap; color:var(--ink);}
+.cv-desc{grid-area:desc; align-self:start; font-size:13px; color:var(--muted); letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.cv-secs{grid-area:secs; display:flex; flex-wrap:wrap; row-gap:2px;}
+.cv-sec{border:0; background:none; padding:3px 2px; font-size:15.5px; color:var(--muted); border-radius:6px;}
+.cv-sec + .cv-sec::before{content:"・"; color:var(--line-strong);}
+.cv-sec:hover{color:var(--dot-ink); text-decoration:underline; text-underline-offset:3px;}
+.cv-arr{grid-area:arr; font-size:20px; color:var(--line-strong); text-align:right; transition:color .15s;}
+.cv-row:hover .cv-key, .cv-row:hover .cv-arr, .cv-row:focus-visible .cv-key{color:var(--dot-ink);}
+@media (max-width:1100px){
+  .hub-cover{grid-template-columns:1fr;}
+  .cv-keys{margin-top:8px;}
+  .cv-row{grid-template-columns:2.6em minmax(0,1fr) 2em; grid-template-areas:"key title arr" "key desc arr" "key secs arr";}
+}
 .hub-chips{display:flex; gap:8px; flex:1; min-width:0; overflow:hidden; justify-content:flex-end;}
 .chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 14px;
   font-size:15px; white-space:nowrap; color:var(--ink-2);}
@@ -421,6 +459,27 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
 </header>
 
 <main class="hub-main" id="hub-main" data-view="quote" data-split="0" data-rep="home">
+  <!-- Esc 封面：叫出時蓋在工具區上，點目錄或再按 Esc 回到原分頁 -->
+  <section class="hub-cover" id="hub-cover" hidden aria-label="工作台目錄">
+    <div class="cv-mast">
+      <span class="logo" aria-hidden="true"></span>
+      <h1>工作台</h1>
+      <div class="cv-org">木子澄安診所</div>
+      <dl class="cv-keys">
+        <dt><kbd>1</kbd> 至 <kbd>4</kbd></dt><dd>在目錄上直接開啟</dd>
+        <dt><kbd>Alt</kbd>＋<kbd>1</kbd> 至 <kbd>4</kbd></dt><dd>隨時切換分頁</dd>
+        <dt><kbd>/</kbd></dt><dd>搜尋（報價、衛教）</dd>
+        <dt><kbd>Esc</kbd></dt><dd>叫出或收起目錄</dd>
+      </dl>
+    </div>
+    <nav class="cv-index" aria-label="分頁目錄">
+      <div class="cv-head"><b>目錄</b><span>Contents</span></div>
+    <div class="cv-row" role="button" tabindex="0" data-to="quote" title="Alt＋1"><span class="cv-key">1</span><div class="cv-title">報價系統</div><div class="cv-desc">Quotation</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="q:endo">內視鏡</button><button type="button" class="cv-sec" data-act="q:health-check">健檢方案</button><button type="button" class="cv-sec" data-act="q:lab">檢驗</button><button type="button" class="cv-sec" data-act="q:exam">檢查與點滴</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
+    <div class="cv-row" role="button" tabindex="0" data-to="calc" title="Alt＋2"><span class="cv-key">2</span><div class="cv-title">臨床計算</div><div class="cv-desc">Clinical Calculators</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="c:bmi">BMI</button><button type="button" class="cv-sec" data-act="c:fib4">FIB-4</button><button type="button" class="cv-sec" data-act="c:lipidrx">降血脂給付</button><button type="button" class="cv-sec" data-act="c:hbvrx">B 肝用藥給付</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
+    <div class="cv-row" role="button" tabindex="0" data-to="edu" title="Alt＋3"><span class="cv-key">3</span><div class="cv-title">衛教與表單</div><div class="cv-desc">Education &amp; Forms</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="e:weight">減重門診</button><button type="button" class="cv-sec" data-act="e:exam">檢查治療衛教</button><button type="button" class="cv-sec" data-act="e:consent">同意書</button><button type="button" class="cv-sec" data-act="e:disease">疾病衛教</button><button type="button" class="cv-sec" data-act="e:med">用藥衛教</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
+    <div class="cv-row" role="button" tabindex="0" data-to="weight" title="Alt＋4"><span class="cv-key">4</span><div class="cv-title">製作報告</div><div class="cv-desc">Reports</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="r:weight">減重報告</button><button type="button" class="cv-sec" data-act="r:checkup">健檢報告</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
+    </nav>
+  </section>
   <section class="pane" id="pane-quote"><div id="quote-host" class="loading"></div></section>
   <section class="pane" id="pane-calc"><div id="calc-host" class="loading"></div></section>
   <section class="pane" id="pane-weight">

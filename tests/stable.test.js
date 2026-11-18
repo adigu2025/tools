@@ -9,6 +9,7 @@
    2. 臨床計算：展開醫療人員工具後，逐一點每個分組與每個計算項目，等倍率重算（0.4 秒）後量
       分組按鈕、項目按鈕、頁首的位置，以及共用倍率（.card 的 zoom）。
       降血脂與 B 肝用藥另外縮小的是自己的面板（rxZoom），不影響共用倍率，所以不算跳動。
+   3. Esc 叫出與收起封面時頁首不移位，封面上的常用項目捷徑要開到對應的工具或分類。
    差超過 1px 或倍率不同就列出來。全部沒問題時最後一行是「全部通過」。
    自我測試：node tests/stable.test.js --self-test，故意讓切到臨床計算時分頁變寬、某個計算項目改變倍率，要抓得到才算過。 */
 const fs = require('fs');
@@ -88,6 +89,27 @@ async function run(){
     }
   }
   if(z0===null)res.push('臨床計算沒有找到任何項目');
+  // 3. Esc 封面：叫出與收起時頁首不移位；常用項目捷徑要真的開到對應的地方
+  setView('quote');await tick(400);
+  function esc(){document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));}
+  var cv=document.getElementById('hub-cover'),hb=head(),hb0=snap(hb);
+  esc();await tick(100);
+  if(cv.hidden)res.push('按 Esc 沒有叫出封面');
+  var mc=moved(hb,hb0,null);if(mc.length)res.push('叫出封面：頁首移位 '+mc.join('、'));
+  esc();await tick(100);
+  if(!cv.hidden)res.push('封面上再按 Esc 沒有收起');
+  function sec(act){esc();var b=cv.querySelector('[data-act="'+act+'"]');if(!b)return res.push('封面沒有捷徑 '+act);b.click();}
+  sec('c:lipidrx');await tick(400);
+  var ap=CD.querySelector('.tool-panel.active');
+  if(main.dataset.view!=='calc'||!ap||ap.id!=='panel-lipidrx')res.push('捷徑「降血脂給付」沒有開到該工具（'+main.dataset.view+'、'+(ap&&ap.id)+'）');
+  sec('r:checkup');await tick(200);
+  if(main.dataset.view!=='weight'||main.dataset.rep!=='checkup')res.push('捷徑「健檢報告」沒有開到健檢報告');
+  setRep('home');
+  sec('e:consent');await tick(200);
+  if(main.dataset.view!=='edu'||eduGroup!=='consent')res.push('捷徑「同意書」沒有開到同意書分類');
+  sec('q:lab');await tick(400);
+  var lab=QD.querySelector('#itemsGrid');
+  if(main.dataset.view!=='quote'||!lab||!vis(lab))res.push('捷徑「檢驗」沒有開到報價的檢驗分類');
   return res;
 }
 window.addEventListener('load',function(){setTimeout(async function(){

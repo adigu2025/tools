@@ -2368,6 +2368,7 @@ QD.addEventListener('keydown', function(e){
     e.preventDefault(); focusSearch(); return;
   }
   if(e.key === 'Escape' && !isTypingTarget(e.target) && currentCat){
+    e.preventDefault();   /* 已用掉這次 Esc，工作台不再叫出封面 */
     goHome();
   }
 });
