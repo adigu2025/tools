@@ -1221,13 +1221,50 @@ function buildItemsGrid(cat){
   }
   if(cat.id==='health-check'&&!filtering) layoutHealthCheck(grid);
   /* 整組只有一項：改成橫跨整列的單行卡，不要一張卡獨佔一排高度（健檢方案另有版面，不套用） */
-  if(cat.id!=='health-check') grid.querySelectorAll('.items-section-header').forEach(h=>{
-    const a=h.nextElementSibling, b=a&&a.nextElementSibling;
-    if(a&&a.classList.contains('item-card')&&!a.classList.contains('custom-add-card')&&(!b||b.classList.contains('items-section-header'))) a.classList.add('solo');
-  });
+  /* 篩選時沿用未篩選時的判定：不然篩到一組只剩一張，卡片會突然變成整列，版面跳動 */
+  if(cat.id!=='health-check'){
+    if(!filtering){
+      const ids=[];
+      grid.querySelectorAll('.items-section-header').forEach(h=>{
+        const a=h.nextElementSibling, b=a&&a.nextElementSibling;
+        if(a&&a.classList.contains('item-card')&&!a.classList.contains('custom-add-card')&&(!b||b.classList.contains('items-section-header'))) ids.push(a.dataset.id);
+      });
+      soloIds[cat.id]=ids;
+    }
+    (soloIds[cat.id]||[]).forEach(id=>{ const c=grid.querySelector('.item-card[data-id="'+CSS.escape(id)+'"]'); if(c) c.classList.add('solo'); });
+  }
   updateFilterCount(shown);
   applyCardA11y();
   buildSecRail();
+  setCardHeight(grid,cat,filtering);
+}
+
+/* 同一分組的一般卡片等高：未篩選時量出每組最高的一張，寫進該組卡片的 --card-h（hub.css 用來當 min-height）。
+   篩選時沿用同一組的高度，卡片不會因為同一列換了鄰居而忽高忽低；切換自費／免自費也不改變高度。
+   以分組為單位（不是整個分類一個高度），短卡片多的分組不會被少數長卡片撐高。
+   依分類與格線寬度記住，視窗大小改變（換行數不同）時重新量。 */
+var cardHeights={};
+var soloIds={};   /* 各分類「整組只有一項」的卡片 id，由未篩選的版面決定 */
+function setCardHeight(grid,cat,filtering){
+  const cards=grid.querySelectorAll('.item-card:not(.solo):not(.custom-add-card)');
+  cards.forEach(c=>c.style.removeProperty('--card-h'));
+  if(cat.id==='health-check') return;
+  const base=cat.id+'|'+grid.clientWidth+'|';
+  const groups=new Map(); let sec='';
+  [...grid.children].forEach(el=>{
+    if(el.classList.contains('items-section-header')){ sec=el.textContent; return; }
+    if(!el.classList.contains('item-card')||el.classList.contains('solo')||el.classList.contains('custom-add-card')) return;
+    if(!groups.has(sec)) groups.set(sec,[]);
+    groups.get(sec).push(el);
+  });
+  const need=[...groups.keys()].some(k=>!(filtering&&cardHeights[base+k]));
+  if(need) grid.style.alignItems='start';
+  groups.forEach((list,k)=>{
+    let h=filtering?cardHeights[base+k]:0;
+    if(!h){ h=0; list.forEach(c=>{ h=Math.max(h,c.offsetHeight); }); if(h&&!filtering) cardHeights[base+k]=h; }
+    if(h) list.forEach(c=>c.style.setProperty('--card-h',h+'px'));
+  });
+  if(need) grid.style.alignItems='';
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1314,7 +1351,9 @@ function buildSecRail(){
   }
   let rail=body.querySelector('.sec-rail');
   const hdrs=[...sc.querySelectorAll('.items-section-header')];
-  const on=!!currentCat&&currentCat.id!=='endo'&&hdrs.length>=8;
+  /* 依整個分類的分組數決定要不要顯示，不看篩選後剩幾組：篩選時側欄若消失，格線會變寬、欄數改變，整個版面跳動 */
+  const nSec=currentCat?currentCat.items.filter(it=>it.type==='section').length:0;
+  const on=!!currentCat&&currentCat.id!=='endo'&&nSec>=8;
   body.classList.toggle('has-rail',on);
   if(!on){ if(rail) rail.innerHTML=''; return; }
   if(!rail){ rail=document.createElement('nav'); rail.className='sec-rail'; rail.setAttribute('aria-label','分組'); body.insertBefore(rail,sc); }
@@ -2761,6 +2800,15 @@ function printFileTitle(name){
 window.addEventListener('resize', function(){
   if(QD.getElementById('searchResults').classList.contains('open'))
     positionSearchResults();
+});
+/* 視窗寬度改變後卡片換行數不同，重新量等高（停止縮放 200 毫秒後才量一次） */
+var cardHTimer=0;
+window.addEventListener('resize', function(){
+  clearTimeout(cardHTimer);
+  cardHTimer=setTimeout(function(){
+    const grid=QD.getElementById('itemsGrid');
+    if(grid&&currentCat&&currentCat.id!=='endo'&&grid.offsetParent) setCardHeight(grid,currentCat,!!catFilter);
+  },200);
 });
 
 /* ═══════════════════════════════════════════════════════════════════

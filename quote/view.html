@@ -33,6 +33,8 @@
 /* ─── Reset & Variables ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :host {
+  /* 閱讀字級：項目卡片與搜尋結果共用，兩邊看起來一樣大 */
+  --rd-name: 15px; --rd-desc: 13px; --rd-price: 18px;
   /* 品牌色（依診所品牌規範）：Teal #3E6A7C ／ Gold #BC7F30 ／ Navy #152831 */
   --primary:      #152831;
   --primary-dark: #0C1A21;
@@ -238,9 +240,10 @@
   background: var(--accent-pale); color: var(--accent);
   white-space: nowrap; flex-shrink: 0; letter-spacing: 0.04em;
 }
-.sr-name  { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; }
-.sr-desc  { font-size: 12px; color: var(--muted); flex: 2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sr-price { font-size: 14px; font-weight: 700; color: var(--primary); white-space: nowrap; margin-left: auto; }
+/* 搜尋結果與項目卡片共用同一套閱讀字級（--rd-*，定義在 :host） */
+.sr-name  { font-size: var(--rd-name); font-weight: 600; line-height: 1.4; color: var(--text); flex: 1; }
+.sr-desc  { font-size: var(--rd-desc); line-height: 1.55; color: var(--muted); flex: 2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sr-price { font-size: var(--rd-price); font-weight: 700; color: var(--primary); white-space: nowrap; margin-left: auto; font-variant-numeric: tabular-nums; }
 .search-empty {
   padding: 20px 16px; text-align: center;
   font-size: 14px; color: var(--muted);
@@ -382,17 +385,18 @@
 .mode-badge.self { background: rgba(var(--accent-rgb),0.12); color: var(--accent); }
 .mode-badge.ins  { background: rgba(var(--ins-rgb),0.12); color: var(--ins-color); }
 
-.item-name { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.4; padding-right: 46px; margin-bottom: 5px; word-break: keep-all; overflow-wrap: break-word; }
+.item-name { font-size: var(--rd-name); font-weight: 600; color: var(--text); line-height: 1.4; padding-right: 46px; margin-bottom: 5px; word-break: keep-all; overflow-wrap: break-word; }
 /* 規格括號（(直徑約0.9cm)、(1-3個)…）：縮小且整段不斷行，
    避免斷成「0.9c／m」這種語意不完整的位置 */
 .item-name .nm-spec { font-size: 0.76em; font-weight: 500; white-space: nowrap; overflow-wrap: normal; word-break: keep-all; }
 /* 徽章佔位只保留在第一行，第二行起可用整個寬度，規格才排得下 */
 .item-name.nm-flow { padding-right: 0; }
 .item-name.nm-flow::before { content: ''; float: right; width: 46px; height: 1.4em; }
-.item-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; word-break: keep-all; overflow-wrap: break-word; }
-.item-price-row { display: flex; align-items: baseline; gap: 3px; margin-top: auto; padding-top: 8px; padding-right: 30px; }
+.item-desc { font-size: var(--rd-desc); color: var(--muted); line-height: 1.5; margin-bottom: 12px; word-break: keep-all; overflow-wrap: break-word; }
+/* min-height：自費價格（大字）與「免自費」（小字）切換時，價格列高度不變，卡片不跳動 */
+.item-price-row { display: flex; align-items: baseline; gap: 3px; margin-top: auto; padding-top: 8px; padding-right: 30px; min-height: calc(var(--rd-price) + 8px); }
 .price-currency { font-size: 13px; color: var(--muted); font-weight: 500; }
-.price-val      { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--primary); line-height: 1; }
+.price-val      { font-size: var(--rd-price); font-weight: 700; letter-spacing: -0.02em; color: var(--primary); line-height: 1; }
 .price-val.ins-price { color: var(--ins-color); font-size: 16px; }
 .price-val.tbd       { color: var(--muted); font-size: 13px; font-weight: 500; } /* ★ 保持 */
 
@@ -874,13 +878,14 @@
 .cat-filter-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
 .cat-filter-box { position: relative; display: flex; align-items: center; }
 .cat-filter-input {
-  width: 190px; height: 32px; padding: 0 30px 0 12px;
+  width: 230px; height: 32px; padding: 0 30px 0 12px;
   border: 1.5px solid var(--border); border-radius: 16px;
   font-family: inherit; font-size: 14px; color: var(--text);
   background: var(--surface); outline: none;
-  transition: border-color 0.18s, box-shadow 0.18s, width 0.18s var(--ease);
+  transition: border-color 0.18s, box-shadow 0.18s;
 }
-.cat-filter-input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); width: 230px; }
+/* 寬度固定：聚焦時不變寬，後面的「N 項」與標題才不會左右移動 */
+.cat-filter-input:focus { border-color: var(--accent); box-shadow: var(--focus-ring); }
 .cat-filter-clear {
   position: absolute; right: 8px; background: none; border: none; cursor: pointer;
   color: var(--muted); font-size: 15px; line-height: 1; padding: 3px; border-radius: 50%;

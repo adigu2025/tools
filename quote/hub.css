@@ -123,11 +123,13 @@
   .item-card:hover:not(.selected):not(.ins-mode){transform:none; box-shadow:none; border-color:var(--border-strong); background:#FDFCFA;}
   .item-card.selected, .item-card.ins-mode{transform:none;}
   .item-card.endo-dimmed{box-shadow:none !important;}
-  .item-name{font-size:15px; line-height:1.4; margin-bottom:3px; padding-right:40px;}
+  .item-name{font-size:var(--rd-name); line-height:1.4; margin-bottom:3px; padding-right:40px;}
   .item-name.nm-flow::before{width:40px;}
-  .item-desc{font-size:12.5px; line-height:1.55; margin-bottom:6px;}
-  .item-price-row{padding-top:6px;}
-  .price-val{font-size:19px;}
+  .item-desc{font-size:var(--rd-desc); line-height:1.55; margin-bottom:6px;}
+  .item-price-row{padding-top:6px; min-height:calc(var(--rd-price) + 6px);}
+  .price-val{font-size:var(--rd-price);}
+  /* 同一分組的一般卡片等高（app.js setCardHeight 量出每組最高卡片寫進 --card-h），篩選或切換自費／免自費時卡片高度不變 */
+  .items-grid .item-card:not(.solo):not(.custom-add-card){min-height:var(--card-h, 88px);}
   .price-currency{font-size:12px;}
   .mode-badge{top:9px; right:9px; font-size:12px; padding:0 6px; border-radius:6px;}
   .check-dot{width:20px; height:20px; bottom:10px; right:10px; font-size:12px;}
