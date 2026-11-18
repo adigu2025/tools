@@ -13,8 +13,8 @@ const CACHE = 'tools-v96';
 const CORE = [
   './', 'index.html',
   'mount.js', 'revision.js',
-  'quote/view.html', 'quote/app.js', 'quote/hub.css',
-  'calc/', 'calc/index.html', 'calc/view.html', 'calc/rules.js', 'calc/app.js', 'calc/hub.css', 'calc/qr.png',
+  'hub.js', 'quote/view.html', 'quote/data.js', 'quote/app.js', 'quote/hub.css',
+  'calc/', 'calc/index.html', 'calc/view.html', 'calc/rules.js', 'calc/assess.js', 'calc/app.js', 'calc/hub.css', 'calc/qr.png',
   'weight/', 'weight/index.html', 'weight/view.html', 'weight/app.js', 'weight/report.js',
   'checkup/view.html', 'checkup/app.js', 'checkup/report.js',
   'lab/lab.js', 'kit/report-kit.js', 'kit/keep-words.js',

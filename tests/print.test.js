@@ -17,13 +17,13 @@ const ROOT = path.resolve(__dirname, '..');
 const read = f=> fs.readFileSync(path.join(ROOT, f), 'utf8');
 
 // 有列印功能的檔案（原始檔資料夾 *-src 是輸出圖片用，不列印，不在範圍）
-const FILES = ['index.html', 'calc/view.html', 'calc/app.js', 'calc/index.html', 'quote/view.html', 'quote/app.js',
+const FILES = ['index.html', 'hub.js', 'calc/view.html', 'calc/app.js', 'calc/index.html', 'quote/view.html', 'quote/app.js',
   'weight/view.html', 'weight/app.js', 'weight/report.js', 'checkup/view.html', 'checkup/app.js', 'checkup/report.js',
   'kit/report-kit.js', 'forms/view.js', 'forms/forms.js', 'edu/edu.js'];
 // 列印路徑實際套用的 @page 在哪個檔案：[呼叫 print() 的檔案, 該行要包含的文字, @page 所在檔案, 原因]
 const PRINT_PAGE = [
-  ['calc/app.js', 'CALC_PRINT || window.print', ['index.html', 'calc/view.html'], '工作台用 CALC_PRINT（index.html），病人版直接列印 calc/view.html'],
-  ['quote/app.js', 'QUOTE_PRINT || window.print', ['index.html', 'quote/view.html'], '工作台用 QUOTE_PRINT（index.html）'],
+  ['calc/app.js', 'CALC_PRINT || window.print', ['hub.js', 'calc/view.html'], '工作台用 CALC_PRINT（hub.js），病人版直接列印 calc/view.html'],
+  ['quote/app.js', 'QUOTE_PRINT || window.print', ['hub.js', 'quote/view.html'], '工作台用 QUOTE_PRINT（hub.js）'],
   ['checkup/report.js', 'win.print()', ['kit/report-kit.js'], '健檢報告的 iframe 樣式來自 report-kit.js 的 REPORT_CSS'],
 ];
 // 規則 3：要在列印前執行 keepWords 的報告
@@ -48,7 +48,8 @@ function check(files){
   // 規則 2
   for(const [f, src] of Object.entries(files)){
     src.split('\n').forEach((line, i)=>{
-      if(!/\bprint\(\)/.test(line) || /^\s*(\/\/|\*)/.test(line)) return;
+      // print() 或 (… || window.print)() 都算
+      if(!/\bprint\)?\(\)/.test(line) || /^\s*(\/\/|\*)/.test(line)) return;
       const map = PRINT_PAGE.find(([pf, part])=> pf === f && line.includes(part));
       const targets = map ? map[2] : [f];
       const missing = targets.filter(t=> !pageRules(files[t] || '').some(p=> zeroMargin(p.body)));
@@ -70,6 +71,8 @@ if(process.argv.includes('--self-test')){
     ['列印但沒有 @page 要抓到', {'a.js': 'win.print();'}, 1],
     ['列印且同檔有 @page 通過', {'a.js': "s='@page{margin:0;}'; win.print();"}, 0],
     ['註解裡的 print() 不算', {'a.js': '// win.print()'}, 0],
+    ['(CALC_PRINT || window.print)() 對到的 hub.js 沒有 @page 要抓到', {'calc/app.js': '(window.CALC_PRINT || window.print)();', 'hub.js': '', 'calc/view.html': '@page{margin:0;}'}, 1],
+    ['(CALC_PRINT || window.print)() 對到的檔案都有 @page 通過', {'calc/app.js': '(window.CALC_PRINT || window.print)();', 'hub.js': "'@page{size:A4;margin:0;}'", 'calc/view.html': '@page{margin:0;}'}, 0],
     ['報告沒有 keepWords 要抓到', {'weight/report.js': 'function x(){}'}, 1],
   ];
   let bad = 0;

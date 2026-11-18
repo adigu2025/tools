@@ -25,9 +25,9 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 
 // 螢幕畫面檔（規則 2 至 5、7、8）
-const SCREEN = ['index.html', 'mount.js', 'edu/edu.js',
-  'quote/view.html', 'quote/hub.css', 'quote/app.js', 'quote/index.html',
-  'calc/view.html', 'calc/hub.css', 'calc/app.js', 'calc/index.html',
+const SCREEN = ['index.html', 'hub.js', 'mount.js', 'edu/edu.js',
+  'quote/view.html', 'quote/hub.css', 'quote/data.js', 'quote/app.js', 'quote/index.html',
+  'calc/view.html', 'calc/hub.css', 'calc/assess.js', 'calc/app.js', 'calc/index.html',
   'weight/view.html', 'weight/app.js', 'weight/index.html',
   'checkup/view.html', 'checkup/app.js'];
 // 會在畫面上跳提示或處理按鍵的程式（規則 1、6），含報告產生程式
