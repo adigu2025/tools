@@ -37,6 +37,32 @@ t.has('CP 9 分', cp(2, 2, 2, 2, 1), 'B 級'); t.has('CP 10 分', cp(2, 2, 2, 2,
  ['INR(PT) 1.03 11.2', 1.03], ['PT 11.5 9.4-12.5 sec\nPT INR 1.02 0.85-1.15', 1.02]]
   .forEach(([text, want])=> t.eq('INR：' + text.replace('\n', '／'), T.ocrRead('childpugh', text).inr, want));
 t.eq('PT/INR 只有秒數時不帶入', T.ocrRead('childpugh', 'PT/INR 11.5').inr, undefined);
+// MELD-Na（UNOS 2016）：預期值手算，MELD＝round(10 ×(0.957 ln Cr ＋ 0.378 ln Bil ＋ 1.120 ln INR ＋ 0.643))
+const md = (cr, b, i, na, dia)=> T.meldScore(cr, b, i, na, dia);
+t.eq('MELD 全部正常 → 6', md(1, 1, 1, 140).meldNa, 6);
+t.eq('MELD 數值小於 1 以 1 計', md(0.5, 0.4, 0.9, 140).meldNa, 6);
+t.eq('MELD Cr 2、Bil 3、INR 1.5 → 22', md(2, 3, 1.5, 137).meld, 22);
+t.eq('MELD-Na 同上、Na 130 → 26', md(2, 3, 1.5, 130).meldNa, 26);
+t.eq('MELD-Na 鈉低於 125 以 125 計 → 29', md(2, 3, 1.5, 120).meldNa, 29);
+t.eq('MELD 11 以下不做鈉校正', md(1, 1, 1, 125).meldNa, 6);
+t.eq('MELD 透析時肌酸酐以 4 計 → 20', md(1, 1, 1, 137, true).meldNa, 20);
+t.eq('MELD 上限 40', md(4, 30, 4, 137).meldNa, 40);
+// Glasgow-Blatchford：BUN mg/dL 切點 18.2、22.4、28、70
+const gb = o=> T.gbsScore(Object.assign({male: true, bun: 15, hb: 14, sbp: 120, hr: 80}, o)).total;
+t.eq('GBS 全部正常 0 分', gb({}), 0);
+[[18.1, 0], [18.2, 2], [22.4, 3], [28, 4], [70, 6]].forEach(([b, p])=> t.eq('GBS BUN ' + b, gb({bun: b}), p));
+t.eq('GBS 男 Hb 12.5 → 1', gb({hb: 12.5}), 1); t.eq('GBS 男 Hb 11 → 3', gb({hb: 11}), 3); t.eq('GBS 女 Hb 11 → 1', gb({male: false, hb: 11}), 1);
+t.eq('GBS 女 Hb 12.5 → 0', gb({male: false, hb: 12.5}), 0); t.eq('GBS Hb 9 → 6', gb({hb: 9}), 6);
+t.eq('GBS 收縮壓 105 / 95 / 85', [105, 95, 85].map(s=> gb({sbp: s})).join(','), '1,2,3');
+t.eq('GBS 心跳 100 → 1', gb({hr: 100}), 1);
+t.eq('GBS 男 BUN 30、Hb 11、SBP 95、HR 110、黑便 → 11', gb({bun: 30, hb: 11, sbp: 95, hr: 110, melena: true}), 11);
+t.eq('GBS 最高 23 分', gb({bun: 80, hb: 8, sbp: 80, hr: 120, melena: true, syncope: true, liver: true, cardiac: true}), 23);
+// 畫面：填完欄位要出結果，複製文字帶分數
+run({'gbs-sex': 'M', 'gbs-bun': 30, 'gbs-hb': 11, 'gbs-sbp': 95, 'gbs-hr': 110}, 'gbs-hr');
+t.has('GBS 畫面結果', T.copy('gbs'), 'Glasgow-Blatchford 10 分');
+run({'meld-cr': 2, 'meld-bili': 3, 'meld-inr': 1.5, 'meld-na': 130}, 'meld-na');
+t.has('MELD-Na 畫面結果', T.copy('meld'), 'MELD-Na 26');
+
 // 數值換算成分數：膽紅素 <2、2 至 3、>3；白蛋白 >3.5、2.8 至 3.5、<2.8；INR <1.7、1.7 至 2.3、>2.3
 const pts = v=> { ['cp-bili', 'cp-alb', 'cp-pt'].forEach(id=> { const e = doc.getElementById(id); e.value = ''; delete e.dataset.manual; }); T.ocrApply('childpugh', v); return ['cp-bili', 'cp-alb', 'cp-pt'].map(id=> doc.getElementById(id).value).join(''); };
 t.eq('分數：正常', pts({bil: 1.2, alb: 4.1, inr: 1.02}), '111');

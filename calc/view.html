@@ -941,6 +941,12 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
       <button class="tab" role="tab" id="tab-childpugh" aria-controls="panel-childpugh" aria-selected="false" tabindex="-1" data-tool="childpugh">
         Child-Pugh<span class="tab-en">肝硬化分級</span>
       </button>
+      <button class="tab" role="tab" id="tab-meld" aria-controls="panel-meld" aria-selected="false" tabindex="-1" data-tool="meld">
+        MELD-Na<span class="tab-en">肝硬化短期預後</span>
+      </button>
+      <button class="tab" role="tab" id="tab-gbs" aria-controls="panel-gbs" aria-selected="false" tabindex="-1" data-tool="gbs">
+        Glasgow-Blatchford<span class="tab-en">上消化道出血</span>
+      </button>
       <button class="tab" role="tab" id="tab-lipidrx" aria-controls="panel-lipidrx" aria-selected="false" tabindex="-1" data-tool="lipidrx">
         降血脂給付<span class="tab-en">LDL／TG 健保判定</span>
       </button>
@@ -1471,6 +1477,186 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         ※ 適用於慢性肝病與肝硬化患者，不適用於急性肝衰竭<br>
         ※ 存活率為原始文獻的歷史數據，現代治療下的實際預後可能較佳，僅供分級參考<br>
         ※ 參考：Pugh RNH et al. Br J Surg 1973；Child CG &amp; Turcotte JG 1964；臨床上常合併 MELD score 評估移植優先順序
+      </div>
+    </section>
+
+    <!-- ===================== MELD-Na ===================== -->
+    <section class="tool-panel" id="panel-meld" role="tabpanel" aria-labelledby="tab-meld" tabindex="0" hidden>
+      <div class="panel-head">
+        <div class="panel-title">MELD-Na 末期肝病分數<small>Model for End-Stage Liver Disease（UNOS 2016）</small></div>
+        <div class="panel-actions">
+          <button class="act" type="button" data-reset="meld">重設</button>
+          <button class="act" type="button" data-copy="meld" disabled>複製結果</button>
+        </div>
+      </div>
+
+      <div class="formula">
+        <strong>MELD 公式：</strong>10 ×（0.957 × ln 肌酸酐 ＋ 0.378 × ln 膽紅素 ＋ 1.120 × ln INR ＋ 0.643）<br>
+        <strong>MELD-Na：</strong>MELD 大於 11 時，再加上 1.32 ×（137 − Na）− 0.033 × MELD ×（137 − Na）<br>
+        <span class="unitline">數值小於 1 以 1 計；肌酸酐上限 4，一週透析 2 次以上以 4 計；鈉限制在 125 至 137；分數範圍 6 至 40</span>
+      </div>
+
+      <div class="grid-4">
+        <div class="field">
+          <div class="field-head"><label for="meld-cr">肌酸酐 Creatinine</label><span class="field-unit">mg/dL</span></div>
+          <input type="number" id="meld-cr" min="0.1" max="20" step="0.01" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="meld-bili">總膽紅素 Bilirubin</label><span class="field-unit">mg/dL</span></div>
+          <input type="number" id="meld-bili" min="0.1" max="60" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="meld-inr">INR</label></div>
+          <input type="number" id="meld-inr" min="0.5" max="15" step="0.01" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="meld-na">血鈉 Sodium</label><span class="field-unit">mmol/L</span></div>
+          <input type="number" id="meld-na" min="100" max="180" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+      </div>
+      <div class="flags">
+        <label class="flag"><input type="checkbox" id="meld-dialysis">一週透析 2 次以上</label>
+      </div>
+
+      <div class="side-wrap"><div class="side-info">
+        <div class="si-title">MELD-Na 怎麼用</div>
+        <ul class="si-list">
+          <li>評估肝硬化病人短期（90 天）死亡風險，是肝臟移植排序的依據</li>
+          <li>和 Child-Pugh 一起看：Child-Pugh 看整體肝功能，MELD-Na 看短期預後；MELD-Na 達 15 以上通常建議轉介移植評估</li>
+          <li>INR 受抗凝血劑影響，使用 warfarin 時不適用</li>
+        </ul>
+      </div></div>
+
+      <div class="result" id="meld-result" aria-live="polite">
+        <div style="display:flex;align-items:flex-start;gap:26px;flex-wrap:wrap;">
+          <div>
+            <div class="score-label">MELD-Na</div>
+            <div class="score" id="meld-score">—</div>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <span class="badge" id="meld-badge" style="margin-bottom:7px;">—</span>
+            <div class="interp" id="meld-interp"></div>
+          </div>
+        </div>
+        <div class="detail-line" id="meld-detail"></div>
+        <div class="scale" id="meld-scale" data-min="6" data-max="40" data-tones="g,a,r" data-lo="6" data-hi="40" aria-hidden="true"></div>
+      </div>
+
+      <table class="ref-table" id="meld-table" style="margin-top:16px;">
+        <caption class="sr-only">MELD 分數與 90 天死亡率對照表</caption>
+        <thead>
+          <tr><th>MELD</th><th>90 天<br class="mobile-br">死亡率</th></tr>
+        </thead>
+        <tbody>
+          <tr data-band="m9"><td style="font-weight:700;color:var(--green);">9 以下</td><td>約 1.9%</td></tr>
+          <tr data-band="m19"><td style="font-weight:700;color:var(--green);">10 至 19</td><td>約 6.0%</td></tr>
+          <tr data-band="m29"><td style="font-weight:700;color:var(--amber);">20 至 29</td><td>約 19.6%</td></tr>
+          <tr data-band="m39"><td style="font-weight:700;color:var(--red);">30 至 39</td><td>約 52.6%</td></tr>
+          <tr data-band="m40"><td style="font-weight:700;color:var(--red);">40</td><td>約 71.3%</td></tr>
+        </tbody>
+      </table>
+      <div class="notes" style="margin-top:10px;">
+        ※ 死亡率為住院肝硬化病人的原始文獻數據（Wiesner 2003，以 MELD 分級），僅供參考<br>
+        ※ 參考：Kamath PS et al. Hepatology 2001；Kim WR et al. N Engl J Med 2008（MELD-Na）；UNOS／OPTN 2016 計算規則
+      </div>
+    </section>
+
+    <!-- ===================== Glasgow-Blatchford ===================== -->
+    <section class="tool-panel" id="panel-gbs" role="tabpanel" aria-labelledby="tab-gbs" tabindex="0" hidden>
+      <div class="panel-head">
+        <div class="panel-title">Glasgow-Blatchford 上消化道出血評分<small>Glasgow-Blatchford Bleeding Score</small></div>
+        <div class="panel-actions">
+          <button class="act" type="button" data-reset="gbs">重設</button>
+          <button class="act" type="button" data-copy="gbs" disabled>複製結果</button>
+        </div>
+      </div>
+
+      <div class="formula">
+        <strong>評估項目：</strong>BUN、血色素（依性別）、收縮壓、心跳、黑便、暈厥、肝臟疾病、心臟衰竭<br>
+        <span class="unitline">總分 0 至 23 分，在胃鏡之前就能算；分數越高，越可能需要輸血、內視鏡止血或手術</span>
+      </div>
+
+      <div class="grid-4">
+        <div class="field">
+          <div class="field-head"><label for="gbs-sex">性別</label></div>
+          <select id="gbs-sex">
+            <option value="">未選擇</option>
+            <option value="M">男性</option>
+            <option value="F">女性</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="gbs-bun">BUN 尿素氮</label><span class="field-unit">mg/dL</span></div>
+          <input type="number" id="gbs-bun" min="1" max="300" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="gbs-hb">血色素 Hb</label><span class="field-unit">g/dL</span></div>
+          <input type="number" id="gbs-hb" min="2" max="25" step="0.1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="gbs-sbp">收縮壓</label><span class="field-unit">mmHg</span></div>
+          <input type="number" id="gbs-sbp" min="40" max="260" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="gbs-hr">心跳</label><span class="field-unit">次／分</span></div>
+          <input type="number" id="gbs-hr" min="20" max="250" step="1" inputmode="decimal" autocomplete="off">
+          <p class="field-err" hidden></p>
+        </div>
+      </div>
+      <div class="flags">
+        <label class="flag"><input type="checkbox" id="gbs-melena">黑便（1 分）</label>
+        <label class="flag"><input type="checkbox" id="gbs-syncope">暈厥（2 分）</label>
+        <label class="flag"><input type="checkbox" id="gbs-liver">肝臟疾病：慢性肝病病史或肝硬化（2 分）</label>
+        <label class="flag"><input type="checkbox" id="gbs-cardiac">心臟衰竭（2 分）</label>
+      </div>
+
+      <div class="side-wrap"><div class="side-info">
+        <div class="si-title">分數怎麼用</div>
+        <ul class="si-list">
+          <li><b>0 至 1 分</b>：極低風險，ESGE 2021 指引認為可在門診處理，不必住院做緊急內視鏡</li>
+          <li><b>2 分以上</b>：建議住院，並在 24 小時內安排內視鏡；分數越高越可能需要介入治療</li>
+          <li>不適用於下消化道出血；正在大量出血、血壓不穩時先急救，不必等分數</li>
+        </ul>
+      </div></div>
+
+      <div class="result" id="gbs-result" aria-live="polite">
+        <div style="display:flex;align-items:flex-start;gap:26px;flex-wrap:wrap;">
+          <div>
+            <div class="score-label">總分</div>
+            <div class="score" id="gbs-score">—</div>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <span class="badge" id="gbs-badge" style="margin-bottom:7px;">—</span>
+            <div class="interp" id="gbs-interp"></div>
+          </div>
+        </div>
+        <div class="detail-line" id="gbs-detail"></div>
+        <div class="scale" id="gbs-scale" data-min="0" data-max="23" data-tones="g,a,r" data-lo="0 分" data-hi="23 分" aria-hidden="true"></div>
+      </div>
+
+      <table class="ref-table" id="gbs-table" style="margin-top:16px;">
+        <caption class="sr-only">Glasgow-Blatchford 計分表</caption>
+        <thead>
+          <tr><th>項目</th><th>範圍與分數</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>BUN（mg/dL）</td><td>18.2 至 22.3：2　22.4 至 27.9：3　28 至 69.9：4　70 以上：6</td></tr>
+          <tr><td>血色素（男，g/dL）</td><td>12 至 12.9：1　10 至 11.9：3　低於 10：6</td></tr>
+          <tr><td>血色素（女，g/dL）</td><td>10 至 11.9：1　低於 10：6</td></tr>
+          <tr><td>收縮壓（mmHg）</td><td>100 至 109：1　90 至 99：2　低於 90：3</td></tr>
+          <tr><td>其他</td><td>心跳 100 以上：1　黑便：1　暈厥：2　肝臟疾病：2　心臟衰竭：2</td></tr>
+        </tbody>
+      </table>
+      <div class="notes" style="margin-top:10px;">
+        ※ BUN 原始切點為尿素 mmol/L（6.5、8、10、25），此處換算成台灣常用的 BUN mg/dL<br>
+        ※ 參考：Blatchford O et al. Lancet 2000；Gralnek IM et al. ESGE Guideline, Endoscopy 2021（GBS 0 至 1 可門診處理）
       </div>
     </section>
 

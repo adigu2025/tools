@@ -134,7 +134,7 @@
   /* 面板被撐高時，多出的高度不分給標題列，否則結果變長或變短，左側輸入欄會跟著上下移 */
   .rx-panel.hub-split.active{align-content:start;}
   /* 判讀結果先保留填值後的高度，預估倍率才準，填完不會再縮 */
-  #fib4-result{min-height:200px;} #rfactor-result{min-height:180px;} #childpugh-result{min-height:180px;}
+  #fib4-result{min-height:200px;} #rfactor-result{min-height:180px;} #childpugh-result,#meld-result,#gbs-result{min-height:180px;}
   #bristol-result{min-height:150px;}
 }
 /* ===== 補滿畫面高度（2026-11-06）=====
@@ -155,9 +155,9 @@
   /* 附註固定在左欄最下方 */
   .hub-in > .notes{margin-top:auto !important; padding-top:12px; border-top:1px dashed #E6E3DA;}
   /* 判讀結果框吃掉右欄多出的高度，內容垂直置中、分數放大 */
-  #fib4-result, #rfactor-result, #childpugh-result, #bristol-result{flex:1 1 auto; display:flex !important; flex-direction:column;
+  #fib4-result, #rfactor-result, #childpugh-result,#meld-result,#gbs-result, #bristol-result{flex:1 1 auto; display:flex !important; flex-direction:column;
     justify-content:center; padding:16px 22px !important; min-height:0;}
-  #fib4-result .score, #rfactor-result .score, #childpugh-result .score{font-size:46px !important; line-height:1.05;}
+  #fib4-result .score, #rfactor-result .score, #childpugh-result .score, #meld-result .score, #gbs-result .score{font-size:46px !important; line-height:1.05;}
   .hub-out > .ref-table{flex:none;}
 
   /* 輸入欄加高，左欄不再擠在上半部 */
@@ -337,17 +337,17 @@
   #tdee-energy:empty{min-height:48px;}
 
   /* ---------- FIB-4、R Factor、Child-Pugh：分數框依大小放大 ---------- */
-  #fib4-result, #rfactor-result, #childpugh-result{container-type:size; min-height:250px !important; padding:4cqh 4cqw !important;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .score{font-size:clamp(46px, min(26cqh, 15cqw), 118px) !important; letter-spacing:-.03em;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .score-label{font-size:clamp(13px, 4.5cqh, 16px);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .status-text{font-size:clamp(18px, 7cqh, 30px) !important;}
+  #fib4-result, #rfactor-result, #childpugh-result,#meld-result,#gbs-result{container-type:size; min-height:250px !important; padding:4cqh 4cqw !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .score{font-size:clamp(46px, min(26cqh, 15cqw), 118px) !important; letter-spacing:-.03em;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .score-label{font-size:clamp(13px, 4.5cqh, 16px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .status-text{font-size:clamp(18px, 7cqh, 30px) !important;}
   #cp-grade{font-size:clamp(22px, 9cqh, 40px) !important;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .badge{font-size:clamp(14px, 5cqh, 20px);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .interp{font-size:clamp(14.5px, 4.6cqh, 18px) !important; line-height:1.65;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .detail-line{font-size:clamp(13px, 3.8cqh, 15px);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale{margin-top:auto; padding-top:max(16px, 4cqh);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale-bar{height:clamp(12px, 4cqh, 20px);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale-ticks{font-size:13px; height:20px;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .badge{font-size:clamp(14px, 5cqh, 20px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .interp{font-size:clamp(14.5px, 4.6cqh, 18px) !important; line-height:1.65;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .detail-line{font-size:clamp(13px, 3.8cqh, 15px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .scale{margin-top:auto; padding-top:max(16px, 4cqh);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .scale-bar{height:clamp(12px, 4cqh, 20px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .scale-ticks{font-size:13px; height:20px;}
 
   /* ---------- 量表選項：選項卡被撐高時，字跟著放大 ---------- */
   main.body > .tool-panel.active:not(.hub-split) .opt{container-type:size; min-height:64px; font-size:inherit !important; padding:10px 44px !important;}
@@ -459,16 +459,16 @@
 }
 @media (min-width:1100px){
   /* 檢驗判讀結果的內容長短不一（解讀文字可能三、四行），只依寬度縮放字級，高度由內容決定，不會溢出 */
-  #fib4-result, #rfactor-result, #childpugh-result{container-type:inline-size !important; min-height:0 !important; padding:20px 26px !important;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .score{font-size:clamp(46px, 12cqw, 104px) !important;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .score-label{font-size:clamp(13px, 2cqw, 16px);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .status-text{font-size:clamp(18px, 3.4cqw, 28px) !important;}
+  #fib4-result, #rfactor-result, #childpugh-result,#meld-result,#gbs-result{container-type:inline-size !important; min-height:0 !important; padding:20px 26px !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .score{font-size:clamp(46px, 12cqw, 104px) !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .score-label{font-size:clamp(13px, 2cqw, 16px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .status-text{font-size:clamp(18px, 3.4cqw, 28px) !important;}
   #cp-grade{font-size:clamp(22px, 4.4cqw, 36px) !important;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .badge{font-size:clamp(14px, 2.4cqw, 19px);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .interp{font-size:clamp(14.5px, 2.3cqw, 18px) !important;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .detail-line{font-size:clamp(13px, 1.9cqw, 15px);}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale{padding-top:18px;}
-  :is(#fib4-result,#rfactor-result,#childpugh-result) .scale-bar{height:16px;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .badge{font-size:clamp(14px, 2.4cqw, 19px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .interp{font-size:clamp(14.5px, 2.3cqw, 18px) !important;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .detail-line{font-size:clamp(13px, 1.9cqw, 15px);}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .scale{padding-top:18px;}
+  :is(#fib4-result,#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .scale-bar{height:16px;}
   #panel-childpugh .hub-in .field{grid-template-columns:8.2em minmax(0,1fr);}
 }
 @media (min-width:1100px){
@@ -484,8 +484,8 @@
 @media (min-width:1100px){
   .hub-out > .notes{font-size:12px !important; line-height:1.55 !important;}
   .tool-panel.hub-split:not(.rx-panel) > .hub-out{gap:12px;}
-  #fib4-result, #rfactor-result, #childpugh-result{padding:16px 24px !important;}
-  :is(#rfactor-result,#childpugh-result) .scale{padding-top:12px;}
+  #fib4-result, #rfactor-result, #childpugh-result,#meld-result,#gbs-result{padding:16px 24px !important;}
+  :is(#rfactor-result,#childpugh-result,#meld-result,#gbs-result) .scale{padding-top:12px;}
 }
 @media (min-width:1100px){
   /* 「已完成的評估」欄收窄，讓出寬度給工具本身 */

@@ -763,6 +763,114 @@
   bind(CP_FIELDS.map(function(f){ return f.id; }), calcCP);
 
   /* ======================================================
+     MELD-Na（UNOS／OPTN 2016 規則）
+     數值小於 1 以 1 計；肌酸酐上限 4，一週透析 2 次以上直接以 4 計；
+     MELD 先四捨五入到整數，大於 11 才做鈉校正；鈉限制在 125 至 137；結果限制在 6 至 40。
+     ====================================================== */
+  function meldScore(cr, bili, inr, na, dialysis){
+    var c = dialysis ? 4 : Math.min(4, Math.max(1, cr));
+    var b = Math.max(1, bili), i = Math.max(1, inr);
+    var meld = Math.round(10 * (0.957 * Math.log(c) + 0.378 * Math.log(b) + 1.120 * Math.log(i) + 0.643));
+    var n = Math.min(137, Math.max(125, na));
+    var meldNa = meld > 11 ? Math.round(meld + 1.32 * (137 - n) - 0.033 * meld * (137 - n)) : meld;
+    return { meld: Math.min(40, Math.max(6, meld)), meldNa: Math.min(40, Math.max(6, meldNa)) };
+  }
+
+  function meldScale(v, c){ drawScale('meld-scale', [10, 20, 30], ['10', '20', '30'], v, c); }
+
+  function calcMELD(){
+    var cr = num('meld-cr'), bili = num('meld-bili'), inr = num('meld-inr'), na = num('meld-na');
+    var dia = $('meld-dialysis').checked;
+    if (!isNum(cr) && !dia || !isNum(bili) || !isNum(inr) || !isNum(na)) { show('meld', false); markRow('meld-table', null); meldScale(null); return; }
+    var s = meldScore(isNum(cr) ? cr : 4, bili, inr, na, dia);
+    var v = s.meldNa, label, color, bg, band, interp;
+    if (v <= 9) { band = 'm9'; label = '短期風險低'; color = '#2E7D4F'; bg = '#E9F5EE'; interp = '90 天死亡率約 1.9%。持續治療肝病本身，定期追蹤肝功能與肝癌篩檢。'; }
+    else if (v <= 19) { band = 'm19'; label = '中度風險'; color = v >= 15 ? '#B45A00' : '#2E7D4F'; bg = v >= 15 ? '#FFF5E6' : '#E9F5EE';
+      interp = '90 天死亡率約 6%。' + (v >= 15 ? '已達 15 分，建議轉介肝臟移植評估。' : '加強追蹤；達 15 分時建議轉介移植評估。'); }
+    else if (v <= 29) { band = 'm29'; label = '高風險'; color = '#B45A00'; bg = '#FFF5E6'; interp = '90 天死亡率約 20%。建議轉介醫學中心肝臟移植團隊。'; }
+    else if (v <= 39) { band = 'm39'; label = '極高風險'; color = '#C0392B'; bg = '#FBEBE9'; interp = '90 天死亡率約 50%。需要醫學中心積極處理並評估移植。'; }
+    else { band = 'm40'; label = '極高風險'; color = '#C0392B'; bg = '#FBEBE9'; interp = '90 天死亡率約 70%。需要醫學中心積極處理並評估移植。'; }
+
+    paint('meld', color, bg);
+    $('meld-score').textContent = v;
+    $('meld-score').style.color = color;
+    var badge = $('meld-badge');
+    badge.textContent = label;
+    badge.style.background = bg; badge.style.color = color; badge.style.border = '1.5px solid ' + color;
+    $('meld-interp').textContent = interp;
+    var detail = 'MELD ' + s.meld + (s.meld > 11 ? '，鈉校正後 ' + v : '（11 以下不做鈉校正）') +
+      '｜肌酸酐 ' + (dia ? '以 4 計（透析）' : cr) + '、膽紅素 ' + bili + '、INR ' + inr + '、鈉 ' + na;
+    $('meld-detail').textContent = detail;
+    meldScale(v, color);
+    markRow('meld-table', band);
+    COPY.meld = 'MELD-Na ' + v + '（' + label + '）｜' + detail.replace(/^MELD [^｜]*｜/, 'MELD ' + s.meld + '｜');
+    COPY_MORE.meld = '判讀：' + interp;
+    show('meld', true);
+  }
+  bind(['meld-cr', 'meld-bili', 'meld-inr', 'meld-na'], calcMELD);
+  $('meld-dialysis').addEventListener('change', calcMELD);
+  RESETTERS.meld = function(){
+    ['meld-cr', 'meld-bili', 'meld-inr', 'meld-na'].forEach(function(id){ fieldError(id, ''); $(id).value = ''; });
+    $('meld-dialysis').checked = false;
+    calcMELD();
+    $('meld-cr').focus();
+  };
+
+  /* ======================================================
+     Glasgow-Blatchford（Blatchford 2000）
+     原始 BUN 切點是尿素 mmol/L 6.5、8、10、25，換算成 BUN mg/dL（× 2.8）為 18.2、22.4、28、70
+     ====================================================== */
+  function gbsScore(I){
+    var p = {};
+    p.bun = I.bun >= 70 ? 6 : I.bun >= 28 ? 4 : I.bun >= 22.4 ? 3 : I.bun >= 18.2 ? 2 : 0;
+    p.hb = I.male ? (I.hb < 10 ? 6 : I.hb < 12 ? 3 : I.hb < 13 ? 1 : 0) : (I.hb < 10 ? 6 : I.hb < 12 ? 1 : 0);
+    p.sbp = I.sbp < 90 ? 3 : I.sbp < 100 ? 2 : I.sbp < 110 ? 1 : 0;
+    p.hr = I.hr >= 100 ? 1 : 0;
+    p.melena = I.melena ? 1 : 0; p.syncope = I.syncope ? 2 : 0; p.liver = I.liver ? 2 : 0; p.cardiac = I.cardiac ? 2 : 0;
+    var total = 0; for (var k in p) total += p[k];
+    return { total: total, parts: p };
+  }
+
+  function gbsScale(v, c){ drawScale('gbs-scale', [1.5, 7.5], ['1｜2', '7｜8'], v, c); }
+
+  var GBS_FLAGS = ['gbs-melena', 'gbs-syncope', 'gbs-liver', 'gbs-cardiac'];
+  function calcGBS(){
+    var sex = $('gbs-sex').value, bun = num('gbs-bun'), hb = num('gbs-hb'), sbp = num('gbs-sbp'), hr = num('gbs-hr');
+    if (!sex || !isNum(bun) || !isNum(hb) || !isNum(sbp) || !isNum(hr)) { show('gbs', false); gbsScale(null); return; }
+    var s = gbsScore({ male: sex === 'M', bun: bun, hb: hb, sbp: sbp, hr: hr,
+      melena: $('gbs-melena').checked, syncope: $('gbs-syncope').checked, liver: $('gbs-liver').checked, cardiac: $('gbs-cardiac').checked });
+    var v = s.total, label, color, bg, interp;
+    if (v <= 1) { label = '極低風險'; color = '#2E7D4F'; bg = '#E9F5EE'; interp = '0 至 1 分：需要介入治療的機會很低，ESGE 2021 指引認為可在門診處理，安排門診胃鏡即可。'; }
+    else if (v <= 7) { label = '需要住院評估'; color = '#B45A00'; bg = '#FFF5E6'; interp = '2 分以上：建議住院，24 小時內安排胃鏡；先建立靜脈管路、監測生命徵象與血色素。'; }
+    else { label = '高風險'; color = '#C0392B'; bg = '#FBEBE9'; interp = '8 分以上：需要輸血或內視鏡止血的機會高，建議盡快轉送可做緊急內視鏡的醫院。'; }
+
+    paint('gbs', color, bg);
+    $('gbs-score').textContent = v + ' 分';
+    $('gbs-score').style.color = color;
+    var badge = $('gbs-badge');
+    badge.textContent = label;
+    badge.style.background = bg; badge.style.color = color; badge.style.border = '1.5px solid ' + color;
+    $('gbs-interp').textContent = interp;
+    var P = s.parts, NAMES = { bun: 'BUN', hb: '血色素', sbp: '收縮壓', hr: '心跳', melena: '黑便', syncope: '暈厥', liver: '肝臟疾病', cardiac: '心臟衰竭' };
+    var parts = Object.keys(P).filter(function(k){ return P[k]; }).map(function(k){ return NAMES[k] + ' ' + P[k]; });
+    $('gbs-detail').textContent = '計分：' + (parts.length ? parts.join('　') : '各項都是 0 分');
+    gbsScale(v, color);
+    COPY.gbs = 'Glasgow-Blatchford ' + v + ' 分（' + label + '）｜' + (sex === 'M' ? '男' : '女') + '、BUN ' + bun + '、Hb ' + hb + '、SBP ' + sbp + '、HR ' + hr +
+      (parts.length ? '｜計分：' + parts.join('、') : '');
+    COPY_MORE.gbs = '判讀：' + interp;
+    show('gbs', true);
+  }
+  bind(['gbs-sex', 'gbs-bun', 'gbs-hb', 'gbs-sbp', 'gbs-hr'], calcGBS);
+  GBS_FLAGS.forEach(function(id){ $(id).addEventListener('change', calcGBS); });
+  RESETTERS.gbs = function(){
+    ['gbs-bun', 'gbs-hb', 'gbs-sbp', 'gbs-hr'].forEach(function(id){ fieldError(id, ''); $(id).value = ''; });
+    $('gbs-sex').selectedIndex = 0;
+    GBS_FLAGS.forEach(function(id){ $(id).checked = false; });
+    calcGBS();
+    $('gbs-sex').focus();
+  };
+
+  /* ======================================================
      用藥給付判定：共用小工具
      ====================================================== */
   function ck(id){ var e = $(id); return !!(e && e.checked); }
@@ -3027,5 +3135,7 @@
     };
     CALC_TEST.ocrApply = function(tool, v){ return OCR_APPLY[tool]([{ date: '', v: v }]); };
     CALC_TEST.copy = function(tool){ return COPY[tool] || ''; };
+    CALC_TEST.meldScore = meldScore;
+    CALC_TEST.gbsScore = gbsScore;
   }
 })();
