@@ -1299,7 +1299,7 @@ function ckRenderLab(){
   const box = ckEl('k-lab-box');
   const P = ckPatient();
   const rows = ckCurrentRows();
-  if(!rows.length){ box.innerHTML = '<div class="k-empty">尚未上傳檢驗報告。</div>'; return; }
+  if(!rows.length){ box.innerHTML = ''; return; }
   const hasPrev = ckSortedReports().length > 1;
   let sec = null, html = '';
   rows.forEach((r, i)=>{
@@ -1318,7 +1318,7 @@ function ckRenderLab(){
 function ckRenderFind(){
   const d = ckCollect();
   const box = ckEl('k-find');
-  if(!d.findingsAll.length){ box.innerHTML = '<div class="k-empty" style="display:block">目前沒有判讀為「注意」或「異常」的項目。</div>'; }
+  if(!d.findingsAll.length){ box.innerHTML = ''; }
   else box.innerHTML = '' +
     d.findingsAll.map(x=> `<div class="${x.off ? 'off' : ''}"><span class="g${x.g}">${x.g === 2 ? '異常' : '注意'}</span><span>${x.html}</span>` +
       `<label class="k-fin"><input type="checkbox" data-fin="${ckEsc(x.key)}"${x.off ? '' : ' checked'}> 列入報告</label></div>`).join('');
@@ -1352,7 +1352,7 @@ function ckRenderCv(d){
 }
 function ckRenderPub(d){
   const box = ckEl('k-pub');
-  if(d.P.age == null){ box.innerHTML = '<div class="k-empty" style="display:block">請先填年齡。</div>'; return; }
+  if(d.P.age == null){ box.innerHTML = ''; return; }
   box.innerHTML = d.pub.length ? `<table class="k-pubt">${d.pub.map(x=> `<tr><td>${x.t}${x.tbc ? '<span class="k-tbc">待確認</span>' : ''}</td><td>${x.rule}${x.done ? `<br><small>${ckEsc(x.done)}</small>` : ''}</td></tr>`).join('')}</table>` +
     '<p class="k-note">只依年齡、性別、家族史與吸菸判斷，間隔從上次篩檢起算；病人實際資格以健保卡查詢紀錄為準。</p>'
     : '<div class="k-empty" style="display:block">依目前資料，沒有符合資格的公費篩檢。</div>';
@@ -1536,7 +1536,7 @@ function ckRenderRecords(){
   st.textContent = days === null ? '這台電腦還沒有匯出過備份。' : '上次匯出備份：' + at.toLocaleDateString('zh-TW') + '（' + (days === 0 ? '今天' : days + ' 天前') + '）';
   // 有紀錄卻超過兩週沒備份，用紅字提醒（與減重報告相同）
   st.style.color = list.length && (days === null || days >= 14) ? 'var(--k-red)' : '';
-  if(!list.length){ box.innerHTML = '<p class="k-note">尚無儲存的紀錄。</p>'; return; }
+  if(!list.length){ box.innerHTML = ''; return; }
   box.innerHTML = '<table class="k-rec"><tr><th>病人｜檢查日期</th><th>儲存時間</th><th></th></tr>' + list.map(r=>{
     const d = new Date(r.savedAt), ts = isNaN(d) ? '' : d.toLocaleDateString('zh-TW') + ' ' + d.toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
     return `<tr><td>${ckEsc(r.label)}</td><td>${ckEsc(ts)}</td><td class="act"><button type="button" class="k-btn ghost sm" data-rec="load" data-key="${ckEsc(r.key)}">載入</button>` +

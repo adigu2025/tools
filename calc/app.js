@@ -1648,6 +1648,7 @@
       var r = typeof RX_RULES !== 'undefined' && RX_RULES[tool];
       if (!r) return;
       opener = btn;
+      $('rule-meta').hidden = false;
       $('rule-title').textContent = r.title + '（' + r.code + '）';
       var ago = typeof rxCheckedAgo === 'function' ? rxCheckedAgo(r) : 0;
       $('rule-meta').innerHTML =
@@ -1664,6 +1665,33 @@
       closeBtn.focus();
     }
     function close(){ overlay.hidden = true; if (opener) opener.focus(); }
+    /* 公式與 ※ 附註（2026-11-19）：不再以灰色小字放在畫面上，收進標題旁的「公式與文獻」按鈕，
+       點開沿用給付規定視窗。結果區裡的附註不動。 */
+    CD.querySelectorAll('.tool-panel').forEach(function(p){
+      var items = [].filter.call(p.querySelectorAll('.formula, .notes'), function(el){
+        if (el.closest('[id$="-result"]')) return false;
+        return el.classList.contains('formula') || /^\s*※/.test(el.textContent);
+      });
+      var acts = p.querySelector('.panel-actions');
+      if (!items.length || !acts) return;
+      var box = document.createElement('div');
+      box.className = 'panel-info'; box.hidden = true;
+      items.forEach(function(el){ box.appendChild(el); });
+      p.appendChild(box);
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'act'; btn.textContent = '公式與文獻';
+      acts.insertBefore(btn, acts.firstChild);
+      btn.addEventListener('click', function(){
+        opener = btn;
+        var t = p.querySelector('.panel-title');
+        $('rule-title').textContent = t ? t.childNodes[0].textContent.trim() : '';
+        $('rule-meta').hidden = true;
+        $('rule-body').innerHTML = box.innerHTML;
+        overlay.hidden = false;
+        $('rule-body').scrollTop = 0;
+        closeBtn.focus();
+      });
+    });
     CD.querySelectorAll('[data-rule]').forEach(function(btn){
       btn.addEventListener('click', function(){ open(btn.dataset.rule, btn); });
     });

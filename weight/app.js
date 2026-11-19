@@ -1046,7 +1046,7 @@ function renderLabRows(){
     tag.textContent = f === 'H' ? '偏高' : f === 'L' ? '偏低' : '';
     input.classList.toggle('lab-abn', !!f);
   });
-  if(!rows.length){ box.innerHTML = '<div class="w-lab-empty">尚未有血液常規或尿液數值。上傳優品的抽血 PDF 會自動列出，或在上面三格手動輸入。</div>'; return; }
+  if(!rows.length){ box.innerHTML = ''; return; }
   let grp = '', html = '<table class="w-lab"><thead><tr><th>項目</th><th>本次</th><th>參考區間</th><th>判讀</th></tr></thead><tbody>';
   rows.forEach(r=>{
     if(r.grp !== grp){ grp = r.grp; html += `<tr class="sec"><td colspan="4">${wEsc(grp)}</td></tr>`; }
@@ -2556,7 +2556,7 @@ function renderRecords(){
   const list = loadRecords();
   renderBackupStatus(list);
   if(!list.length){
-    box.innerHTML = '<div class="hint">尚無儲存的紀錄。填寫姓名後按上方「儲存病人紀錄」即可建立。</div>';
+    box.innerHTML = '';
     return;
   }
   const rows = list.map(r=>{

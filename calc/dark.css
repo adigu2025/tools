@@ -33,6 +33,9 @@
 :host([data-theme="dark"]) .rule-body th,
 :host([data-theme="dark"]) .rule-body td{border:1px solid var(--line);}
 :host([data-theme="dark"]) .rule-body th{background:var(--teal-soft); color:var(--navy);}
+:host([data-theme="dark"]) .rule-body .formula,
+:host([data-theme="dark"]) .rule-body .notes{color:var(--text) !important;}
+:host([data-theme="dark"]) .rule-body .formula .unitline{color:var(--text) !important;}
 :host([data-theme="dark"]) .rule-foot{color:var(--faint);}
 :host([data-theme="dark"]) .tabs-wrap{background:rgba(33,37,39,0.94); border-bottom:1px solid var(--line);}
 :host([data-theme="dark"]) .group-btn{color:var(--muted); background:none; border:none; border-bottom:2.5px solid transparent;}

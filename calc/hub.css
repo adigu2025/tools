@@ -711,8 +711,9 @@
    工作台只在診間使用：標題上方的副標、空白狀態的操作提示都不顯示，只留判讀說明與文獻附註 */
 .panel-title small{display:none !important;}
 .empty-hint p, #target-empty{display:none !important;}
+/* 2026-11-19：題組開頭的操作說明也不顯示（病人版不受影響） */
+.tool-panel:not(#panel-metsyn) .quiz-intro, .bristol-intro{display:none !important;}
 @media (min-width:1100px){
-  #panel-stoolcolor > .quiz-intro{display:none !important;}
   /* 降血脂與 B 肝用藥：勾選題固定三欄，結果卡收緊，一個畫面放得下 */
   .rx-panel .rx-cols{grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:10px !important; margin-bottom:0 !important;}
   .rx-panel .rx-cols .rx-section{padding:8px 10px !important;}
