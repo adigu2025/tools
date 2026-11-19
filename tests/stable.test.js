@@ -118,6 +118,17 @@ async function run(){
     if(leak.length)res.push('從「'+VIEWS[ci]+'」叫出封面：'+leak.length+' 點透出工具畫面，例如 '+leak.slice(0,3).join('、'));
     esc();await tick(100);
   }
+  // 快速前往：臨床計算按 /，打 fib 按 Enter 要開到 FIB-4；製作報告按 2 要開健檢報告
+  setView('calc');await tick(400);
+  document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'/',bubbles:true,cancelable:true}));
+  var jq=document.getElementById('jump-q');
+  if(document.getElementById('jump-modal').hidden)res.push('臨床計算按 / 沒有叫出快速前往');
+  else{jq.value='fib';jq.dispatchEvent(new Event('input'));jq.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));await tick(400);
+    var jp=CD.querySelector('.tool-panel.active');if(!jp||jp.id!=='panel-fib4')res.push('快速前往「fib」沒有開到 FIB-4（'+(jp&&jp.id)+'）');}
+  setView('weight');setRep('home');await tick(200);
+  document.body.dispatchEvent(new KeyboardEvent('keydown',{key:'2',bubbles:true,cancelable:true}));await tick(200);
+  if(main.dataset.rep!=='checkup')res.push('製作報告按 2 沒有開健檢報告');
+  setRep('home');
   setView('quote');await tick(400);
   function sec(act){esc();var b=cv.querySelector('[data-act="'+act+'"]');if(!b)return res.push('封面沒有捷徑 '+act);b.click();}
   sec('c:lipidrx');await tick(400);

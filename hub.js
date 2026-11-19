@@ -184,7 +184,7 @@ function setView(v){
 const FOOT_HINT = {
   quote:  '/ 或 Ctrl+K 搜尋　Esc 返回選單　右鍵切換自費／免自費',
   calc:   '以上結果僅供臨床參考，實際診斷與治療須由醫師綜合判斷。數值只在本機計算，不會上傳。',
-  report: '選擇要製作的報告。',
+  report: '1 或 2 選擇報告　/ 快速前往',
   weight: '減重報告會自動暫存草稿；上傳的檔案只在這台電腦讀取，不會上傳。按 Esc 回到報告種類。',
   checkup: '健檢報告會自動暫存草稿（不含 PDF 圖片）；上傳的檔案只在這台電腦讀取，不會上傳。按 Esc 回到報告種類。',
   edu:    '/ 搜尋　← → 換張　＋ － 縮放　0 整頁　W 寬度（衛教）　F 最大化　放大後可按住拖曳　按「列印」直接跳出列印對話框'
@@ -200,7 +200,7 @@ function openCover(){
   cover.hidden = false;
   const row = cover.querySelector('.cv-row[data-to="' + main.dataset.view + '"]') || cover.querySelector('.cv-row');
   row.focus({preventScroll:true});
-  document.getElementById('foot-hint').textContent = '1 至 4 開啟　↑ ↓ 選擇　Enter 開啟　Esc 回到原分頁';
+  document.getElementById('foot-hint').textContent = '1 至 4 開啟　↑ ↓ 選擇　Enter 開啟　/ 快速前往　Esc 回到原分頁';
 }
 // 回到原本的分頁（setView 會收起封面，並把焦點放回該工具）
 function closeCover(){ setView(main.dataset.view); }
@@ -239,6 +239,75 @@ function onCoverKey(e){
   if((k === 'Enter' || k === ' ') && i >= 0){ e.preventDefault(); setView(rows[i].dataset.to); return true; }
   return false;
 }
+/* ── 快速前往：在臨床計算、製作報告與 Esc 目錄按 /（報價與衛教的 / 仍是各自的搜尋）。
+   清單每次打開時從畫面現有的項目產生：臨床計算的每個項目、目錄上的報價與衛教分類、兩種報告、四個分頁，
+   新增計算項目不必回來改這裡。打字即時篩選，↑ ↓ 選、Enter 開、Esc 關。 */
+const jumpModal = document.getElementById('jump-modal');
+const jumpQ = document.getElementById('jump-q');
+const jumpList = document.getElementById('jump-list');
+let jumpItems = [], jumpShown = [], jumpSel = 0;
+function jumpBuild(){
+  const items = [];
+  const tabName = {quote:'報價系統', calc:'臨床計算', edu:'衛教與表單', weight:'製作報告'};
+  if(CD) CD.querySelectorAll('.tab[data-tool]').forEach(t=>{
+    const en = t.querySelector('.tab-en');
+    const name = [...t.childNodes].filter(n=> n.nodeType === 3).map(n=> n.textContent).join('').trim();
+    items.push({name, en: en ? en.textContent.trim() : '', group: '臨床計算', act: ()=> COVER_ACT.c(t.dataset.tool)});
+  });
+  const groupOf = {q:'報價系統', e:'衛教與表單', r:'製作報告'};
+  cover.querySelectorAll('.cv-sec').forEach(b=>{
+    const [k, id] = b.dataset.act.split(':');
+    if(k === 'c') return;   // 臨床計算上面已經逐項列過
+    items.push({name: b.textContent.trim(), en: '', group: groupOf[k], act: ()=> COVER_ACT[k](id)});
+  });
+  Object.keys(tabName).forEach(v=> items.push({name: tabName[v], en: '分頁', group: 'Alt＋' + (Object.keys(tabName).indexOf(v) + 1), act: ()=> setView(v)}));
+  return items;
+}
+function jumpRender(){
+  const q = jumpQ.value.trim().toLowerCase().replace(/\s+/g, '');
+  jumpShown = q ? jumpItems.filter(it=> (it.name + it.en + it.group).toLowerCase().replace(/\s+/g, '').includes(q)) : jumpItems;
+  jumpSel = Math.min(jumpSel, Math.max(jumpShown.length - 1, 0));
+  jumpList.innerHTML = '';
+  if(!jumpShown.length){ const li = document.createElement('li'); li.className = 'none'; li.textContent = '找不到符合的項目'; jumpList.appendChild(li); return; }
+  jumpShown.forEach((it, i)=>{
+    const li = document.createElement('li');
+    li.setAttribute('role', 'option');
+    li.setAttribute('aria-selected', i === jumpSel ? 'true' : 'false');
+    li.innerHTML = '<span></span><span class="je"></span><span class="jg"></span>';
+    li.children[0].textContent = it.name; li.children[1].textContent = it.en; li.children[2].textContent = it.group;
+    li.addEventListener('click', ()=> jumpGo(i));
+    jumpList.appendChild(li);
+  });
+  const on = jumpList.children[jumpSel];
+  if(on) on.scrollIntoView({block:'nearest'});
+}
+function openJump(){
+  jumpItems = jumpBuild(); jumpSel = 0; jumpQ.value = '';
+  jumpModal.hidden = false; jumpRender(); jumpQ.focus();
+}
+function closeJump(){ jumpModal.hidden = true; }
+function jumpGo(i){
+  const it = jumpShown[i];
+  if(!it) return;
+  closeJump();
+  if(!cover.hidden) cover.hidden = true;
+  it.act();
+}
+jumpQ.addEventListener('input', ()=>{ jumpSel = 0; jumpRender(); });
+jumpModal.addEventListener('click', e=>{ if(e.target === jumpModal) closeJump(); });
+function onJumpKey(e){
+  const k = e.key;
+  if(k === 'Escape'){ e.preventDefault(); closeJump(); return; }
+  if(k === 'ArrowDown' || k === 'ArrowUp'){
+    e.preventDefault();
+    if(!jumpShown.length) return;
+    jumpSel = (jumpSel + (k === 'ArrowDown' ? 1 : jumpShown.length - 1)) % jumpShown.length;
+    jumpRender(); return;
+  }
+  // 注音選字的 Enter 不算開啟
+  if(k === 'Enter' && !e.isComposing && e.keyCode !== 229){ e.preventDefault(); jumpGo(jumpSel); }
+}
+
 document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
 
 /* ── 製作報告：home＝選報告種類，weight＝減重報告，checkup＝體檢報告 ── */
@@ -302,12 +371,19 @@ document.addEventListener('keydown', e=>{
     if(e.key === 'Escape'){ e.preventDefault(); closeRev(); }
     return;
   }
+  if(!jumpModal.hidden){ onJumpKey(e); return; }
   if(e.key === 'Escape' && !qrOverlay.hidden){ qrOverlay.hidden = true; return; }
+  // 快速前往：臨床計算、製作報告與目錄上的 /（報價與衛教的 / 留給各自的搜尋）
+  if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !typingInField(e) && (!cover.hidden || main.dataset.view === 'calc' || main.dataset.view === 'weight')){ e.preventDefault(); openJump(); return; }
   if(!cover.hidden){ onCoverKey(e); return; }
   // Esc 叫出封面：工具自己用掉的 Esc（關預覽、回上一層、清搜尋，都會 preventDefault）、輸入欄位裡的 Esc、最大化中的 Esc 不算
   if(e.key === 'Escape' && !e.defaultPrevented && !e.ctrlKey && !e.metaKey && !e.altKey && !typingInField(e)
      && !document.body.classList.contains('edu-max') && !document.body.classList.contains('q-max')){
     e.preventDefault(); openCover(); return;
+  }
+  // 製作報告的報告種類：列上標的 1、2 直接開
+  if(main.dataset.view === 'weight' && main.dataset.rep === 'home' && (e.key === '1' || e.key === '2') && !e.ctrlKey && !e.metaKey && !e.altKey && !typingInField(e)){
+    e.preventDefault(); setRep(e.key === '1' ? 'weight' : 'checkup'); return;
   }
   // 報價的搜尋快速鍵（/、Ctrl+K）：焦點不在報價畫面裡（例如點過頂端列）時，事件到不了報價的 shadow root，這裡轉送過去
   const qSearchKey = e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey || (e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K');

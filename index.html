@@ -419,6 +419,17 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
 :root[data-theme="dark"] .modal-card p.warn{color:#EE9A8E;}
 .modal-acts{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}
 .modal-acts .tbtn{padding:10px 20px; font-size:16px;}
+/* 快速前往：在臨床計算、製作報告與 Esc 目錄按 / 叫出，打幾個字跳到任何一個計算項目、報告、衛教或報價分類（2026-11-19） */
+.jump-card{width:min(560px,100%); padding:20px 20px 12px; align-self:flex-start; margin-top:12vh;}
+.jump-card label{display:block; font-family:var(--serif); font-size:18px; font-weight:700; margin:0 0 10px; color:var(--ink);}
+.jump-card input{width:100%; font:inherit; font-size:18px; padding:10px 14px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg); color:var(--ink);}
+.jump-card input:focus{outline:2px solid var(--acc-text); outline-offset:1px;}
+.jump-list{list-style:none; margin:10px 0 0; padding:0; max-height:52vh; overflow:auto;}
+.jump-list li{display:flex; align-items:baseline; gap:12px; padding:9px 12px; border-radius:8px; cursor:pointer; font-size:16px; color:var(--ink);}
+.jump-list li .jg{margin-left:auto; font-size:13px; color:var(--muted); white-space:nowrap;}
+.jump-list li .je{font-size:13px; color:var(--muted);}
+.jump-list li[aria-selected="true"]{background:var(--acc-soft); color:var(--acc-text);}
+.jump-list li.none{cursor:default; color:var(--muted);}
 .tbtn.danger{background:var(--clay); border-color:var(--clay); color:#fff; font-weight:700;}
 .tbtn.danger:hover{background:var(--clay-dark);}
 
@@ -492,7 +503,7 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
       <dl class="cv-keys">
         <dt><kbd>1</kbd> 至 <kbd>4</kbd></dt><dd>在目錄上直接開啟</dd>
         <dt><kbd>Alt</kbd>＋<kbd>1</kbd> 至 <kbd>4</kbd></dt><dd>隨時切換分頁</dd>
-        <dt><kbd>/</kbd></dt><dd>搜尋（報價、衛教）</dd>
+        <dt><kbd>/</kbd></dt><dd>搜尋；其他分頁是快速前往</dd>
         <dt><kbd>Esc</kbd></dt><dd>叫出或收起目錄</dd>
       </dl>
     </div>
@@ -602,6 +613,14 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
     <h2 id="rv-title"></h2>
     <ul class="rev-list" id="rv-list"></ul>
     <div class="modal-acts"><button class="tbtn" id="rv-close">關閉</button></div>
+  </div>
+</div>
+
+<div class="modal" id="jump-modal" role="dialog" aria-modal="true" aria-labelledby="jump-label" hidden>
+  <div class="modal-card jump-card">
+    <label id="jump-label" for="jump-q">快速前往</label>
+    <input id="jump-q" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-controls="jump-list" aria-expanded="true">
+    <ul class="jump-list" id="jump-list" role="listbox" aria-label="符合的項目"></ul>
   </div>
 </div>
 
