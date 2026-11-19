@@ -627,7 +627,7 @@
 }
 .paid-display:hover, .discount-display:hover { background: rgba(var(--gold-rgb),0.10); }
 .paid-display.edited { opacity: 0.85; }
-.btn-clear, .btn-print {
+.btn-clear, .btn-print, .btn-phone {
   flex: 1; padding: 10px; border-radius: 20px; cursor: pointer;
   font-size: 14px; font-family: inherit; letter-spacing: 0.02em; transition: all 0.18s var(--ease);
 }
@@ -635,6 +635,9 @@
 .btn-clear:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-pale); }
 .btn-print { background: var(--primary); border: none; color: white; }
 .btn-print:hover { background: var(--accent); }
+/* 手機版：窄版 PDF，給用 LINE 收報價單的病人 */
+.btn-phone { background: none; border: 1.5px solid var(--border); color: var(--text); }
+.btn-phone:hover { border-color: var(--primary); color: var(--primary); }
 
 /* Toast（可附「復原」動作） */
 .toast {
@@ -1033,7 +1036,7 @@
 /* ─── Print ──────────────────────────────────────────────────────── */
 @page { margin: 0; size: A4; }
 
-.cart-notes-print, .cart-item-note, .pf-pad { display: none; }
+.cart-notes-print, .cart-item-note, .pf-pad, .print-summary, .pf-foot-text { display: none; }
 .print-frame, .print-frame > tbody, .print-frame > tbody > tr, .pf-cell { display: contents; }
 
 @media print {
@@ -1043,8 +1046,9 @@
      上下留白：@page 邊界必須是 0（否則瀏覽器會印出網址與日期的頁首頁尾），
      改用 .print-frame 表格的 thead／tfoot 撐出 12mm，Chrome 會在每一頁重複，
      第 2 頁以後的內容就不會貼齊紙張頂端與底端。 */
+  .q-body, .q-body * { box-shadow: none !important; }
   .q-body {
-    display: block !important;
+    display: block !important; position: static !important; border-radius: 0 !important;
     height: auto !important; overflow: visible !important;
     padding: 0 !important; background: #FFF !important;
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
@@ -1057,6 +1061,10 @@
   .print-frame tr { display: table-row !important; }
   .print-frame td { display: table-cell !important; padding: 0; vertical-align: top; }
   .pf-pad td { height: 12mm; }
+  /* 每頁底部：診所、稱謂、日期（Chrome 會在每一頁重複 tfoot），分開的頁也對得起來 */
+  tfoot.pf-pad td { vertical-align: bottom; }
+  .pf-foot-text { display: block !important; margin: 0 16mm 5mm; padding-top: 1.6mm; border-top: 0.6pt solid #C9D6DC;
+    font-size: 8.5pt; color: #5D6C75; letter-spacing: 0.04em; }
 
   /* 頁首：左側診所名稱，右側日期與地址電話，下方金線 */
   .banner {
@@ -1068,7 +1076,7 @@
   }
   .banner::after {
     display: block !important; left: 16mm !important; right: 16mm !important; bottom: 0 !important;
-    height: 0.8pt !important; opacity: 1 !important; background: #152831 !important;
+    height: 1.2pt !important; opacity: 1 !important; background: #3E6A7C !important;
   }
   .banner-text { text-align: left !important; margin: 0 !important; }
   .banner-name { font-family: var(--serif); font-size: 21pt !important; font-weight: 700; color: #152831 !important; letter-spacing: 0.16em !important; line-height: 1.25; }
@@ -1094,6 +1102,15 @@
   .letter-greeting.empty { display: none; }
   .letter-greeting { font-size: 14pt; font-weight: 700; margin-bottom: 1.5mm !important; letter-spacing: 0.04em; }
   .letter-body { color: #3B4A53; }
+  /* 總額摘要：手機打開第一眼就看到。淡金底＋金色左線，數字用深色（金色不當小字） */
+  .print-summary {
+    display: flex !important; align-items: baseline; gap: 3mm; flex-wrap: wrap;
+    margin: 3.5mm 0 1mm; padding: 2.6mm 4mm; background: #F7EFE3; border-left: 2.4pt solid #BC7F30;
+    font-family: var(--serif); color: #152831; break-inside: avoid;
+  }
+  .ps-label { font-size: 11pt; font-weight: 700; }
+  .ps-value { font-size: 15pt; font-weight: 700; }
+  .ps-count { font-size: 10pt; color: #3B4A53; margin-left: auto; }
 
   /* 隱藏互動元素 */
   .content, .action-row, .toast,
@@ -1118,9 +1135,9 @@
   /* 分類標題 */
   .cart-group-label {
     display: block !important; position: relative;
-    font-family: var(--serif); font-size: 11pt !important; font-weight: 700 !important; letter-spacing: 0.06em !important;
-    color: #152831 !important; padding: 4.5mm 0 1.2mm !important; margin: 0 !important;
-    border-bottom: 1px solid #3E6A7C !important;
+    font-family: var(--serif); font-size: 11.5pt !important; font-weight: 700 !important; letter-spacing: 0.06em !important;
+    color: #2E5466 !important; background: #E9F0F3 !important; padding: 1.6mm 3mm !important; margin: 5mm 0 0.5mm !important;
+    border: none !important; border-left: 2.4pt solid #3E6A7C !important;
     break-after: avoid; page-break-after: avoid;
   }
 
@@ -1164,7 +1181,7 @@
   .np-line { display: block; position: relative; padding-left: 3.6mm; break-inside: avoid; }
   .np-line::before {
     content: ''; position: absolute; left: 0.6mm; top: 0.82em;
-    width: 1.1mm; height: 1.1mm; border-radius: 50%; background: #9FB2BC;
+    width: 1.2mm; height: 1.2mm; border-radius: 50%; background: #3E6A7C;
   }
   /* 單項說明一欄排到金額前方；只有四行以上的套組內含項目才分兩欄 */
   .cart-notes-print.cols { column-count: 2; column-gap: 8mm; }
@@ -1191,7 +1208,7 @@
   .sub-label { font-size: 10.5pt !important; padding: 0 !important; }
   .sub-value, .discount-display, .paid-display { font-family: var(--serif) !important; font-size: 10.5pt !important; font-weight: 500 !important; color: #152831 !important; padding: 0 !important; }
   .divider { margin: 1.8mm 0 2mm !important; border-top: 1.2pt solid #152831 !important; }
-  .grand-row { align-items: baseline !important; }
+  .grand-row { align-items: baseline !important; background: #E9F0F3; padding: 2mm 3mm !important; margin: 0; }
   .grand-label { font-family: var(--serif); font-size: 12pt !important; letter-spacing: 0.06em !important; color: #152831 !important; }
   .grand-currency { font-size: 9pt !important; }
   .grand-value { font-family: var(--serif) !important; font-size: 22pt !important; color: #152831 !important; padding: 0 !important; }
@@ -1205,8 +1222,8 @@
   .letter-remark, .letter-version { grid-column: 1 / -1; }
   /* 備註：上下細線框住，不用底色與側邊色條；※ 懸掛在左，換行對齊文字 */
   .letter-remark {
-    margin: 0; padding: 2.6mm 0 2.8mm; background: none !important;
-    border-top: 0.6pt solid #B9C6CD; border-bottom: 0.6pt solid #B9C6CD;
+    margin: 0; padding: 2.8mm 4mm 3mm; background: #F3F6F8 !important;
+    border: none;
     font-size: 10pt; color: #3B4A53;
     break-inside: avoid; page-break-inside: avoid;
   }
@@ -1237,6 +1254,25 @@
     /* 金額為 0 的折扣與已付列不印 */
   .sub-total-row.print-zero { display: none !important; }
 
+  /* ═══ 手機版：@page 110mm 寬（hub.js QUOTE_PRINT('phone')），同一份內容改單欄。
+     手機寬約 390px，110mm 頁面上的 10.5pt 約等於畫面上 13px，不用放大就能讀。 */
+  .q-body.phone .banner { grid-template-columns: 1fr; padding: 0 6mm 3mm !important; row-gap: 1mm; }
+  .q-body.phone .banner::after { left: 6mm !important; right: 6mm !important; }
+  .q-body.phone .banner-name { font-size: 18pt !important; }
+  .q-body.phone .banner-date, .q-body.phone .banner-addr { grid-column: 1; grid-row: auto; text-align: left; white-space: normal; }
+  .q-body.phone .letter-intro { padding: 4mm 6mm 0; }
+  .q-body.phone .layout { padding: 0 6mm 2mm; }
+  .q-body.phone .letter-part.letter-close { padding: 4mm 6mm 4mm; }
+  .q-body.phone .pf-pad td { height: 6mm; }
+  .q-body.phone .pf-foot-text { margin: 0 6mm 3mm; }
+  .q-body.phone .cart-notes-print.cols { column-count: 1; }
+  .q-body.phone .cart-item-name { font-size: 11pt !important; }
+  .q-body.phone .cart-item.cart-sub { padding-left: 3mm !important; }
+  .q-body.phone .cart-item-note { display: block !important; margin: 0.8mm 0 0 !important; font-size: 10.5pt; }
+  .q-body.phone .cart-notes-print { font-size: 10.5pt !important; }
+  .q-body.phone .panel-foot { width: 100%; }
+  .q-body.phone .letter-remark { font-size: 10.5pt; }
+
   #endoNote, #hcNote, #extPayNote, #insNote, #tumorNote { display: none !important; }
   #endoNote.active, #hcNote.active, #extPayNote.active, #insNote.active, #tumorNote.active { display: block !important; }
 }
@@ -1249,7 +1285,7 @@
      螢幕上整個表格用 display: contents 拆掉，不影響原本版面。 -->
 <table class="print-frame" role="presentation">
 <thead class="pf-pad"><tr><td></td></tr></thead>
-<tfoot class="pf-pad"><tr><td></td></tr></tfoot>
+<tfoot class="pf-pad"><tr><td><div class="pf-foot-text" id="pfFootText">木子澄安診所｜醫療費用說明</div></td></tr></tfoot>
 <tbody><tr><td class="pf-cell">
 
 <!-- Banner -->
@@ -1267,6 +1303,7 @@
 <div id="letterIntro" class="letter-part letter-intro">
   <p class="letter-greeting empty" id="letterGreeting"><span id="letterPatientName"></span> 您好：</p>
   <p class="letter-body">以下是這次規劃的檢查與治療項目，以及預估費用。</p>
+  <div class="print-summary" id="printSummary"><span class="ps-label">預估應收總額</span><span class="ps-value" id="psValue"></span><span class="ps-count" id="psCount"></span></div>
 </div>
 
 <div class="layout">
@@ -1458,6 +1495,7 @@
       </div>
       <div class="action-row">
         <button class="btn-clear" id="btnClear">清除全部</button>
+        <button class="btn-phone" id="btnPhone" title="窄版 PDF，手機上不用放大就能讀">手機版</button>
         <button class="btn-print" id="btnPrint">列印清單</button>
       </div>
     </div>

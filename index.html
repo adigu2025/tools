@@ -179,6 +179,8 @@ button{font:inherit; cursor:pointer; color:inherit;}
 @media print{
   body.print-quote .hub-bar, body.print-quote .hub-foot, body.print-quote .toast, body.print-quote .pane:not(#pane-quote){display:none !important;}
   html:has(body.print-quote), body.print-quote{height:auto; background:#fff;}
+  /* 工作台的暖白底與分頁外框不可以印出來（曾在 PDF 底部留下一圈灰框） */
+  body.print-quote .hub-main, body.print-quote #pane-quote, body.print-quote #quote-host{background:#fff !important; box-shadow:none !important;}
   body.print-quote .hub-main{display:block; height:auto;}
   body.print-quote #pane-quote{visibility:visible; height:auto;}
   body.print-quote #quote-host{height:auto;}

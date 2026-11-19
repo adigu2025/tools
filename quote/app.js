@@ -2104,8 +2104,24 @@ QD.getElementById('btnClear').addEventListener('click',()=>{
   });
 });
 
-/* 列印前先確認清單不是空的，並讓檔名帶上日期 */
-QD.getElementById('btnPrint').addEventListener('click',()=>{
+/* 列印前：總額摘要、每頁底部文字、詞語不跨行。都只印在紙上，螢幕上看不到 */
+function quoteBeforePrint(){
+  const pi=QD.getElementById('patientNameInput');
+  const name=pi?pi.value.trim():'';
+  const total=(QD.getElementById('grandTotal')||{}).textContent||'0';
+  QD.getElementById('psValue').textContent='NT$ '+total;
+  QD.getElementById('psCount').textContent='共 '+cart.length+' 項，明細如下';
+  const n=new Date();
+  QD.getElementById('pfFootText').textContent='木子澄安診所｜醫療費用說明'+(name?'｜'+name:'')
+    +'｜'+n.getFullYear()+'/'+(n.getMonth()+1)+'/'+n.getDate();
+  /* 詞語不跨行（「膽｜固醇」），工作台已載入 kit/keep-words.js */
+  if(typeof keepWords==='function')
+    QD.querySelectorAll('.cart-notes-print, .cart-item-note, .letter-part').forEach(el=>keepWords(el));
+}
+window.QUOTE_BEFORE_PRINT=quoteBeforePrint;
+
+/* 列印前先確認清單不是空的，並讓檔名帶上日期。kind 為 'phone' 時印成手機版窄頁 */
+function printQuote(kind){
   if(!cart.length){ showToast('清單是空的，請先選取項目'); return; }
   const pi=QD.getElementById('patientNameInput');
   const name=pi?pi.value.trim():'';
@@ -2114,14 +2130,16 @@ QD.getElementById('btnPrint').addEventListener('click',()=>{
     .then(()=>{
       /* 列印時才換標題（另存 PDF 的預設檔名），印完改回工作台的標題 */
       const t0=document.title;
-      document.title=printFileTitle(name);
-      /* 只印在紙上的說明文字：詞語不跨行（「膽｜固醇」），工作台已載入 kit/keep-words.js */
-      if(typeof keepWords==='function')
-        QD.querySelectorAll('.cart-notes-print, .cart-item-note, .letter-part').forEach(el=>keepWords(el));
-      (window.QUOTE_PRINT || window.print)();
+      document.title=printFileTitle(name)+(kind==='phone'?'_手機版':'');
+      quoteBeforePrint();
+      QB.classList.toggle('phone', kind==='phone');
+      (window.QUOTE_PRINT || window.print)(kind);
+      QB.classList.remove('phone');
       document.title=t0;
     });
-});
+}
+QD.getElementById('btnPrint').addEventListener('click',()=>printQuote());
+QD.getElementById('btnPhone').addEventListener('click',()=>printQuote('phone'));
 
 /* ═══════════════════════════════════════════════════════════════════
    最後改版日期與價目版本
