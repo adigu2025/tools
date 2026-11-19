@@ -453,6 +453,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 .mini{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:11px 8px;text-align:center;}
 .mini-label{font-size:12.5px;color:var(--muted);margin-bottom:3px;}
 .mini-val{font-size:19px;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums;}
+.mini-val.water{color:#4F7F95;}
 .mini-unit{font-size:12px;color:var(--faint);}
 .edu-head{display:block;width:100%;text-align:left;border:0;font:inherit;cursor:default;background:var(--teal);padding:10px 16px;color:#fff;font-size:14.5px;font-weight:700;}
 .edu-wrap{border:1.5px solid var(--line);border-radius:var(--radius-md);overflow:hidden;}
@@ -867,6 +868,8 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
   .ref-table th{background:var(--teal)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
+/* BMI 分級表的分級文字顏色（原本寫在行內，深色樣式產生程式讀不到，2026-11-19 收進這裡） */
+.band-c{font-weight:700;} .band-c.b0{color:#2979A0;} .band-c.b1{color:var(--green);} .band-c.b2{color:var(--amber);} .band-c.b3, .band-c.b4{color:var(--red);} .band-c.b5{color:#922B21;}
 </style>
 <div class="c-body" id="c-body" tabindex="-1">
 <div class="card">
@@ -1053,12 +1056,12 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <caption>成人體位分級（國民健康署）</caption>
         <thead><tr><th>分級</th><th>BMI（kg/m²）</th><th>建議</th></tr></thead>
         <tbody>
-          <tr data-band="0"><td style="color:#2979A0;font-weight:700">體重過輕</td><td>&lt; 18.5</td><td>增加營養，評估潛在原因</td></tr>
-          <tr data-band="1"><td style="color:var(--green);font-weight:700">健康體位</td><td>18.5 – 24</td><td>維持飲食與運動習慣</td></tr>
-          <tr data-band="2"><td style="color:var(--amber);font-weight:700">過重</td><td>24 – 27</td><td>調整飲食、增加活動量</td></tr>
-          <tr data-band="3"><td style="color:var(--red);font-weight:700">輕度肥胖</td><td>27 – 30</td><td>就醫評估，擬定減重計畫</td></tr>
-          <tr data-band="4"><td style="color:var(--red);font-weight:700">中度肥胖</td><td>30 – 35</td><td>評估代謝疾病並積極介入</td></tr>
-          <tr data-band="5"><td style="color:#922B21;font-weight:700">重度肥胖</td><td>≥ 35</td><td>全面評估，含藥物或手術</td></tr>
+          <tr data-band="0"><td class="band-c b0">體重過輕</td><td>&lt; 18.5</td><td>增加營養，評估潛在原因</td></tr>
+          <tr data-band="1"><td class="band-c b1">健康體位</td><td>18.5 – 24</td><td>維持飲食與運動習慣</td></tr>
+          <tr data-band="2"><td class="band-c b2">過重</td><td>24 – 27</td><td>調整飲食、增加活動量</td></tr>
+          <tr data-band="3"><td class="band-c b3">輕度肥胖</td><td>27 – 30</td><td>就醫評估，擬定減重計畫</td></tr>
+          <tr data-band="4"><td class="band-c b4">中度肥胖</td><td>30 – 35</td><td>評估代謝疾病並積極介入</td></tr>
+          <tr data-band="5"><td class="band-c b5">重度肥胖</td><td>≥ 35</td><td>全面評估，含藥物或手術</td></tr>
         </tbody>
       </table>
       <div class="notes bmi-notes">

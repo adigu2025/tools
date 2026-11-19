@@ -382,6 +382,9 @@ button.ladder-step.on{background:var(--sel); border-color:var(--sel);}
 button.ladder-step.on h4{color:#fff;}
 button.ladder-step.on p{color:rgba(255,255,255,.8);}
 #tier-now.manual{color:var(--primary-dark); border-color:var(--primary);}
+/* 自動算出的唯讀欄位底色、BMI 色條的三段顏色（原本寫在行內，深色樣式產生程式讀不到，2026-11-19 收進這裡） */
+input.ro{background:#F4F2EE;}
+.seg-under{background:#8FB7C4;} .seg-over{background:#C7952F;} .seg-ob1{background:#C4703F;}
 </style>
 <div class="w-body" id="w-body" tabindex="-1">
 <header class="banner">
@@ -459,7 +462,7 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
         </div>
       </div>
       <div class="field"><label for="p-date">檢查日期</label><input id="p-date" type="date"></div>
-      <div class="field"><label for="p-age">年齡</label><input id="p-age" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label for="p-age">年齡</label><input id="p-age" readonly class="ro"></div>
     </div>
   </div>
   <div class="card">
@@ -473,8 +476,8 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
     </div>
     <div class="grid" style="margin-top:14px">
       <div class="field"><label for="b-target-weight">目標體重 (kg)</label><input id="b-target-weight" type="number" inputmode="decimal" min="20" max="400" step="0.1"></div>
-      <div class="field"><label for="target-loss-pct">預計減重比例</label><input id="target-loss-pct" readonly style="background:#F4F2EE"></div>
-      <div class="field"><label for="standard-weight-range">標準體重範圍（BMI 18.5 至 24）</label><input id="standard-weight-range" readonly style="background:#F4F2EE"></div>
+      <div class="field"><label for="target-loss-pct">預計減重比例</label><input id="target-loss-pct" readonly class="ro"></div>
+      <div class="field"><label for="standard-weight-range">標準體重範圍（BMI 18.5 至 24）</label><input id="standard-weight-range" readonly class="ro"></div>
     </div>
     <div id="bmi-result" style="margin-top:20px; display:none">
       <div style="display:flex; align-items:flex-end; gap:18px; flex-wrap:wrap">
@@ -483,10 +486,10 @@ button.ladder-step.on p{color:rgba(255,255,255,.8);}
       </div>
       <div style="margin:16px 0 20px">
         <div class="bmi-gauge-bar">
-          <div class="bmi-gauge-seg" style="background:#8FB7C4; flex:3.5">過輕</div>
+          <div class="bmi-gauge-seg seg-under" style="flex:3.5">過輕</div>
           <div class="bmi-gauge-seg" style="background:var(--green); flex:5.5">正常</div>
-          <div class="bmi-gauge-seg" style="background:#C7952F; flex:3">過重</div>
-          <div class="bmi-gauge-seg" style="background:#C4703F; flex:3">輕度肥胖</div>
+          <div class="bmi-gauge-seg seg-over" style="flex:3">過重</div>
+          <div class="bmi-gauge-seg seg-ob1" style="flex:3">輕度肥胖</div>
           <div class="bmi-gauge-seg" style="background:var(--red); flex:10">中重度肥胖</div>
         </div>
         <div class="bmi-gauge-track"><div class="bmi-gauge-marker" id="bmi-marker"></div></div>

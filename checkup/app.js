@@ -1347,7 +1347,7 @@ function ckRenderCv(d){
     `<span class="k-tbc">待確認</span> 原表收縮壓另有一列「&lt; 110 → 5 分」與第一列矛盾，目前採 0 至 4 分。</p>`;
   let warn = '';
   if(!inp.dm && ((inp.a1c != null && inp.a1c >= 6.5) || (inp.glu != null && inp.glu >= 126)))
-    warn = '<p class="k-note" style="color:#A23B2A">血糖已達糖尿病診斷值，但病史沒有勾選糖尿病；計算時視為沒有糖尿病。</p>';
+    warn = '<p class="k-note warn">血糖已達糖尿病診斷值，但病史沒有勾選糖尿病；計算時視為沒有糖尿病。</p>';
   ckEl('k-cv').innerHTML = `<div class="k-cvg"><div><h4>PREVENT<small>美國心臟學會 2023</small></h4>${pvHtml}</div><div><h4>TwCCCC<small>台灣心臟學會 2023</small></h4>${twHtml}</div></div>${warn}`;
 }
 function ckRenderPub(d){

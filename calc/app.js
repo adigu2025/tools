@@ -569,7 +569,7 @@
       '<div class="mini"><div class="mini-label">蛋白質</div><div class="mini-val" style="color:var(--blue)">' + protein + '</div><div class="mini-unit">g／天</div></div>' +
       '<div class="mini"><div class="mini-label">碳水化合物</div><div class="mini-val" style="color:var(--green)">' + carbs + '</div><div class="mini-unit">g／天</div></div>' +
       '<div class="mini"><div class="mini-label">脂肪</div><div class="mini-val" style="color:var(--gold)">' + fat + '</div><div class="mini-unit">g／天</div></div>' +
-      '<div class="mini"><div class="mini-label">飲水</div><div class="mini-val" style="color:#4F7F95">' + (waterLo / 1000).toFixed(1) + '–' + (waterHi / 1000).toFixed(1) + '</div><div class="mini-unit">L／天</div></div>';
+      '<div class="mini"><div class="mini-label">飲水</div><div class="mini-val water">' + (waterLo / 1000).toFixed(1) + '–' + (waterHi / 1000).toFixed(1) + '</div><div class="mini-unit">L／天</div></div>';
 
     var actSel = $('tdee-activity');
     var actName = actSel.options[actSel.selectedIndex].text.replace(/（.*$/, '');

@@ -182,4 +182,8 @@
 :host([data-theme="dark"]) button.ladder-step.on h4{color:#292724;}
 :host([data-theme="dark"]) button.ladder-step.on p{color:rgba(41,39,36,0.8);}
 :host([data-theme="dark"]) #tier-now.manual{color:var(--primary-dark); border-color:var(--primary);}
+:host([data-theme="dark"]) input.ro{background:#24231f;}
+:host([data-theme="dark"]) .seg-under{background:#467685;}
+:host([data-theme="dark"]) .seg-over{background:#d3a445;}
+:host([data-theme="dark"]) .seg-ob1{background:#c67647;}
 }

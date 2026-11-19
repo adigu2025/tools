@@ -57,6 +57,7 @@
 :host([data-theme="dark"]) .gna{color:var(--k-faint);}
 :host([data-theme="dark"]) .k-empty{color:var(--k-muted);}
 :host([data-theme="dark"]) .k-note{color:var(--k-muted);}
+:host([data-theme="dark"]) .k-note.warn{color:#d77564;}
 :host([data-theme="dark"]) .k-rec th,
 :host([data-theme="dark"]) .k-rec td{border-bottom:1px solid var(--k-line, #4e4a43);}
 :host([data-theme="dark"]) .k-rec th{color:var(--k-muted);}
