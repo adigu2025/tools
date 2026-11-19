@@ -1033,7 +1033,7 @@
 /* ─── Print ──────────────────────────────────────────────────────── */
 @page { margin: 0; size: A4; }
 
-.cart-notes-print, .cart-item-note, .pf-pad, .print-summary, .pf-foot-text { display: none; }
+.cart-notes-print, .cart-item-note, .pf-pad, .pf-foot-text { display: none; }
 .print-frame, .print-frame > tbody, .print-frame > tbody > tr, .pf-cell { display: contents; }
 
 @media print {
@@ -1099,15 +1099,7 @@
   .letter-greeting.empty { display: none; }
   .letter-greeting { font-size: 14pt; font-weight: 700; margin-bottom: 1.5mm !important; letter-spacing: 0.04em; }
   .letter-body { color: #3B4A53; }
-  /* 總額摘要：手機打開第一眼就看到。淡金底＋金色左線，數字用深色（金色不當小字） */
-  .print-summary {
-    display: flex !important; align-items: baseline; gap: 3mm; flex-wrap: wrap;
-    margin: 3.5mm 0 1mm; padding: 2.6mm 4mm; background: #F7EFE3; border-left: 2.4pt solid #BC7F30;
-    font-family: var(--serif); color: #152831; break-inside: avoid;
-  }
-  .ps-label { font-size: 11pt; font-weight: 700; }
-  .ps-value { font-size: 15pt; font-weight: 700; }
-  .ps-count { font-size: 10pt; color: #3B4A53; margin-left: auto; }
+
 
   /* 隱藏互動元素 */
   .content, .action-row, .toast,
@@ -1197,7 +1189,7 @@
 
   /* 結算：靠右的小計欄，應收總額加粗 */
   .panel-foot {
-    width: 84mm; margin: 4mm 0 0 auto !important; padding: 0 !important;
+    width: 84mm; margin: 3mm 0 0 auto !important; padding: 0 !important;
     background: none !important; border: none !important;
     break-inside: avoid; page-break-inside: avoid; break-before: avoid; page-break-before: avoid;
   }
@@ -1205,7 +1197,8 @@
   .sub-label { font-size: 10.5pt !important; padding: 0 !important; }
   .sub-value, .discount-display, .paid-display { font-family: var(--serif) !important; font-size: 10.5pt !important; font-weight: 500 !important; color: #152831 !important; padding: 0 !important; }
   .divider { margin: 1.8mm 0 2mm !important; border-top: 1.2pt solid #152831 !important; }
-  .grand-row { align-items: baseline !important; background: #E9F0F3; padding: 2mm 3mm !important; margin: 0; }
+  .grand-row { align-items: baseline !important; background: #F7EFE3; border-left: 2.4pt solid #BC7F30;
+    padding: 2.4mm 4mm !important; margin: 0; }
   .grand-label { font-family: var(--serif); font-size: 12pt !important; letter-spacing: 0.06em !important; color: #152831 !important; }
   .grand-currency { font-size: 9pt !important; }
   .grand-value { font-family: var(--serif) !important; font-size: 22pt !important; color: #152831 !important; padding: 0 !important; }
@@ -1214,20 +1207,20 @@
   /* 備註與署名 */
   .letter-part.letter-close {
     display: grid !important; grid-template-columns: 1fr auto; column-gap: 6mm; align-items: baseline;
-    padding: 5mm 16mm 6mm; line-height: 1.7 !important;
+    padding: 3mm 16mm 6mm; line-height: 1.7 !important;
   }
   .letter-remark, .letter-version { grid-column: 1 / -1; }
-  /* 備註：上下細線框住，不用底色與側邊色條；※ 懸掛在左，換行對齊文字 */
+  /* 備註：淡灰底，字比明細小一級；※ 懸掛在左，換行對齊文字 */
   .letter-remark {
-    margin: 0; padding: 2.8mm 4mm 3mm; background: #F3F6F8 !important;
+    margin: 0; padding: 2.2mm 4mm 2.4mm; background: #F3F6F8 !important;
     border: none;
-    font-size: 10pt; color: #3B4A53;
+    font-size: 9pt; color: #3B4A53;
     break-inside: avoid; page-break-inside: avoid;
   }
-  .letter-remark p { margin: 0; line-height: 1.75; padding-left: 1.25em; text-indent: -1.25em; }
+  .letter-remark p { margin: 0; line-height: 1.65; padding-left: 1.25em; text-indent: -1.25em; }
   .letter-remark p:first-child {
     padding-left: 0; text-indent: 0;
-    font-family: var(--serif); font-weight: 700; color: #152831; letter-spacing: 0.06em; font-size: 10.5pt; margin-bottom: 0.8mm;
+    font-family: var(--serif); font-weight: 700; color: #152831; letter-spacing: 0.06em; font-size: 9.5pt; margin-bottom: 0.6mm;
   }
   .letter-version {
     margin: 1mm 0 0 !important; text-align: right !important; font-family: "Noto Sans TC", sans-serif;
@@ -1250,6 +1243,10 @@
   .cart-item.cart-sub .cart-item-name { font-size: 9.8pt !important; font-weight: 500 !important; }
     /* 金額為 0 的折扣與已付列不印 */
   .sub-total-row.print-zero { display: none !important; }
+  .panel-foot.print-solo #selfTotal, .panel-foot.print-solo .sub-total-row:first-child,
+  .panel-foot.print-solo .divider { display: none !important; }
+  /* 優惠列跟著結算一起換頁，不單獨留在下一頁開頭 */
+  .discount-block { break-after: avoid; page-break-after: avoid; }
 
   #endoNote, #hcNote, #extPayNote, #insNote, #tumorNote { display: none !important; }
   #endoNote.active, #hcNote.active, #extPayNote.active, #insNote.active, #tumorNote.active { display: block !important; }
@@ -1281,7 +1278,6 @@
 <div id="letterIntro" class="letter-part letter-intro">
   <p class="letter-greeting empty" id="letterGreeting"><span id="letterPatientName"></span> 您好：</p>
   <p class="letter-body">以下是這次規劃的檢查與治療項目，以及預估費用。</p>
-  <div class="print-summary" id="printSummary"><span class="ps-label">預估應收總額</span><span class="ps-value" id="psValue"></span><span class="ps-count" id="psCount"></span></div>
 </div>
 
 <div class="layout">

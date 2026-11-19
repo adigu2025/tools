@@ -1706,6 +1706,9 @@ function markZeroRows(disc, paid){
   const dr=d&&d.closest('.sub-total-row'), pr=p&&p.closest('.sub-total-row');
   if(dr) dr.classList.toggle('print-zero', !(disc>0));
   if(pr) pr.classList.toggle('print-zero', !(paid>0));
+  /* 沒有折扣也沒有已付：小計等於應收總額，列印時只印應收總額 */
+  const pf=QD.querySelector('.panel-foot');
+  if(pf) pf.classList.toggle('print-solo', !(disc>0) && !(paid>0));
 }
 
 function renderCart(){
@@ -2104,13 +2107,10 @@ QD.getElementById('btnClear').addEventListener('click',()=>{
   });
 });
 
-/* 列印前：總額摘要、每頁底部文字、詞語不跨行。都只印在紙上，螢幕上看不到 */
+/* 列印前：每頁底部文字、詞語不跨行。都只印在紙上，螢幕上看不到 */
 function quoteBeforePrint(){
   const pi=QD.getElementById('patientNameInput');
   const name=pi?pi.value.trim():'';
-  const total=(QD.getElementById('grandTotal')||{}).textContent||'0';
-  QD.getElementById('psValue').textContent='NT$ '+total;
-  QD.getElementById('psCount').textContent='共 '+cart.length+' 項，明細如下';
   const n=new Date();
   QD.getElementById('pfFootText').textContent='木子澄安診所｜醫療費用說明'+(name?'｜'+name:'')
     +'｜'+n.getFullYear()+'/'+(n.getMonth()+1)+'/'+n.getDate();
