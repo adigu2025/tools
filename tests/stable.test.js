@@ -110,6 +110,15 @@ async function run(){
   var mc=moved(hb,hb0,null);if(mc.length)res.push('叫出封面：頁首移位 '+mc.join('、'));
   esc();await tick(100);
   if(!cv.hidden)res.push('封面上再按 Esc 沒有收起');
+  // 從每個分頁叫出封面，封面上不可以透出工具的元素（2026-11-19：臨床計算左側目錄 z-index 與封面相同，蓋在封面上）
+  for(var ci=0;ci<VIEWS.length;ci++){
+    setView(VIEWS[ci]);await tick(400);esc();await tick(100);
+    var r0=cv.getBoundingClientRect(),leak=[];
+    for(var px=r0.left+10;px<r0.right;px+=50)for(var py=r0.top+10;py<r0.bottom;py+=50){var at=document.elementFromPoint(px,py);if(at&&at!==cv&&!cv.contains(at))leak.push(Math.round(px)+','+Math.round(py));}
+    if(leak.length)res.push('從「'+VIEWS[ci]+'」叫出封面：'+leak.length+' 點透出工具畫面，例如 '+leak.slice(0,3).join('、'));
+    esc();await tick(100);
+  }
+  setView('quote');await tick(400);
   function sec(act){esc();var b=cv.querySelector('[data-act="'+act+'"]');if(!b)return res.push('封面沒有捷徑 '+act);b.click();}
   sec('c:lipidrx');await tick(400);
   var ap=CD.querySelector('.tool-panel.active');

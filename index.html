@@ -108,8 +108,8 @@ button{font:inherit; cursor:pointer; color:inherit;}
   padding:clamp(28px,4vh,56px) clamp(20px,3.4vw,64px);}
 .hub-cover[hidden]{display:none;}
 .cv-mast{display:flex; flex-direction:column; gap:18px; padding-top:6px;}
-/* 背景的淡色大標誌：比照健檢報告封面，這次靠左、超出上緣（往左、往上超出不會產生捲軸） */
-.hub-cover::before{content:""; position:absolute; z-index:-1; top:-14%; bottom:0; left:-7%; aspect-ratio:220/240; background:var(--acc-text); opacity:var(--wm-op, .06);
+/* 背景的淡色大標誌：比照健檢報告封面只露出一部分。高度約原本的 80%，貼齊下緣、往左裁掉一截（往下超出會出現捲軸，只能往左、往上裁），讓開刊頭的診所名稱（2026-11-19 縮小） */
+.hub-cover::before{content:""; position:absolute; z-index:-1; height:92%; bottom:0; left:-16%; aspect-ratio:220/240; background:var(--acc-text); opacity:var(--wm-op, .06);
   -webkit-mask:url(img/logo-mark.png) center/contain no-repeat; mask:url(img/logo-mark.png) center/contain no-repeat; pointer-events:none;}
 .cv-name{display:flex; align-items:center; gap:clamp(14px,1.2vw,22px); margin-top:6px;}
 .cv-name .logo{width:clamp(44px,3.8vw,64px);}
@@ -173,7 +173,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
    用 visibility 而非 display:none，隱藏中的工具仍保有版面，背景列印與匯出 PDF 才不會出錯。 ── */
 .hub-main{position:relative; height:calc(100dvh - var(--bar-h) - var(--foot-h)); display:grid;
   grid-template-columns:1fr; grid-template-areas:"main";}
-.pane{grid-area:main; min-height:0; min-width:0; visibility:hidden; pointer-events:none;}
+.pane{grid-area:main; min-height:0; min-width:0; visibility:hidden; pointer-events:none; isolation:isolate;}
 /* 報價直接放在工作台裡（quote/view.html 裝進 #quote-host 的 shadow root）。準備好之前先遮住，不會看到原本的外觀再跳成工作台外觀 */
 #quote-host{display:block; height:100%; background:var(--bg);}
 #quote-host.loading{opacity:0;}
