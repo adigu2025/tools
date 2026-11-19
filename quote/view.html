@@ -1068,11 +1068,11 @@
   }
   .banner::after {
     display: block !important; left: 16mm !important; right: 16mm !important; bottom: 0 !important;
-    height: 1.5px !important; opacity: 1 !important; background: #BC7F30 !important;
+    height: 0.8pt !important; opacity: 1 !important; background: #152831 !important;
   }
   .banner-text { text-align: left !important; margin: 0 !important; }
   .banner-name { font-family: var(--serif); font-size: 21pt !important; font-weight: 700; color: #152831 !important; letter-spacing: 0.16em !important; line-height: 1.25; }
-  .banner-sub  { font-size: 9.5pt !important; color: #3E6A7C !important; letter-spacing: 0.42em !important; margin-top: 3px !important; font-weight: 700; }
+  .banner-sub  { font-family: var(--serif); font-size: 11.5pt !important; color: #3B4A53 !important; letter-spacing: 0.12em !important; margin-top: 3px !important; font-weight: 400; }
   .banner-date {
     position: static !important; grid-column: 2; grid-row: 1;
     align-self: start; color: #5D6C75 !important; font-size: 9pt !important; line-height: 1.5 !important;
@@ -1091,6 +1091,7 @@
   }
   .letter-intro { padding: 5mm 16mm 1mm; }
   .letter-intro p { margin: 0 !important; }
+  .letter-greeting.empty { display: none; }
   .letter-greeting { font-size: 14pt; font-weight: 700; margin-bottom: 1.5mm !important; letter-spacing: 0.04em; }
   .letter-body { color: #3B4A53; }
 
@@ -1117,8 +1118,8 @@
   /* 分類標題 */
   .cart-group-label {
     display: block !important; position: relative;
-    font-size: 8.5pt !important; font-weight: 700 !important; letter-spacing: 0.3em !important;
-    color: #3E6A7C !important; padding: 4.5mm 0 1.2mm !important; margin: 0 !important;
+    font-family: var(--serif); font-size: 11pt !important; font-weight: 700 !important; letter-spacing: 0.06em !important;
+    color: #152831 !important; padding: 4.5mm 0 1.2mm !important; margin: 0 !important;
     border-bottom: 1px solid #3E6A7C !important;
     break-after: avoid; page-break-after: avoid;
   }
@@ -1144,12 +1145,12 @@
   .cart-badge.ins { display: none !important; }
   .cart-price-wrap { align-self: flex-start !important; }
   .cart-item-price {
-    font-family: var(--serif) !important; font-size: 11pt !important; font-weight: 700 !important;
-    color: #152831 !important; padding: 0 !important;
+    font-family: var(--serif) !important; font-size: 10.5pt !important; font-weight: 500 !important;
+    color: #152831 !important; padding: 0 !important; white-space: nowrap;
   }
-  .cart-item-price.ins-p { font-family: inherit !important; font-size: 9.5pt !important; color: #14805C !important; }
+  .cart-item-price.ins-p { font-size: 10.5pt !important; color: #14805C !important; }
   .cart-remove-btn, .price-edit-hint, .price-revert-btn, .qty-ctrl { display: none !important; }
-  .ext-pay-tag { font-size: 8pt !important; margin-top: 0.5mm; }
+  .ext-pay-tag { font-size: 9.5pt !important; margin-top: 0.5mm; }
 
   /* 套組內含項目：不加側線，每行用小圓點起頭，換行時對齊文字（懸掛縮排） */
   .cart-notes-print {
@@ -1157,7 +1158,7 @@
     margin: 1.2mm 0 0 !important; padding: 0 !important;
     border: none !important; border-radius: 0 !important;
     background: transparent !important;
-    font-size: 8.6pt !important; color: #55636C !important; line-height: 1.7 !important;
+    font-size: 10pt !important; color: #3B4A53 !important; line-height: 1.7 !important;
     overflow-wrap: anywhere;
   }
   .np-line { display: block; position: relative; padding-left: 3.6mm; break-inside: avoid; }
@@ -1176,8 +1177,8 @@
     background: none !important; animation: none !important;
   }
   .discount-row { padding: 0.6mm 0 !important; border: none !important; }
-  .discount-name { font-size: 9.5pt !important; color: #7A4F14 !important; }
-  .discount-amt  { font-size: 10pt !important; color: #152831 !important; padding: 0 !important; }
+  .discount-name { font-size: 10.5pt !important; color: #7A4F14 !important; }
+  .discount-amt  { font-family: var(--serif); font-size: 10.5pt !important; color: #152831 !important; padding: 0 !important; }
   .discount-remove-btn { display: none !important; }
 
   /* 結算：靠右的小計欄，應收總額加粗 */
@@ -1187,10 +1188,11 @@
     break-inside: avoid; page-break-inside: avoid; break-before: avoid; page-break-before: avoid;
   }
   .sub-total-row { margin: 0 0 0.8mm !important; }
-  .sub-label, .sub-value, .discount-display, .paid-display { font-size: 9.5pt !important; padding: 0 !important; }
+  .sub-label { font-size: 10.5pt !important; padding: 0 !important; }
+  .sub-value, .discount-display, .paid-display { font-family: var(--serif) !important; font-size: 10.5pt !important; font-weight: 500 !important; color: #152831 !important; padding: 0 !important; }
   .divider { margin: 1.8mm 0 2mm !important; border-top: 1.2pt solid #152831 !important; }
   .grand-row { align-items: baseline !important; }
-  .grand-label { font-family: var(--serif); font-size: 12pt !important; letter-spacing: 0.14em !important; color: #152831 !important; }
+  .grand-label { font-family: var(--serif); font-size: 12pt !important; letter-spacing: 0.06em !important; color: #152831 !important; }
   .grand-currency { font-size: 9pt !important; }
   .grand-value { font-family: var(--serif) !important; font-size: 22pt !important; color: #152831 !important; padding: 0 !important; }
   .ext-pay-row { margin-top: 2mm !important; padding-top: 1.6mm !important; border-top: 0.8pt dashed #C9A56A !important; }
@@ -1205,16 +1207,14 @@
   .letter-remark {
     margin: 0; padding: 2.6mm 0 2.8mm; background: none !important;
     border-top: 0.6pt solid #B9C6CD; border-bottom: 0.6pt solid #B9C6CD;
-    font-size: 9pt; color: #4A5860;
+    font-size: 10pt; color: #3B4A53;
     break-inside: avoid; page-break-inside: avoid;
   }
   .letter-remark p { margin: 0; line-height: 1.75; padding-left: 1.25em; text-indent: -1.25em; }
   .letter-remark p:first-child {
     padding-left: 0; text-indent: 0;
-    font-weight: 700; color: #3E6A7C; letter-spacing: 0.4em; font-size: 8.5pt; margin-bottom: 0.8mm;
+    font-family: var(--serif); font-weight: 700; color: #152831; letter-spacing: 0.06em; font-size: 10.5pt; margin-bottom: 0.8mm;
   }
-  .letter-contact { margin: 4mm 0 0; font-size: 10pt; color: #3B4A53; }
-  .letter-sign { text-align: right; margin-top: 4mm; font-size: 11pt; font-weight: 700; letter-spacing: 0.12em; break-after: avoid; page-break-after: avoid; }
   .letter-version {
     margin: 1mm 0 0 !important; text-align: right !important; font-family: "Noto Sans TC", sans-serif;
     font-size: 7.5pt !important; color: #8A97A0 !important; line-height: 1.4 !important;
@@ -1223,8 +1223,8 @@
   /* 項目說明：小字接在名稱後面 */
   .cart-item-note {
     display: inline !important; margin-left: 2.2mm;
-    font-family: "Noto Sans TC", sans-serif; font-size: 8.4pt; font-weight: 400;
-    color: #5D6C75; letter-spacing: 0.01em;
+    font-family: "Noto Sans TC", sans-serif; font-size: 10pt; font-weight: 400;
+    color: #3B4A53; letter-spacing: 0;
   }
   /* 較長的說明另起一行，不接在名稱後面硬擠 */
   .cart-item-note.long { display: block !important; margin: 0.8mm 0 0 !important; line-height: 1.6; }
@@ -1234,8 +1234,7 @@
     border-bottom: 0.5pt dotted #D8E0E5 !important;
   }
   .cart-item.cart-sub .cart-item-name { font-size: 9.8pt !important; font-weight: 500 !important; }
-  .cart-item.cart-sub .cart-item-price { font-size: 10pt !important; font-weight: 500 !important; }
-  /* 金額為 0 的折扣與已付列不印 */
+    /* 金額為 0 的折扣與已付列不印 */
   .sub-total-row.print-zero { display: none !important; }
 
   #endoNote, #hcNote, #extPayNote, #insNote, #tumorNote { display: none !important; }
@@ -1266,8 +1265,8 @@
 
 <!-- ── 說明信件（列印用，螢幕隱藏）─────────────────── -->
 <div id="letterIntro" class="letter-part letter-intro">
-  <p class="letter-greeting"><span id="letterPatientName">___</span> 您好：</p>
-  <p class="letter-body">感謝您對木子澄安診所的信任，依您目前需求與醫療評估結果，提供以下醫療內容與費用說明：</p>
+  <p class="letter-greeting empty" id="letterGreeting"><span id="letterPatientName"></span> 您好：</p>
+  <p class="letter-body">以下是這次規劃的檢查與治療項目，以及預估費用。</p>
 </div>
 
 <div class="layout">
@@ -1477,8 +1476,6 @@
     <p id="endoNote"></p>
     <p id="validNote"></p>
   </div>
-  <p class="letter-contact">若您有任何問題，歡迎與我們聯繫。</p>
-  <p class="letter-sign">木子澄安診所 敬上</p>
   <!-- 價目版本：日後對帳或費用爭議時可回推當時適用的價目表 -->
   <p class="letter-version" id="letterVersion"></p>
 </div>

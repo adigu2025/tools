@@ -2187,7 +2187,9 @@ function printFileTitle(name){
   if(!pi||!ln) return;
   pi.addEventListener('input',function(){
     var name=pi.value.trim();
-    ln.textContent=name||'___';
+    ln.textContent=name;
+    /* 沒填稱謂就不印問候行，不留「____ 您好」的空格 */
+    var lg=QD.getElementById('letterGreeting'); if(lg) lg.classList.toggle('empty', !name);
     loadNameFont(name);
   });
 })();
