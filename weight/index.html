@@ -7,7 +7,7 @@
 <!-- 減重報告已整合進工作台（畫面在 view.html，程式在 app.js、report.js）。
      舊網址與書籤一律轉到工作台的「製作報告 → 減重報告」。 -->
 <script>
-try{ localStorage.setItem('hub-view', JSON.stringify('weight')); localStorage.setItem('hub-rep', JSON.stringify('weight')); }catch(e){}
+try{ sessionStorage.setItem('hub-view', 'weight'); sessionStorage.setItem('hub-rep', 'weight'); }catch(e){}
 location.replace('../');
 </script>
 </head>

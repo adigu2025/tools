@@ -118,14 +118,12 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .cv-keys dt{white-space:nowrap;} .cv-keys dd{margin:0;}
 .cv-keys kbd{font:inherit; font-size:12.5px; padding:1px 6px; border-radius:5px; background:var(--surface); border:1px solid var(--line); border-bottom-width:2px; color:var(--ink);}
 .cv-index{display:flex; flex-direction:column; min-width:0;}
-.cv-head{display:flex; align-items:baseline; gap:14px; padding:0 0 8px; border-bottom:2px solid var(--ink);}
-.cv-head b{font-family:var(--serif); font-size:16px; font-weight:600; letter-spacing:.3em; color:var(--ink);}
-.cv-head span{font-size:12.5px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase;}
 .cv-row{flex:1 1 auto; display:grid; align-items:center; cursor:pointer; text-align:left;
   grid-template-columns:3.2em minmax(9em,13em) minmax(0,1fr) 2em; grid-template-areas:"key title secs arr" "key desc secs arr";
   column-gap:clamp(12px,1.6vw,28px); row-gap:4px; padding:10px 12px 10px 4px; border-bottom:1px solid var(--line); transition:background .15s;}
+.cv-row:first-child{border-top:1px solid var(--line);}
 .cv-row:hover{background:var(--sunken);}
-/* 鍵盤選到的那一列：淡底加四邊等粗的細框（畫在列的內側，不會被上方的粗線蓋住） */
+/* 鍵盤選到的那一列：淡底加四邊等粗的細框（畫在列的內側，不會被上下的分隔線蓋住） */
 .cv-row:focus-visible{outline:none; border-radius:8px; background:var(--sunken); box-shadow:inset 0 0 0 1.5px var(--dot-ink);}
 .cv-row[data-to="quote"]{--dot-ink:#3E4C6B;} .cv-row[data-to="calc"]{--dot-ink:#3F5A48;} .cv-row[data-to="edu"]{--dot-ink:#7A3F3D;} .cv-row[data-to="weight"]{--dot-ink:#6B5520;}
 :root[data-theme="dark"] .cv-row[data-to="quote"]{--dot-ink:#BCC7E0;} :root[data-theme="dark"] .cv-row[data-to="calc"]{--dot-ink:#B7D2BF;} :root[data-theme="dark"] .cv-row[data-to="edu"]{--dot-ink:#E6BAB6;} :root[data-theme="dark"] .cv-row[data-to="weight"]{--dot-ink:#EAD59F;}
@@ -510,7 +508,6 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
       </dl>
     </div>
     <nav class="cv-index" aria-label="分頁目錄">
-      <div class="cv-head"><b>目錄</b><span>Contents</span></div>
     <div class="cv-row" role="button" tabindex="0" data-to="quote" title="Alt＋1"><span class="cv-key">1</span><div class="cv-title">報價系統</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="q:endo">內視鏡</button><button type="button" class="cv-sec" data-act="q:health-check">健檢方案</button><button type="button" class="cv-sec" data-act="q:lab">檢驗</button><button type="button" class="cv-sec" data-act="q:exam">檢查與點滴</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
     <div class="cv-row" role="button" tabindex="0" data-to="calc" title="Alt＋2"><span class="cv-key">2</span><div class="cv-title">臨床計算</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="c:bmi">BMI</button><button type="button" class="cv-sec" data-act="c:fib4">FIB-4</button><button type="button" class="cv-sec" data-act="c:lipidrx">降血脂給付</button><button type="button" class="cv-sec" data-act="c:hbvrx">B 肝用藥給付</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
     <div class="cv-row" role="button" tabindex="0" data-to="edu" title="Alt＋3"><span class="cv-key">3</span><div class="cv-title">衛教與表單</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="e:weight">減重門診</button><button type="button" class="cv-sec" data-act="e:exam">檢查治療衛教</button><button type="button" class="cv-sec" data-act="e:consent">同意書</button><button type="button" class="cv-sec" data-act="e:disease">疾病衛教</button><button type="button" class="cv-sec" data-act="e:med">用藥衛教</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
@@ -659,11 +656,13 @@ mountCalc();
 mountWeight();
 mountCheckup();
 renderRail();
-const lastRep = recall('hub-rep', 'home');
+// 舊版把分頁記在 localStorage（每次開都回到上次的分頁），現在改記在這個分頁，舊的刪掉
+try{ localStorage.removeItem('hub-view'); localStorage.removeItem('hub-rep'); }catch(err){}
+const lastRep = recallTab('hub-rep') || startRep();
 main.dataset.rep = ['home','weight','checkup'].includes(lastRep) ? lastRep : 'home';
-// 舊版的「列印表單」分頁已併入「衛教與表單」
-const lastView = recall('hub-view', 'quote') === 'print' ? 'edu' : recall('hub-view', 'quote');
+const lastView = recallTab('hub-view');
 setView(['quote','calc','weight','edu'].includes(lastView) ? lastView : 'quote');
+if(!lastView) openCover();
 // 「全部清除」會重新載入整頁，載入後再顯示完成訊息
 try{ if(sessionStorage.getItem('hub-cleared')){ sessionStorage.removeItem('hub-cleared'); toast('已全部清除，可以開始下一位。'); } }catch(err){}
 

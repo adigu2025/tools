@@ -174,8 +174,8 @@ function setView(v){
     document.getElementById(form ? 'form-view' : 'edu-view').focus({preventScroll:true});
     setTimeout(()=>{ applyZoom(); applyFormZoom(); }, 0);
   }
-  // 頁面重新整理後回到同一個分頁
-  store('hub-view', v);
+  // 同一分頁重新整理後回到同一個分頁（新分頁或重開瀏覽器則從封面開始）
+  storeTab('hub-view', v);
   // 報價的 Ctrl+K、Esc、方向鍵也一樣，焦點要在報價畫面內
   if(v === 'quote' && QB) QB.focus({preventScroll:true});
   // 臨床計算的 ESC、貼上截圖等操作要在焦點位於計算畫面內時才有作用
@@ -192,10 +192,24 @@ const FOOT_HINT = {
 // 個人瀏覽器的小設定（上次的分頁、衛教圖卡與縮放），讀不到就用預設值
 function store(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(err){} }
 function recall(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v === null ? d : v; }catch(err){ return d; } }
+// 目前的分頁與報告只記在這個瀏覽器分頁（sessionStorage）：看診中按 F5 留在原畫面，新分頁或重開瀏覽器從封面開始
+function storeTab(k, v){ try{ sessionStorage.setItem(k, v); }catch(err){} }
+function recallTab(k){ try{ return sessionStorage.getItem(k); }catch(err){ return null; } }
+// 新分頁時「製作報告」的起點：有未完成的草稿就進那份報告（兩份都有選較新的），沒有就進報告入口
+function startRep(){
+  let rep = 'home', newest = -1;
+  ['weight', 'checkup'].forEach(r=>{
+    let d = null; try{ d = JSON.parse(localStorage.getItem(CLEAR_KEYS[r][0][1])); }catch(err){}
+    if(!d || typeof d !== 'object' || !d.savedAt) return;
+    const t = Date.parse(d.savedAt) || 0;
+    if(t > newest){ newest = t; rep = r; }
+  });
+  return rep;
+}
 document.querySelectorAll('.hub-tab').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.view)));
 
 /* ── Esc 封面（目錄）：任何分頁按 Esc（工具自己沒用到這次 Esc 時）叫出，點目錄、按 1 至 4 或再按 Esc 回去。
-   開啟時仍直接進報價（或上次的分頁），封面只在需要時叫出。 */
+   新分頁或重開瀏覽器時先顯示封面，此時按 Esc 進報價；同一分頁重新整理則回到原分頁。 */
 function openCover(){
   cover.hidden = false;
   const row = cover.querySelector('.cv-row[data-to="' + main.dataset.view + '"]') || cover.querySelector('.cv-row');
@@ -313,7 +327,7 @@ document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', (
 /* ── 製作報告：home＝選報告種類，weight＝減重報告，checkup＝體檢報告 ── */
 function setRep(r){
   main.dataset.rep = r;
-  store('hub-rep', r);
+  storeTab('hub-rep', r);
   syncRep();
 }
 function syncRep(){

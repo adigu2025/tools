@@ -58,6 +58,21 @@ async function ready(){
 async function run(){
   var res=[];window.__n=0;
   if(!(await ready()))return ['工具沒有在 20 秒內載入完成'];
+  // 0. 開啟起點（2026-11-19）：新分頁（sessionStorage 空）先看到封面；製作報告有未完成草稿就進該報告，沒有就進報告入口
+  if(document.getElementById('hub-cover').hidden)res.push('新開分頁沒有先顯示封面');
+  if(document.querySelector('.cv-head'))res.push('封面還有「目錄 Contents」標題');
+  if(typeof startRep!=='function')res.push('沒有 startRep()，無法依草稿決定製作報告的起點');
+  else{
+    var KW='obesity_draft_v1',KC='checkup_draft_v1',bw=localStorage.getItem(KW),bc=localStorage.getItem(KC);
+    localStorage.removeItem(KW);localStorage.removeItem(KC);
+    if(startRep()!=='home')res.push('沒有草稿時製作報告沒有進報告入口（'+startRep()+'）');
+    localStorage.setItem(KW,JSON.stringify({savedAt:'2026-11-18T08:00:00Z',state:{}}));
+    if(startRep()!=='weight')res.push('有減重草稿時沒有進減重報告（'+startRep()+'）');
+    localStorage.setItem(KC,JSON.stringify({savedAt:'2026-11-19T08:00:00Z',info:{name:'測'}}));
+    if(startRep()!=='checkup')res.push('健檢草稿較新時沒有進健檢報告（'+startRep()+'）');
+    localStorage.removeItem(KW);localStorage.removeItem(KC);
+    if(bw!==null)localStorage.setItem(KW,bw);if(bc!==null)localStorage.setItem(KC,bc);
+  }
   // 1. 頂端分頁
   var VIEWS=['quote','calc','edu','weight'];
   setView('quote');await tick(400);

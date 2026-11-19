@@ -7,7 +7,7 @@
 <title>木子澄安診所</title>
 <!-- 報價工具已整合進工作台（畫面在 view.html，程式在 app.js），舊網址一律轉到工作台的「報價」。 -->
 <script>
-try{ localStorage.setItem('hub-view', JSON.stringify('quote')); }catch(e){}
+try{ sessionStorage.setItem('hub-view', 'quote'); }catch(e){}
 location.replace('../');
 </script>
 </head>

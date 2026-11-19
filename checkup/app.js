@@ -1448,7 +1448,11 @@ let ckDraftPending = false;
 function ckSaveNow(){
   clearTimeout(ckSaveTimer); ckSaveTimer = null;
   if(ckDraftPending) return;
-  try{ localStorage.setItem(CK_DRAFT, JSON.stringify(CK)); }catch(e){}
+  // 空白的不留草稿；有內容時記下存檔時間，工作台用它判斷新開時「製作報告」要不要直接進健檢報告
+  try{
+    if(JSON.stringify(Object.assign(ckBlank(), CK)) === JSON.stringify(ckBlank())) localStorage.removeItem(CK_DRAFT);
+    else localStorage.setItem(CK_DRAFT, JSON.stringify(Object.assign({}, CK, {savedAt: new Date().toISOString()})));
+  }catch(e){}
 }
 // 打完字 0.4 秒內就關頁，還沒存的立刻存；工作台「全部清除」重新載入時不存，免得清掉的資料又寫回去
 window.addEventListener('pagehide', ()=>{ if(ckSaveTimer && !window.HUB_RELOADING) ckSaveNow(); });
@@ -1667,6 +1671,7 @@ async function ckAddFiles(files){
   let draft = null;
   try{
     const s = JSON.parse(localStorage.getItem(CK_DRAFT));
+    if(s && typeof s === 'object') delete s.savedAt;
     if(s && typeof s === 'object' && JSON.stringify(Object.assign(ckBlank(), s)) !== JSON.stringify(ckBlank())) draft = s;
   }catch(e){}
   ckInitOpts();
