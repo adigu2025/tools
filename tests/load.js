@@ -13,7 +13,7 @@ function loadCalc(){
   const win = makeGlobals(doc);
   const T = {};
   const names = Object.keys(win);
-  const src = read('revision.js') + '\n' + read('calc/rules.js') + '\n' + read('calc/assess.js') + '\n' + read('calc/app.js');
+  const src = read('revision.js') + '\n' + read('calc/rules.js') + '\n' + read('calc/assess.js') + '\n' + read('calc/ocr-parse.js') + '\n' + read('calc/app.js');
   new Function('CD', 'CB', 'CALC_TEST', ...names, src)(doc, doc.body, T, ...names.map(k=> win[k]));
   // 填值並觸發重算：bound 是任何一個有綁計算的欄位
   const run = (vals, bound)=> { doc.set(vals); doc.fire(bound, 'input'); doc.fire(bound, 'change'); };

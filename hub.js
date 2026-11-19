@@ -111,7 +111,7 @@ async function mountCalc(){
     await mountView(host, BASE + 'calc/view.html', {
       css: [BASE + 'calc/hub.css', BASE + 'calc/dark.css'],
       onRoot: root=>{ CD = root; CB = root.getElementById('c-body'); },
-      scripts: [BASE + 'calc/rules.js', BASE + 'calc/assess.js', BASE + 'calc/app.js']
+      scripts: [BASE + 'calc/rules.js', BASE + 'calc/assess.js', BASE + 'calc/ocr-parse.js', BASE + 'calc/app.js']
     });
   }catch(err){ mountFailed(host, '臨床計算', err); return; }
   calcReady = true;

@@ -28,7 +28,7 @@ const ROOT = path.resolve(__dirname, '..');
 // 螢幕畫面檔（規則 2 至 5、7、8）
 const SCREEN = ['index.html', 'hub.js', 'mount.js', 'edu/edu.js',
   'quote/view.html', 'quote/hub.css', 'quote/data.js', 'quote/app.js', 'quote/index.html',
-  'calc/view.html', 'calc/hub.css', 'calc/assess.js', 'calc/app.js', 'calc/index.html',
+  'calc/view.html', 'calc/hub.css', 'calc/assess.js', 'calc/ocr-parse.js', 'calc/app.js', 'calc/index.html',
   'weight/view.html', 'weight/app.js', 'weight/index.html',
   'checkup/view.html', 'checkup/app.js',
   // 報告系統是另一個 repo（Desktop/Claude/report），兩個 repo 並排 clone 才檢查得到，沒有就跳過

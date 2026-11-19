@@ -9,12 +9,12 @@
    工作台開啟後會把所有衛教與表單圖片預先存下，斷網時也能顯示與列印。
    網路很慢（伺服器 3 秒內沒回應，圖片 6 秒）時先用快取開啟，背景照樣把新版存下，下次開啟就是新版；
    以前會一直等到連線逾時，網路卡住時整個工作台白畫面。 */
-const CACHE = 'tools-v98';
+const CACHE = 'tools-v99';
 const CORE = [
   './', 'index.html',
   'mount.js', 'revision.js',
   'hub.js', 'quote/view.html', 'quote/data.js', 'quote/app.js', 'quote/hub.css', 'quote/dark.css',
-  'calc/', 'calc/index.html', 'calc/view.html', 'calc/rules.js', 'calc/assess.js', 'calc/app.js', 'calc/hub.css', 'calc/dark.css', 'calc/qr.png',
+  'calc/', 'calc/index.html', 'calc/view.html', 'calc/rules.js', 'calc/assess.js', 'calc/ocr-parse.js', 'calc/app.js', 'calc/hub.css', 'calc/dark.css', 'calc/qr.png',
   'weight/', 'weight/index.html', 'weight/view.html', 'weight/app.js', 'weight/report.js', 'weight/dark.css',
   'checkup/view.html', 'checkup/app.js', 'checkup/report.js', 'checkup/dark.css',
   'lab/lab.js', 'kit/report-kit.js', 'kit/keep-words.js',
