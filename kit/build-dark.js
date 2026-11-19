@@ -158,9 +158,14 @@ function emit(list, ind) {
       continue;
     }
     // 原本是 !important 的維持 !important，其餘不加：原本規則之間誰蓋誰的順序在深色版照舊
+    // 抄了縮寫屬性（border、background、outline）時，同一條規則裡排在它後面、會被它重設的細項也一起抄，
+    // 否則例如 {border:solid #9C978C; border-width:0 1.5px 1.5px 0} 只抄前一條，框線寬度會被重設成四邊都有（箭頭變菱形）
+    const shorts = [];
     const ds = decls(it.body).map(([p, v, imp]) => {
       const nv = mapValue(p, v);
-      if (!nv && !COLOR_PROP.test(p)) return null;
+      const resetByShort = shorts.some(sh => p.toLowerCase().startsWith(sh + '-'));
+      if (!nv && !COLOR_PROP.test(p) && !resetByShort) return null;
+      if (/^(?:border(?:-(?:top|right|bottom|left))?|background|outline)$/i.test(p)) shorts.push(p.toLowerCase());
       return `${p}:${nv || v}${imp ? ' !important' : ''}`;
     }).filter(Boolean);
     const sel = darkSel(it.sel);

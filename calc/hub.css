@@ -35,14 +35,15 @@
     background:transparent !important; border-bottom:0 !important; padding:20px 12px 16px;}
   main.body{grid-column:2; grid-row:1; min-width:0;}
   .tabs-wrap::before{content:"臨床計算"; font-family:var(--serif,serif); font-size:19px; font-weight:700; letter-spacing:.08em;
-    color:#1F1E1D; padding:0 10px 14px; margin:0 0 6px; border-bottom:1px solid #E6E3DA; order:0;}
+    color:#1F1E1D; padding:0 10px 14px; margin:0 0 6px; border-bottom:2px solid #1F1E1D; order:0;}
   /* 分類按鈕與工具列交錯排列：分類 → 該分類的工具 → 下一個分類 */
   .group-bar{display:contents !important;}
   #group-basic{order:1;} #tabs-basic{order:2;} #group-gi{order:3;} #tabs-gi{order:4;}
   #group-meta{order:5;} #tabs-meta{order:6;} #group-calc{order:7;} #staff-notice{order:8;} #tabs-calc{order:9;}
+  /* 分組標題比照 report 首頁目錄的組名（.ci-head）：宋體、加大字距、底下一條細線；選取的工具仍用白色小卡 */
   .group-btn{display:flex !important; align-items:center; gap:8px; width:100%; margin:6px 0 0 !important;
-    padding:9px 10px !important; border:0 !important; border-radius:8px; text-align:left;
-    font-size:14px !important; letter-spacing:.06em; color:#6F6B63 !important;}
+    padding:9px 10px !important; border:0 !important; border-bottom:1px solid #E6E3DA !important; border-radius:0 !important; text-align:left;
+    font-family:var(--serif,"Noto Serif TC",serif) !important; font-size:14.5px !important; font-weight:600 !important; letter-spacing:.24em; color:#3A3833 !important;}
   .group-btn:hover{background:rgba(31,30,29,.04); color:#1F1E1D !important;}
   .group-btn[aria-selected="true"]{color:#1F1E1D !important;}
   .group-btn .group-count{margin-left:auto !important; font-size:12px !important; font-weight:600; color:#9C978C !important;
