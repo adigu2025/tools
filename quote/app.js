@@ -2115,6 +2115,9 @@ QD.getElementById('btnPrint').addEventListener('click',()=>{
       /* 列印時才換標題（另存 PDF 的預設檔名），印完改回工作台的標題 */
       const t0=document.title;
       document.title=printFileTitle(name);
+      /* 只印在紙上的說明文字：詞語不跨行（「膽｜固醇」），工作台已載入 kit/keep-words.js */
+      if(typeof keepWords==='function')
+        QD.querySelectorAll('.cart-notes-print, .cart-item-note, .letter-part').forEach(el=>keepWords(el));
       (window.QUOTE_PRINT || window.print)();
       document.title=t0;
     });
