@@ -54,10 +54,9 @@ async function mountQuote(){
 }
 // 報價單的列印：只印報價這一區（見樣式 body.print-quote）。
 // @page 寫在 shadow root 裡不一定有作用，列印時在工作台另外放一份：A4、邊界 0，瀏覽器不會加上網址與日期的頁首頁尾
-/* kind 為 'phone' 時印成 110mm 寬的窄頁（手機版 PDF），其他一律 A4 */
-window.QUOTE_PRINT = (kind)=>{
+window.QUOTE_PRINT = ()=>{
   const page = document.createElement('style');
-  page.textContent = kind === 'phone' ? '@page{size:110mm 240mm;margin:0;}' : '@page{size:A4;margin:0;}';
+  page.textContent = '@page{size:A4;margin:0;}';
   document.head.appendChild(page);
   document.body.classList.add('print-quote');
   window.print();

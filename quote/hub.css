@@ -164,3 +164,71 @@
   /* 健檢方案：加選模組有 6 項，排成一列，整頁不必捲動 */
   #itemsGrid[data-cat="health-check"]{grid-template-columns:repeat(auto-fill,minmax(146px,1fr));}
 }
+/* ===== 2026-11-19 去 AI 味（報價重新設計卡，U1 至 U10）=====
+   層次靠細框與底色，不靠陰影、漸層、浮動；圓角收到 6px；自費是預設，不再每張卡都標；
+   中文標題不加寬字距。只改螢幕，列印的報價單在 view.html 的 @media print。 */
+@media screen{
+  /* U1 陰影：一律拿掉，選取狀態原本用陰影畫的外圈改成框線 */
+  .cat-card, #home-inner .cat-big, #home-inner #catGrid .cat-big:hover, .item-card, .item-card:hover,
+  .cart-item, .search-input, .search-wrap .search-input, .search-results, .pricing-panel, .discount-block,
+  .btn-print, .btn-clear, .back-btn, .endo-sub-row, .restore-bar, .warn-block,
+  .item-card.endo-open, .item-card.endo-ins, .item-card.endo-dimmed, .endo-sub-row .item-card.selected,
+  .hc-layout .hc-plan, .hc-layout .hc-plan.selected{box-shadow:none !important;}
+  .search-input:focus, .search-wrap .search-input:focus{box-shadow:var(--focus-ring) !important;}
+  .item-card.selected{border-color:var(--accent) !important; background:#F1F3F7;}
+  .item-card.ins-mode{border-color:var(--ins-color) !important;}
+
+  /* U2 圓角：卡片、按鈕、輸入框一律 6px；首頁的灰框膠囊改成「、」分隔的文字 */
+  #home-inner .cat-big, #home-inner .cat-small, #home-inner .cat-extra-grid, .item-card, .discount-block,
+  .search-results, .search-input, .search-wrap .search-input, .back-btn, #screen-category .back-btn,
+  .btn-clear, .btn-print, .patient-name-input, .endo-sub-row, .cat-filter-input, .hc-layout .hc-plan{border-radius:6px !important;}
+  #home-inner .cat-chips{gap:0;}
+  #home-inner .cat-chip, #home-inner .cat-big[data-cat="health-check"] .cat-chip{background:none; border:0; padding:0;
+    border-radius:0; font-size:14px; color:var(--muted);}
+  #home-inner .cat-chip + .cat-chip::before{content:"、";}
+  .hc-tag{border-radius:4px;}
+
+  /* U3 自費是預設：卡片只標「免自費」；原本替徽章留的右側空間收回 */
+  .mode-badge.self{display:none !important;}
+  .item-card:not(.ins-mode) .item-name{padding-right:0;}
+  .item-card:not(.ins-mode) .item-name.nm-flow::before{width:0;}
+
+  /* U4 分類卡不放圓形圖示 */
+  #home-inner .cat-big .cat-icon, #home-inner .cat-small .cat-icon{display:none;}
+
+  /* U5 漸層改純色 */
+  #home-inner .cat-big{background:var(--surface) !important; border-color:var(--border) !important;}
+  #home-inner #catGrid .cat-big:hover{border-color:rgba(var(--tone-rgb),.55) !important;}
+  .hc-layout .hc-plan{background:var(--surface) !important;}
+  .hc-layout .hc-plan.selected{background:#EEF4F0 !important;}
+
+  /* U6 不浮動、不滑入（搜尋跳轉的閃爍提示保留，那是功能） */
+  .cat-card:hover, #home-inner #catGrid .cat-big:hover, .item-card:hover{transform:none !important;}
+  .cart-item, .cat-extra.show, .restore-bar, .warn-block, .empty-state{animation:none !important;}
+  .empty-state{opacity:1;}
+
+  /* U7 搜尋結果不用毛玻璃 */
+  .search-results{background:var(--surface) !important; backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+    border-width:1px !important;}
+
+  /* U8 費用清單：拿掉彩色圓點圖例；項數用一般文字；項目改成細線分隔的清單，只標免自費 */
+  .panel-legend{display:none !important;}
+  .cart-count, .cart-count.zero{background:none !important; color:var(--muted) !important; padding:0 !important;
+    font-size:14px !important; font-weight:400 !important; min-width:0 !important;}
+  .cart-count::before{content:"（";}
+  .cart-count::after{content:"）";}
+  .panel-body{background:var(--surface) !important;}
+  .cart-item{background:none !important; border:0 !important; border-bottom:1px solid var(--border) !important;
+    border-radius:0 !important; margin:0 !important; padding:11px 4px !important;}
+  .cart-item.just-added{background:var(--accent-pale) !important;}
+  .cart-badge.self{display:none;}
+  .cart-badge.ins{background:none; padding:0; font-weight:600;}
+
+  /* U9 字距與字重：中文標題不加寬字距 */
+  #home-inner .home-hero-title, #home-inner .cat-big .cat-label, #home-inner .cat-small .cat-label, #home-inner .cat-extra .cat-label,
+  #screen-category .screen-title, .panel-head-title, .grand-label, .items-section-header, .cart-group-label,
+  .btn-clear, .btn-print, .mode-badge, .cart-badge, .hc-plan .item-name, .endo-group-label{letter-spacing:.02em !important;}
+  .cart-group-label{font-size:13px !important; font-weight:600 !important;}
+  .items-section-header{font-weight:600;}
+  .hc-plan .item-name, .hc-layout .hc-cards .item-name{font-weight:600;}
+}

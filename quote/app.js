@@ -1067,7 +1067,7 @@ function buildEndoGrid(){
           l2c.innerHTML='<div class="mode-badge self">自費</div>'
             +'<div class="item-name">'+esc(l2.name)+'</div>'
             +'<div class="item-desc">'+esc(l2.desc||'')+'</div>'
-            +'<div class="endo-add-price">+ NT\u00a0'+fmtPrice(l2.addPrice)+'</div>'
+            +'<div class="endo-add-price">+ NT$\u00a0'+fmtPrice(l2.addPrice)+'</div>'
             +'<div class="check-dot">✓</div>';
           (function(l1o,l2o){l2c.onclick=function(){toggleHpItem(l1o,l2o);};})(l1,l2);
         } else if(isColonPrepL2(l2.id)){
@@ -1077,7 +1077,7 @@ function buildEndoGrid(){
           l2c.innerHTML='<div class="mode-badge self">自費</div>'
             +endoL2NameHtml(l2.name)
             +'<div class="item-desc">'+esc(l2.desc||'')+'</div>'
-            +'<div class="endo-add-price">+ NT\u00a0'+fmtPrice(l2.addPrice)+'</div>'
+            +'<div class="endo-add-price">+ NT$\u00a0'+fmtPrice(l2.addPrice)+'</div>'
             +'<div class="check-dot">✓</div>';
           (function(l1o,l2o){l2c.onclick=function(){toggleColonPrepItem(l1o,l2o);};})(l1,l2);
         } else {
@@ -1087,7 +1087,7 @@ function buildEndoGrid(){
           l2c.innerHTML='<div class="mode-badge self">自費</div>'
             +endoL2NameHtml(l2.name)
             +'<div class="item-desc">'+esc(l2.desc||'')+'</div>'
-            +'<div class="endo-add-price">+ NT\u00a0'+fmtPrice(l2.addPrice)+'</div>'
+            +'<div class="endo-add-price">+ NT$\u00a0'+fmtPrice(l2.addPrice)+'</div>'
             +'<div class="check-dot">✓</div>';
           (function(l1o,l2o){l2c.onclick=function(){toggleScopeTypeItem(l1o,l2o);};})(l1,l2);
         }
@@ -1173,7 +1173,7 @@ function buildEndoGrid(){
         /* 屬自費內視鏡區：說明文字改置於備註 */
         l2c.innerHTML='<div class="mode-badge self">自費</div>'
           +endoL2NameHtml(l2.name)
-          +'<div class="endo-add-price">+ NT '+fmtPrice(l2.addPrice)+'</div>'
+          +'<div class="endo-add-price">+ NT$ '+fmtPrice(l2.addPrice)+'</div>'
           +'<div class="check-dot">✓</div>';
         (function(l1o,l2o){l2c.onclick=function(){
           if(l2o.id.endsWith('_hp')) toggleHpItem(l1o,l2o);
@@ -1303,7 +1303,7 @@ function renderSpItem(grid,sp,l2arr,l3arr){
       /* 斷行位置比照常規內視鏡（第 4 字），避免「日本製造代/餐與清腸藥物」這種斷法 */
       l2c.innerHTML='<div class="mode-badge self">自費</div>'
         +endoL2NameHtml(l2.name)
-        +'<div class="endo-add-price">+ NT '+fmtPrice(l2.addPrice)+'</div>'
+        +'<div class="endo-add-price">+ NT$ '+fmtPrice(l2.addPrice)+'</div>'
         +'<div class="check-dot">✓</div>';
       (function(item,l2o){l2c.onclick=function(){toggleSpL2(item,l2o);};})(sp,l2);
       l2g.appendChild(l2c);
@@ -1796,7 +1796,7 @@ function renderCart(){
           <div class="cart-item-name">${esc(cartDisplayName(item))}${qtyLabel}</div>
           <div class="cart-item-meta">
             <span class="cart-badge ${item.mode==='ins'?'ins':'self'}">${item.mode==='ins'?'免自費':'自費'}</span>
-            <span class="cart-item-cat">${esc(catDisplay)}</span>
+            ${catDisplay!==item.catLabel?'<span class="cart-item-cat">'+esc(catDisplay)+'</span>':''}
             ${qtyCtrl}
           </div>
           ${note?`<span class="cart-item-note${note.length>26?' long':''}">${esc(note)}</span>`:''}
@@ -2120,8 +2120,8 @@ function quoteBeforePrint(){
 }
 window.QUOTE_BEFORE_PRINT=quoteBeforePrint;
 
-/* 列印前先確認清單不是空的，並讓檔名帶上日期。kind 為 'phone' 時印成手機版窄頁 */
-function printQuote(kind){
+/* 列印前先確認清單不是空的，並讓檔名帶上日期 */
+function printQuote(){
   if(!cart.length){ showToast('清單是空的，請先選取項目'); return; }
   const pi=QD.getElementById('patientNameInput');
   const name=pi?pi.value.trim():'';
@@ -2130,16 +2130,13 @@ function printQuote(kind){
     .then(()=>{
       /* 列印時才換標題（另存 PDF 的預設檔名），印完改回工作台的標題 */
       const t0=document.title;
-      document.title=printFileTitle(name)+(kind==='phone'?'_手機版':'');
+      document.title=printFileTitle(name);
       quoteBeforePrint();
-      QB.classList.toggle('phone', kind==='phone');
-      (window.QUOTE_PRINT || window.print)(kind);
-      QB.classList.remove('phone');
+      (window.QUOTE_PRINT || window.print)();
       document.title=t0;
     });
 }
 QD.getElementById('btnPrint').addEventListener('click',()=>printQuote());
-QD.getElementById('btnPhone').addEventListener('click',()=>printQuote('phone'));
 
 /* ═══════════════════════════════════════════════════════════════════
    最後改版日期與價目版本
