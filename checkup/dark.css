@@ -109,4 +109,5 @@
 :host([data-theme="dark"]) .k-ov-bar span{color:var(--k-muted);}
 :host([data-theme="dark"]) .k-ov-bar .warn{color:var(--k-red);}
 :host([data-theme="dark"]) .k-ov iframe{border:0;}
+:host([data-theme="dark"]) .k-note{color:var(--k-ink);}
 }

@@ -186,4 +186,10 @@
 :host([data-theme="dark"]) .seg-under{background:#467685;}
 :host([data-theme="dark"]) .seg-over{background:#d3a445;}
 :host([data-theme="dark"]) .seg-ob1{background:#c67647;}
+:host([data-theme="dark"]) .ms-item .ms-desc,
+:host([data-theme="dark"]) .choice-btn .s,
+:host([data-theme="dark"]) .tag,
+:host([data-theme="dark"]) .ladder-step p,
+:host([data-theme="dark"]) .ladder-arrow,
+:host([data-theme="dark"]) .card .hint{color:var(--text);}
 }

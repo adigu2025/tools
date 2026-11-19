@@ -257,6 +257,8 @@
 :host([data-theme="dark"]) .doc-tab{background:var(--surface); border-color:var(--border);}
 :host([data-theme="dark"]) .doc-tab.current{background:var(--accent); border-color:var(--accent);}
 :host([data-theme="dark"]) .cat-filter-input{border:1px solid var(--border-strong);}
+:host([data-theme="dark"]) .cat-desc,
+:host([data-theme="dark"]) .item-desc{color:var(--text) !important;}
 @media screen{
   :host([data-theme="dark"]){--primary:#96a4c2; --primary-dark:#a6b2cc; --primary-mid:#8795b4; --accent:#7b8aa9; --accent-light:#657597; --accent-pale:#1e2023; --gold:#a78961; --gold-pale:#23201d; --gold-line:#6f5733; --gold-deep:#ccb492; --gold-text:#96a4c2; --green:#7da78c; --green-pale:#1e231f; --green-deep:#9fc4ad; --bg:#25241f; --surface:#292724; --surface-warm:#272621; --text:#dcdad7; --muted:#a19d95; --border:#4a4841; --border-strong:#534d3c; --shadow-sm:0 1px 2px rgba(0,0,0,0.16), 0 1px 6px rgba(0,0,0,0.16); --shadow-md:0 1px 2px rgba(0,0,0,0.16), 0 6px 24px rgba(0,0,0,0.2); --shadow-lg:0 2px 4px rgba(0,0,0,0.18), 0 12px 32px rgba(0,0,0,0.28); --focus-ring:0 0 0 3px rgba(123,138,169,0.28);}
   :host([data-theme="dark"]) .pricing-panel{border-left:1px solid var(--border) !important; box-shadow:none !important;}

@@ -712,7 +712,7 @@
 .panel-title small{display:none !important;}
 .empty-hint p, #target-empty{display:none !important;}
 /* 2026-11-19：題組開頭的操作說明也不顯示（病人版不受影響） */
-.tool-panel:not(#panel-metsyn) .quiz-intro, .bristol-intro{display:none !important;}
+.tool-panel:not(#panel-metsyn):not(#panel-waist) .quiz-intro, .bristol-intro{display:none !important;}
 @media (min-width:1100px){
   /* 降血脂與 B 肝用藥：勾選題固定三欄，結果卡收緊，一個畫面放得下 */
   .rx-panel .rx-cols{grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:10px !important; margin-bottom:0 !important;}
