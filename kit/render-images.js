@@ -25,7 +25,9 @@ const JOBS = {
   cards:   {page: 'edu-src/cards.html',  save: 'edu-src/out',  out: 'edu-src/out',          run: 'renderAll', min: 1, wait: 0},
   patch:   {page: 'edu-src/patch.html',  save: 'edu-src/out',  out: 'edu-src/out',          run: 'saveAll',   min: null, wait: 3000},
   consent: {page: 'consent-src/pages.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
-  guide:   {page: 'guide-src/sedation-guide.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0}
+  guide:   {page: 'guide-src/sedation-guide.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
+  // 解剖圖稿：原圖在 edu-src/anatomy/，裁邊放大後輸出 A5（A4 上半頁），沒有文字所以不跑 fitReport
+  anatomy: {page: 'edu-src/anatomy.html', save: 'edu-src/out',  out: 'edu-src/out',          run: 'renderAll', min: null, wait: 0}
 };
 // consent-src/README.md 的串接順序
 const CONSENT_PARTS = ['head', 'p-gastro', 'p-colon', 'p-capsule', 'p-sedation', 'p-het', 'p-arbl', 'p-thyroid', 'p-imaging', 'p-glp1', 'tail'];

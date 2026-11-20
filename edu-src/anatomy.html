@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>解剖圖稿產生</title>
+<!--
+  解剖圖稿（門診衛教手繪用的線稿）：產生工作台「解剖圖稿」分類的 A5 圖。
+  用法（在 tools 資料夾）：node kit/render-images.js anatomy
+  原圖在 edu-src/anatomy/（2480 × 1748，A5 橫式，左右各一個器官）。
+  做法：每張原圖從中間最寬的空白欄切成左右兩個器官，各自裁到線條邊界，
+  在 A5 版面（A4 直式上半頁，2480 × 1754，300 dpi）裡左右各一格放到最大、置中。
+  四邊與中間留 10 mm。依 YT 2026-11-20 指示：不放頁首、頁尾、LINE QR code、LOGO。
+  輸出的圖是整張 A4 直式（下半頁空白），跟其他 A5 衛教單同一套列印方式。
+-->
+</head>
+<body>
+<script>
+const JOBS = [
+  {src: 'anatomy/upper-gi.png',      out: 'edu-a5-anatomy-upper-gi'},
+  {src: 'anatomy/hepatobiliary.png', out: 'edu-a5-anatomy-hepatobiliary'},
+];
+const PAGE_W = 2480, PAGE_H = 3508, A5_H = 1754;
+const MM = 300 / 25.4, PAD = Math.round(10 * MM), GAP = Math.round(10 * MM);
+const INK = 235;   // 亮度低於這個值算線條（小腸的淡灰線也要算進去）
+
+const load = src=> new Promise((r, j)=>{ const im = new Image(); im.onload = ()=> r(im); im.onerror = j; im.src = src; });
+// 線條遮罩：逐欄、逐列記錄有沒有線條
+function inkMap(im){
+  const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+  const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height).data;
+  const ink = new Uint8Array(c.width * c.height);
+  for(let i = 0; i < ink.length; i++){
+    const k = i * 4, y = 0.299 * d[k] + 0.587 * d[k + 1] + 0.114 * d[k + 2];
+    ink[i] = y < INK ? 1 : 0;
+  }
+  return {w: c.width, h: c.height, ink};
+}
+function bbox(m, x0, x1){
+  let l = 1e9, r = -1, t = 1e9, b = -1;
+  for(let y = 0; y < m.h; y++) for(let x = x0; x < x1; x++) if(m.ink[y * m.w + x]){
+    if(x < l) l = x; if(x > r) r = x; if(y < t) t = y; if(y > b) b = y;
+  }
+  return r < 0 ? null : {x: l, y: t, w: r - l + 1, h: b - t + 1};
+}
+// 中間三分之一裡最長的空白欄區段，取中點當左右分界
+function splitX(m){
+  const col = new Uint8Array(m.w);
+  for(let x = 0; x < m.w; x++){ for(let y = 0; y < m.h; y++) if(m.ink[y * m.w + x]){ col[x] = 1; break; } }
+  let best = [0, 0], s = -1;
+  for(let x = Math.floor(m.w / 3); x <= Math.ceil(m.w * 2 / 3); x++){
+    if(!col[x] && s < 0) s = x;
+    if((col[x] || x === Math.ceil(m.w * 2 / 3)) && s >= 0){ if(x - s > best[1] - best[0]) best = [s, x]; s = -1; }
+  }
+  if(best[1] - best[0] < 20) throw new Error('找不到左右器官之間的空白');
+  return Math.round((best[0] + best[1]) / 2);
+}
+async function build(job){
+  const im = await load(job.src);
+  const m = inkMap(im), mid = splitX(m);
+  const parts = [bbox(m, 0, mid), bbox(m, mid, m.w)];
+  const cellW = (PAGE_W - PAD * 2 - GAP) / 2, cellH = A5_H - PAD * 2;
+  const c = document.createElement('canvas'); c.width = PAGE_W; c.height = PAGE_H;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, PAGE_W, PAGE_H);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  const info = [];
+  parts.forEach((b, i)=>{
+    const s = Math.min(cellW / b.w, cellH / b.h);
+    const w = b.w * s, h = b.h * s;
+    const x = PAD + i * (cellW + GAP) + (cellW - w) / 2, y = PAD + (cellH - h) / 2;
+    g.drawImage(im, b.x, b.y, b.w, b.h, x, y, w, h);
+    info.push(`${i ? '右' : '左'} ×${s.toFixed(2)}`);
+  });
+  return {canvas: c, info: info.join('，')};
+}
+async function renderAll(only){
+  const log = [];
+  for(const job of JOBS){
+    if(only && !only.includes(job.out)) continue;
+    const {canvas, info} = await build(job);
+    const webp = await new Promise(r=> canvas.toBlob(r, 'image/webp', 0.92));
+    await fetch('/__save?name=' + job.out + '.webp', {method: 'POST', body: webp});
+    log.push(job.out + '：' + info);
+  }
+  return log.join('\n');
+}
+</script>
+</body>
+</html>
