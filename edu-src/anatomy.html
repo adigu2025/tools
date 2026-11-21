@@ -9,6 +9,7 @@
   原圖在 edu-src/anatomy/（2480 × 1748，A5 橫式，左右各一個器官）。
   做法：每張原圖從中間最寬的空白欄切成左右兩個器官，各自裁到線條邊界，
   在 A5 版面（A4 直式上半頁，2480 × 1754，300 dpi）裡左右各一格放到最大、置中。
+  JOBS 的 scale 是放到最大之後再乘的倍數（左、右），縮小後仍在格子裡置中。
   四邊與中間留 10 mm。依 YT 2026-11-20 指示：不放頁首、頁尾、LINE QR code、LOGO。
   輸出的圖是整張 A4 直式（下半頁空白），跟其他 A5 衛教單同一套列印方式。
 -->
@@ -16,7 +17,7 @@
 <body>
 <script>
 const JOBS = [
-  {src: 'anatomy/upper-gi.png',      out: 'edu-a5-anatomy-upper-gi'},
+  {src: 'anatomy/upper-gi.png',      out: 'edu-a5-anatomy-upper-gi', scale: [0.75, 1]},   // 左邊上消化道縮成 75%（YT 2026-11-22）
   {src: 'anatomy/hepatobiliary.png', out: 'edu-a5-anatomy-hepatobiliary'},
 ];
 const PAGE_W = 2480, PAGE_H = 3508, A5_H = 1754;
@@ -66,7 +67,7 @@ async function build(job){
   g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   const info = [];
   parts.forEach((b, i)=>{
-    const s = Math.min(cellW / b.w, cellH / b.h);
+    const s = Math.min(cellW / b.w, cellH / b.h) * (job.scale ? job.scale[i] : 1);
     const w = b.w * s, h = b.h * s;
     const x = PAD + i * (cellW + GAP) + (cellW - w) / 2, y = PAD + (cellH - h) / 2;
     g.drawImage(im, b.x, b.y, b.w, b.h, x, y, w, h);
