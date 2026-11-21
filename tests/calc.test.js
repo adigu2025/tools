@@ -79,6 +79,17 @@ t.has('ACS 合併糖尿病', lx({'lx-acs': true, 'lx-dm': true, 'lx-ldl': 60}), 
 t.has('糖尿病、LDL 105', lx({'lx-dm': true, 'lx-ldl': 105}), '表一 符合'); t.has('糖尿病、LDL 95', lx({'lx-dm': true, 'lx-ldl': 95}), '表一 未符合');
 t.has('無風險因子、LDL 165 先調整生活', lx({'lx-ldl': 165}), '表一 需先生活型態調整');
 t.has('無風險因子、已調整生活', lx({'lx-ldl': 165, 'lx-life3': true}), '表一 符合');
+// 115/12/1 修訂：Livalo 2 mg、Livalo OD 2 mg 移出「只適用表二」清單（改適用表一）；Zovastin、Livazebe HD 不必再滿 3 個月；PCSK9 新增 inclisiran
+const lxMore = v=> { lx(v); return T.copyMore('lipidrx'); };
+const lxTab1 = lxMore({'lx-htn': true, 'lx-life3': true, 'lx-ldl': 135}).split('\n').find(l=> l.startsWith('・可開立 statin'));
+t.has('Livalo 改列表一', lxTab1.split('表二：')[0], 'Livalo 2 mg、OD 2 mg');
+t.eq('只符合表一時不列表二品項', lxTab1.includes('表二：'), false);
+// 測試環境的 plain() 取不到文字，卡片內容改看結果區的 HTML
+const lxHtml = v=> { lx(v); return doc.getElementById('lipidrx-result').innerHTML; };
+const lx6w = lxHtml({'lx-dm': true, 'lx-ldl': 105, 'lx-statin': '6w'});
+t.has('statin 6 至 8 週：仍列 Zoliton 需滿 3 個月', lx6w, 'Zoliton');
+t.eq('statin 6 至 8 週：Zovastin、Livazebe 不再列需滿 3 個月', /Zovastin|Livazebe/.test(lx6w), false);
+t.has('PCSK9 符合時列出 inclisiran', lxHtml({'lx-dm': true, 'lx-ldl': 120, 'lx-event1y': true, 'lx-pcskPre': true}), 'inclisiran');
 
 // lab/lab.js：FIB-4 與 PREVENT
 const L = loadGlobals(['lab/lab.js'], ['ckFib4', 'ckPrevent']);

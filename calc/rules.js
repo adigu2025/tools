@@ -14,10 +14,10 @@ const RX_RULES = {
   lipidrx: {
     title: '降血脂藥物給付規定',
     code: '藥品給付規定 第 2 節 2.6.1',
-    effective: '115 年 9 月 1 日（2026-09-01）',
-    checked: '2026-11-04',
-    change: '依「2025 台灣血脂管理臨床路徑共識」改以 ASCVD 風險分級訂 LDL-C 起始值與目標（表一）；舊制分級改列表二，兩表並存。PCSK9 起始值已於 114 年 9 月 1 日由 135 下修為 100 mg/dL。',
-    source: { label: '健保署：藥品給付規定修訂對照表 第 2 節（115/9/1 生效）', url: 'https://www.nhi.gov.tw/ch/dl-100842-f34d34af17374f04ae02e87f1ea8ac56-1.pdf' },
+    effective: '115 年 12 月 1 日（2026-12-01）',
+    checked: '2026-11-22',
+    change: '115/12/1：Livalo 2 mg、Livalo OD 2 mg 與 Atova 10 mg 移出「只適用表二」清單，改適用表一；2.6.3 的 Zovastin、Livazebe HD 不必再滿 3 個月；PCSK9 新增 2.6.4.3 inclisiran。115/9/1：依「2025 台灣血脂管理臨床路徑共識」改以 ASCVD 風險分級訂 LDL-C 起始值與目標（表一），舊制分級改列表二，兩表並存。',
+    source: { label: '健保署：藥品給付規定修訂對照表 第 2 節（115/12/1 生效）', url: 'https://www.nhi.gov.tw/ch/dl-103688-cb3cda4e3dad4851a3c186dfa11bf113-1.pdf' },
     sections: [
       { h: '表一（新制品項）：依 ASCVD 風險分級',
         html:
@@ -47,11 +47,12 @@ const RX_RULES = {
           '<ul><li>statin 單一治療 6 至 8 週未達標，可合併 ezetimibe 或改用複方；部分品項（如 Ezetity、Ezzicad、Ezta 10、Ezetimibe Sandoz 與數個複方）仍需滿 3 個月。</li>' +
           '<li>statin 無法耐受：可單用 ezetimibe（限原發性高膽固醇血症、HoFH、植物脂醇血症）。</li>' +
           '<li>複方不得與 gemfibrozil 併用。</li></ul>' },
-      { h: 'PCSK9 抑制劑（evolocumab、alirocumab）',
+      { h: 'PCSK9 抑制劑（evolocumab、alirocumab、inclisiran）',
         html:
           '<ul><li>一年內重大心血管事件（MI、血管再通術、動脈硬化缺血性中風）。</li>' +
           '<li>已用高強度（如 rosuvastatin 20 mg、atorvastatin 40 mg 以上）或最大耐受 statin ≥3 個月，再合併 ezetimibe 10 mg ≥3 個月。</li>' +
-          '<li>LDL-C 仍 &gt; 100 mg/dL。需事前審查，每次核准 12 個月。</li></ul>' },
+          '<li>LDL-C 仍 &gt; 100 mg/dL。需事前審查，每次核准 12 個月。</li>' +
+          '<li>inclisiran（2.6.4.3，115 年 12 月 1 日起）：條件同上；statin 禁忌或無法耐受者，用 ezetimibe 3 個月後 LDL-C 仍 &gt; 100 亦可。第 0、3 個月各 1 支，之後每 6 個月 1 支；LDL-C 下降未達 30% 不再給付；不得併用其他 PCSK9 藥物。</li></ul>' },
       { h: '降三酸甘油酯藥物（本次未修訂）',
         html:
           '<ul><li>心血管疾病或糖尿病：TG ≥200 且（TC/HDL-C &gt;5 或 HDL-C &lt;40），可與非藥物治療並行。</li>' +

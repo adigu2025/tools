@@ -909,8 +909,8 @@
   /* ======================================================
      降血脂／TG 用藥給付
      ====================================================== */
-  var LX_NEW = [['Lipitor','10、20、40 mg'],['Crestor','10 mg'],['Tulip "SDZ"','10、20、40 mg'],['Vytorin','10/20 mg 複方'],['Atozet','10/10、10/20 mg 複方'],['Tonvasca','2/10 mg 複方']];
-  var LX_OLD = [['Crestor','5、20 mg'],['Tulip','10、20、40 mg'],['Livalo','2 mg、OD 2 mg'],['Mevalotin protect','20、40 mg'],['Lescol XL','80 mg'],['Caduet','5/10、5/20 mg'],['Zyrova','5、10、20 mg']];
+  var LX_NEW = [['Lipitor','10、20、40 mg'],['Crestor','10 mg'],['Tulip "SDZ"','10、20、40 mg'],['Vytorin','10/20 mg 複方'],['Atozet','10/10、10/20 mg 複方'],['Tonvasca','2/10 mg 複方'],['Livalo','2 mg、OD 2 mg']];
+  var LX_OLD = [['Crestor','5、20 mg'],['Tulip','10、20、40 mg'],['Mevalotin protect','20、40 mg'],['Lescol XL','80 mg'],['Caduet','5/10、5/20 mg'],['Zyrova','5、10、20 mg']];
   var LX_FLAGS = ['lx-acs','lx-mi1y','lx-mi2','lx-mvd','lx-revasc','lx-cadPlaque','lx-carotid','lx-padPlaque','lx-padSym','lx-stroke',
     'lx-dm','lx-ckd','lx-cac','lx-htn','lx-smoke','lx-fhx','lx-meno','lx-bpHigh','lx-fgHigh','lx-tgMed','lx-life3','lx-intol','lx-event1y','lx-pcskPre'];
 
@@ -1024,14 +1024,14 @@
     if (h.intol) { eze = 'yes'; ezeTxt = 'statin 無法耐受：可用 ezetimibe（限原發性高膽固醇血症、HoFH、植物脂醇血症）。'; }
     else if (statin === 'none') { eze = 'no'; ezeTxt = '需 statin 單一治療 6–8 週未達標，才可合併 ezetimibe 或使用 ezetimibe／statin 複方。'; }
     else if (!notAtGoal) { eze = 'no'; ezeTxt = isNum(ldl) ? ('LDL-C 已達目標（' + goal + '），不需加藥。') : '請輸入目前 LDL-C。'; }
-    else if (statin === '6w') { eze = 'part'; ezeTxt = 'statin 6–8 週未達標：一般 ezetimibe 單方及複方（如 Ezetrol、Vytorin、Atozet、Tonvasca）可用；Ezetity、Ezzicad、Ezta 10、Ezetimibe Sandoz 及 Cretrol、Agitin、Sacure、Ezta-SM、Zoliton、Zovastin、Livazebe HD 仍需滿 3 個月。'; }
+    else if (statin === '6w') { eze = 'part'; ezeTxt = 'statin 6–8 週未達標：一般 ezetimibe 單方及複方（如 Ezetrol、Vytorin、Atozet、Tonvasca）可用；Ezetity、Ezzicad、Ezta 10、Ezetimibe Sandoz 及 Cretrol、Agitin、Sacure、Ezta-SM、Zoliton 仍需滿 3 個月。'; }
     else { eze = 'yes'; ezeTxt = 'statin ≥3 個月未達標：ezetimibe 單方與複方皆可合併。'; }
 
     var pc, pcTxt;
     if (!h.event1y) { pc = 'na'; pcTxt = '限一年內重大心血管事件（MI、血管再通術、動脈硬化缺血性中風）。'; }
     else if (!h.pcskPre) { pc = 'no'; pcTxt = '需先高強度（如 rosuvastatin 20 mg、atorvastatin 40 mg 以上）或最大耐受 statin ≥3 個月，再合併 ezetimibe 10 mg ≥3 個月。'; }
     else if (!isNum(ldl)) { pc = 'na'; pcTxt = '請輸入 LDL-C。'; }
-    else if (ldl > 100) { pc = 'yes'; pcTxt = 'LDL-C ' + rxFmt(ldl) + ' > 100：可申請 evolocumab 或 alirocumab，需事前審查，每次核准 12 個月。'; }
+    else if (ldl > 100) { pc = 'yes'; pcTxt = 'LDL-C ' + rxFmt(ldl) + ' > 100：可申請 evolocumab、alirocumab，或 inclisiran（115 年 12 月 1 日起），需事前審查，每次核准 12 個月。inclisiran 第 0、3 個月各 1 支，之後每 6 個月 1 支；LDL-C 下降未達 30% 不再給付，不得併用其他 PCSK9 藥物。'; }
     else { pc = 'no'; pcTxt = 'LDL-C ' + rxFmt(ldl) + ' 未高於 100。'; }
 
     var cvdTG = oCAD || oCVD;
@@ -2621,6 +2621,7 @@
     };
     CALC_TEST.ocrApply = function(tool, v){ return OCR_APPLY[tool]([{ date: '', v: v }]); };
     CALC_TEST.copy = function(tool){ return COPY[tool] || ''; };
+    CALC_TEST.copyMore = function(tool){ return COPY_MORE[tool] || ''; };
     CALC_TEST.meldScore = meldScore;
     CALC_TEST.gbsScore = gbsScore;
   }
