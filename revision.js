@@ -13,5 +13,6 @@ const REVISION = {
    每次改版就把這裡整份換成「當次」的簡短說明，一行一件事；不要把前幾次的說明留著累加。 */
 const REVISION_NOTE = [
   "降血脂給付依健保 115/12/1 修訂：Livalo 改列表一品項，Zovastin、Livazebe HD 不必再滿 3 個月",
-  "PCSK9 加入 inclisiran 的給付條件與用法"
+  "PCSK9 加入 inclisiran 的給付條件與用法",
+  "A5 衛教右上改寫衛教名稱，不再標編號（減重維持編號）"
 ];
