@@ -2,7 +2,7 @@
    由 index.html 以一般 script 載入，放在工作台主程式（分頁、BASE、recall、main）之後、啟動程式之前；
    表單的預覽區在 forms/view.js（側欄點到表單時由 showItem 呼叫 showForm），列印共用的 loadImg、printImages、printHtml 也在那裡。 */
 /* ── 衛教圖卡與列印表單的資料 ──
-   衛教依用途分類，同一類再依系列分小節。減重依圖卡角落編號排序（例如「療程 01 至 04」）；其他依同類相鄰排列，圖卡右上只寫衛教名稱、不標編號（2026/11/22）。
+   衛教依用途分類，同一類再依系列分小節。減重依圖卡角落編號排序（例如「療程 01 至 04」）；其他依同類相鄰排列，圖卡右上只寫簡短標題或疾病分類、不標編號（2026/11/22）。
    清單只在這裡維護一份；側欄名稱原則上用圖卡上的標題，在診間口頭說「點那張」時對得上。
    例外：同意書用簡稱（例如「腸泌素自費同意書」），標題太長的衛教可以另取短名（例如「針劑注意事項」）；側欄名稱以 8 字內為原則。
    每份衛教可以有多頁（pages），每頁可以是兩頁並列的圖（split = 2，列印時拆成兩張 A4）。
@@ -112,13 +112,13 @@ const EDU_LIST = [
   ['disease', '慢性病',   '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
   ['disease', '慢性病',   '高尿酸與痛風',     ICON.drop,     ['img/edu-a5-gout.webp'], 'A5'],
   ['disease', '慢性病',   '甲狀腺結節',       ICON.us,       ['img/edu-a5-thyroid-nodule.webp'], 'A5'],
-  // 用藥衛教（2026/11/11 新增，A5）：頁首左邊寫「用藥衛教」，右上寫衛教名稱，順序：除菌、PPI、降血脂、痔瘡藥膏、痔瘡敷料（2026/11/12 降血脂移到第三個）
+  // 用藥衛教（2026/11/11 新增，A5）：頁首左邊寫「用藥衛教」，右上寫簡短標題，順序：除菌、PPI、降血脂、痔瘡藥膏、痔瘡敷料（2026/11/12 降血脂移到第三個）
   ['med',    '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
   ['med',    '用藥',     '胃藥 PPI',         ICON.pill,     ['img/edu-a5-ppi.webp'], 'A5'],
   ['med',    '用藥',     '降血脂藥',         ICON.pill,     ['img/edu-a5-lipid-drugs.webp'], 'A5'],
   ['med',    '用藥',     '痔瘡藥膏與塞劑',   ICON.pill,     ['img/edu-a5-hemorrhoid-topical.webp'], 'A5'],
   ['med',    '用藥',     '痔瘡保護敷料',     ICON.bandage,  ['img/edu-a5-hemagel.webp'], 'A5'],
-  // 疫苗衛教（2026/11/11 新增，A5）：頁首左邊寫「疫苗衛教」，右上寫衛教名稱
+  // 疫苗衛教（2026/11/11 新增，A5）：頁首左邊寫「疫苗衛教」，右上寫簡短標題
   ['vaccine', '疫苗',    '帶狀疱疹疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-shingrix.webp'], 'A5'],
   ['vaccine', '疫苗',    '9 價 HPV 疫苗',    ICON.syringe,  ['img/edu-a5-vaccine-hpv.webp'], 'A5'],
   ['vaccine', '疫苗',    'B 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hbv.webp'], 'A5'],
