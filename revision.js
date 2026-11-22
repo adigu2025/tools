@@ -14,5 +14,6 @@ const REVISION = {
 const REVISION_NOTE = [
   "降血脂給付依健保 115/12/1 修訂：Livalo 改列表一品項，Zovastin、Livazebe HD 不必再滿 3 個月",
   "PCSK9 加入 inclisiran 的給付條件與用法",
-  "A5 衛教右上改寫簡短標題或疾病分類，不再標編號（減重維持編號）"
+  "A5 衛教右上改寫簡短標題或疾病分類，不再標編號（減重維持編號）",
+  "鎮靜用藥指引：心跳過慢改為 atropine 1 mg（AHA ACLS 2020 起）"
 ];
