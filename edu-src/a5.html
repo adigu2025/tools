@@ -50,6 +50,13 @@ table.tb th{text-align:left; font-weight:700; color:var(--ink); border-bottom:1.
 table.tb td{border-bottom:1px solid var(--line); padding:3px 4px; line-height:1.45; vertical-align:top;}
 table.tb th:last-child, table.tb td:last-child{white-space:nowrap;}
 table.tb td:last-child{font-weight:700; color:var(--ink);}
+/* 食物分類表（低 FODMAP 第 2 頁）：類別｜先少吃｜可以改吃，兩欄品項都可換行 */
+table.fm{width:100%; border-collapse:collapse; margin-top:4px; font-size:14px;}
+table.fm th{text-align:left; font-weight:700; color:var(--ink); border-bottom:1.2px solid #2A3438; padding:2px 5px;}
+table.fm td{border-bottom:1px solid var(--line); padding:2px 5px; line-height:1.45; vertical-align:top;}
+table.fm td:first-child{font-family:'Noto Serif TC',serif; font-weight:900; color:var(--ink); white-space:nowrap; width:76px;}
+table.fm td.lo{font-weight:700; color:var(--ink);}
+table.fm th.hi{color:var(--red);}
 .src{font-size:9.5px; color:#7A7E80; margin-top:4px; line-height:1.5;}
 /* 頁尾：左邊一行地址、電話與版本（診所名稱已在頁首，不重複），右下角官方 LINE QR code。
    QR code 疊在頁尾右側往上突出，頁尾高度只由地址決定，左欄可以多用一些高度；右欄內容不可壓到 QR code（見 fitReport） */
@@ -1030,19 +1037,38 @@ table.tb td:last-child{font-weight:700; color:var(--ink);}
       <div class="box"><div class="t">請先和醫師討論</div><div class="c">這是短期的找原因飲食，長期全部限制<br>會影響營養與腸道菌，最好有營養師協助。</div></div>
     </div>
     <div class="col">
-      <div class="row"><div class="k"><small>03</small><b>少吃什麼、改吃什麼</b></div>
-        <div class="v">
-          <table class="tb">
-            <tr><th>高 FODMAP，先少吃</th><th>可以改吃</th></tr>
-            <tr><td>洋蔥、大蒜、小麥麵包與麵條</td><td>蔥綠、白飯、米粉</td></tr>
-            <tr><td>牛奶、優格、冰淇淋</td><td>無乳糖牛奶</td></tr>
-            <tr><td>蘋果、芒果、西瓜、蜂蜜</td><td>奇異果、柳橙</td></tr>
-            <tr><td>豆類、腰果、嫩豆腐</td><td>板豆腐、花生</td></tr>
-            <tr><td>洋菇、白花椰菜</td><td>紅蘿蔔、菠菜</td></tr>
-            <tr><td>含糖醇的無糖口香糖、糖果</td><td>看成分表避開</td></tr>
-          </table>
-          <p style="margin-top:4px">蒜香可用爆香後撈淨蒜頭的油代替。</p></div></div>
+      <div class="row"><div class="k"><small>03</small><b>吃什麼，看背面</b></div>
+        <div class="v"><p>背面依 8 類食物，<br>列出<span class="hl">先少吃</span>與<span class="hl">可以改吃</span>的食物。</p></div></div>
+      <div class="row"><div class="k"><small>04</small><b>生活小技巧</b></div>
+        <div class="v"><ul class="d">
+          <li>蒜香可用爆香後撈掉蒜頭的油代替。</li>
+          <li>低 FODMAP 食物吃太多，<br>一樣會脹氣，份量照平常就好。</li>
+          <li>外食的醬料、湯底常有洋蔥大蒜，<br>可以請店家另外放。</li>
+        </ul></div></div>
       <p class="src">資料來源：Monash University FODMAP 資料庫；<br>ACG 腸躁症指引，Am J Gastroenterol 2021。</p>
+    </div>
+  </div>
+  <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
+</section>
+
+<!-- ───────── 腸胃 06 低 FODMAP 飲食 第 2 頁：食物分類表（2026/11/23 新增，品項依 Monash 資料庫） ───────── -->
+<section class="page" data-out="edu-a5-low-fodmap-2">
+  <div class="top"><span>木子澄安診所　疾病衛教</span><span class="no"><b>腸躁症飲食</b></span></div>
+  <div class="head"><h1>食物分類表</h1><p class="lead">減少期先避開左欄，<br>改吃右欄的食物。</p></div>
+  <div class="rule"></div>
+  <div class="cols" style="grid-template-columns:1fr">
+    <div class="col">
+      <table class="fm">
+        <tr><th>類別</th><th class="hi">高 FODMAP，先少吃</th><th>低 FODMAP，可以改吃</th></tr>
+        <tr><td>蔬菜</td><td>洋蔥、大蒜、蔥白、韭菜、蘆筍、<br>洋菇、白花椰菜</td><td class="lo">蔥綠、紅蘿蔔、菠菜、高麗菜、茄子、<br>番茄、小黃瓜、青椒</td></tr>
+        <tr><td>水果</td><td>蘋果、梨子、芒果、西瓜、水蜜桃、<br>櫻桃、果乾</td><td class="lo">未熟香蕉、奇異果、柳橙、鳳梨、<br>草莓、木瓜</td></tr>
+        <tr><td>奶類</td><td>牛奶、優格、冰淇淋、煉乳</td><td class="lo">無乳糖牛奶、切達起司等硬質起司</td></tr>
+        <tr><td>蛋白質</td><td>紅豆、綠豆、黃豆、豆漿、嫩豆腐</td><td class="lo">雞蛋、肉類、魚蝦、板豆腐</td></tr>
+        <tr><td>堅果種子</td><td>腰果、開心果</td><td class="lo">花生、核桃、南瓜子</td></tr>
+        <tr><td>五穀</td><td>小麥麵包、麵條、饅頭、包子、黑麥</td><td class="lo">白飯、糙米、米粉、粄條、<br>燕麥片（乾重 50 克內）</td></tr>
+        <tr><td>飲料</td><td>果汁、含高果糖糖漿的手搖飲、甘菊茶</td><td class="lo">白開水、黑咖啡、綠茶</td></tr>
+        <tr><td>甜味</td><td>蜂蜜、高果糖糖漿、含糖醇的無糖口香糖</td><td class="lo">少量砂糖、楓糖漿、少量黑巧克力</td></tr>
+      </table>
     </div>
   </div>
   <div class="foot"><div class="addr">高雄市仁武區仁孝路 282 號<span>07-3739496</span><span>v. 2026/11</span></div><div class="qr"><img src="../calc/qr.png" alt=""><span>官方 LINE @muzichengan</span></div></div>
