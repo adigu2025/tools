@@ -281,6 +281,14 @@ body.q-max .hub-main{height:100dvh;}
 /* 系列小標（療程、認識肥胖、用藥……），對應圖卡角落的編號 */
 .edu-sec{font-size:12.5px; letter-spacing:.12em; color:var(--faint); font-weight:600; margin:12px 12px 4px;}
 .edu-list > .edu-sec:first-child, .edu-fly-head + .edu-sec{margin-top:2px;}
+/* 可收折的小節（減重門診的療程）：小標是按鈕，收起時只留目前正在看的那份 */
+.edu-fold{display:flex; align-items:center; gap:6px; width:calc(100% - 16px); margin:12px 8px 4px; padding:4px; border:0; border-radius:6px;
+  background:none; font:inherit; font-size:12.5px; letter-spacing:.12em; color:var(--faint); font-weight:600; text-align:left; cursor:pointer;}
+.edu-fold:hover{background:var(--sunken);}
+.edu-fold .fold-n{font-weight:400; letter-spacing:0;}
+.edu-fold .fold-ar{margin-left:auto; font-size:15px; line-height:1; transition:transform .15s;}
+.edu-fold[aria-expanded="true"] .fold-ar{transform:rotate(90deg);}
+.edu-item.folded{display:none;}
 .edu-fly-head{display:none;}
 /* 搜尋框：側欄最上方，輸入時清單改列所有分類的符合項目 */
 .edu-search{position:relative; display:flex; align-items:center; margin:0 2px 10px;}
@@ -462,6 +470,8 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   .edu-group{flex:none; white-space:nowrap;}
   .edu-list{display:flex; overflow-x:auto;}
   .edu-rail .edu-sec{display:none;}
+  /* 手機版不顯示小標，收折的項目照常列出 */
+  .edu-rail .edu-item.folded{display:flex;}
   /* 標題與工具列改排在預覽上方，不再浮在圖片上互相擠壓 */
   .edu-stage{grid-template-rows:auto 1fr;}
   .edu-tools{position:static; flex-wrap:wrap; padding:6px 6px 0;}
@@ -512,7 +522,7 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
     <nav class="cv-index" aria-label="分頁目錄">
     <div class="cv-row" role="button" tabindex="0" data-to="quote" title="Alt＋1"><span class="cv-key">1</span><div class="cv-title">報價系統</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="q:endo">內視鏡</button><button type="button" class="cv-sec" data-act="q:health-check">健檢方案</button><button type="button" class="cv-sec" data-act="q:lab">檢驗</button><button type="button" class="cv-sec" data-act="q:exam">檢查與點滴</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
     <div class="cv-row" role="button" tabindex="0" data-to="calc" title="Alt＋2"><span class="cv-key">2</span><div class="cv-title">臨床計算</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="c:bmi">BMI</button><button type="button" class="cv-sec" data-act="c:fib4">FIB-4</button><button type="button" class="cv-sec" data-act="c:lipidrx">降血脂給付</button><button type="button" class="cv-sec" data-act="c:hbvrx">B 肝用藥給付</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
-    <div class="cv-row" role="button" tabindex="0" data-to="edu" title="Alt＋3"><span class="cv-key">3</span><div class="cv-title">衛教與表單</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="e:weight">減重門診</button><button type="button" class="cv-sec" data-act="e:exam">檢查治療衛教</button><button type="button" class="cv-sec" data-act="e:consent">同意書</button><button type="button" class="cv-sec" data-act="e:disease">疾病衛教</button><button type="button" class="cv-sec" data-act="e:med">用藥衛教</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
+    <div class="cv-row" role="button" tabindex="0" data-to="edu" title="Alt＋3"><span class="cv-key">3</span><div class="cv-title">衛教與表單</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="e:weight">減重門診</button><button type="button" class="cv-sec" data-act="e:consent">同意書</button><button type="button" class="cv-sec" data-act="e:exam">檢查治療衛教</button><button type="button" class="cv-sec" data-act="e:gi">腸胃疾病</button><button type="button" class="cv-sec" data-act="e:hepato">肝膽疾病</button><button type="button" class="cv-sec" data-act="e:med">用藥與疫苗</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
     <div class="cv-row" role="button" tabindex="0" data-to="weight" title="Alt＋4"><span class="cv-key">4</span><div class="cv-title">製作報告</div><div class="cv-secs"><button type="button" class="cv-sec" data-act="r:weight">減重報告</button><button type="button" class="cv-sec" data-act="r:checkup">健檢報告</button></div><span class="cv-arr" aria-hidden="true">→</span></div>
     </nav>
   </section>

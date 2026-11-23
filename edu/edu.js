@@ -13,16 +13,17 @@
 const W = p=> BASE + p;
 // 「衛教與表單」分頁的分類：衛教圖卡與列印表單合併在同一個側欄，同一類先列衛教、再列表單。
 // 減重門診的衛教與表單併成一類（初診時衛教、問卷、同意書會一起用到）；檢查的衛教與同意書項目多，分成兩類。
+// 2026/11/23 依 YT 要求重排：減重門診、管藥與麻醉、檢查治療同意書、檢查治療衛教在前；
+// 原「疾病衛教」拆成腸胃疾病、肝膽疾病、其他內科疾病（腎臟與慢性病）；用藥衛教與疫苗衛教合併為「用藥與疫苗」
 const EDU_GROUPS = [
-  {key:'weight',  label:'減重門診'},
-  {key:'exam',    label:'檢查治療衛教'},
-  {key:'consent', label:'檢查治療同意書'},
-  {key:'ctrl',    label:'管藥與麻醉'},
-  {key:'disease', label:'疾病衛教'},
-  // 2026/11/11 新增：用藥衛教（幽門桿菌除菌由檢查治療衛教移過來）
-  {key:'med',     label:'用藥衛教'},
-  // 2026/11/11 新增：疫苗衛教（診所自費疫苗四種）
-  {key:'vaccine', label:'疫苗衛教'},
+  {key:'weight',   label:'減重門診'},
+  {key:'ctrl',     label:'管藥與麻醉'},
+  {key:'consent',  label:'檢查治療同意書'},
+  {key:'exam',     label:'檢查治療衛教'},
+  {key:'gi',       label:'腸胃疾病'},
+  {key:'hepato',   label:'肝膽疾病'},
+  {key:'internal', label:'其他內科疾病'},
+  {key:'med',      label:'用藥與疫苗'},
   {key:'wound',   label:'傷口照護'},
   // 2026/11/20 新增：門診衛教時手繪說明用的解剖線稿（A5，不放頁首、頁尾、QR code、LOGO，YT 明講的例外）
   {key:'anatomy', label:'解剖圖稿'},
@@ -90,39 +91,40 @@ const EDU_LIST = [
   ['exam',   '治療後',   '冷凝刀痔瘡治療後', ICON.snow,     ['img/edu-a5-het-after.webp'], 'A5'],
   ['exam',   '治療後',   '抗逆流結紮術後',   ICON.band,     ['img/edu-a5-arbl-after.webp'], 'A5'],
   // 疾病衛教（2026/11 新增，A5）：原始檔在 edu-src/a5.html，右下角放官方 LINE QR code
-  ['disease', '肝膽',     '膽結石、膽砂',     ICON.liver,    ['img/edu-a5-gallstone.webp'], 'A5'],
-  ['disease', '肝膽',     '膽囊瘜肉',         ICON.liver,    ['img/edu-a5-gb-polyp.webp'], 'A5'],
-  ['disease', '肝膽',     '脂肪肝',           ICON.liver,    ['img/edu-a5-fatty-liver.webp'], 'A5'],
-  ['disease', '肝膽',     'B 肝、C 肝追蹤',   ICON.liver,    ['img/edu-a5-hepatitis-bc.webp'], 'A5'],
-  ['disease', '肝膽',     '肝指數偏高',       ICON.liver,    ['img/edu-a5-liver-enzymes.webp'], 'A5'],
-  ['disease', '腸胃',     '胃食道逆流',       ICON.stomach,  ['img/edu-a5-gerd.webp'], 'A5'],
-  ['disease', '腸胃',     '胃潰瘍、十二指腸潰瘍', ICON.stomach, ['img/edu-a5-peptic-ulcer.webp'], 'A5'],
-  ['disease', '腸胃',     '功能性消化不良',   ICON.stomach,  ['img/edu-a5-functional-dyspepsia.webp'], 'A5'],
-  ['disease', '腸胃',     '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
-  ['disease', '腸胃',     '便祕與腸躁症',     ICON.germ,     ['img/edu-a5-constipation-ibs.webp'], 'A5'],
-  ['disease', '腸胃',     '低 FODMAP 飲食',   ICON.leaf,     ['img/edu-a5-low-fodmap.webp', 'img/edu-a5-low-fodmap-2.webp'], 'A5'],
+  // 2026/11/23 側欄拆成腸胃疾病、肝膽疾病、其他內科疾病三類；圖卡頁首仍寫「疾病衛教」
+  ['gi',     '',         '胃食道逆流',       ICON.stomach,  ['img/edu-a5-gerd.webp'], 'A5'],
+  ['gi',     '',         '胃潰瘍、十二指腸潰瘍', ICON.stomach, ['img/edu-a5-peptic-ulcer.webp'], 'A5'],
+  ['gi',     '',         '功能性消化不良',   ICON.stomach,  ['img/edu-a5-functional-dyspepsia.webp'], 'A5'],
+  ['gi',     '',         '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
+  ['gi',     '',         '便祕與腸躁症',     ICON.germ,     ['img/edu-a5-constipation-ibs.webp'], 'A5'],
+  ['gi',     '',         '低 FODMAP 飲食',   ICON.leaf,     ['img/edu-a5-low-fodmap.webp', 'img/edu-a5-low-fodmap-2.webp'], 'A5'],
   // 2026/11/12 把「痔瘡怎麼治療」併進這一張，只留一張
-  ['disease', '腸胃',     '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
-  ['disease', '腸胃',     '糞便潛血陽性',     ICON.drop,     ['img/edu-a5-fit-positive.webp'], 'A5'],
-  ['disease', '腸胃',     '缺鐵性貧血',       ICON.drop,     ['img/edu-a5-iron-deficiency.webp'], 'A5'],
-  ['disease', '腎臟',     '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
-  ['disease', '腎臟',     '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
-  ['disease', '慢性病',   '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
-  ['disease', '慢性病',   '糖尿病前期與糖尿病', ICON.drop,   ['img/edu-a5-diabetes.webp'], 'A5'],
-  ['disease', '慢性病',   '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
-  ['disease', '慢性病',   '高尿酸與痛風',     ICON.drop,     ['img/edu-a5-gout.webp'], 'A5'],
-  ['disease', '慢性病',   '甲狀腺結節',       ICON.us,       ['img/edu-a5-thyroid-nodule.webp'], 'A5'],
+  ['gi',     '',         '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
+  ['gi',     '',         '糞便潛血陽性',     ICON.drop,     ['img/edu-a5-fit-positive.webp'], 'A5'],
+  ['gi',     '',         '缺鐵性貧血',       ICON.drop,     ['img/edu-a5-iron-deficiency.webp'], 'A5'],
+  ['hepato', '',         '膽結石、膽砂',     ICON.liver,    ['img/edu-a5-gallstone.webp'], 'A5'],
+  ['hepato', '',         '膽囊瘜肉',         ICON.liver,    ['img/edu-a5-gb-polyp.webp'], 'A5'],
+  ['hepato', '',         '脂肪肝',           ICON.liver,    ['img/edu-a5-fatty-liver.webp'], 'A5'],
+  ['hepato', '',         'B 肝、C 肝追蹤',   ICON.liver,    ['img/edu-a5-hepatitis-bc.webp'], 'A5'],
+  ['hepato', '',         '肝指數偏高',       ICON.liver,    ['img/edu-a5-liver-enzymes.webp'], 'A5'],
+  ['internal', '腎臟',   '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
+  ['internal', '腎臟',   '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
+  ['internal', '慢性病', '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
+  ['internal', '慢性病', '糖尿病前期與糖尿病', ICON.drop,   ['img/edu-a5-diabetes.webp'], 'A5'],
+  ['internal', '慢性病', '膽固醇與三酸甘油酯', ICON.drop,   ['img/edu-a5-dyslipidemia.webp'], 'A5'],
+  ['internal', '慢性病', '高尿酸與痛風',     ICON.drop,     ['img/edu-a5-gout.webp'], 'A5'],
+  ['internal', '慢性病', '甲狀腺結節',       ICON.us,       ['img/edu-a5-thyroid-nodule.webp'], 'A5'],
   // 用藥衛教（2026/11/11 新增，A5）：頁首左邊寫「用藥衛教」，右上寫簡短標題，順序：除菌、PPI、降血脂、痔瘡藥膏、痔瘡敷料（2026/11/12 降血脂移到第三個）
   ['med',    '用藥',     '幽門桿菌除菌治療', ICON.germ,     ['img/edu-a5-hp-eradication.webp'], 'A5'],
   ['med',    '用藥',     '胃藥 PPI',         ICON.pill,     ['img/edu-a5-ppi.webp'], 'A5'],
   ['med',    '用藥',     '降血脂藥',         ICON.pill,     ['img/edu-a5-lipid-drugs.webp'], 'A5'],
   ['med',    '用藥',     '痔瘡藥膏與塞劑',   ICON.pill,     ['img/edu-a5-hemorrhoid-topical.webp'], 'A5'],
   ['med',    '用藥',     '痔瘡保護敷料',     ICON.bandage,  ['img/edu-a5-hemagel.webp'], 'A5'],
-  // 疫苗衛教（2026/11/11 新增，A5）：頁首左邊寫「疫苗衛教」，右上寫簡短標題
-  ['vaccine', '疫苗',    '帶狀疱疹疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-shingrix.webp'], 'A5'],
-  ['vaccine', '疫苗',    '9 價 HPV 疫苗',    ICON.syringe,  ['img/edu-a5-vaccine-hpv.webp'], 'A5'],
-  ['vaccine', '疫苗',    'B 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hbv.webp'], 'A5'],
-  ['vaccine', '疫苗',    'A 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hav.webp'], 'A5'],
+  // 疫苗衛教（2026/11/11 新增，A5）：頁首左邊寫「疫苗衛教」，右上寫簡短標題；2026/11/23 側欄併入「用藥與疫苗」
+  ['med',    '疫苗',     '帶狀疱疹疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-shingrix.webp'], 'A5'],
+  ['med',    '疫苗',     '9 價 HPV 疫苗',    ICON.syringe,  ['img/edu-a5-vaccine-hpv.webp'], 'A5'],
+  ['med',    '疫苗',     'B 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hbv.webp'], 'A5'],
+  ['med',    '疫苗',     'A 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hav.webp'], 'A5'],
   ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
   ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
   // 解剖圖稿：原圖與產生頁在 edu-src/anatomy.html（node kit/render-images.js anatomy）
@@ -183,6 +185,10 @@ if(!EDU_GROUPS.some(g=> g.key === eduGroup)) eduGroup = 'weight';
 // 2026/11/09 取消「多份一起列印」：每份單獨列印，A4、A5 不會混在同一批（不必換紙），直式、橫式也不會被迫用同一種紙
 // 桌機版的清單浮在側欄右邊（半透明，蓋在預覽左側留白上，預覽不會移動）；再按一次目前的分類可收起
 let railFirst = true;
+// 預設收折的小節（2026/11/23 YT 要求：減重門診的「療程」收折，其餘照常展開）；點小標展開或收起，記住上次的狀態。
+// 手機版不顯示小標，收折只在桌機版生效
+const FOLD_SECS = ['weight|療程'];
+const foldOpen = new Set([].concat(recall('hub-edu-fold', []) || []).filter(k=> FOLD_SECS.includes(k)));
 let railFly = recall('hub-edu-fly', true) !== false;
 // 搜尋：輸入關鍵字時，清單改列所有分類中名稱、系列或分類名稱符合的項目（不分大小寫、忽略空白）；清空就回到原本的分類清單
 let eduQuery = '';
@@ -240,15 +246,20 @@ function itemBtn(it, i){
 }
 function renderRail(){
   const prev = cur;
+  // 收折中的小節（減重門診的「療程」沒展開時）
+  const closed = it=> FOLD_SECS.includes(it.group + '|' + it.sec) && !foldOpen.has(it.group + '|' + it.sec);
+  let pickFirst = false;
   if(railFirst){
-    // 第一次顯示時回到上次看的那份（找不到就從該類第一份開始）
+    // 第一次顯示時回到上次看的那份（找不到就從該類沒有收折的第一份開始）
     const last = recall('hub-edu-key', '');
     const i = ITEMS.findIndex(it=> itemKey(it) === last);
-    if(i >= 0){ cur = i; eduGroup = ITEMS[i].group; }
+    if(i >= 0){ cur = i; eduGroup = ITEMS[i].group; } else pickFirst = true;
   }
   railFirst = false;
-  if(!ITEMS[cur] || ITEMS[cur].group !== eduGroup){
-    const first = ITEMS.findIndex(it=> it.group === eduGroup);
+  if(pickFirst || !ITEMS[cur] || ITEMS[cur].group !== eduGroup){
+    // 換分類時先停在沒有收折的第一份（減重門診的「療程」收折時，從「認識肥胖」開始）
+    let first = ITEMS.findIndex(it=> it.group === eduGroup && !closed(it));
+    if(first < 0) first = ITEMS.findIndex(it=> it.group === eduGroup);
     cur = first >= 0 ? first : 0;
     eduPage = 0;
   }
@@ -290,9 +301,17 @@ function renderRail(){
     let sec = null;
     body = ITEMS.map((it, i)=>{
       if(it.group !== eduGroup) return '';
-      const head = (it.sec && it.sec !== sec) ? `<div class="edu-sec">${esc(it.sec)}</div>` : '';
+      const fk = it.group + '|' + it.sec, fold = FOLD_SECS.includes(fk);
+      let head = '';
+      if(it.sec && it.sec !== sec){
+        head = fold
+          ? `<button class="edu-sec edu-fold press" type="button" data-fold="${esc(fk)}" aria-expanded="${foldOpen.has(fk)}">${esc(it.sec)}<span class="fold-n">${ITEMS.filter(x=> x.group + '|' + x.sec === fk).length}</span><span class="fold-ar" aria-hidden="true">›</span></button>`
+          : `<div class="edu-sec">${esc(it.sec)}</div>`;
+      }
       sec = it.sec;
-      return head + itemBtn(it, i);
+      const b = itemBtn(it, i);
+      // 收折時目前正在看的那份仍然顯示，才知道自己在哪
+      return head + (fold ? b.replace('class="edu-item press"', `class="edu-item press${!foldOpen.has(fk) && i !== cur ? ' folded' : ''}" data-fk="${esc(fk)}"`) : b);
     }).join('');
   }
   const flyHead = `<div class="edu-fly-head"><b>${esc(title)}</b>` +
@@ -303,6 +322,12 @@ function renderRail(){
   list.scrollTop = keepTop;
   list.querySelector('.fly-x').addEventListener('click', ()=> setRailFly(false));
   list.querySelectorAll('.edu-item').forEach(b=> b.addEventListener('click', ()=> pickItem(+b.dataset.i)));
+  list.querySelectorAll('.edu-fold').forEach(b=> b.addEventListener('click', ()=>{
+    const k = b.dataset.fold;
+    foldOpen.has(k) ? foldOpen.delete(k) : foldOpen.add(k);
+    store('hub-edu-fold', [...foldOpen]);
+    renderRail();
+  }));
   if(cur !== prev || shownKey !== itemKey(ITEMS[cur])) showItem(cur, eduPage);
 }
 // 雙面列印提醒：只在印 A5 衛教單時出現（A5 紙走雙面會印出空白頁）；A4 一律不提醒（2026/11/09 YT 決定）。
@@ -336,7 +361,10 @@ function showItem(i, page){
   store('hub-edu-key', shownKey);
   const multi = multiA4(it);
   document.getElementById('pane-edu').dataset.stage = it.kind === 'form' || multi ? 'form' : 'edu';
-  document.querySelectorAll('#edu-rail .edu-item').forEach(b=> b.setAttribute('aria-current', String(+b.dataset.i === cur)));
+  document.querySelectorAll('#edu-rail .edu-item').forEach(b=>{
+    b.setAttribute('aria-current', String(+b.dataset.i === cur));
+    if(b.dataset.fk) b.classList.toggle('folded', !foldOpen.has(b.dataset.fk) && +b.dataset.i !== cur);
+  });
   if(multi){
     eduIdx = EDU.indexOf(it.ref);
     showForm({label:it.ref.label, note:`共 ${sheetCount(it.ref)} 頁`, pages:it.ref.pages.map(p=> p.src), kind:'img'});
