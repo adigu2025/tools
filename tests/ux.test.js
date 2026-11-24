@@ -101,6 +101,7 @@ function check(file, src){
   const s = stripPrint(src);
   const sl = s.split('\n');
   let depth = 0, darkAt = -1;   // 目前大括號深度；在深色區塊裡時記下區塊開始前的深度
+  let blockCmt = false;         // 是否在 /* */ 註解區塊中間（規則 10 用）
   sl.forEach((l, i)=>{
     // 規則 2：灰色系文字變數（深色區塊裡改比深色底）
     if(darkAt < 0 && /data-theme="dark"[^{]*\{/.test(l)) darkAt = depth;
@@ -126,11 +127,22 @@ function check(file, src){
     for(const m of l.matchAll(/<input\b[^>]*>/g)) if(/type\s*=\s*["']?number\b/.test(m[0]) && !/inputmode=/.test(m[0])) push(i + 1, 7, 'type="number" 沒有 inputmode');
     // 規則 8：placeholder
     if(/<(?:input|textarea)\b[^>]*\splaceholder\s*=\s*["'][^"']+/.test(l) || /\.placeholder\s*=\s*['"][^'"]+/.test(l)) push(i + 1, 8, '輸入欄位放了 placeholder');
-    // 規則 10：數值範圍用「至」（註解行與文獻頁碼除外）
-    // 單獨的 '—'、'－' 是空值佔位符號，不是範圍；report repo 另案處理，這裡只查 tools 自己的檔案
-    if(!file.startsWith('../') && !/^\s*(\/\/|\/\*|\*)/.test(l)){
+    // 規則 10：數值範圍用「至」（註解、文獻頁碼、英文句子除外）
+    // 單獨的 '—'、'－' 是空值佔位符號，不是範圍。
+    // 英文句子（同一段字串或標籤文字裡有英文字、沒有中文）是貼進 HIS 的英文報告，英文慣用「–」，不改。
+    const inBlock = blockCmt;
+    // 「/*」前面要是行首、空白或 ; { } >，避免把 accept="image/*" 當成註解開頭
+    if(/(^|[\s;{}>])\/\*/.test(l) && !/\*\//.test(l.slice(l.lastIndexOf('/*')))) blockCmt = true;
+    if(blockCmt && /\*\//.test(l)) blockCmt = false;
+    if(!inBlock && !/^\s*(\/\/|\/\*|\*)/.test(l)){
       const code = l.replace(/\s\/\/[^'"]*$/, '').replace(/\d+:\d+[–-]\d+/g, '');
-      if(/\d\s*[–—~～－]\s*\d/.test(code) || /(['"])\s*[–~～]\s*\1/.test(code)) push(i + 1, 10, '數值範圍用了 – 或 ~，改成「至」');
+      const english = (at)=>{   // 範圍所在那一段（引號、角括號之間）是英文
+        const seg = code.slice(code.slice(0, at).search(/[^'"<>]*$/)).match(/^[^'"<>]*/)[0];
+        return /[A-Za-z]{2,}/.test(seg) && !/[㐀-鿿]/.test(seg);
+      };
+      const hit = [...code.matchAll(/\d\s*[–—~～－]\s*\d/g)].some(m=> !english(m.index))
+        || /(['"])\s*[–~～]\s*\1/.test(code);
+      if(hit) push(i + 1, 10, '數值範圍用了 – 或 ~，改成「至」');
     }
     // 規則 9：辨識訊息排在輸入欄上方
     if(/\.rx-ocr\s*\{[^}]*\border\s*:\s*-/.test(l)) push(i + 1, 9, '截圖辨識訊息排在輸入欄上方，出現時會把欄位往下推');
@@ -169,6 +181,14 @@ if(process.argv.includes('--self-test')){
     [T('calc/view.html', 'Scand J Gastroenterol 1997;32:920–4。'), []],
     [T('checkup/app.js', "x = v || '—';"), []],
     [T('calc/app.js', "x = isNum(n) ? n.toFixed(2) + ' X' : '－';"), []],
+    // 英文報告（貼進 HIS）維持「–」；報告系統的中文畫面照樣要查
+    [T('../report/index.html', '<span data-val="moderate stenosis (50–69%)">R-ICA 50–69%</span>'), []],
+    [T('../report/index.html', "{id:'p59', label:'Polyp 5–9mm',"), []],
+    [T('../report/index.html', "showToast('請 3–5 天後再試');"), ['規則 10']],
+    [T('../report/index.html', '<td>18.5 ~ 24</td>'), ['規則 10']],
+    // /* */ 區塊中間的行也是註解
+    [T('calc/app.js', "/* 快捷鍵\n   Alt＋1～7：切換工具\n*/\nt = '3–6 個月';"), ['規則 10']],
+    [T('calc/view.html', '<input type="file" accept="image/*" hidden>\n<td>18.5 ~ 24</td>'), ['規則 10']],
   ];
   let bad = 0;
   cases.forEach(([got, want], i)=>{ if(JSON.stringify(got) !== JSON.stringify(want)){ bad++; console.log(`✗ 自我測試第 ${i + 1} 例：預期 ${JSON.stringify(want)}，得到 ${JSON.stringify(got)}`); } });
