@@ -102,6 +102,7 @@ const EDU_LIST = [
   ['gi',     '',         '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
   ['gi',     '',         '糞便潛血陽性',     ICON.drop,     ['img/edu-a5-fit-positive.webp'], 'A5'],
   ['gi',     '',         '缺鐵性貧血',       ICON.drop,     ['img/edu-a5-iron-deficiency.webp'], 'A5'],
+  ['gi',     '',         '黑便、吐血的警訊', ICON.drop,     ['img/edu-a5-gi-bleeding.webp'], 'A5'],
   ['hepato', '',         '膽結石、膽砂',     ICON.liver,    ['img/edu-a5-gallstone.webp'], 'A5'],
   ['hepato', '',         '膽囊瘜肉',         ICON.liver,    ['img/edu-a5-gb-polyp.webp'], 'A5'],
   ['hepato', '',         '脂肪肝',           ICON.liver,    ['img/edu-a5-fatty-liver.webp'], 'A5'],
