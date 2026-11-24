@@ -31,3 +31,4 @@
 - 同意文字之後另起一行，縮排兩字寫「此致　木子澄安診所」（`.salute`）。簽署頁標題下方不放姓名與病歷號碼，簽名欄已有。
 - 版本號標在每份同意書頁尾的 `data-ver`（例如 `<footer class="foot" ... data-ver="2026/11">`），每份各自獨立。只有修改過的那一份才把 `data-ver` 改成當月並重新輸出（`await renderAll(['consent-het-1', 'consent-het-2'])`），沒有動到的同意書不改版本號。同一份有多頁時，每頁的 `data-ver` 要一致。
 - 自費影像檢查（CT／MRI）個資同意書（`p-imaging.html`）是轉介合作醫院用的個人資料同意，不是檢查同意；簽名欄要聯絡電話與通訊地址（寄報告），所以不用 `data-kind`，直接寫在頁面裡。
+- 診所通用、不限消化內科的同意書（輕中度鎮靜、CT／MRI 個資、案例分享個資）頁首加 `data-noinfo`（`<header class="head" data-noinfo>`），右上角只寫地址電話，不寫科別。
