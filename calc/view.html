@@ -818,6 +818,8 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
   .bar-labels{font-size:12px;}
   .bar-bands{font-size:12px;letter-spacing:-.02em;}
   .bar-bands span{padding:2px 0 0;}
+  /* 「24 至 27」比窄格子寬：允許在「至」後換行（數字與「至」之間是 &nbsp;） */
+  .bar-bands i{white-space:normal;}
   .target-field{max-width:none;}
   .target-result{width:100%;}
 
@@ -1030,17 +1032,17 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <!-- 色帶範圍 BMI 14 至 40；六段的寬度依國健署切點換算 -->
           <div class="bar-bands" id="bar-bands">
             <span data-band="0" style="width:17.31%"><b>過輕</b><i>&lt; 18.5</i></span>
-            <span data-band="1" style="width:21.15%"><b>健康體位</b><i>18.5–24</i></span>
-            <span data-band="2" style="width:11.54%"><b>過重</b><i>24–27</i></span>
-            <span data-band="3" style="width:11.54%"><b>輕度肥胖</b><i>27–30</i></span>
-            <span data-band="4" style="width:19.23%"><b>中度肥胖</b><i>30–35</i></span>
+            <span data-band="1" style="width:21.15%"><b>健康體位</b><i>18.5&nbsp;至 24</i></span>
+            <span data-band="2" style="width:11.54%"><b>過重</b><i>24&nbsp;至 27</i></span>
+            <span data-band="3" style="width:11.54%"><b>輕度肥胖</b><i>27&nbsp;至 30</i></span>
+            <span data-band="4" style="width:19.23%"><b>中度肥胖</b><i>30&nbsp;至 35</i></span>
             <span data-band="5" style="width:19.23%"><b>重度肥胖</b><i>≥ 35</i></span>
           </div>
         </div>
         <div class="ideal-box">
           <div class="ideal-label">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3E6A7C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            此身高的標準體重範圍（BMI 18.5 – 24）
+            此身高的標準體重範圍（BMI 18.5 至 24）
           </div>
           <div class="ideal-range" id="ideal-range">— kg</div>
           <div class="ideal-note" id="ideal-note"></div>
@@ -1061,10 +1063,10 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <thead><tr><th>分級</th><th>BMI（kg/m²）</th><th>建議</th></tr></thead>
         <tbody>
           <tr data-band="0"><td class="band-c b0">體重過輕</td><td>&lt; 18.5</td><td>增加營養，評估潛在原因</td></tr>
-          <tr data-band="1"><td class="band-c b1">健康體位</td><td>18.5 – 24</td><td>維持飲食與運動習慣</td></tr>
-          <tr data-band="2"><td class="band-c b2">過重</td><td>24 – 27</td><td>調整飲食、增加活動量</td></tr>
-          <tr data-band="3"><td class="band-c b3">輕度肥胖</td><td>27 – 30</td><td>就醫評估，擬定減重計畫</td></tr>
-          <tr data-band="4"><td class="band-c b4">中度肥胖</td><td>30 – 35</td><td>評估代謝疾病並積極介入</td></tr>
+          <tr data-band="1"><td class="band-c b1">健康體位</td><td>18.5 至 24</td><td>維持飲食與運動習慣</td></tr>
+          <tr data-band="2"><td class="band-c b2">過重</td><td>24 至 27</td><td>調整飲食、增加活動量</td></tr>
+          <tr data-band="3"><td class="band-c b3">輕度肥胖</td><td>27 至 30</td><td>就醫評估，擬定減重計畫</td></tr>
+          <tr data-band="4"><td class="band-c b4">中度肥胖</td><td>30 至 35</td><td>評估代謝疾病並積極介入</td></tr>
           <tr data-band="5"><td class="band-c b5">重度肥胖</td><td>≥ 35</td><td>全面評估，含藥物或手術</td></tr>
         </tbody>
       </table>
@@ -1260,7 +1262,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <b class="si-g">FIB-4 &lt; 1.3</b><span>低風險，1 至 3 年後重算（糖尿病或多項代謝風險者縮短間隔）</span>
           <b class="si-a">FIB-4 ≥ 1.3</b><span>安排肝臟彈性超音波（FibroScan）</span>
           <b class="si-g">LSM &lt; 8 kPa</b><span>低風險，持續控制體重、血糖、血脂</span>
-          <b class="si-a">LSM 8–12 kPa</b><span>不確定，考慮肝膽專科評估或其他指標</span>
+          <b class="si-a">LSM 8 至 12 kPa</b><span>不確定，考慮肝膽專科評估或其他指標</span>
           <b class="si-r">LSM ≥ 12 kPa</b><span>高風險，肝膽專科追蹤，評估肝硬化與肝癌篩檢</span>
         </div>
       </div></div>
@@ -1280,7 +1282,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         </thead>
         <tbody>
           <tr data-band="low"><td>&lt; 1.30</td><td style="color:var(--green);font-weight:600">低度纖維化風險</td><td>NPV 約 90%，可合理排除進階纖維化（F0–F1）</td></tr>
-          <tr data-band="mid"><td>1.30 – 2.67</td><td style="color:var(--amber);font-weight:600">不確定區間</td><td>建議 FibroScan 或其他非侵入性評估</td></tr>
+          <tr data-band="mid"><td>1.30 至 2.67</td><td style="color:var(--amber);font-weight:600">不確定區間</td><td>建議 FibroScan 或其他非侵入性評估</td></tr>
           <tr data-band="high"><td>&gt; 2.67</td><td style="color:var(--red);font-weight:600">高度纖維化風險</td><td>PPV 約 65%，高度懷疑進階纖維化（F3–F4）</td></tr>
         </tbody>
       </table>
@@ -1366,7 +1368,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
         <tbody>
           <tr data-band="hep"><td style="font-weight:700;color:var(--red);">&ge; 5</td><td style="font-weight:600;color:var(--red);">肝細胞型<br>Hepatocellular</td><td>ALT 顯著升高；ALP 相對正常</td><td>Isoniazid、Statins、Acetaminophen、病毒性肝炎</td></tr>
           <tr data-band="chol"><td style="font-weight:700;color:var(--blue);">≤ 2</td><td style="font-weight:600;color:var(--blue);">膽汁鬱積型<br>Cholestatic</td><td>ALP 顯著升高；ALT 相對正常</td><td>Amoxicillin-clavulanate、Chlorpromazine、同化性類固醇</td></tr>
-          <tr data-band="mix"><td style="font-weight:700;color:var(--amber);">2 – 5</td><td style="font-weight:600;color:var(--amber);">混合型<br>Mixed</td><td>ALT 與 ALP 均升高</td><td>Phenytoin、Sulfonamides、草藥與中藥製劑</td></tr>
+          <tr data-band="mix"><td style="font-weight:700;color:var(--amber);">2 至 5</td><td style="font-weight:600;color:var(--amber);">混合型<br>Mixed</td><td>ALT 與 ALP 均升高</td><td>Phenytoin、Sulfonamides、草藥與中藥製劑</td></tr>
         </tbody>
       </table>
       <div class="notes" style="margin-top:12px;">
@@ -1392,7 +1394,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
 
       <div class="formula">
         <strong>五項評估指標：</strong>腹水、肝性腦病變、總膽紅素、白蛋白、凝血時間（PT 延長秒數或 INR）<br>
-        <span class="unitline">各項 1–3 分，總分 5–15 分，分為 A／B／C 三級</span>
+        <span class="unitline">各項 1 至 3 分，總分 5 至 15 分，分為 A／B／C 三級</span>
       </div>
 
       <div class="grid-2">
@@ -1410,7 +1412,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <select id="cp-pt">
             <option value="">未選擇</option>
             <option value="1">PT 延長 &lt; 4 秒 或 INR &lt; 1.7（1 分）</option>
-            <option value="2">PT 延長 4–6 秒 或 INR 1.7–2.3（2 分）</option>
+            <option value="2">PT 延長 4 至 6 秒 或 INR 1.7 至 2.3（2 分）</option>
             <option value="3">PT 延長 &gt; 6 秒 或 INR &gt; 2.3（3 分）</option>
           </select>
         </div>
@@ -1428,7 +1430,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <select id="cp-bili">
             <option value="">未選擇</option>
             <option value="1">&lt; 2（1 分）</option>
-            <option value="2">2 – 3（2 分）</option>
+            <option value="2">2 至 3（2 分）</option>
             <option value="3">&gt; 3（3 分）</option>
           </select>
         </div>
@@ -1437,7 +1439,7 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <select id="cp-alb">
             <option value="">未選擇</option>
             <option value="1">&gt; 3.5（1 分）</option>
-            <option value="2">2.8 – 3.5（2 分）</option>
+            <option value="2">2.8 至 3.5（2 分）</option>
             <option value="3">&lt; 2.8（3 分）</option>
           </select>
         </div>
@@ -1476,9 +1478,9 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <tr><th>級別</th><th>總分</th><th>一年<br class="mobile-br">存活率</th><th>二年<br class="mobile-br">存活率</th></tr>
         </thead>
         <tbody>
-          <tr data-band="A"><td style="font-weight:700;color:var(--green);">A 級（代償良好）</td><td>5 – 6 分</td><td>約 100%</td><td>約 85%</td></tr>
-          <tr data-band="B"><td style="font-weight:700;color:var(--amber);">B 級（功能受損）</td><td>7 – 9 分</td><td>約 81%</td><td>約 57%</td></tr>
-          <tr data-band="C"><td style="font-weight:700;color:var(--red);">C 級（失代償期）</td><td>10 – 15 分</td><td>約 45%</td><td>約 35%</td></tr>
+          <tr data-band="A"><td style="font-weight:700;color:var(--green);">A 級（代償良好）</td><td>5 至 6 分</td><td>約 100%</td><td>約 85%</td></tr>
+          <tr data-band="B"><td style="font-weight:700;color:var(--amber);">B 級（功能受損）</td><td>7 至 9 分</td><td>約 81%</td><td>約 57%</td></tr>
+          <tr data-band="C"><td style="font-weight:700;color:var(--red);">C 級（失代償期）</td><td>10 至 15 分</td><td>約 45%</td><td>約 35%</td></tr>
         </tbody>
       </table>
       <div class="notes" style="margin-top:10px;">
@@ -1801,12 +1803,12 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
           <div class="field">
             <select id="lx-statin">
               <option value="none">尚未使用 statin</option>
-              <option value="6w">單一治療 6–8 週，未達標</option>
+              <option value="6w">單一治療 6 至 8 週，未達標</option>
               <option value="3m">單一治療 ≥3 個月，未達標</option>
             </select>
           </div>
           <div class="flags">
-            <label class="flag"><input type="checkbox" id="lx-life3">已完成 3–6 個月生活型態調整</label>
+            <label class="flag"><input type="checkbox" id="lx-life3">已完成 3 至 6 個月生活型態調整</label>
             <label class="flag" title="如 severe myalgia、myositis"><input type="checkbox" id="lx-intol">對 statin 無法耐受</label>
             <label class="flag" title="MI、血管再通術、動脈硬化缺血性中風"><input type="checkbox" id="lx-event1y">一年內重大心血管事件</label>
             <label class="flag sub" title="高強度或最大耐受 statin ≥3 個月，再合併 ezetimibe ≥3 個月"><input type="checkbox" id="lx-pcskPre">高強度 statin ≥3 個月＋ezetimibe ≥3 個月</label>
@@ -2002,9 +2004,9 @@ h1,h2,h3{font-weight:700;line-height:1.35;}
       <table class="ref-table" id="bristol-rome">
         <caption>醫師參考：Rome IV 腸躁症分型（異常排便日的型態比例）</caption>
         <tbody>
-          <tr><td>IBS-C</td><td>1–2 型 &gt; 25%，6–7 型 &lt; 25%</td></tr>
-          <tr><td>IBS-D</td><td>6–7 型 &gt; 25%，1–2 型 &lt; 25%</td></tr>
-          <tr><td>IBS-M</td><td>1–2 型與 6–7 型都 &gt; 25%</td></tr>
+          <tr><td>IBS-C</td><td>1 至 2 型 &gt; 25%，6 至 7 型 &lt; 25%</td></tr>
+          <tr><td>IBS-D</td><td>6 至 7 型 &gt; 25%，1 至 2 型 &lt; 25%</td></tr>
+          <tr><td>IBS-M</td><td>1 至 2 型與 6 至 7 型都 &gt; 25%</td></tr>
           <tr><td>IBS-U</td><td>符合診斷但無法歸入上述三型</td></tr>
         </tbody>
       </table>

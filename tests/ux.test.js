@@ -19,6 +19,8 @@
    8. 輸入欄位不放 placeholder（診所規範：會被誤認成已填的值）。
    9. 截圖辨識訊息（.rx-ocr）在工作台不可排在輸入欄上方（order 不可為負數）：訊息出現、變長時會把欄位往下推，畫面跳動。
       要放在欄位下方，由參考資訊區讓出空間（calc/hub.css）。
+  10. 數值範圍寫「至」，不用 – 或 ~（診所標點規範）：「3 至 6 個月」「BMI 18.5 至 24」。
+      註解不算；文獻頁碼（「32:920–4」）不算。程式串接的範圍（'–'、' – '）也要改成 ' 至 '。
 
    全部通過時最後一行是「全部通過」。自我測試：node tests/ux.test.js --self-test */
 const fs = require('fs');
@@ -124,6 +126,12 @@ function check(file, src){
     for(const m of l.matchAll(/<input\b[^>]*>/g)) if(/type\s*=\s*["']?number\b/.test(m[0]) && !/inputmode=/.test(m[0])) push(i + 1, 7, 'type="number" 沒有 inputmode');
     // 規則 8：placeholder
     if(/<(?:input|textarea)\b[^>]*\splaceholder\s*=\s*["'][^"']+/.test(l) || /\.placeholder\s*=\s*['"][^'"]+/.test(l)) push(i + 1, 8, '輸入欄位放了 placeholder');
+    // 規則 10：數值範圍用「至」（註解行與文獻頁碼除外）
+    // 單獨的 '—'、'－' 是空值佔位符號，不是範圍；report repo 另案處理，這裡只查 tools 自己的檔案
+    if(!file.startsWith('../') && !/^\s*(\/\/|\/\*|\*)/.test(l)){
+      const code = l.replace(/\s\/\/[^'"]*$/, '').replace(/\d+:\d+[–-]\d+/g, '');
+      if(/\d\s*[–—~～－]\s*\d/.test(code) || /(['"])\s*[–~～]\s*\1/.test(code)) push(i + 1, 10, '數值範圍用了 – 或 ~，改成「至」');
+    }
     // 規則 9：辨識訊息排在輸入欄上方
     if(/\.rx-ocr\s*\{[^}]*\border\s*:\s*-/.test(l)) push(i + 1, 9, '截圖辨識訊息排在輸入欄上方，出現時會把欄位往下推');
   });
@@ -154,6 +162,13 @@ if(process.argv.includes('--self-test')){
     [T('quote/view.html', '<input type="text" placeholder="輸入名稱">'), ['規則 8']],
     [T('calc/hub.css', '  .hub-in > .rx-ocr{order:-1;}'), ['規則 9']],
     [T('calc/hub.css', '  .hub-in > .rx-ocr{order:80;}'), []],
+    [T('calc/app.js', "t = '生活型態調整 3–6 個月';"), ['規則 10']],
+    [T('calc/app.js', "x = lo + ' – ' + hi + ' kg';"), ['規則 10']],
+    [T('calc/view.html', '<td>18.5 ~ 24</td>'), ['規則 10']],
+    [T('calc/app.js', "t = '生活型態調整 3 至 6 個月'; // 舊寫法 3–6\n// 註解 1–2 不算"), []],
+    [T('calc/view.html', 'Scand J Gastroenterol 1997;32:920–4。'), []],
+    [T('checkup/app.js', "x = v || '—';"), []],
+    [T('calc/app.js', "x = isNum(n) ? n.toFixed(2) + ' X' : '－';"), []],
   ];
   let bad = 0;
   cases.forEach(([got, want], i)=>{ if(JSON.stringify(got) !== JSON.stringify(want)){ bad++; console.log(`✗ 自我測試第 ${i + 1} 例：預期 ${JSON.stringify(want)}，得到 ${JSON.stringify(got)}`); } });

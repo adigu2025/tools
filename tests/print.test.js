@@ -7,7 +7,7 @@
    2. 每一條列印路徑（呼叫 print() 的地方）都要找得到一份 margin 為 0 的 @page：
       寫在同一個檔案，或寫在它實際套用的檔案（PRINT_PAGE 對照表）。
       shadow root 裡的 @page 不一定有作用，所以工作台的列印函式（QUOTE_PRINT、CALC_PRINT）要自己在主頁面放一份。
-   3. 減重報告、健檢報告在排版完成、列印或轉 PDF 之前要執行 keepWords()（kit/keep-words.js），
+   3. 減重報告、健檢報告、臨床計算（病人也看得到）在排版完成、列印或轉 PDF 之前要執行 keepWords()（kit/keep-words.js），
       醫師評語、超音波發現這類自由文字自動換行時才不會把詞切開；工作台要載入 keep-words.js。
 
    全部通過時最後一行是「全部通過」。自我測試：node tests/print.test.js --self-test */
@@ -27,7 +27,7 @@ const PRINT_PAGE = [
   ['checkup/report.js', 'win.print()', ['kit/report-kit.js'], '健檢報告的 iframe 樣式來自 report-kit.js 的 REPORT_CSS'],
 ];
 // 規則 3：要在列印前執行 keepWords 的報告
-const KEEP_WORDS = ['weight/report.js', 'checkup/report.js'];
+const KEEP_WORDS = ['weight/report.js', 'checkup/report.js', 'calc/app.js'];
 
 function pageRules(src){
   src = src.replace(/\$\{[^}\n]*\}/g, 'X');   // 樣板字串的 ${...} 先換掉，裡面的 } 不是 @page 的結尾

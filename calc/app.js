@@ -195,7 +195,7 @@
       if (isFinite(v) && v < min && v >= 0 && CD.activeElement === el) return BAD;
       el.classList.add('invalid');
       if (err) {
-        err.textContent = '請輸入 ' + el.min + '–' + el.max + ' 之間的數值';
+        err.textContent = '請輸入 ' + el.min + ' 至 ' + el.max + ' 之間的數值';
         err.hidden = false;
       }
       return BAD;
@@ -359,7 +359,7 @@
 
     var lo = (18.5 * hm * hm).toFixed(1);
     var hi = (24 * hm * hm).toFixed(1);
-    $('ideal-range').textContent = lo + ' – ' + hi + ' kg';
+    $('ideal-range').textContent = lo + ' 至 ' + hi + ' kg';
 
     var extra;
     if (bmi >= 24) extra = '距標準體重上限（' + hi + ' kg）約需減少 ' + (w - parseFloat(hi)).toFixed(1) + ' kg。';
@@ -373,7 +373,7 @@
     marker.setAttribute('aria-valuetext', 'BMI ' + bmi.toFixed(1) + '，體重 ' + w.toFixed(1) + ' 公斤');
 
     bmiBase = 'BMI ' + bmi.toFixed(1) + '（' + s.label + '）｜身高 ' + h + ' cm、體重 ' + w +
-              ' kg｜標準體重範圍 ' + lo + '–' + hi + ' kg';
+              ' kg｜標準體重範圍 ' + lo + ' 至 ' + hi + ' kg';
     COPY.bmi = bmiBase;
     bmiMore = '評估：' + plain(s.note) + '\n建議：' + extra;
     COPY_MORE.bmi = bmiMore;
@@ -569,7 +569,7 @@
       '<div class="mini"><div class="mini-label">蛋白質</div><div class="mini-val" style="color:var(--blue)">' + protein + '</div><div class="mini-unit">g／天</div></div>' +
       '<div class="mini"><div class="mini-label">碳水化合物</div><div class="mini-val" style="color:var(--green)">' + carbs + '</div><div class="mini-unit">g／天</div></div>' +
       '<div class="mini"><div class="mini-label">脂肪</div><div class="mini-val" style="color:var(--gold)">' + fat + '</div><div class="mini-unit">g／天</div></div>' +
-      '<div class="mini"><div class="mini-label">飲水</div><div class="mini-val water">' + (waterLo / 1000).toFixed(1) + '–' + (waterHi / 1000).toFixed(1) + '</div><div class="mini-unit">L／天</div></div>';
+      '<div class="mini"><div class="mini-label">飲水</div><div class="mini-val water">' + (waterLo / 1000).toFixed(1) + ' 至 ' + (waterHi / 1000).toFixed(1) + '</div><div class="mini-unit">L／天</div></div>';
 
     var actSel = $('tdee-activity');
     var actName = actSel.options[actSel.selectedIndex].text.replace(/（.*$/, '');
@@ -634,7 +634,7 @@
       interp = 'FIB-4 < ' + loCut.toFixed(2) + cutNote + '：可合理排除進階肝纖維化（F0–F1），陰性預測值約 90%。\n建議依病因常規追蹤，並定期複查肝功能與血小板。';
     } else if (fib4 <= hiCut) {
       status = '不確定區間'; color = '#B45A00'; bg = '#FFF5E6'; band = 'mid';
-      interp = 'FIB-4 介於 ' + loCut.toFixed(2) + '–' + hiCut.toFixed(2) + cutNote + '：落於不確定區間，無法排除也無法確認進階纖維化。\n建議搭配肝臟彈性超音波（FibroScan）或其他非侵入性指標進一步評估。';
+      interp = 'FIB-4 介於 ' + loCut.toFixed(2) + ' 至 ' + hiCut.toFixed(2) + cutNote + '：落於不確定區間，無法排除也無法確認進階纖維化。\n建議搭配肝臟彈性超音波（FibroScan）或其他非侵入性指標進一步評估。';
     } else {
       status = '高度纖維化風險'; color = '#C0392B'; bg = '#FBEBE9'; band = 'high';
       interp = 'FIB-4 > ' + hiCut.toFixed(2) + cutNote + '：高度懷疑進階肝纖維化（F3–F4），陽性預測值約 65%。\n建議安排肝臟彈性超音波，必要時考慮肝臟切片，並評估後續治療與肝癌篩檢策略。';
@@ -682,7 +682,7 @@
       detail = '處置建議：先以腹部超音波排除膽道阻塞，並檢驗 GGT（確認 ALP 來自肝膽）、直接與間接膽紅素；必要時安排 MRCP。亦須考慮原發性膽汁性膽管炎（AMA）等膽汁鬱積性肝病。';
     } else {
       label = '混合型損傷 Mixed'; color = '#B45A00'; bg = '#FFF5E6'; band = 'mix';
-      interp = 'R 介於 2–5：肝細胞損傷與膽汁鬱積並存。';
+      interp = 'R 介於 2 至 5：肝細胞損傷與膽汁鬱積並存。';
       detail = '處置建議：完整回顧用藥史（含中草藥、保健食品與近三個月新增藥物），同時進行病毒性與自體免疫性肝炎鑑別，並以腹部超音波評估膽道。停藥後追蹤肝功能變化有助於因果判定。';
     }
 
@@ -984,11 +984,11 @@
       t1 = 'yes'; t1txt = '前次 LDL-C ' + rxFmt(ldl0) + '、本次 ' + rxFmt(ldl) + ' 皆 ≥ ' + start + '（' + gapTxt + '）：生活型態調整後仍未達標，可給予中強度 statin。病歷請記載期間的生活型態調整。';
     }
     else if (needLS && !h.life3) {
-      t1 = 'wait'; t1txt = '先生活型態調整 3–6 個月並處置風險因子；屆時 LDL-C 仍 ≥ ' + start + '，給予中強度 statin。' +
+      t1 = 'wait'; t1txt = '先生活型態調整 3 至 6 個月並處置風險因子；屆時 LDL-C 仍 ≥ ' + start + '，給予中強度 statin。' +
         (prevWhy ? '（' + prevWhy + '）' : hasPrev && isNum(ldl0) && ldl0 < start ? '（前次 LDL-C ' + rxFmt(ldl0) + ' 未達起始值，不能作為調整前依據）' : '');
     }
     else { t1 = 'yes'; t1txt = needLS ? ('LDL-C ' + rxFmt(ldl) + ' ≥ ' + start + '，可給予中強度 statin。') : ('LDL-C ' + rxFmt(ldl) + ' ≥ ' + start + '，可給予中至高強度 statin。'); }
-    var fu1 = needLS ? '生活型態調整 3–6 個月後驗血脂；中強度 statin 6–8 週後追蹤；達標後每 6–12 個月追蹤。' : '起始治療 6–8 週驗血脂；達標後每 6 個月追蹤；調整用藥後 1–3 個月內再驗。';
+    var fu1 = needLS ? '生活型態調整 3 至 6 個月後驗血脂；中強度 statin 6 至 8 週後追蹤；達標後每 6 至 12 個月追蹤。' : '起始治療 6 至 8 週驗血脂；達標後每 6 個月追蹤；調整用藥後 1 至 3 個月內再驗。';
 
     var oCAD = h.acs || h.mi1y || h.mi2 || h.revasc;
     var oCVD = h.cadPlaque || h.mvd || h.stroke || h.carotid;
@@ -1008,7 +1008,7 @@
     else if (row.ls && !h.life3) {
       var hit0 = (isNum(ldl0) && ldl0 >= row.ldl) || (row.tc !== null && isNum(tc0) && tc0 >= row.tc);
       if (gapOK && hit0) { t2 = 'yes'; t2txt = '前次與本次皆符合（' + t2cond + '，' + gapTxt + '）：非藥物治療後仍未達標。'; }
-      else { t2 = 'wait'; t2txt = '符合數值（' + t2cond + '），但給藥前需 3–6 個月非藥物治療。' + (prevWhy ? '（' + prevWhy + '）' : hasPrev && !hit0 ? '（前次數值未達起始值）' : ''); }
+      else { t2 = 'wait'; t2txt = '符合數值（' + t2cond + '），但給藥前需 3 至 6 個月非藥物治療。' + (prevWhy ? '（' + prevWhy + '）' : hasPrev && !hit0 ? '（前次數值未達起始值）' : ''); }
     }
     else { t2 = 'yes'; t2txt = '符合（' + t2cond + '）' + (hitT && !hitL ? '，以 TC 達標' : '') + '。'; }
 
@@ -1022,9 +1022,9 @@
     var curGoal = start, notAtGoal = isNum(ldl) && ldl >= curGoal;
     var eze, ezeTxt;
     if (h.intol) { eze = 'yes'; ezeTxt = 'statin 無法耐受：可用 ezetimibe（限原發性高膽固醇血症、HoFH、植物脂醇血症）。'; }
-    else if (statin === 'none') { eze = 'no'; ezeTxt = '需 statin 單一治療 6–8 週未達標，才可合併 ezetimibe 或使用 ezetimibe／statin 複方。'; }
+    else if (statin === 'none') { eze = 'no'; ezeTxt = '需 statin 單一治療 6 至 8 週未達標，才可合併 ezetimibe 或使用 ezetimibe／statin 複方。'; }
     else if (!notAtGoal) { eze = 'no'; ezeTxt = isNum(ldl) ? ('LDL-C 已達目標（' + goal + '），不需加藥。') : '請輸入目前 LDL-C。'; }
-    else if (statin === '6w') { eze = 'part'; ezeTxt = 'statin 6–8 週未達標：一般 ezetimibe 單方及複方（如 Ezetrol、Vytorin、Atozet、Tonvasca）可用；Ezetity、Ezzicad、Ezta 10、Ezetimibe Sandoz 及 Cretrol、Agitin、Sacure、Ezta-SM、Zoliton 仍需滿 3 個月。'; }
+    else if (statin === '6w') { eze = 'part'; ezeTxt = 'statin 6 至 8 週未達標：一般 ezetimibe 單方及複方（如 Ezetrol、Vytorin、Atozet、Tonvasca）可用；Ezetity、Ezzicad、Ezta 10、Ezetimibe Sandoz 及 Cretrol、Agitin、Sacure、Ezta-SM、Zoliton 仍需滿 3 個月。'; }
     else { eze = 'yes'; ezeTxt = 'statin ≥3 個月未達標：ezetimibe 單方與複方皆可合併。'; }
 
     var pc, pcTxt;
@@ -1048,7 +1048,7 @@
         var tgCond0 = isNum(tg0) && tg0 >= 200 && ((isNum(ratio0) && ratio0 > 5) || (isNum(hdl0) && hdl0 < 40));
         var tgTwice = !h.life3 && gapOK && tgCond0;
         tgs = h.life3 || tgTwice ? 'yes' : 'wait';
-        tgTxt = 'TG ≥200 且（TC/HDL-C >5 或 HDL-C <40）：給藥前需 3–6 個月非藥物治療' +
+        tgTxt = 'TG ≥200 且（TC/HDL-C >5 或 HDL-C <40）：給藥前需 3 至 6 個月非藥物治療' +
           (h.life3 ? '，已完成' : tgTwice ? '；前次 TG ' + rxFmt(tg0) + ' 也符合（' + gapTxt + '），可視為非藥物治療後仍未達標' : prevWhy ? '（' + prevWhy + '）' : '') + '。';
       }
       else { tgs = 'no'; tgTxt = tg >= 200 ? 'TG ≥200，但 TC/HDL-C 未 >5 且 HDL-C 未 <40。' : ('TG ' + rxFmt(tg) + ' 未達 200。'); }
@@ -1060,22 +1060,22 @@
       '<div class="rx-card lead"><div class="rx-card-head"><h4>ASCVD 風險等級（表一）</h4></div>' +
       '<div class="score" style="font-size:26px;margin:2px 0 4px">' + esc(lvName) + '</div>' +
       '<div class="rx-why">' + esc(why.join('；')) + (sexWarn ? '<br><span style="color:var(--amber)">' + esc(sexWarn) + '</span>' : '') + '</div>' +
-      '<p style="margin-top:8px;font-size:13px;color:var(--muted)">起始 LDL-C ≥ ' + start + ' mg/dL　｜　目標 LDL-C ' + goal + '　｜　' + (needLS ? '給藥前需 3–6 個月生活型態改變' : '與藥物治療並行') + '</p></div>'
+      '<p style="margin-top:8px;font-size:13px;color:var(--muted)">起始 LDL-C ≥ ' + start + ' mg/dL　｜　目標 LDL-C ' + goal + '　｜　' + (needLS ? '給藥前需 3 至 6 個月生活型態改變' : '與藥物治療並行') + '</p></div>'
     );
     cards.push(rxCard(t1, '表一（新制品項）', t1txt, '追蹤：' + fu1));
     cards.push(rxCard(t2, '表二（舊制品項）', '分級：' + esc(row.n) + '。' + esc(t2txt),
-      '目標 ' + row.goal + '。第一年每 3–6 個月抽血，第二年起至少每 6–12 個月。' + (h.smoke ? '因吸菸而符合者，未戒菸要求用藥應自費。' : '')));
+      '目標 ' + row.goal + '。第一年每 3 至 6 個月抽血，第二年起至少每 6 至 12 個月。' + (h.smoke ? '因吸菸而符合者，未戒菸要求用藥應自費。' : '')));
     var statinCard = (
       '<div class="rx-card"><div class="rx-card-head"><h4>可開立 statin 品項</h4></div><p>' + brandNote + '</p>' +
       '<p class="rx-why" style="margin-top:8px">表一（新制）</p>' + rxDrugChips(LX_NEW, ok1) +
       '<p class="rx-why" style="margin-top:8px">表二（舊制）</p>' + rxDrugChips(LX_OLD, ok2) +
-      '<div class="rx-why">' + (ok1 && !needLS ? '強度參考：高強度 atorvastatin 40–80、rosuvastatin 20–40 mg；中強度 atorvastatin 10–20、rosuvastatin 5–10、pitavastatin 2–4 mg。' : '中強度參考：atorvastatin 10–20、rosuvastatin 5–10、pitavastatin 2–4、simvastatin 20–40 mg。') + '</div></div>'
+      '<div class="rx-why">' + (ok1 && !needLS ? '強度參考：高強度 atorvastatin 40 至 80、rosuvastatin 20 至 40 mg；中強度 atorvastatin 10 至 20、rosuvastatin 5 至 10、pitavastatin 2 至 4 mg。' : '中強度參考：atorvastatin 10 至 20、rosuvastatin 5 至 10、pitavastatin 2 至 4、simvastatin 20 至 40 mg。') + '</div></div>'
     );
     cards.push(rxCard(eze, 'Ezetimibe 與複方', ezeTxt, '複方不得與 gemfibrozil 併用。'));
     cards.push(rxCard(pc, 'PCSK9 抑制劑', pcTxt));
     cards.push(statinCard);
     cards.push(rxCard(tgs, '三酸甘油酯藥物', tgTxt,
-      '目標 ' + tgGoal + '。藥物如 fenofibrate、gemfibrozil；gemfibrozil 避免與 statin 併用。第一年每 3–6 個月抽血，注意肝功能與橫紋肌溶解。'));
+      '目標 ' + tgGoal + '。藥物如 fenofibrate、gemfibrozil；gemfibrozil 避免與 statin 併用。第一年每 3 至 6 個月抽血，注意肝功能與橫紋肌溶解。'));
 
     $('lipidrx-result').innerHTML = cards.join('');
 
@@ -1089,12 +1089,12 @@
         '｜表一 ' + RX_LABEL[t1] + '、表二 ' + RX_LABEL[t2] + '｜TG 藥物 ' + RX_LABEL[tgs];
       var drugNames = function(list){ return list.map(function(d){ return d[0] + ' ' + d[1]; }).join('；'); };
       COPY_MORE.lipidrx = [
-        '起始 LDL-C ≥ ' + start + ' mg/dL，目標 LDL-C ' + goal + '，' + (needLS ? '給藥前需 3–6 個月生活型態改變' : '與藥物治療並行') + '。',
+        '起始 LDL-C ≥ ' + start + ' mg/dL，目標 LDL-C ' + goal + '，' + (needLS ? '給藥前需 3 至 6 個月生活型態改變' : '與藥物治療並行') + '。',
         '・表一（新制品項）［' + RX_LABEL[t1] + '］' + plain(t1txt) + '追蹤：' + fu1,
         '・表二（舊制品項）［' + RX_LABEL[t2] + '］分級：' + row.n + '。' + plain(t2txt) + '目標 ' + row.goal + '。',
         '・可開立 statin：' + plain(brandNote) +
           (ok1 ? '表一：' + drugNames(LX_NEW) + '。' : '') + (ok2 ? '表二：' + drugNames(LX_OLD) + '。' : '') +
-          (ok1 || ok2 ? (ok1 && !needLS ? '強度參考：高強度 atorvastatin 40–80、rosuvastatin 20–40 mg；中強度 atorvastatin 10–20、rosuvastatin 5–10、pitavastatin 2–4 mg。' : '中強度參考：atorvastatin 10–20、rosuvastatin 5–10、pitavastatin 2–4、simvastatin 20–40 mg。') : ''),
+          (ok1 || ok2 ? (ok1 && !needLS ? '強度參考：高強度 atorvastatin 40 至 80、rosuvastatin 20 至 40 mg；中強度 atorvastatin 10 至 20、rosuvastatin 5 至 10、pitavastatin 2 至 4 mg。' : '中強度參考：atorvastatin 10 至 20、rosuvastatin 5 至 10、pitavastatin 2 至 4、simvastatin 20 至 40 mg。') : ''),
         '・Ezetimibe 與複方［' + RX_LABEL[eze] + '］' + plain(ezeTxt),
         '・PCSK9 抑制劑［' + RX_LABEL[pc] + '］' + plain(pcTxt),
         '・三酸甘油酯藥物［' + RX_LABEL[tgs] + '］' + plain(tgTxt) + '目標 ' + tgGoal + '。'
@@ -1142,7 +1142,7 @@
     var x2 = (isNum(a2) && isNum(uln) && uln > 0) ? a2 / uln : NaN;
     var gapM = rxMonths(rxDate('hb-date2'), rxDate('hb-date1'));
     $('hb-altLine').textContent = 'ALT 倍數：最近 ' + (isNum(x1) ? x1.toFixed(2) + ' X' : '－') + '　另一次 ' + (isNum(x2) ? x2.toFixed(2) + ' X' : '－') +
-      (isNum(gapM) ? '　｜　兩次間隔 ' + gapM.toFixed(1) + ' 個月' + (gapM < 0 ? '（前次日期晚於最近，請核對）' : gapM >= 3 && gapM <= 6 ? '（符合 3–6 個月）' : '（不在 3–6 個月內）') : '');
+      (isNum(gapM) ? '　｜　兩次間隔 ' + gapM.toFixed(1) + ' 個月' + (gapM < 0 ? '（前次日期晚於最近，請核對）' : gapM >= 3 && gapM <= 6 ? '（符合 3 至 6 個月）' : '（不在 3 至 6 個月內）') : '');
 
     var fs = num('hb-fs'), arfi = num('hb-arfi');
     var fib4 = (isNum(age) && isNum(ast) && isNum(plt) && isNum(a1) && plt > 0 && a1 > 0) ? (age * ast) / (plt * Math.sqrt(a1)) : NaN;
@@ -2304,7 +2304,7 @@
       extra += '<div class="info-box tone-teal"><div class="info-title">改善建議</div><div class="info-body">' +
         '<strong>飲食：</strong>減少精緻澱粉與含糖飲料，增加蔬菜、全穀、魚類與堅果<br>' +
         '<strong>運動：</strong>每週至少 150 分鐘中強度有氧運動（快走、游泳、騎車）<br>' +
-        '<strong>體重：</strong>體重減少 5–10% 可顯著改善多項代謝指標<br>' +
+        '<strong>體重：</strong>體重減少 5 至 10% 可顯著改善多項代謝指標<br>' +
         '<strong>戒菸限酒：</strong>吸菸與過量飲酒會加重代謝異常<br>' +
         '<strong>定期追蹤：</strong>每年抽血檢查血糖、血脂並量測腰圍</div></div>';
     }
@@ -2328,7 +2328,7 @@
     COPY[spec.id] = '代謝症候群評估：' + count + ' / 5 項異常（' + level + '）' + (names ? '｜' + names : '');
     COPY_MORE[spec.id] = (advice ? '建議：' + plain(advice) : '') + (count >= 1 ?
       '\n改善建議：飲食減少精緻澱粉與含糖飲料，增加蔬菜、全穀、魚類與堅果；每週至少 150 分鐘中強度有氧運動；' +
-      '體重減少 5–10% 可顯著改善多項代謝指標；戒菸限酒；每年抽血檢查血糖、血脂並量測腰圍。' : '');
+      '體重減少 5 至 10% 可顯著改善多項代謝指標；戒菸限酒；每年抽血檢查血糖、血脂並量測腰圍。' : '');
 
     show(spec.id, true);
   }
@@ -2337,7 +2337,7 @@
     if (hasMets) {
       return '<div class="info-box tone-red"><div class="info-title">代謝症候群的健康風險</div><div class="info-body">' +
         '代謝症候群不是單一疾病，而是多種代謝異常同時存在，會提高以下風險：<br>' +
-        '<strong>心血管疾病</strong>（冠心病、心肌梗塞）風險約提高 <strong>2–3 倍</strong><br>' +
+        '<strong>心血管疾病</strong>（冠心病、心肌梗塞）風險約提高 <strong>2 至 3 倍</strong><br>' +
         '<strong>腦中風</strong>風險約提高 <strong>2 倍</strong><br>' +
         '<strong>第 2 型糖尿病</strong>風險約提高 <strong>5 倍</strong><br>' +
         '<strong>非酒精性脂肪肝</strong>與<strong>慢性腎病</strong>的風險也會上升<br><br>' +
@@ -2610,6 +2610,33 @@
   // 作答過程隨時暫存，重新整理不會白填
   CD.addEventListener('input', saveState);
   CD.addEventListener('change', saveState);
+
+  /* 詞語不跨行（kit/keep-words.js）：「減重計｜畫」「12.6｜kg」不會被拆開。
+     開頭處理整個畫面一次，之後結果區每次改寫（textContent、innerHTML）都由 MutationObserver 補處理新加的文字。
+     工作台的 keep-words.js 是和 calc 平行載入，可能晚一點到，所以先等它出現。 */
+  (function keepCalcWords(){
+    var tries = 0, pending = [], queued = false, mo;
+    function flush(){
+      queued = false;
+      var list = pending; pending = [];
+      mo.disconnect();   // keepWords 自己改 DOM，不要再觸發一次
+      list.forEach(function(el){ if (el.isConnected) keepWords(el); });
+      mo.observe(CD, { childList: true, subtree: true, characterData: true });
+    }
+    function start(){
+      if (typeof keepWords !== 'function') { if (++tries < 50) setTimeout(start, 200); return; }
+      mo = new MutationObserver(function(recs){
+        recs.forEach(function(r){
+          var el = r.type === 'characterData' ? r.target.parentElement : r.target;
+          if (el && el.nodeType === 1 && el.tagName !== 'K-W' && pending.indexOf(el) < 0) pending.push(el);
+        });
+        if (!queued && pending.length) { queued = true; requestAnimationFrame(flush); }
+      });
+      pending.push(CB || CD);
+      queued = true; requestAnimationFrame(flush);
+    }
+    start();
+  })();
 
   /* 測試用的入口（tests/calc.test.js）。只有外面先準備好 CALC_TEST 物件時才掛上，一般頁面不會有這個變數，行為不受影響。
      ocrRead：把檢驗單的文字（等同 Tesseract 辨識出來的內容）解析成數值；ocrApply：把數值帶進欄位並換算分數。 */
