@@ -310,12 +310,13 @@ body.q-max .hub-main{height:100dvh;}
 .edu-none{padding:14px 12px; font-size:14.5px; color:var(--faint);}
 /* 桌機版：側欄只放分類，清單浮在側欄右邊，蓋在預覽左側的留白上（半透明毛玻璃）。
    清單不佔版面，開關清單或換分類時預覽都不會移動；A4 直式單頁放得下，雙頁或橫式才會被蓋到一部分。
-   清單從標題列下方開始，不蓋左上角的標題 */
+   清單從標題列下方開始，不蓋左上角的標題。
+   清單寬 280 px：262 px 時「健康狀態評估問卷」「腸泌素自費同意書」加上 A4／A5 標籤會被刪節（2026-11-24） */
 @media (min-width:861px){
   #pane-edu{grid-template-columns:216px 1fr;}
   .edu-rail{position:relative; z-index:5; overflow:visible;}
   .edu-groups{border-bottom:0; margin-bottom:0; padding-bottom:2px;}
-  .edu-list{position:absolute; left:calc(100% + 10px); top:62px; width:262px; max-height:calc(100% - 74px); overflow:auto;
+  .edu-list{position:absolute; left:calc(100% + 10px); top:62px; width:280px; max-height:calc(100% - 74px); overflow:auto;
     padding:4px 6px 8px; border-radius:14px; border:1px solid var(--line-strong);
     background:color-mix(in srgb, var(--surface) 82%, transparent); -webkit-backdrop-filter:blur(14px) saturate(1.2); backdrop-filter:blur(14px) saturate(1.2);
     box-shadow:0 2px 6px rgba(31,30,29,.06), 0 14px 36px rgba(31,30,29,.12); scrollbar-width:thin;}
@@ -453,7 +454,8 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
 /* 1500 寬以下分頁不寫 Alt+數字，頂端列留給 BMI 標籤（1440 寬時標籤只剩「BMI 2…」，2026-11-24） */
 @media (max-width:1500px){ .hub-tab kbd{display:none;} .hub-tab{padding:9px 15px;} }
 @media (max-width:1320px){
-  #pane-edu{grid-template-columns:262px 1fr; gap:14px; padding:14px;}
+  /* 分類欄只放分類名稱，200 px 放得下「檢查治療同意書 10」；項目清單浮在右側，分類欄越窄預覽區越寬（2026-11-24） */
+  #pane-edu{grid-template-columns:200px 1fr; gap:14px; padding:14px;}
   .edu-item{font-size:15px; gap:8px; padding:10px;}
   .edu-tools h1{font-size:21px;}
   .grp > *{padding:7px 10px;}
