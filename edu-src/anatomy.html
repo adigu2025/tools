@@ -11,6 +11,8 @@
   在 A5 版面（A4 直式上半頁，2480 × 1754，300 dpi）裡左右各一格放到最大、置中。
   JOBS 的 scale 是放到最大之後再乘的倍數（左、右），縮小後仍在格子裡置中。
   四邊與中間留 10 mm。依 YT 2026-11-20 指示：不放頁首、頁尾、LINE QR code、LOGO。
+  灰階（YT 2026-11-24）：黑線改成原本大腸圖中小腸線的灰（亮度約 200），原本的小腸淡線再淡一些（約 225）。
+  做法見 toGray()：以「深度 = 255 − 亮度」計算，新深度 = GRAY_DARK ×（（舊深度 − GRAY_FLOOR）÷（255 − GRAY_FLOOR））^ GRAY_GAMMA。
   輸出的圖是整張 A4 直式（下半頁空白），跟其他 A5 衛教單同一套列印方式。
 -->
 </head>
@@ -22,6 +24,8 @@ const JOBS = [
 ];
 const PAGE_W = 2480, PAGE_H = 3508, A5_H = 1754;
 const MM = 300 / 25.4, PAD = Math.round(10 * MM), GAP = Math.round(10 * MM);
+const GRAY_DARK = 55, GRAY_GAMMA = 0.4, GRAY_FLOOR = 12;   // 深度 12 以下（原圖壓縮雜點）直接當白底，避免放大成灰點
+   // 黑線 → 亮度 255 − 55 = 200；小腸線（原亮度約 203）→ 約 225
 const INK = 235;   // 亮度低於這個值算線條（小腸的淡灰線也要算進去）
 
 const load = src=> new Promise((r, j)=>{ const im = new Image(); im.onload = ()=> r(im); im.onerror = j; im.src = src; });
@@ -56,6 +60,17 @@ function splitX(m){
   if(best[1] - best[0] < 20) throw new Error('找不到左右器官之間的空白');
   return Math.round((best[0] + best[1]) / 2);
 }
+// 整張改成灰階並調淡線條
+function toGray(c){
+  const g = c.getContext('2d'), img = g.getImageData(0, 0, c.width, c.height), d = img.data;
+  const lut = new Uint8ClampedArray(256);
+  for(let a = 0; a < 256; a++) lut[a] = 255 - GRAY_DARK * Math.pow(Math.max(0, a - GRAY_FLOOR) / (255 - GRAY_FLOOR), GRAY_GAMMA);
+  for(let k = 0; k < d.length; k += 4){
+    const v = lut[255 - Math.round(0.299 * d[k] + 0.587 * d[k + 1] + 0.114 * d[k + 2])];
+    d[k] = d[k + 1] = d[k + 2] = v;
+  }
+  g.putImageData(img, 0, 0);
+}
 async function build(job){
   const im = await load(job.src);
   const m = inkMap(im), mid = splitX(m);
@@ -73,6 +88,7 @@ async function build(job){
     g.drawImage(im, b.x, b.y, b.w, b.h, x, y, w, h);
     info.push(`${i ? '右' : '左'} ×${s.toFixed(2)}`);
   });
+  toGray(c);
   return {canvas: c, info: info.join('，')};
 }
 async function renderAll(only){
