@@ -94,6 +94,7 @@ const EDU_LIST = [
   // 2026/11/23 側欄拆成腸胃疾病、肝膽疾病、其他內科疾病三類；圖卡頁首仍寫「疾病衛教」
   ['gi',     '',         '胃食道逆流',       ICON.stomach,  ['img/edu-a5-gerd.webp'], 'A5'],
   ['gi',     '',         '胃潰瘍、十二指腸潰瘍', ICON.stomach, ['img/edu-a5-peptic-ulcer.webp'], 'A5'],
+  ['gi',     '',         '萎縮性胃炎、腸化生', ICON.stomach, ['img/edu-a5-atrophic-gastritis.webp'], 'A5'],
   ['gi',     '',         '功能性消化不良',   ICON.stomach,  ['img/edu-a5-functional-dyspepsia.webp'], 'A5'],
   ['gi',     '',         '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
   ['gi',     '',         '便祕與腸躁症',     ICON.germ,     ['img/edu-a5-constipation-ibs.webp'], 'A5'],
