@@ -63,6 +63,8 @@
 :host([data-theme="dark"]) .btn.teal:hover{background:#a1c4d2;}
 :host([data-theme="dark"]) .btn.outline{background:#292724; color:var(--navy); border:1.5px solid var(--primary);}
 :host([data-theme="dark"]) .btn.outline:hover{background:var(--primary-pale);}
+:host([data-theme="dark"]) .btn.outline:disabled,
+:host([data-theme="dark"]) .btn.outline:disabled:hover{background:transparent; color:#a19d95; border:1.5px dashed #6d6759;}
 :host([data-theme="dark"]) .fu-hint{color:var(--muted);}
 :host([data-theme="dark"]) .fu-row{border-top:1px solid var(--border);}
 :host([data-theme="dark"]) .fu-row:first-child{border-top:none;}
@@ -144,7 +146,6 @@
 :host([data-theme="dark"]) .w-nav a.done .d{background:var(--w-green);}
 :host([data-theme="dark"]) .w-nav .w-actions .btn.w-gold{background:var(--w-gold) !important;}
 :host([data-theme="dark"]) .w-nav .w-actions .btn.outline{color:var(--w-ink2); border-color:var(--w-line2);}
-:host([data-theme="dark"]) .w-rev{color:var(--w-faint);}
 :host([data-theme="dark"]) .screen .card,
 :host([data-theme="dark"]) .image-cols .card{box-shadow:none;}
 :host([data-theme="dark"]) .card > h2,

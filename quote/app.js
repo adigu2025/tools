@@ -1036,6 +1036,7 @@ function buildEndoGrid(){
       :'<div class="item-price-row"><span class="price-currency">NT$</span><span class="price-val">'+fmtPrice(l1.basePrice)+' 起</span></div>';
     l1c.innerHTML='<div class="mode-badge '+(isIns?'ins':'self')+'">'+(isIns?'免自費':'自費')+'</div>'
       +'<div class="item-name">'+esc(l1.name)+'</div>'
+      +(l1.cardNote?'<div class="item-desc">'+esc(l1.cardNote)+'</div>':'')
       +l1price
       +'<div class="endo-nav-arrow">'+(isOpen?'▾':'›')+'</div>';
     l1c.onclick=function(){

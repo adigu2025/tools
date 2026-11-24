@@ -30,8 +30,6 @@ function wNotice(msg){
 // ============================================================
 // NAVIGATION（版面與健檢報告一致：一頁捲到底，左側目錄點了捲到該區）
 // ============================================================
-// 最後改版日期：每次改版請一併更新，顯示於工作台底部
-const W_REVISION = REVISION.weight;  // 日期集中在 revision.js
 const W_SECS = ['upload', 'basic', 'body', 'history', 'lab', 'image', 'treat', 'calorie', 'diet', 'track', 'report'];
 let currentScreen = 'upload';
 
@@ -84,7 +82,6 @@ WB.addEventListener('scroll', ()=>{
   W_SECS.forEach(id=>{ const s = WD.getElementById('screen-' + id); if(s && s.offsetTop <= y) cur = id; });
   currentScreen = cur;
 }, {passive: true});
-WD.getElementById('w-rev').textContent = '最後改版 ' + W_REVISION;
 
 // 今天的日期（本機時區）。不用 toISOString，那是國際標準時間，台灣早上 8 點前會變成前一天
 function todayLocal(){
@@ -818,6 +815,8 @@ function renderFileList(kind, listId){
       renderFileList(kind, listId);
     });
   });
+  // 還沒上傳檔案時，「重新帶入欄位」「加入追蹤紀錄」不能按
+  WD.querySelectorAll('#' + kind + '-btns button').forEach(b=> b.disabled = !uploadedFiles[kind].length);
 }
 
 // ============================================================

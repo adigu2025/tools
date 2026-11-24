@@ -134,6 +134,7 @@ main{max-width:1080px; margin:0 auto; padding:30px 24px 90px;}
 .btn.teal:hover{background:#2C4E5C;}
 .btn.outline{background:#fff; color:var(--navy); border:1.5px solid var(--primary);}
 .btn.outline:hover{background:var(--primary-pale);}
+.btn.outline:disabled,.btn.outline:disabled:hover{background:transparent; color:#6F6B63; border:1.5px dashed #B5B0A4; cursor:not-allowed;}
 .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
 /* 回診與追蹤時程：每一項一張小卡，左邊勾選是否列入報告 */
 .fu-hint{font-size:14.5px; color:var(--muted); margin:-4px 0 12px;}
@@ -318,7 +319,6 @@ table.dtable th{background:var(--primary-pale); color:var(--navy);}
 .w-nav .w-actions .btn{border-radius:10px; font-size:15px; padding:9px 16px; min-height:42px;}
 .w-nav .w-actions .btn.w-gold{background:var(--w-gold) !important;}
 .w-nav .w-actions .btn.outline{color:var(--w-ink2); border-color:var(--w-line2); font-weight:500;}
-.w-rev{margin:16px 10px 0; font-size:12px; color:var(--w-faint);}
 main.w-main{max-width:none; margin:0; padding:0 !important; min-width:0; display:flex; flex-direction:column; gap:16px;}
 .screen, .screen.active{display:flex; flex-direction:column; gap:16px; animation:none;}
 .screen .card, .image-cols .card{margin:0; border-radius:14px; padding:20px 22px 22px; box-shadow:none;}
@@ -418,7 +418,6 @@ input.ro{background:#F4F2EE;}
       <button class="btn outline" onclick="saveRecord()">儲存紀錄</button>
       <button class="btn outline" onclick="newPatient()">下一位病人</button>
     </div>
-    <div class="w-rev" id="w-rev"></div>
   </nav>
 
 <main class="w-main">
@@ -433,14 +432,14 @@ input.ro{background:#F4F2EE;}
       <input type="file" id="lab-file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none">
     </div>
     <div class="file-list" id="lab-filelist"></div>
-    <div class="btnrow"><button class="btn outline" onclick="fillCurrentLabFieldsFromUpload()">重新帶入欄位</button><button class="btn outline" onclick="extractFromUploads('lab')">加入追蹤紀錄</button></div>
+    <div class="btnrow" id="lab-btns"><button class="btn outline" disabled onclick="fillCurrentLabFieldsFromUpload()">重新帶入欄位</button><button class="btn outline" disabled onclick="extractFromUploads('lab')">加入追蹤紀錄</button></div>
     <h3>TANITA</h3>
     <div class="upload-zone" id="tanita-drop" onclick="WD.getElementById('tanita-file').click()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg> 點擊或拖曳上傳（PDF、JPG、PNG）
       <input type="file" id="tanita-file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none">
     </div>
     <div class="file-list" id="tanita-filelist"></div>
-    <div class="btnrow"><button class="btn outline" onclick="fillCurrentBodyFieldsFromUpload()">重新帶入欄位</button><button class="btn outline" onclick="extractFromUploads('tanita')">加入追蹤紀錄</button></div>
+    <div class="btnrow" id="tanita-btns"><button class="btn outline" disabled onclick="fillCurrentBodyFieldsFromUpload()">重新帶入欄位</button><button class="btn outline" disabled onclick="extractFromUploads('tanita')">加入追蹤紀錄</button></div>
     <div class="chk-grid" style="margin-top:16px"><div class="chk-row"><input type="checkbox" id="rpt-att"><label for="rpt-att">報告最後附上原始報告</label></div></div>
   </div>
 </section>

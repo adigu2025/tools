@@ -487,7 +487,7 @@ const ENDO_TREE = {
       ],
       layer3:[{id:'en_c_w',name:'清醒',addPrice:0},{id:'en_c_l',name:'輕中度鎮靜',addPrice:2500},{id:'en_c_a',name:'麻醉',addPrice:4000}]
     },
-    { id:'en_gc_ins',   name:'胃鏡＋大腸鏡（部分健保）',   desc:'健保同日只給付其中一項，另一項與相關處置、耗材以自費計價', basePrice:1600,
+    { id:'en_gc_ins',   name:'胃鏡＋大腸鏡（部分健保）', cardNote:'大腸鏡健保、胃鏡自費',   desc:'健保同日只給付其中一項，另一項與相關處置、耗材以自費計價', basePrice:1600,
       layer2:[
         {id:'en_gi_s',  name:'標準胃鏡（直徑約 0.9 cm）經口', desc:'含拋棄式咬口器',                              addPrice:100},
         {id:'en_gi_to', name:'極細胃鏡（直徑約 0.5 cm）經口', desc:'含拋棄式咬口器',                              addPrice:700},
