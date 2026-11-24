@@ -109,6 +109,7 @@ const EDU_LIST = [
   ['hepato', '',         '脂肪肝',           ICON.liver,    ['img/edu-a5-fatty-liver.webp'], 'A5'],
   ['hepato', '',         'B 肝、C 肝追蹤',   ICON.liver,    ['img/edu-a5-hepatitis-bc.webp'], 'A5'],
   ['hepato', '',         '肝指數偏高',       ICON.liver,    ['img/edu-a5-liver-enzymes.webp'], 'A5'],
+  ['hepato', '',         '肝硬化與肝癌篩檢', ICON.liver,    ['img/edu-a5-cirrhosis-hcc.webp'], 'A5'],
   ['internal', '腎臟',   '腎結石',           ICON.kidney,   ['img/edu-a5-kidney-stone.webp'], 'A5'],
   ['internal', '腎臟',   '腎水腫',           ICON.kidney,   ['img/edu-a5-hydronephrosis.webp'], 'A5'],
   ['internal', '慢性病', '高血壓與 722 量測', ICON.heart,   ['img/edu-a5-hypertension.webp'], 'A5'],
