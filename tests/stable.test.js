@@ -4,7 +4,7 @@
    改頁首（Esc 封面、深色模式、目錄樣式）之前先用這一份鎖住現況，改完再跑一次。
 
    作法：在本機開一個小網頁伺服器（view.html 要用 fetch 讀，file:// 讀不到），
-   用本機 Chrome 無頭模式開 1920x1080 與 1366x768 兩種畫面：
+   用本機 Chrome 無頭模式開 1920x1080、1440x900、1366x768 三種畫面（1440 是 2026-11-24 頂端列截字的寬度）：
    1. 四個頂端分頁各點一次，量 QR code、診所名稱、四個分頁按鈕的位置與大小。
    2. 臨床計算：展開醫療人員工具後，逐一點每個分組與每個計算項目，等倍率重算（0.4 秒）後量
       分組按鈕、項目按鈕、頁首的位置，以及共用倍率（.card 的 zoom）。
@@ -73,14 +73,49 @@ async function run(){
     localStorage.removeItem(KW);localStorage.removeItem(KC);
     if(bw!==null)localStorage.setItem(KW,bw);if(bc!==null)localStorage.setItem(KC,bc);
   }
-  // 1. 頂端分頁
-  var VIEWS=['quote','calc','edu','weight'];
+  // 封面開著時不亮任何分頁（2026-11-24：目錄時「報價系統」已亮起，像已經在報價分頁）
+  var tb=[].slice.call(document.querySelectorAll('.hub-tab')),sel=tb.filter(function(b){return b.getAttribute('aria-selected')==='true';})[0],uns=tb.filter(function(b){return b!==sel;})[0];
+  if(sel&&uns&&getComputedStyle(sel).backgroundColor!==getComputedStyle(uns).backgroundColor)res.push('封面開著時「'+label(sel)+'」分頁仍然亮著');
+  // 換下一位病人時臨床計算的 BMI 標籤要收起來，BMI 重新算出不同數值才再出現
+  var bres=CD.getElementById('bmi-result'),bval=CD.getElementById('bmi-val'),cc=document.getElementById('chip-calc');
+  if(typeof hubPatientReset!=='function')res.push('沒有 hubPatientReset()，換病人時 BMI 標籤不會收起來');
+  else if(bres&&bval){
+    var bd=bres.style.display,bv=bval.textContent;
+    bres.style.display='';bval.textContent='28.4';updateChips();
+    if(cc.hidden)res.push('臨床計算有 BMI 時頂端沒有顯示標籤');
+    hubPatientReset();
+    if(!cc.hidden)res.push('按下一位病人後 BMI 標籤還掛在頂端');
+    bval.textContent='22.1';updateChips();
+    if(cc.hidden)res.push('BMI 重新算出新數值後標籤沒有再出現');
+    bres.style.display=bd;bval.textContent=bv;updateChips();
+  }
+  // 1. 頂端分頁。兩個摘要標籤都放最長的內容，頂端列最擠時分頁也不可以被壓縮或截字（2026-11-24 在 1440 寬截到「製作報告 Alt+4」）
+  var VIEWS=['quote','calc','edu','weight'],cw=document.getElementById('chip-weight'),fill=window.updateChips;
+  window.updateChips=function(){};
+  [cc,cw].forEach(function(c){c.hidden=false;c.innerHTML='<span class="k">臨床計算</span>BMI <b>28.4</b>　輕度肥胖　王○○明　BMI <b>31.2</b><span class="save">未儲存</span>';});
   setView('quote');await tick(400);
   var h=head(),h0=snap(h);
   for(var i=0;i<VIEWS.length;i++){
-    setView(VIEWS[i]);await tick(400);
+    setView(VIEWS[i]);
+    // 舊分頁要立刻看不到（2026-11-24：transition:all 的按鈕切走後還浮在新分頁上約半秒）
+    var still=[].slice.call(document.querySelectorAll('.pane')).filter(function(p){return p.id!=='pane-'+VIEWS[i]&&getComputedStyle(p).opacity!=='0'&&!(main.dataset.split==='1'&&p.id==='pane-calc');});
+    if(still.length)res.push('切到「'+VIEWS[i]+'」：舊分頁 '+still.map(function(p){return p.id;}).join('、')+' 沒有立刻隱藏');
+    await tick(400);
     var m=moved(h,h0,null);
     if(m.length)res.push('切到「'+VIEWS[i]+'」：頁首移位 '+m.join('、'));
+    tb.forEach(function(b){if(b.scrollWidth>b.clientWidth+1)res.push('切到「'+VIEWS[i]+'」：分頁「'+label(b)+'」文字被截');});
+    var bar=document.querySelector('.hub-bar'),br=bar.getBoundingClientRect().right;
+    [].slice.call(bar.querySelectorAll('.hub-actions > *')).filter(vis).forEach(function(b){if(b.getBoundingClientRect().right>br+1)res.push('切到「'+VIEWS[i]+'」：「'+label(b)+'」超出頂端列');});
+  }
+  window.updateChips=fill;updateChips();
+  // 衛教分頁（有「並排計算」，頂端列最擠）時 BMI 標籤的數字不可以被截成「BMI 2…」
+  if(bres&&bval){
+    setView('edu');await tick(400);
+    var bd2=bres.style.display,bv2=bval.textContent;
+    bres.style.display='';bval.textContent='28.4';updateChips();
+    var cr=cc.getBoundingClientRect(),pr=cc.parentNode.getBoundingClientRect();
+    if(cc.hidden||cc.scrollWidth>cc.clientWidth+1||cr.left<pr.left-1||cr.right>pr.right+1)res.push('衛教分頁的 BMI 標籤被截（'+cc.textContent+'）');
+    bres.style.display=bd2;bval.textContent=bv2;updateChips();
   }
   // 2. 臨床計算每個項目
   setView('calc');await tick(400);
@@ -214,7 +249,7 @@ function probe(port, w, h) {
   const port = server.address().port;
   let bad = 0;
   try {
-    for (const [w, h] of [[1920, 1080], [1366, 768]]) {
+    for (const [w, h] of [[1920, 1080], [1440, 900], [1366, 768]]) {
       const { r, n } = await probe(port, w, h);
       r.forEach(s => console.log(`✗ ${w}x${h} ${s}`));
       if (n < 10) { console.log(`✗ ${w}x${h} 只點到 ${n} 個計算項目，檢查沒有真的跑`); bad++; }

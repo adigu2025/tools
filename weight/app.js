@@ -2514,7 +2514,8 @@ function wClearUploads(loaded){
     if(loaded) WD.getElementById(id).innerHTML = '<div class="hint">載入的紀錄不含原始報告檔；要附在報告後面，請重新上傳。</div>';
   });
 }
-// 下一位病人：清空畫面回到開頁時的空白狀態。已儲存的紀錄、報價與臨床計算都不受影響
+// 下一位病人：清空畫面回到開頁時的空白狀態。已儲存的紀錄、報價與臨床計算都不受影響；
+// 工作台頂端的臨床計算 BMI 標籤會收起來（hubPatientReset）
 let W_BLANK = null;
 function newPatient(){
   if(isDirty && !confirm('目前的資料還沒儲存成紀錄，清空後就找不回來。要開始下一位病人嗎？')) return;
@@ -2533,6 +2534,7 @@ function newPatient(){
   renderRecords();
   goHome();
   WB.scrollTo(0, 0);
+  if(window.hubPatientReset) window.hubPatientReset();
 }
 WD.getElementById('records-list').addEventListener('click', e=>{
   const b = e.target.closest('[data-rec]');

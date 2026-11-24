@@ -640,6 +640,13 @@ function watchChips(root, ids){
     if(el) mo.observe(el, {childList:true, characterData:true, subtree:true, attributes:true, attributeFilter:['style','hidden','class']});
   });
 }
+/* 換下一位病人（減重或健檢報告按「下一位病人」）時，臨床計算的 BMI 標籤先收起來，免得看到上一位的數值。
+   臨床計算本身的內容不動；之後 BMI 重新算出不同數值時標籤才再出現。全部清除會重新載入整頁，不需要這一段 */
+let calcChipHidden = null;
+window.hubPatientReset = ()=>{
+  calcChipHidden = txt(CD,'bmi-val') + '|' + txt(CD,'bmi-badge');
+  updateChips();
+};
 function updateChips(){
   const cc = document.getElementById('chip-calc');
   const cw = document.getElementById('chip-weight');
@@ -647,8 +654,10 @@ function updateChips(){
     const d = CD;
     const box = d && d.getElementById('bmi-result');
     const v = txt(d,'bmi-val');
-    if(box && box.style.display !== 'none' && v && v !== '—'){
-      cc.innerHTML = '<span class="k">臨床計算</span>BMI <b>' + esc(v) + '</b>　' + esc(txt(d,'bmi-badge'));
+    const key = v + '|' + txt(d,'bmi-badge');
+    if(box && box.style.display !== 'none' && v && v !== '—' && key !== calcChipHidden){
+      calcChipHidden = null;
+      cc.innerHTML = '<span class="k">臨床計算</span>BMI <b>' + esc(v) + '</b><span class="x">　' + esc(txt(d,'bmi-badge')) + '</span>';
       cc.hidden = false;
     }else cc.hidden = true;
   }catch(err){ cc.hidden = true; }

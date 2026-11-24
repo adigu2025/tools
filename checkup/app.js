@@ -1522,6 +1522,8 @@ function ckNewPatient(){
   if(ckDirty && ckHasData() && !confirm('目前的資料還沒儲存成紀錄，清空後就找不回來。要開始下一位病人嗎？')) return;
   if(ckPagesUnsaved && Object.keys(CK_PAGES).length && !confirm('上傳的原始報告圖片還沒匯出備份，清空後要重新上傳。要繼續嗎？')) return;
   ckReset(ckBlank());
+  // 工作台頂端的臨床計算 BMI 標籤一起收起來，免得看到上一位的數值
+  if(window.hubPatientReset) window.hubPatientReset();
 }
 function ckToast(msg){
   const box = ckEl('k-rec-msg');

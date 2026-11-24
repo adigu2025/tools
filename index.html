@@ -91,7 +91,8 @@ button{font:inherit; cursor:pointer; color:inherit;}
   line-height:1; color:var(--ink); width:16.3em; white-space:nowrap;}
 .hub-brand .wm-sub{font-family:"Cormorant Garamond","Times New Roman",serif; font-size:19px; font-style:italic; font-weight:500; letter-spacing:.06em;
   color:var(--muted); padding-left:12px; border-left:1px solid var(--line-strong); line-height:1;}
-.hub-tabs{display:flex; align-items:center; gap:2px; height:100%;}
+/* flex:none：頂端列擠的時候縮的是右邊的摘要標籤，分頁文字不可以被截（2026-11-24 在 1440 寬截到「製作報告 Alt+4」） */
+.hub-tabs{display:flex; align-items:center; gap:2px; height:100%; flex:none;}
 .hub-tab{position:relative; border:0; background:none; color:var(--muted); padding:8px 16px; border-radius:9px;
   font-size:16.5px; font-weight:500; white-space:nowrap; transition:color .12s, background .12s;}
 /* 分頁之間的細線（選中或滑過時，兩側的線藏起來，比較乾淨） */
@@ -100,6 +101,9 @@ button{font:inherit; cursor:pointer; color:inherit;}
 .hub-tab[aria-selected="true"]{background:var(--acc-soft); color:var(--acc-text); font-weight:700;}
 .hub-tab:hover::before, .hub-tab:hover + .hub-tab::before, .hub-tab[aria-selected="true"]::before, .hub-tab[aria-selected="true"] + .hub-tab::before{opacity:0;}
 .hub-tab[aria-selected="true"] kbd{color:inherit; opacity:.7;}
+/* 封面（目錄）開著時不亮任何分頁，免得看起來像已經在報價分頁。字重不變，分頁寬度才不會跳 */
+body:has(#hub-cover:not([hidden])) .hub-tab[aria-selected="true"]{background:none; color:var(--muted);}
+body:has(#hub-cover:not([hidden])) .hub-tab[aria-selected="true"]:hover{color:var(--ink); background:var(--sunken);}
 .hub-tab kbd{font:inherit; font-size:12px; color:var(--faint); margin-left:7px; font-weight:400;}
 /* ── Esc 封面：比照 report 首頁，左邊刊頭、右邊一份目錄（一列一個分頁，大號序號＋宋體標題＋常用項目捷徑）。
    不用卡片與色塊，靠字級、細線與留白分層；滑過只改底色與序號顏色，不位移。蓋在工具區上層，頁首維持可用。 */
@@ -142,8 +146,9 @@ button{font:inherit; cursor:pointer; color:inherit;}
   .cv-row{grid-template-columns:2.6em minmax(0,1fr) 2em; grid-template-areas:"key title arr" "key desc arr" "key secs arr";}
 }
 .hub-chips{display:flex; gap:8px; flex:1; min-width:0; overflow:hidden; justify-content:flex-end;}
+/* 空間不夠時標籤自己縮短、尾端用「…」，不會被切成半個字 */
 .chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 14px;
-  font-size:15px; white-space:nowrap; color:var(--ink-2);}
+  font-size:15px; white-space:nowrap; color:var(--ink-2); min-width:0; flex:0 1 auto; overflow:hidden; text-overflow:ellipsis;}
 .chip:hover{border-color:var(--line-strong);}
 .chip .k{color:var(--muted); font-size:13px; margin-right:6px;}
 .chip b{font-size:17px; font-weight:700; color:var(--ink);}
@@ -171,7 +176,9 @@ button{font:inherit; cursor:pointer; color:inherit;}
    用 visibility 而非 display:none，隱藏中的工具仍保有版面，背景列印與匯出 PDF 才不會出錯。 ── */
 .hub-main{position:relative; height:calc(100dvh - var(--bar-h) - var(--foot-h)); display:grid;
   grid-template-columns:1fr; grid-template-areas:"main";}
-.pane{grid-area:main; min-height:0; min-width:0; visibility:hidden; pointer-events:none; isolation:isolate;}
+/* opacity:0：工具裡寫了 transition:all 的按鈕，visibility 也會跟著過渡，切走後還浮在新分頁上約半秒（2026-11-24），
+   整個分頁透明就看不到。印出與匯出時另外設回 1 */
+.pane{grid-area:main; min-height:0; min-width:0; visibility:hidden; opacity:0; pointer-events:none; isolation:isolate;}
 /* 報價直接放在工作台裡（quote/view.html 裝進 #quote-host 的 shadow root）。準備好之前先遮住，不會看到原本的外觀再跳成工作台外觀 */
 #quote-host{display:block; height:100%; background:var(--bg);}
 #quote-host.loading{opacity:0;}
@@ -182,7 +189,7 @@ button{font:inherit; cursor:pointer; color:inherit;}
   /* 工作台的暖白底與分頁外框不可以印出來（曾在 PDF 底部留下一圈灰框） */
   body.print-quote .hub-main, body.print-quote #pane-quote, body.print-quote #quote-host{background:#fff !important; box-shadow:none !important;}
   body.print-quote .hub-main{display:block; height:auto;}
-  body.print-quote #pane-quote{visibility:visible; height:auto;}
+  body.print-quote #pane-quote{visibility:visible; opacity:1; height:auto;}
   body.print-quote #quote-host{height:auto;}
 }
 /* 報價的說明文件最大化時，工作台的頂端列與底列一起收起 */
@@ -197,7 +204,7 @@ body.q-max .hub-main{height:100dvh;}
   body.print-calc .hub-bar, body.print-calc .hub-foot, body.print-calc .toast, body.print-calc .pane:not(#pane-calc){display:none !important;}
   html:has(body.print-calc), body.print-calc{height:auto; background:#fff;}
   body.print-calc .hub-main{display:block; height:auto;}
-  body.print-calc #pane-calc{visibility:visible; height:auto;}
+  body.print-calc #pane-calc{visibility:visible; opacity:1; height:auto;}
   body.print-calc #calc-host{height:auto;}
 }
 /* 製作報告：先選報告種類。減重報告直接放在工作台裡（weight/view.html 裝進 #weight-host 的 shadow root，
@@ -240,10 +247,10 @@ body.q-max .hub-main{height:100dvh;}
 .hub-main[data-view="quote"]  #pane-quote,
 .hub-main[data-view="calc"]   #pane-calc,
 .hub-main[data-view="weight"] #pane-weight,
-.hub-main[data-view="edu"]    #pane-edu{visibility:visible; pointer-events:auto;}
+.hub-main[data-view="edu"]    #pane-edu{visibility:visible; opacity:1; pointer-events:auto;}
 @media (min-width:1100px){
   .hub-main[data-view="edu"][data-split="1"]{grid-template-columns:1fr 460px; grid-template-areas:"main side";}
-  .hub-main[data-view="edu"][data-split="1"] #pane-calc{visibility:visible; pointer-events:auto; grid-area:side;
+  .hub-main[data-view="edu"][data-split="1"] #pane-calc{visibility:visible; opacity:1; pointer-events:auto; grid-area:side;
     border-left:1px solid var(--line);}
 }
 @media (max-width:1099px){ #btn-split{display:none;} }
@@ -441,18 +448,18 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
 .tbtn.danger{background:var(--clay); border-color:var(--clay); color:#fff; font-weight:700;}
 .tbtn.danger:hover{background:var(--clay-dark);}
 
+/* 標籤前的「臨床計算」「減重報告」小字在 1600 寬以下拿掉（點標籤仍會開到對應分頁） */
+@media (max-width:1600px){ .chip .k, .chip .x{display:none;} }
+/* 1500 寬以下分頁不寫 Alt+數字，頂端列留給 BMI 標籤（1440 寬時標籤只剩「BMI 2…」，2026-11-24） */
+@media (max-width:1500px){ .hub-tab kbd{display:none;} .hub-tab{padding:9px 15px;} }
 @media (max-width:1320px){
   #pane-edu{grid-template-columns:262px 1fr; gap:14px; padding:14px;}
   .edu-item{font-size:15px; gap:8px; padding:10px;}
   .edu-tools h1{font-size:21px;}
   .grp > *{padding:7px 10px;}
   .zoom-val{min-width:84px;}
-  .hub-tab kbd{display:none;}
-  .hub-tab{padding:9px 15px;}
-}
-@media (max-width:1100px){
+  /* 「tools」小字原本 1100 寬以下才拿掉，1280 寬時 BMI 標籤會被擠成「BMI 2…」（2026-11-24） */
   .hub-brand .wm-sub{display:none;}
-  .chip .k{display:none;}
 }
 /* ── 窄螢幕 ── */
 @media (max-width:860px){
