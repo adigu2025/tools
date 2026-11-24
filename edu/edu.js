@@ -99,6 +99,7 @@ const EDU_LIST = [
   ['gi',     '',         '急性腸胃炎',       ICON.germ,     ['img/edu-a5-gastroenteritis.webp'], 'A5'],
   ['gi',     '',         '便祕與腸躁症',     ICON.germ,     ['img/edu-a5-constipation-ibs.webp'], 'A5'],
   ['gi',     '',         '低 FODMAP 飲食',   ICON.leaf,     ['img/edu-a5-low-fodmap.webp', 'img/edu-a5-low-fodmap-2.webp'], 'A5'],
+  ['gi',     '',         '大腸憩室',         ICON.germ,     ['img/edu-a5-diverticulosis.webp'], 'A5'],
   // 2026/11/12 把「痔瘡怎麼治療」併進這一張，只留一張
   ['gi',     '',         '痔瘡分級與治療',   ICON.polyp,    ['img/edu-a5-hemorrhoids.webp'], 'A5'],
   ['gi',     '',         '糞便潛血陽性',     ICON.drop,     ['img/edu-a5-fit-positive.webp'], 'A5'],
