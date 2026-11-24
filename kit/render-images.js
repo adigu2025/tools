@@ -30,7 +30,7 @@ const JOBS = {
   anatomy: {page: 'edu-src/anatomy.html', save: 'edu-src/out',  out: 'edu-src/out',          run: 'renderAll', min: null, wait: 0}
 };
 // consent-src/README.md 的串接順序
-const CONSENT_PARTS = ['head', 'p-gastro', 'p-colon', 'p-capsule', 'p-sedation', 'p-het', 'p-arbl', 'p-thyroid', 'p-imaging', 'p-glp1', 'tail'];
+const CONSENT_PARTS = ['head', 'p-gastro', 'p-colon', 'p-capsule', 'p-sedation', 'p-het', 'p-arbl', 'p-thyroid', 'p-imaging', 'p-case', 'p-glp1', 'tail'];
 
 const TYPES = {'.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.json': 'application/json'};
