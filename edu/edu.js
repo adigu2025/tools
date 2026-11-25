@@ -159,6 +159,8 @@ let FORMS = [
   {group:'ctrl', label:'Propofol',  note:'共 1 頁', pages:[W('img/ctrl-propofol.jpg')],  kind:'img'},
   {group:'ctrl', label:'空白管藥單', note:'共 1 頁', pages:[W('img/ctrl-blank.jpg')],     kind:'img'},
   {group:'ctrl', label:'麻醉紀錄表', note:'共 1 頁', pages:[W('img/anesthesia-record.jpg')], kind:'img'},
+  // 冷凝刀術式紀錄：forms/forms.js 產生；rows 是能量格數，在預覽工具列用「能量格 － ＋」增減
+  {group:'ctrl', label:'冷凝刀術式紀錄', note:'共 1 頁', pages:[], kind:'html', rows:HET_ROWS_DEF, html(){ return formHetHtml(this.rows); }},
   // 院內作業指引，版面原始檔在 guide-src/
   {group:'ctrl', label:'用藥指引', note:'共 2 頁', pages:[W('img/guide-sedation-1.webp'), W('img/guide-sedation-2.webp')], kind:'img'},
 ].concat([

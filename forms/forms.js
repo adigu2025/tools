@@ -524,6 +524,71 @@ function formHealthRecordHtml(d){
   return pageA + pageB;
 }
 
+/* 雙極冷凝刀（HET）術式紀錄（A4 一頁，2026-11-25 新增，改自他院 HET Procedure Record，示意圖自畫）
+   鐘點一律以折刀位（jack-knife）術者視角標示：12 點為背側（尾骨側）、6 點為腹側（會陰側）、3 點為病人右側。
+   能量格（每一發的鐘點、功率、時間、能量）在工作台用「能量格 － ＋」增減，HET_ROWS_MIN 至 HET_ROWS_MAX 格，預設 6 格。
+   空白表給術者手寫；能量 J＝功率 W × 時間 sec。 */
+const HET_ROWS_DEF = 6, HET_ROWS_MIN = 1, HET_ROWS_MAX = 12;
+const HET_GRADE = ['第 I 度','第 II 度','第 III 度','第 IV 度','複雜個案'];
+const HET_COMBO = ['無','橡皮圈結紮','Ligasure','超音波刀','雷射','切除','PPH'];
+const HET_POSE = ['折刀位 Jack-knife','左側臥','截石位','俯臥'];
+const HET_ANES = ['局部麻醉','靜脈麻醉','全身麻醉','無'];
+function hetOpts(list, other){
+  return '<div class="het-opts">' + list.map(t=> q2Opt(t)).join('') + (other ? q2Other('其他', 150) : '') + '</div>';
+}
+function hetClock(){
+  const cx = 120, cy = 128, r = 70;
+  let s = '<svg class="het-clock" viewBox="0 0 240 262" aria-label="折刀位鐘點示意圖">';
+  s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#3F6470" stroke-width="1.6"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="22" fill="#F3F6F7" stroke="#3F6470" stroke-width="1.2"/>`;
+  for(let h = 1; h <= 12; h++){
+    const a = h * Math.PI / 6, sx = Math.sin(a), sy = -Math.cos(a);
+    const big = h % 3 === 0;
+    s += `<line x1="${(cx + sx * (r - 7)).toFixed(1)}" y1="${(cy + sy * (r - 7)).toFixed(1)}" x2="${(cx + sx * r).toFixed(1)}" y2="${(cy + sy * r).toFixed(1)}" stroke="#3F6470" stroke-width="${big ? 1.8 : 1}"/>`;
+    s += `<text x="${(cx + sx * (r + 14)).toFixed(1)}" y="${(cy + sy * (r + 14) + 5).toFixed(1)}" text-anchor="middle" font-size="${big ? 15 : 12.5}" font-weight="${big ? 700 : 400}" fill="#1C1C1C">${h}</text>`;
+  }
+  s += `<text x="${cx}" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">背側（尾骨側）</text>`;
+  s += `<text x="${cx}" y="254" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">腹側（會陰側）</text>`;
+  s += `<text x="${cx + r + 32}" y="${cy + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">右</text>`;
+  s += `<text x="${cx - r - 32}" y="${cy + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">左</text>`;
+  return s + '</svg>';
+}
+// n：能量格數（工作台增減），空白表預設 6 格
+function formHetHtml(n){
+  n = Math.max(HET_ROWS_MIN, Math.min(HET_ROWS_MAX, Math.round(n) || HET_ROWS_DEF));
+  const rowH = Math.max(26, Math.min(40, Math.floor(300 / n)));
+  let rows = '';
+  for(let i = 1; i <= n; i++) rows += `<tr style="height:${rowH}px"><td class="no">${i}</td><td><span class="u">點</span></td><td><span class="u">W</span></td><td><span class="u">sec</span></td><td><span class="u">J</span></td></tr>`;
+  const logo = (typeof W === 'function' ? W('img/logo-mark.png') : 'img/logo-mark.png');
+  return `<div class="report-page q2 het">
+    <div class="q2-head"><span>木子澄安診所</span><span>手術室紀錄</span></div>
+    <div class="q2-title">雙極冷凝刀術式紀錄<div class="het-en">HET Bipolar Procedure Record</div></div>
+    <div class="het-basic">
+      ${q2Staff('姓名', '', 120)}${q2Staff('病歷號', '', 100)}
+      <span class="sf">性別${q2Opt('男')}${q2Opt('女')}</span>${q2Staff('年齡', '歲', 36)}
+      ${q2Staff('手術日期', '', 120)}${q2Staff('術者', '', 110)}
+    </div>
+    <div class="q2-sec"><span class="no">1</span>痔瘡分級</div>${hetOpts(HET_GRADE)}
+    <div class="q2-sec"><span class="no">2</span>合併治療</div>${hetOpts(HET_COMBO, true)}
+    <div class="q2-sec"><span class="no">3</span>手術姿勢</div>${hetOpts(HET_POSE, true)}
+    <div class="q2-sec"><span class="no">4</span>麻醉方式</div>${hetOpts(HET_ANES, true)}
+    <div class="q2-sec"><span class="no">5</span>施打位置與能量<span class="tag">（能量 J＝功率 W × 時間 sec）</span></div>
+    <div class="het-energy">
+      <div class="het-fig">${hetClock()}<div class="het-cap">鐘點以折刀位術者視角標示</div></div>
+      <table class="het-tbl"><thead><tr><th>順序</th><th>鐘點</th><th>功率</th><th>時間</th><th>能量</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>
+    <div class="q2-sec"><span class="no">6</span>合計</div>
+    <div class="het-sum">
+      ${q2Staff('總能量', 'J', 90)}${q2Staff('總循環數', '次', 60)}${q2Staff('手術時間', '分鐘', 60)}
+      <span class="sf">（<span class="q2-fill" style="min-width:56px"></span>至<span class="q2-fill" style="min-width:56px"></span>）</span>
+    </div>
+    <div class="q2-sec"><span class="no">7</span>備註</div>
+    <div class="het-lines"><div></div><div></div></div>
+    <div class="het-sign">${q2Staff('術者簽名', '', 180)}</div>
+    <img class="het-logo" src="${logo}" alt="">
+  </div>`;
+}
+
 // A4 於 96dpi 的像素高。頁面內容只要超出一點點，尾端就會溢到下一張紙而印出空白頁。
 const PRINT_SHEET_H = 1123;
 
@@ -756,4 +821,26 @@ const FORMS_CSS = `
 .hr-notes{margin-top:9px;}
 .hr-notes .h{font-size:12.5px; font-weight:700; color:var(--navy);}
 .hr-notes .ln{border-bottom:1px solid var(--border); height:24px;}
+/* ── 雙極冷凝刀術式紀錄（het）───────────── */
+.het .q2-title{margin:12px 0 10px;}
+.het-en{font-size:13px; font-weight:400; letter-spacing:.04em; color:var(--sub); margin-top:1px;}
+.het-basic{display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; border:1px solid var(--rule); border-radius:8px; padding:8px 14px; background:#FAFAFA;}
+.het-basic .sf, .het-sum .sf{display:inline-flex; align-items:center;}
+.het-basic .sf .q2-o{margin-left:10px;}
+.het-basic .q2-o svg{margin-top:0;}
+.het-opts{display:flex; flex-wrap:wrap; gap:4px 22px; padding-left:16px;}
+.het-energy{display:flex; gap:22px; align-items:flex-start; padding-left:6px;}
+.het-fig{flex:none; width:240px; text-align:center;}
+.het-clock{width:240px; height:262px; display:block;}
+.het-cap{font-size:12px; color:var(--sub); margin-top:2px;}
+.het-tbl{flex:1; border-collapse:collapse; font-size:13px;}
+.het-tbl th{background:#EEF3F5; color:var(--q); font-weight:700; padding:4px 6px; border:1px solid var(--rule);}
+.het-tbl td{border:1px solid var(--rule); text-align:right; padding:0 8px; vertical-align:bottom;}
+.het-tbl td.no{text-align:center; vertical-align:middle; font-weight:700; color:var(--q); width:46px;}
+.het-tbl .u{font-size:12px; color:var(--sub);}
+.het-sum{display:flex; flex-wrap:wrap; gap:8px 20px; padding-left:16px;}
+.het-lines{padding-left:16px;}
+.het-lines div{border-bottom:1px solid var(--rule); height:30px;}
+.het-sign{display:flex; justify-content:flex-end; margin:14px 70px 0 0;}
+.het-logo{position:absolute; right:40px; bottom:26px; width:46px; height:auto;}
 `;

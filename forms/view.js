@@ -15,6 +15,8 @@ function formHtmlPages(t){
 function showForm(t){
   document.getElementById('form-title').innerHTML = esc(t.label) + '<span class="sz">A4</span>';
   document.getElementById('form-count').textContent = groupPos() + '　' + t.note;
+  // 有能量格的表單（冷凝刀術式紀錄）才顯示「能量格 － ＋」
+  formRowsSync(t);
   if(t.kind === 'html'){
     const docs = formHtmlPages(t);
     formView.innerHTML = docs.map((_, i)=>
@@ -44,6 +46,27 @@ function showForm(t){
     else{ im.addEventListener('load', done, {once:true}); im.addEventListener('error', done, {once:true}); }
   });
 }
+// 能量格增減：改表單的 rows 後重畫預覽，列印用同一個 rows
+let formRowsCur = null;
+function formRowsSync(t){
+  const has = !!t && 'rows' in t;
+  formRowsCur = has ? t : null;
+  document.getElementById('frows').style.display = has ? '' : 'none';
+  if(!has) return;
+  document.getElementById('frows-val').textContent = '能量格 ' + t.rows;
+  document.getElementById('frows-out').disabled = t.rows <= HET_ROWS_MIN;
+  document.getElementById('frows-in').disabled = t.rows >= HET_ROWS_MAX;
+}
+function formRowsStep(dir){
+  const t = formRowsCur;
+  if(!t) return;
+  const n = Math.max(HET_ROWS_MIN, Math.min(HET_ROWS_MAX, t.rows + dir));
+  if(n === t.rows) return;
+  t.rows = n;
+  showForm(t);
+}
+document.getElementById('frows-out').addEventListener('click', ()=> formRowsStep(-1));
+document.getElementById('frows-in').addEventListener('click', ()=> formRowsStep(1));
 // 'fit'：所有頁面放進畫面，並排或上下排看哪一種顯示得比較大；數字為實際倍率（並排）
 const FORM_GAP = 12;
 function formItems(){
