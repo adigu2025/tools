@@ -15,7 +15,7 @@ function formHtmlPages(t){
 function showForm(t){
   document.getElementById('form-title').innerHTML = esc(t.label) + '<span class="sz">A4</span>';
   document.getElementById('form-count').textContent = groupPos() + '　' + t.note;
-  // 有能量格的表單（冷凝刀術式紀錄）才顯示「能量格 － ＋」
+  // 有能量格的表單（冷凝刀手術紀錄）才顯示「能量格 － ＋」
   formRowsSync(t);
   if(t.kind === 'html'){
     const docs = formHtmlPages(t);

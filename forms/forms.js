@@ -524,68 +524,83 @@ function formHealthRecordHtml(d){
   return pageA + pageB;
 }
 
-/* 雙極冷凝刀（HET）術式紀錄（A4 一頁，2026-11-25 新增，改自他院 HET Procedure Record，示意圖自畫）
+/* 雙極冷凝刀（HET）痔瘡手術紀錄（A4 一頁；2026-11-25 新增，同日依 YT 要求改成灰階、不放 LOGO、加入手術紀錄常用欄位）
+   欄位參考院內鎮靜流程（院內文件/SOP/07）：術前評估、術前用藥、麻醉與鎮靜用藥、生命徵象、手術經過、恢復評分（Aldrete 9 分以上才離院）。
    鐘點一律以折刀位（jack-knife）術者視角標示：12 點為背側（尾骨側）、6 點為腹側（會陰側）、3 點為病人右側。
-   能量格（每一發的鐘點、功率、時間、能量）在工作台用「能量格 － ＋」增減，HET_ROWS_MIN 至 HET_ROWS_MAX 格，預設 6 格。
-   空白表給術者手寫；能量 J＝功率 W × 時間 sec。 */
-const HET_ROWS_DEF = 6, HET_ROWS_MIN = 1, HET_ROWS_MAX = 12;
-const HET_GRADE = ['第 I 度','第 II 度','第 III 度','第 IV 度','複雜個案'];
-const HET_COMBO = ['無','橡皮圈結紮','Ligasure','超音波刀','雷射','切除','PPH'];
-const HET_POSE = ['折刀位 Jack-knife','左側臥','截石位','俯臥'];
-const HET_ANES = ['局部麻醉','靜脈麻醉','全身麻醉','無'];
-function hetOpts(list, other){
-  return '<div class="het-opts">' + list.map(t=> q2Opt(t)).join('') + (other ? q2Other('其他', 150) : '') + '</div>';
-}
+   能量格在工作台用「能量格 － ＋」增減，HET_ROWS_MIN 至 HET_ROWS_MAX 格，預設 6 格。空白表給術者手寫；能量 J＝功率 W × 時間 sec。
+   版面：全灰階，標題用明體，章節標題不用色條，改用細線。 */
+const HET_ROWS_DEF = 6, HET_ROWS_MIN = 1, HET_ROWS_MAX = 10;
+const HET_BOX = '<svg viewBox="0 0 16 16" fill="none" stroke="#333" stroke-width="1.2"><rect x="1.5" y="1.5" width="13" height="13" rx="1.5"/></svg>';
+const hetO = t=> '<span class="ho">' + HET_BOX + formEsc(t) + '</span>';
+const hetF = (w, unit)=> '<span class="hfw"><span class="hf" style="min-width:' + w + 'px"></span>' + (unit ? '<span class="hu">' + unit + '</span>' : '') + '</span>';
+const hetOther = w=> '<span class="ho">' + HET_BOX + '其他' + hetF(w || 90) + '</span>';
+// 一列：左邊欄名，右邊選項或填空
+const hetRow = (k, body)=> '<div class="hr"><span class="hk">' + k + '</span><span class="hv">' + body + '</span></div>';
+const hetSec = (no, zh, en)=> '<div class="hs"><span class="no">' + no + '、</span>' + zh + '<span class="en">' + en + '</span></div>';
 function hetClock(){
-  const cx = 120, cy = 128, r = 70;
-  let s = '<svg class="het-clock" viewBox="0 0 240 262" aria-label="折刀位鐘點示意圖">';
-  s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#3F6470" stroke-width="1.6"/>`;
-  s += `<circle cx="${cx}" cy="${cy}" r="22" fill="#F3F6F7" stroke="#3F6470" stroke-width="1.2"/>`;
+  const cx = 100, cy = 90, r = 48;
+  let s = '<svg class="het-clock" viewBox="0 0 200 182" aria-label="折刀位鐘點示意圖">';
+  s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#444" stroke-width="1.3"/>`;
+  s += `<circle cx="${cx}" cy="${cy}" r="17" fill="#F2F2F2" stroke="#666" stroke-width="1"/>`;
   for(let h = 1; h <= 12; h++){
-    const a = h * Math.PI / 6, sx = Math.sin(a), sy = -Math.cos(a);
-    const big = h % 3 === 0;
-    s += `<line x1="${(cx + sx * (r - 7)).toFixed(1)}" y1="${(cy + sy * (r - 7)).toFixed(1)}" x2="${(cx + sx * r).toFixed(1)}" y2="${(cy + sy * r).toFixed(1)}" stroke="#3F6470" stroke-width="${big ? 1.8 : 1}"/>`;
-    s += `<text x="${(cx + sx * (r + 14)).toFixed(1)}" y="${(cy + sy * (r + 14) + 5).toFixed(1)}" text-anchor="middle" font-size="${big ? 15 : 12.5}" font-weight="${big ? 700 : 400}" fill="#1C1C1C">${h}</text>`;
+    const a = h * Math.PI / 6, sx = Math.sin(a), sy = -Math.cos(a), big = h % 3 === 0;
+    s += `<line x1="${(cx + sx * (r - 6)).toFixed(1)}" y1="${(cy + sy * (r - 6)).toFixed(1)}" x2="${(cx + sx * r).toFixed(1)}" y2="${(cy + sy * r).toFixed(1)}" stroke="#444" stroke-width="${big ? 1.6 : .9}"/>`;
+    s += `<text x="${(cx + sx * (r + 12)).toFixed(1)}" y="${(cy + sy * (r + 12) + 4.5).toFixed(1)}" text-anchor="middle" font-size="${big ? 13.5 : 12}" font-weight="${big ? 700 : 400}" fill="#1C1C1C">${h}</text>`;
   }
-  s += `<text x="${cx}" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">背側（尾骨側）</text>`;
-  s += `<text x="${cx}" y="254" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">腹側（會陰側）</text>`;
-  s += `<text x="${cx + r + 32}" y="${cy + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">右</text>`;
-  s += `<text x="${cx - r - 32}" y="${cy + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#3F6470">左</text>`;
+  const lab = (x, y, t)=> `<text x="${x}" y="${y}" text-anchor="middle" font-size="12" fill="#555">${t}</text>`;
+  s += lab(cx, 13, '背側（尾骨側）') + lab(cx, 177, '腹側（會陰側）') + lab(cx + r + 30, cy + 4, '右') + lab(cx - r - 30, cy + 4, '左');
   return s + '</svg>';
 }
 // n：能量格數（工作台增減），空白表預設 6 格
 function formHetHtml(n){
   n = Math.max(HET_ROWS_MIN, Math.min(HET_ROWS_MAX, Math.round(n) || HET_ROWS_DEF));
-  const rowH = Math.max(26, Math.min(40, Math.floor(300 / n)));
+  const rowH = Math.max(17, Math.min(27, Math.floor(150 / n)));
   let rows = '';
-  for(let i = 1; i <= n; i++) rows += `<tr style="height:${rowH}px"><td class="no">${i}</td><td><span class="u">點</span></td><td><span class="u">W</span></td><td><span class="u">sec</span></td><td><span class="u">J</span></td></tr>`;
-  const logo = (typeof W === 'function' ? W('img/logo-mark.png') : 'img/logo-mark.png');
-  return `<div class="report-page q2 het">
-    <div class="q2-head"><span>木子澄安診所</span><span>手術室紀錄</span></div>
-    <div class="q2-title">雙極冷凝刀術式紀錄<div class="het-en">HET Bipolar Procedure Record</div></div>
-    <div class="het-basic">
-      ${q2Staff('姓名', '', 120)}${q2Staff('病歷號', '', 100)}
-      <span class="sf">性別${q2Opt('男')}${q2Opt('女')}</span>${q2Staff('年齡', '歲', 36)}
-      ${q2Staff('手術日期', '', 120)}${q2Staff('術者', '', 110)}
-    </div>
-    <div class="q2-sec"><span class="no">1</span>痔瘡分級</div>${hetOpts(HET_GRADE)}
-    <div class="q2-sec"><span class="no">2</span>合併治療</div>${hetOpts(HET_COMBO, true)}
-    <div class="q2-sec"><span class="no">3</span>手術姿勢</div>${hetOpts(HET_POSE, true)}
-    <div class="q2-sec"><span class="no">4</span>麻醉方式</div>${hetOpts(HET_ANES, true)}
-    <div class="q2-sec"><span class="no">5</span>施打位置與能量<span class="tag">（能量 J＝功率 W × 時間 sec）</span></div>
+  for(let i = 1; i <= n; i++) rows += `<tr style="height:${rowH}px"><td class="no">${i}</td><td><span class="hu">點</span></td><td><span class="hu">W</span></td><td><span class="hu">sec</span></td><td><span class="hu">J</span></td></tr>`;
+  const vit = ['術前','術中最低','術後'].map(t=> `<tr><th>${t}</th><td><span class="hu sl">／</span><span class="hu">mmHg</span></td><td><span class="hu">次／分</span></td><td><span class="hu">%</span></td></tr>`).join('');
+  return `<div class="report-page het">
+    <div class="het-top"><span>木子澄安診所</span><span>手術紀錄</span></div>
+    <div class="het-title">雙極冷凝刀痔瘡手術紀錄<div class="en">Bipolar HET Hemorrhoid Procedure Record</div></div>
+    <table class="het-id"><tr>
+      <td><span class="hk">姓名</span></td><td><span class="hk">病歷號</span></td>
+      <td><span class="hk">性別</span>${hetO('男')}${hetO('女')}</td><td><span class="hk">年齡</span><span class="push"></span><span class="hu">歲</span></td>
+    </tr><tr>
+      <td><span class="hk">手術日期</span></td><td><span class="hk">術者</span></td>
+      <td><span class="hk">助手</span></td><td><span class="hk">護理師</span></td>
+    </tr></table>
+
+    ${hetSec('一', '術前評估', 'Pre-operative')}
+    ${hetRow('診斷', hetO('內痔') + hetO('混合痔') + hetO('外痔血栓') + hetOther(110))}
+    ${hetRow('分級', hetO('I') + hetO('II') + hetO('III') + hetO('IV') + hetO('複雜個案') + '<span class="hk in">ASA</span>' + hetO('I') + hetO('II') + hetO('III'))}
+    ${hetRow('過敏史', hetO('無') + hetO('有') + hetF(150) + '<span class="hk in">體重</span>' + hetF(46, 'kg'))}
+    ${hetRow('抗凝血藥', hetO('無') + hetO('有') + hetF(120) + '<span class="hk in">停藥</span>' + hetF(30, '天'))}
+    ${hetRow('術前準備', hetO('灌腸') + hetO('未灌腸') + hetO('手術同意書') + hetO('麻醉或鎮靜同意書'))}
+
+    ${hetSec('二', '術前用藥與麻醉', 'Pre-medication &amp; Anesthesia')}
+    ${hetRow('術前用藥', hetO('無') + hetO('抗生素') + hetF(100) + hetOther(130))}
+    ${hetRow('麻醉方式', hetO('局部浸潤') + hetO('輕中度鎮靜') + hetO('靜脈麻醉') + hetO('全身麻醉') + '<span class="hk in">麻醉醫師</span>' + hetF(80))}
+    ${hetRow('用藥', '<span class="dr">Lidocaine' + hetF(40, 'mL') + '</span><span class="dr">Midazolam' + hetF(40, 'mg') + '</span><span class="dr">Fentanyl' + hetF(40, 'mcg') + '</span><span class="dr">Propofol' + hetF(40, 'mg') + '</span>')}
+    ${hetRow('', '<span class="dr">其他' + hetF(240) + '</span>')}
+    <table class="het-grid het-vit"><thead><tr><th>生命徵象</th><th>血壓</th><th>心跳</th><th>血氧</th></tr></thead><tbody>${vit}</tbody></table>
+
+    ${hetSec('三', '手術經過', 'Procedure')}
+    ${hetRow('姿勢', hetO('折刀位 Jack-knife') + hetO('左側臥') + hetO('截石位') + hetOther(90))}
+    ${hetRow('合併治療', hetO('無') + hetO('橡皮圈結紮') + hetO('Ligasure') + hetO('超音波刀') + hetO('雷射') + hetO('切除') + hetO('PPH') + hetOther(60))}
     <div class="het-energy">
-      <div class="het-fig">${hetClock()}<div class="het-cap">鐘點以折刀位術者視角標示</div></div>
-      <table class="het-tbl"><thead><tr><th>順序</th><th>鐘點</th><th>功率</th><th>時間</th><th>能量</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="het-fig">${hetClock()}<div class="cap">鐘點以折刀位術者視角標示</div></div>
+      <table class="het-grid het-tbl"><thead><tr><th>順序</th><th>鐘點</th><th>功率</th><th>時間</th><th>能量</th></tr></thead><tbody>${rows}</tbody></table>
     </div>
-    <div class="q2-sec"><span class="no">6</span>合計</div>
-    <div class="het-sum">
-      ${q2Staff('總能量', 'J', 90)}${q2Staff('總循環數', '次', 60)}${q2Staff('手術時間', '分鐘', 60)}
-      <span class="sf">（<span class="q2-fill" style="min-width:56px"></span>至<span class="q2-fill" style="min-width:56px"></span>）</span>
-    </div>
-    <div class="q2-sec"><span class="no">7</span>備註</div>
-    <div class="het-lines"><div></div><div></div></div>
-    <div class="het-sign">${q2Staff('術者簽名', '', 180)}</div>
-    <img class="het-logo" src="${logo}" alt="">
+    ${hetRow('合計', '<span class="hk in0">總能量</span>' + hetF(60, 'J') + '<span class="hk in">總循環數</span>' + hetF(36, '次') + '<span class="hk in">手術時間</span>' + hetF(46, '至') + hetF(46) + '<span class="hu">共</span>' + hetF(30, '分鐘'))}
+    ${hetRow('出血量', hetO('極少') + hetO('約') + hetF(36, 'mL') + '<span class="hk in">檢體</span>' + hetO('無') + hetO('送病理'))}
+    ${hetRow('併發症', hetO('無') + hetO('有') + hetF(240))}
+
+    ${hetSec('四', '術後與離院', 'Post-operative')}
+    ${hetRow('恢復評分', '<span class="dr">Aldrete' + hetF(30, '分') + '</span><span class="hu">（9 分以上才離院）</span><span class="hk in">離院時間</span>' + hetF(60) + hetO('家屬陪同'))}
+    ${hetRow('術後用藥', hetO('止痛藥') + hetO('軟便劑') + hetO('外用藥膏') + hetOther(110))}
+    ${hetRow('衛教', hetO('冷凝刀治療後衛教單') + hetO('溫水坐浴') + '<span class="hk in">回診</span>' + hetF(30, '月') + hetF(30, '日'))}
+    ${hetRow('備註', '<span class="hf grow"></span>')}
+    ${hetRow('', '<span class="hf grow"></span>')}
+    <div class="het-sign"><span class="hk">術者簽名</span>${hetF(150)}<span class="hk">護理師簽名</span>${hetF(150)}</div>
   </div>`;
 }
 
@@ -821,26 +836,48 @@ const FORMS_CSS = `
 .hr-notes{margin-top:9px;}
 .hr-notes .h{font-size:12.5px; font-weight:700; color:var(--navy);}
 .hr-notes .ln{border-bottom:1px solid var(--border); height:24px;}
-/* ── 雙極冷凝刀術式紀錄（het）───────────── */
-.het .q2-title{margin:12px 0 10px;}
-.het-en{font-size:13px; font-weight:400; letter-spacing:.04em; color:var(--sub); margin-top:1px;}
-.het-basic{display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; border:1px solid var(--rule); border-radius:8px; padding:8px 14px; background:#FAFAFA;}
-.het-basic .sf, .het-sum .sf{display:inline-flex; align-items:center;}
-.het-basic .sf .q2-o{margin-left:10px;}
-.het-basic .q2-o svg{margin-top:0;}
-.het-opts{display:flex; flex-wrap:wrap; gap:4px 22px; padding-left:16px;}
-.het-energy{display:flex; gap:22px; align-items:flex-start; padding-left:6px;}
-.het-fig{flex:none; width:240px; text-align:center;}
-.het-clock{width:240px; height:262px; display:block;}
-.het-cap{font-size:12px; color:var(--sub); margin-top:2px;}
-.het-tbl{flex:1; border-collapse:collapse; font-size:13px;}
-.het-tbl th{background:#EEF3F5; color:var(--q); font-weight:700; padding:4px 6px; border:1px solid var(--rule);}
-.het-tbl td{border:1px solid var(--rule); text-align:right; padding:0 8px; vertical-align:bottom;}
-.het-tbl td.no{text-align:center; vertical-align:middle; font-weight:700; color:var(--q); width:46px;}
-.het-tbl .u{font-size:12px; color:var(--sub);}
-.het-sum{display:flex; flex-wrap:wrap; gap:8px 20px; padding-left:16px;}
-.het-lines{padding-left:16px;}
-.het-lines div{border-bottom:1px solid var(--rule); height:30px;}
-.het-sign{display:flex; justify-content:flex-end; margin:14px 70px 0 0;}
-.het-logo{position:absolute; right:40px; bottom:26px; width:46px; height:auto;}
+/* ── 雙極冷凝刀痔瘡手術紀錄（het）：全灰階，標題明體，章節標題用細線不用色條 ───────────── */
+.report-page.het{--ink:#1C1C1C; --sub:#555; --rule:#9A9A9A; --hair:#CFCFCF;
+  padding:32px 56px 22px; position:relative; height:1123px; overflow:hidden; color:var(--ink); font-size:12.5px; line-height:1.5;}
+.het-top{display:flex; justify-content:space-between; font-size:11.5px; color:var(--sub); letter-spacing:.12em; border-bottom:.8px solid var(--rule); padding-bottom:5px;}
+.het-title{font-family:"Noto Serif TC","Source Han Serif TC","PMingLiU",serif; font-size:23px; font-weight:700; text-align:center; letter-spacing:.14em; margin:10px 0 8px;}
+.het-title .en{font-family:Georgia,"Times New Roman",serif; font-size:12px; font-weight:400; font-style:italic; letter-spacing:.06em; color:var(--sub); margin-top:1px;}
+.het svg rect{stroke:#333;}
+.het-id{width:100%; border-collapse:collapse; border-top:1.2px solid var(--ink); border-bottom:1.2px solid var(--ink);}
+.het-id td{border-bottom:.6px solid var(--hair); padding:5px 8px 5px 0; width:25%; height:30px; white-space:nowrap;}
+.het-id td + td{border-left:.6px solid var(--hair); padding-left:8px;}
+.het-id .ho{margin-left:10px;}
+.het-id .push{display:inline-block; width:44px;}
+.hs{display:flex; align-items:baseline; gap:8px; font-size:14px; font-weight:700; letter-spacing:.08em; margin:9px 0 3px;}
+.hs .no{font-family:"Noto Serif TC","PMingLiU",serif; margin-right:-6px;}
+.hs .en{font-family:Georgia,serif; font-style:italic; font-weight:400; font-size:12px; letter-spacing:.03em; color:var(--sub);}
+.hs::after{content:""; flex:1; border-bottom:.8px solid var(--rule); transform:translateY(-4px);}
+.hr{display:flex; align-items:baseline; min-height:21px; padding:1px 0;}
+.hk{flex:none; color:var(--sub); letter-spacing:.04em;}
+.hr > .hk{width:72px;}
+.hk.in{margin-left:6px; margin-right:-12px;}
+.hk.in0{margin-right:-12px;}
+.hv{display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 16px; flex:1;}
+.ho{display:inline-flex; align-items:center; gap:4px; white-space:nowrap;}
+.ho svg{width:12px; height:12px; flex:none;}
+.hf{display:inline-block; border-bottom:.8px solid var(--ink); height:15px; margin:0 3px;}
+.hf.grow{flex:1;}
+.hfw{display:inline-flex; align-items:baseline; white-space:nowrap;}
+.hu{color:var(--sub); font-size:12px;}
+.dr{display:inline-flex; align-items:baseline; white-space:nowrap; font-family:Georgia,"Times New Roman",serif; font-size:13px;}
+.het-grid{border-collapse:collapse; font-size:12px;}
+.het-grid th{font-weight:700; color:var(--ink); background:#F3F3F3; border:.6px solid var(--rule); padding:3px 6px; letter-spacing:.04em;}
+.het-grid td{border:.6px solid var(--rule); text-align:right; padding:0 7px; vertical-align:bottom;}
+.het-vit{width:100%; margin:5px 0 0;}
+.het-vit tbody th{background:none; text-align:left; font-weight:400; color:var(--sub); width:96px;}
+.het-vit td{height:23px;}
+.het-vit .sl{margin-right:54px;}
+.het-energy{display:flex; gap:20px; align-items:flex-start; margin:4px 0 3px;}
+.het-fig{flex:none; width:200px; text-align:center;}
+.het-clock{width:200px; height:182px; display:block;}
+.het-fig .cap{font-size:12px; color:var(--sub);}
+.het-tbl{flex:1;}
+.het-tbl td.no{text-align:center; vertical-align:middle; color:var(--sub); width:44px;}
+.het-sign{display:flex; justify-content:flex-end; align-items:baseline; gap:4px; margin-top:8px;}
+.het-sign .hk + .hf{margin-right:24px;}
 `;
