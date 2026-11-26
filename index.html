@@ -367,6 +367,20 @@ body.q-max .hub-main{height:100dvh;}
 .edu-head{display:flex; align-items:baseline; gap:10px; padding:7px 14px; min-width:0;}
 .edu-head h1{font-size:17px; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .edu-pages{display:inline-flex; gap:4px;}
+/* 浮動工具列可拖曳、可收起（桌機版）：左端把手拖曳移動、雙擊回原位；右端按鈕收成只剩把手。
+   位置與收起狀態衛教與表單共用，記在瀏覽器（hub-tb-head、hub-tb-ctrl） */
+.tb-grip, .tb-fold{flex:none; align-self:center; border:0; background:transparent; color:var(--muted); border-radius:7px;
+  width:26px; height:28px; padding:0; font-size:16px; line-height:1; display:inline-flex; align-items:center; justify-content:center;}
+.tb-grip{cursor:grab; touch-action:none; letter-spacing:-2px;}
+.tb-grip:hover, .tb-fold:hover{background:var(--sunken); color:var(--ink);}
+.tb-box.tb-dragging{box-shadow:0 6px 22px rgba(31,30,29,.22);}
+.tb-box.tb-dragging .tb-grip{cursor:grabbing;}
+@media (min-width:861px){
+  .tb-box.tb-folded > :not(.tb-grip):not(.tb-fold){display:none !important;}
+  .edu-head.tb-folded, .edu-ctrl.tb-folded{padding:4px 6px; gap:2px;}
+}
+.edu-head > .tb-grip{margin-left:-8px;}
+.edu-head > .tb-fold{margin-right:-8px;}
 .edu-pages button{white-space:nowrap; border:1px solid var(--line-strong); background:var(--surface); border-radius:8px; padding:3px 10px; font-size:13.5px; color:var(--ink-2);}
 .edu-pages button[aria-pressed="true"]{background:var(--acc-soft); border-color:var(--acc); color:var(--acc-text); font-weight:600;}
 .edu-head .edu-count{margin-right:0; font-size:13px; white-space:nowrap;}
@@ -484,6 +498,9 @@ body.edu-max #pane-edu .form-view img{box-shadow:0 2px 6px rgba(31,30,29,.08), 0
   /* 標題與工具列改排在預覽上方，不再浮在圖片上互相擠壓 */
   .edu-stage{grid-template-rows:auto 1fr;}
   .edu-tools{position:static; flex-wrap:wrap; padding:6px 6px 0;}
+  /* 手機版工具列排在預覽上方，不浮動，不需要拖曳與收起 */
+  .tb-grip, .tb-fold{display:none;}
+  .tb-box{transform:none !important;}
   .edu-head{flex:1 1 100%;}
   .edu-view, .form-view{grid-row:2;}
   .edu-item{white-space:nowrap; width:auto;}

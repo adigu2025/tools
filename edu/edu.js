@@ -476,6 +476,87 @@ function toggleMax(){
 }
 window.addEventListener('resize', ()=>{ if(main.dataset.view === 'edu') applyZoom(); });
 
+// 浮動工具列（標題框、按鈕列）：左端把手拖曳移動、雙擊回原位，右端按鈕收起或展開。
+// 衛教與表單各有一組，同種的框共用位置與收起狀態，存在 hub-tb-head、hub-tb-ctrl。
+const TB_KINDS = {head:'.edu-head', ctrl:'.edu-ctrl'};
+const tbState = {};
+function tbBoxes(kind){ return [...document.querySelectorAll('#pane-edu ' + TB_KINDS[kind])]; }
+// 拖曳範圍限在預覽區內，至少留住整個框
+function tbClamp(box, x, y){
+  const stage = box.closest('.edu-stage');
+  if(!stage || !box.offsetParent) return {x, y};
+  const s = stage.getBoundingClientRect(), r = box.getBoundingClientRect();
+  const m = new DOMMatrixReadOnly(getComputedStyle(box).transform);
+  const L = r.left - m.m41, T = r.top - m.m42;
+  return {
+    x: Math.round(Math.min(Math.max(x, s.left + 4 - L), s.right - 4 - (L + r.width))),
+    y: Math.round(Math.min(Math.max(y, s.top + 4 - T), s.bottom - 4 - (T + r.height))),
+  };
+}
+function tbApply(kind){
+  const st = tbState[kind];
+  tbBoxes(kind).forEach(box=>{
+    box.classList.toggle('tb-folded', st.fold);
+    const f = box.querySelector('.tb-fold');
+    const label = st.fold ? '展開工具列' : '收起工具列';
+    f.textContent = kind === 'ctrl' ? (st.fold ? '‹' : '›') : (st.fold ? '›' : '‹');
+    f.title = label; f.setAttribute('aria-label', label); f.setAttribute('aria-expanded', String(!st.fold));
+    box.style.transform = (st.x || st.y) ? `translate(${st.x}px, ${st.y}px)` : '';
+  });
+}
+function tbSave(kind){ store('hub-tb-' + kind, tbState[kind]); }
+Object.keys(TB_KINDS).forEach(kind=>{
+  const saved = recall('hub-tb-' + kind, null);
+  tbState[kind] = {x: +(saved && saved.x) || 0, y: +(saved && saved.y) || 0, fold: !!(saved && saved.fold)};
+  tbBoxes(kind).forEach(box=>{
+    box.classList.add('tb-box');
+    const grip = document.createElement('button');
+    grip.type = 'button'; grip.className = 'tb-grip'; grip.textContent = '⋮⋮';
+    grip.title = '按住拖曳移動，雙擊回原位'; grip.setAttribute('aria-label', '移動工具列');
+    const fold = document.createElement('button');
+    fold.type = 'button'; fold.className = 'tb-fold';
+    if(kind === 'ctrl'){ box.prepend(fold); box.prepend(grip); }  // 按鈕列靠右，收起鈕放把手旁邊，收起後才不會跑到畫面外
+    else { box.prepend(grip); box.append(fold); }
+    fold.addEventListener('click', ()=>{
+      // 按鈕列靠右對齊，寬度一變就會整個移位；補回差距，讓把手留在原地
+      const before = box.getBoundingClientRect().left;
+      tbState[kind].fold = !tbState[kind].fold;
+      tbApply(kind);
+      tbState[kind].x += Math.round(before - box.getBoundingClientRect().left);
+      const c = tbClamp(box, tbState[kind].x, tbState[kind].y);
+      Object.assign(tbState[kind], c); tbApply(kind); tbSave(kind);
+    });
+    let drag = null;
+    grip.addEventListener('pointerdown', e=>{
+      if(e.button !== 0) return;
+      e.preventDefault();
+      drag = {id:e.pointerId, sx:e.clientX, sy:e.clientY, x:tbState[kind].x, y:tbState[kind].y};
+      grip.setPointerCapture(e.pointerId);
+      box.classList.add('tb-dragging');
+    });
+    grip.addEventListener('pointermove', e=>{
+      if(!drag || e.pointerId !== drag.id) return;
+      Object.assign(tbState[kind], tbClamp(box, drag.x + e.clientX - drag.sx, drag.y + e.clientY - drag.sy));
+      tbApply(kind);
+    });
+    ['pointerup','pointercancel'].forEach(t=> grip.addEventListener(t, ()=>{
+      if(!drag) return;
+      drag = null; box.classList.remove('tb-dragging'); tbSave(kind);
+    }));
+    grip.addEventListener('dblclick', ()=>{ tbState[kind].x = 0; tbState[kind].y = 0; tbApply(kind); tbSave(kind); });
+  });
+  tbApply(kind);
+});
+// 視窗縮小時，把跑出預覽區的工具列拉回來（不存，視窗放大後回到原本位置）
+window.addEventListener('resize', ()=> Object.keys(TB_KINDS).forEach(kind=>{
+  const st = tbState[kind];
+  tbBoxes(kind).forEach(box=>{
+    if(!box.offsetParent) return;
+    const c = tbClamp(box, st.x, st.y);
+    box.style.transform = (c.x || c.y) ? `translate(${c.x}px, ${c.y}px)` : '';
+  });
+}));
+
 // Ctrl＋滾輪縮放；放大後按住圖片拖曳移動
 eduView.addEventListener('wheel', e=>{
   if(!e.ctrlKey) return;
