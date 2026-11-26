@@ -17,7 +17,7 @@ html,body{background:#e4e6e8;}
 body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:var(--ink);
   font-size:9.2pt; line-height:1.5; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
 .page{width:210mm; height:297mm; margin:8mm auto; background:#fff; padding:10mm 13mm 8mm;
-  overflow:hidden; display:flex; flex-direction:column; gap:1.8mm;}
+  overflow:hidden; display:flex; flex-direction:column; gap:1.4mm;}
 @media print{ html,body{background:#fff;} .page{margin:0; break-after:page;} .page:last-child{break-after:auto;} }
 
 /* 頁首 */
@@ -34,6 +34,7 @@ h2 i{font-style:normal; font-size:9pt; color:#fff; background:#555; border-radiu
   display:inline-flex; align-items:center; justify-content:center; flex:none; transform:translateY(-.3mm);}
 h2 small{font-weight:400; font-size:8.4pt; color:var(--sub); margin-left:auto;}
 h3{font-size:9.6pt; font-weight:700; margin-bottom:.6mm;}
+h3.sep{margin-top:1.6mm; padding-top:1.4mm; border-top:1px dashed var(--line);}
 
 /* 表格 */
 table{width:100%; border-collapse:collapse; font-size:8.8pt; line-height:1.42;}
@@ -81,41 +82,43 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
       <h1>輕中度鎮靜用藥指引</h1>
       <div class="sub">適用胃鏡、大腸鏡與內視鏡治療｜目標：叫名字或輕拍會回應，自主呼吸維持</div>
     </div>
-    <div class="meta">院內作業標準<br>版本 2026-11-22</div>
+    <div class="meta">院內作業標準<br>版本 2026-11-26</div>
   </header>
 
   <h2><i>1</i>本院藥品劑型與建議配製<small>依管制藥品使用紀錄單</small></h2>
   <table>
     <thead><tr>
-      <th style="width:14%">藥品</th><th style="width:18%">本院劑型</th><th style="width:28%">建議配製</th>
-      <th style="width:14%">換算</th><th style="width:26%">開始作用／作用高峰／持續</th>
+      <th style="width:13%">藥品</th><th style="width:22%">本院劑型</th><th style="width:27%">建議配製</th>
+      <th style="width:13%">換算</th><th style="width:25%">開始作用／高峰／持續</th>
     </tr></thead>
     <tbody>
-      <tr><th>Midazolam</th><td>5 mg/mL，<span class="nw">每支 1 mL</span></td>
-        <td>1 支＋生理食鹽水 4 mL，共 5 mL</td>
+      <tr><th>Midazolam</th><td><span class="nw">5 mg/mL，每支 1 mL</span></td>
+        <td>1 支＋生理食鹽水 4 mL，<span class="nw">共 5 mL</span></td>
         <td class="c">1 mL = 1 mg</td>
         <td>約 2 分鐘／5 至 10 分鐘／<span class="nw">15 至 80 分鐘</span></td></tr>
       <tr><th>Fentanyl</th><td>0.1 mg/2 mL</td>
         <td>不稀釋，用 3 mL 空針</td>
-        <td class="c">1 mL = 50 mcg</td>
+        <td class="c nw">1 mL = 50 mcg</td>
         <td>1 至 2 分鐘／3 至 5 分鐘／<span class="nw">30 至 60 分鐘</span></td></tr>
-      <tr><th>Propofol</th><td>200 mg/20 mL（1%）</td>
-        <td>不稀釋；<span class="k">一人一支，開封後 <span class="nw">6 小時內用完</span></span></td>
+      <tr><th>Propofol</th><td><span class="nw">200 mg/20 mL（1%）</span></td>
+        <td>不稀釋；<span class="k">一人一支，抽進空針後 <span class="nw">6 小時內用完</span></span></td>
         <td class="c">1 mL = 10 mg</td>
         <td>30 至 60 秒／1 至 2 分鐘／<span class="nw">4 至 8 分鐘</span></td></tr>
     </tbody>
   </table>
-  <p class="note">高齡者的作用高峰更慢、持續更久。三種藥用不同大小的空針，並貼上藥名與濃度。Fentanyl 與稀釋後的 Midazolam 都是透明液體，最容易拿錯。Propofol 容易孳生細菌，不可跨病人共用，剩餘量依管制藥品規定銷燬並記錄。</p>
+  <p class="note">三種藥用不同大小的空針並貼藥名與濃度；Fentanyl 與稀釋後的 Midazolam 都是透明液體，最容易拿錯。Propofol 易孳生細菌，不可跨病人共用，剩餘量依管制藥品規定銷燬並記錄。</p>
 
   <h2><i>2</i>給藥前先分組<small>決定起始量與重新評估點</small></h2>
   <div class="grid2">
     <div class="box">
       <h3>標準組</h3>
       <p>年齡 &lt; 60 歲、ASA I 至 II，且沒有右欄任何一項。</p>
+      <h3 class="sep">每位病人給藥前確認</h3>
+      <p>禁食時間足夠。使用 GLP-1 類減重藥物者，問有沒有噁心、嘔吐、腹脹，有症狀就延後或改約麻醉科。</p>
     </div>
     <div class="box care">
       <h3>減量組（符合任一項）</h3>
-      <p>年齡 ≥ 60 歲、ASA III、體重 &lt; 50 kg、肝硬化、<span class="nw">慢性腎臟病</span>、COPD、阻塞型睡眠呼吸中止（或 <span class="nw">STOP-Bang ≥ 3</span>）、BMI ≥ 30、平時服用安眠藥或<span class="nw">鴉片類止痛藥</span>。</p>
+      <p>年齡 ≥ 60 歲、ASA III、體重 &lt; 50 kg、肝硬化、<span class="nw">慢性腎臟病</span>、COPD、阻塞型睡眠呼吸中止<span class="nw">（或 STOP-Bang ≥ 3）</span>、BMI ≥ 30、平時服用安眠藥或<span class="nw">鴉片類止痛藥</span>。</p>
     </div>
   </div>
   <div class="box warn">
@@ -126,7 +129,7 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
   <h2><i>3</i>給藥順序<small>先止痛、再鎮靜，每一劑等到作用高峰再追加</small></h2>
   <div class="flow">
     <div class="st"><span class="n">步驟 1</span><b>Fentanyl</b>約 1 分鐘緩慢推完</div>
-    <div class="st"><span class="n">步驟 2</span><b>等 2 分鐘給 Midazolam</b>每 30 秒不超過 1 mg</div>
+    <div class="st"><span class="n">步驟 2</span><b>等 2 分鐘給 Midazolam</b>約每 30 秒 1 mg 緩慢推</div>
     <div class="st"><span class="n">步驟 3</span><b>等 2 至 3 分鐘評估</b>眼皮下垂、說話變慢</div>
     <div class="st"><span class="n">步驟 4</span><b>開始檢查</b>一次只追加一種藥</div>
   </div>
@@ -163,7 +166,7 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
       <ul class="dots">
         <li><span class="k">以疼痛為主</span>（皺眉、呻吟）：追加 Fentanyl。</li>
         <li><span class="k">焦慮、躁動、作嘔、仍很清醒</span>：追加 Midazolam。</li>
-        <li>大腸鏡疼痛多來自腸道打圈（loop）與充氣，先<span class="nw">調整手法</span>、壓腹、換姿勢。</li>
+        <li>大腸鏡疼痛多來自打圈與充氣，先<span class="nw">調整手法</span>、壓腹、<span class="nw">換姿勢</span>。</li>
       </ul>
     </div>
     <div class="box">
@@ -175,10 +178,10 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
     </div>
   </div>
 
-  <h2><i>5</i>監測與紀錄<small>依 ASA 2018 中度鎮靜指引</small></h2>
+  <h2><i>5</i>監測與紀錄<small>依 ASA 2018，心電圖與 capnography 為本院加嚴</small></h2>
   <ul class="dots">
-    <li>給藥前記錄基準值：血壓、心跳、SpO₂、呼吸次數、意識。全程監測 SpO₂、心電圖、capnography，鼻導管氧氣 <span class="nw">2 至 4 L/min</span>。</li>
-    <li>每 5 分鐘記錄血壓、心跳、SpO₂、鎮靜深度。每一劑的時間與劑量同步寫進麻醉紀錄表與管藥紀錄單，兩邊總量要一致。有<span class="nw">給氧氣</span>時 SpO₂ 下降會較晚出現，呼吸變淺要靠 capnography 先發現。</li>
+    <li>給藥前記錄基準生命徵象與意識；全程監測 SpO₂、心電圖、capnography，鼻導管氧氣 <span class="nw">2 至 4 L/min</span>。</li>
+    <li>每 5 分鐘記錄生命徵象與鎮靜深度；每一劑同步寫進麻醉紀錄表與管藥紀錄單。給氧時 SpO₂ 下降較晚，呼吸變淺靠 capnography 先發現。</li>
   </ul>
 
   <footer class="foot"><span>輕中度鎮靜用藥指引</span><span>第 1 頁／共 2 頁</span></footer>
@@ -191,12 +194,12 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
       <h1>輕中度鎮靜用藥指引</h1>
       <div class="sub">Propofol 追加、停藥條件與拮抗劑、恢復與離院</div>
     </div>
-    <div class="meta">院內作業標準<br>版本 2026-11-22</div>
+    <div class="meta">院內作業標準<br>版本 2026-11-26</div>
   </header>
 
   <h2><i>6</i>Propofol 少量追加（平衡式鎮靜）<small>只在標準方案效果不足時使用</small></h2>
   <div class="box warn">
-    <span class="warn-t">前提，缺一不可：</span>有一位不兼做內視鏡的專責人員全程看病人；capnography、氧氣、甦醒球面罩、口咽或鼻咽呼吸道、<span class="nw">抽痰設備</span>都已就位；執行者具 ACLS 與呼吸道處置能力。
+    <span class="warn-t">前提，缺一不可：</span>由不兼做內視鏡的專責鎮靜醫師給藥並全程看病人，執行內視鏡的醫師不自行推 Propofol；capnography、氧氣、甦醒球面罩、口咽或鼻咽呼吸道、<span class="nw">抽痰設備</span>都已就位；執行者具 ACLS 與呼吸道處置能力。
   </div>
   <table>
     <thead><tr><th style="width:16%"></th><th style="width:42%">標準組</th><th style="width:42%">減量組</th></tr></thead>
@@ -232,10 +235,10 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
     <tbody>
       <tr><th>Naloxone<br><span class="note">拮抗 Fentanyl</span></th>
         <td>0.4 mg/mL 1 支＋生理食鹽水 9 mL，成為 <span class="nw">0.04 mg/mL</span>。每次 <span class="dose">0.04 至 0.1 mg</span>（<span class="nw">1 至 2.5 mL</span>），每 2 分鐘可重複到呼吸恢復；<span class="nw">呼吸停止時</span>可一次給 0.4 mg。</td>
-        <td>作用時間可能比 fentanyl 短，要留意再次呼吸抑制。<span class="nw">小劑量</span>分次給，可避免劇痛與躁動。</td></tr>
+        <td>作用時間可能比 Fentanyl 短，要留意再次呼吸抑制。<span class="nw">小劑量</span>分次給，可避免劇痛與躁動。</td></tr>
       <tr><th>Flumazenil<br><span class="note">拮抗 Midazolam</span></th>
-        <td>0.1 mg/mL。<span class="dose">0.2 mg</span> 靜脈注射，15 秒推完；<span class="nw">1 分鐘後</span>仍未清醒再給 0.2 mg，每分鐘可重複，<span class="k"><span class="nw">總量 1 mg</span></span>。</td>
-        <td>作用約 1 小時，之後可能再度嗜睡。長期使用苯二氮平類或有癲癇病史者，可能誘發戒斷或抽搐。</td></tr>
+        <td>0.1 mg/mL。<span class="dose">0.2 mg</span> 靜脈注射，15 秒推完；<span class="nw">等 45 秒</span>仍未清醒再給 0.2 mg，之後<span class="nw">每 60 秒</span>可重複，<span class="k"><span class="nw">總量 1 mg</span></span>。</td>
+        <td>作用時間比 Midazolam 短，之後可能再度嗜睡。長期使用苯二氮平類或有癲癇病史者，可能誘發戒斷或抽搐。</td></tr>
       <tr><th>Propofol</th><td colspan="2">沒有拮抗劑。停止給藥並維持呼吸，通常幾分鐘內恢復。</td></tr>
     </tbody>
   </table>
@@ -243,7 +246,7 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
   <h2><i>8</i>恢復與離院</h2>
   <ul class="dots">
     <li>改良 Aldrete 評分 ≥ 9 分，生命徵象回到基準值 ±20% 以內，可以自己走路。</li>
-    <li>最後一劑 Midazolam 後至少觀察 30 分鐘；<span class="k">用過拮抗劑的病人至少觀察 2 小時</span>，確認沒有再度嗜睡。</li>
+    <li>最後一劑 Midazolam 後至少觀察 30 分鐘；<span class="k">用過拮抗劑的病人至少觀察 2 小時</span><span class="tag">院內</span>，確認沒有再度嗜睡。</li>
     <li>需有親友陪同離院，當天不可開車、騎車（與本院輕中度鎮靜同意書一致）。</li>
   </ul>
 
@@ -252,9 +255,9 @@ ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
       ① ASGE. Guidelines for sedation and anesthesia in GI endoscopy. Gastrointest Endosc 2018;87:327–337.
       ② ASA. Practice guidelines for moderate procedural sedation and analgesia 2018. Anesthesiology 2018;128:437–479.
       ③ Dumonceau JM, et al. ESGE/ESGENA NAAP guideline update 2015. Endoscopy 2015;47:1175–1189.
-      ④ Midazolam 仿單（UK SmPC 4.2 節）。⑤ AHA ACLS 心搏過緩流程（2020 起 atropine 首劑 1 mg）。</p>
+      ④ Midazolam 仿單（UK SmPC 4.2 節）；Flumazenil 仿單（Pfizer）；Propofol 仿單（Diprivan）。⑤ AHA ACLS 心搏過緩流程（2020 起 atropine 首劑 1 mg）。⑥ 2024 多學會 GLP-1 受體促效劑圍術期建議<span class="nw">（ASA、AGA 等）</span>。</p>
     <p class="note" style="margin-top:.8mm"><span class="k" style="color:var(--ink)">說明</span>
-      標「院內」的重新評估點是本院設定，不是指引規定的上限。表列劑量為起始建議，實際依病人反應調整。Propofol 為第四級管制藥品，非麻醉專科醫師以 Propofol 執行鎮靜的國內資格規定，訂定本指引時未查到明確條文，啟用第 6 節前請先向衛生局確認。</p>
+      標「院內」的重新評估點是本院設定，不是指引規定的上限。表列劑量為起始建議，實際依病人反應調整。Propofol 為第四級管制藥品；衛福部說明 Propofol 應由受過麻醉或加護訓練、且不執行該處置的醫師給藥。非麻醉專科醫師使用的國內資格條文，訂定本指引時未查到，啟用第 6 節前請先向衛生局書面確認。Propofol 抽進空針後的使用時限請對照本院進貨廠牌仿單。</p>
   </div>
 
   <footer class="foot"><span>輕中度鎮靜用藥指引</span><span>第 2 頁／共 2 頁</span></footer>
@@ -269,7 +272,9 @@ const kwReady = document.fonts.ready.then(()=> keepWords());
 function fitReport(){
   return [...document.querySelectorAll(".page")].map(p=>{
     const f = p.querySelector(".foot");
-    return [p.dataset.file, Math.round(f.getBoundingClientRect().top - f.previousElementSibling.getBoundingClientRect().bottom)];
+    // .page 有 gap，要扣掉，否則內容超出時仍量到 gap 的寬度而放行
+    const gap = parseFloat(getComputedStyle(p).rowGap) || 0;
+    return [p.dataset.file, Math.round(f.getBoundingClientRect().top - f.previousElementSibling.getBoundingClientRect().bottom - gap)];
   });
 }
 async function renderAll(){
