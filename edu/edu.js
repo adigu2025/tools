@@ -476,7 +476,7 @@ function toggleMax(){
 }
 window.addEventListener('resize', ()=>{ if(main.dataset.view === 'edu') applyZoom(); });
 
-// 浮動工具列（標題框、按鈕列）：左端把手拖曳移動、雙擊回原位，右端按鈕收起或展開。
+// 浮動工具列（標題框、按鈕列）：外側把手拖曳移動、雙擊回原位，內側按鈕收起或展開。
 // 衛教與表單各有一組，同種的框共用位置與收起狀態，存在 hub-tb-head、hub-tb-ctrl。
 const TB_KINDS = {head:'.edu-head', ctrl:'.edu-ctrl'};
 const tbState = {};
@@ -515,14 +515,16 @@ Object.keys(TB_KINDS).forEach(kind=>{
     grip.title = '按住拖曳移動，雙擊回原位'; grip.setAttribute('aria-label', '移動工具列');
     const fold = document.createElement('button');
     fold.type = 'button'; fold.className = 'tb-fold';
-    if(kind === 'ctrl'){ box.prepend(fold); box.prepend(grip); }  // 按鈕列靠右，收起鈕放把手旁邊，收起後才不會跑到畫面外
+    // 兩側對稱：標題框把手在最左、往左收；按鈕列把手在最右、往右收
+    if(kind === 'ctrl'){ box.prepend(fold); box.append(grip); }
     else { box.prepend(grip); box.append(fold); }
     fold.addEventListener('click', ()=>{
-      // 按鈕列靠右對齊，寬度一變就會整個移位；補回差距，讓把手留在原地
-      const before = box.getBoundingClientRect().left;
+      // 收起或展開時把手那一側不動：標題框固定左緣，按鈕列固定右緣
+      const edge = ()=>{ const r = box.getBoundingClientRect(); return kind === 'ctrl' ? r.right : r.left; };
+      const before = edge();
       tbState[kind].fold = !tbState[kind].fold;
       tbApply(kind);
-      tbState[kind].x += Math.round(before - box.getBoundingClientRect().left);
+      tbState[kind].x += Math.round(before - edge());
       const c = tbClamp(box, tbState[kind].x, tbState[kind].y);
       Object.assign(tbState[kind], c); tbApply(kind); tbSave(kind);
     });
