@@ -27,7 +27,7 @@ const JOBS = {
   consent: {page: 'consent-src/pages.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
   guide:   {page: 'guide-src/sedation-guide.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
   analgesia: {page: 'guide-src/analgesia-guide.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
-  // 解剖圖稿：原圖在 edu-src/anatomy/，裁邊放大後輸出 A5（A4 上半頁），沒有文字所以不跑 fitReport
+  // 衛教示意圖（原名解剖圖稿）：原圖在 edu-src/anatomy/，裁邊放大（SVG 直接畫滿）後輸出 A5（A4 上半頁），沒有文字所以不跑 fitReport
   anatomy: {page: 'edu-src/anatomy.html', save: 'edu-src/out',  out: 'edu-src/out',          run: 'renderAll', min: null, wait: 0}
 };
 // consent-src/README.md 的串接順序

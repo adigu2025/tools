@@ -1,0 +1,41 @@
+<!--
+  定稿（草稿-肌肉脂肪與代謝圖稿.html 轉入，2026-11-26）：比照 tools 解剖圖稿（灰色線稿、無文字、A5 = A4 直式上半頁，左右各一格，四邊與中間留 10 mm）。
+  單位是 mm（viewBox 210 × 148.5）。線條灰 #c8c8c8（亮度約 200，同解剖圖稿）。
+  左格：兩個相同的人形（雙手上舉），2026-11-26 依 YT 要求改成較自然的體態，拿掉腹部虛線。
+    人形是自己重畫的幾何圖形（YT 2026-11-26 給的參考圖有版權，只取「簡約、雙手上舉」的方向，
+    頭、肩線、手臂角度、圓頭端點與腿型都另外設計），沒有描圖。
+  右格：熱量長條，依 YT 2026-11-26 手繪稿：兩柱同高；下方虛線同高（距頂 44%），上方虛線左 30%、右 16%。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2480" height="1754" viewBox="0 0 210 148.5">
+<style>
+  .ln{fill:none;stroke:#c8c8c8;stroke-width:.5;stroke-linecap:round;stroke-linejoin:round}
+  .dash{stroke-dasharray:1.6 1.4}
+</style>
+<rect width="210" height="148.5" fill="#fff"/>
+  <defs>
+    <!-- 人形：中線 x = 0，頭頂 y = 0，腳底 y = 81。圓頭與身體分開、雙手斜放、雙腿微開的簡約輪廓，
+         只取參考圖（iStock，有版權）的方向，尺寸與角度自己訂，沒有描圖 -->
+    <g id="person">
+      <circle cx="0" cy="10" r="10"/>
+      <path d="M0 23 H6 Q10 23 12.5 25.5 L19.5 39 A2.75 2.75 0 0 1 14.6 41.5 L10 32.6 V53
+        L13.5 77.5 A3.25 3.25 0 0 1 7 78.2 L2 58 Q0 55 -2 58 L-7 78.2 A3.25 3.25 0 0 1 -13.5 77.5
+        L-10 53 V32.6 L-14.6 41.5 A2.75 2.75 0 0 1 -19.5 39 L-12.5 25.5 Q-10 23 -6 23 Z"/>
+    </g>
+  </defs>
+
+  <!-- ===== 左：兩個相同人形，底部對齊右格長條底線 ===== -->
+  <g class="ln">
+    <use href="#person" transform="translate(32 35.9) scale(.94)"/>
+    <use href="#person" transform="translate(78 35.9) scale(.94)"/>  </g>
+
+  <!-- ===== 右：熱量長條 ===== -->
+  <g class="ln">
+    <line x1="118" y1="112" x2="194" y2="112"/>
+    <rect x="126" y="26" width="22" height="86"/>
+    <rect x="164" y="26" width="22" height="86"/>
+    <line class="dash" x1="126" y1="64" x2="148" y2="64"/>
+    <line class="dash" x1="164" y1="64" x2="186" y2="64"/>
+    <line class="dash" x1="126" y1="52" x2="148" y2="52"/>
+    <line class="dash" x1="164" y1="40" x2="186" y2="40"/>
+  </g>
+</svg>

@@ -1,0 +1,56 @@
+<!--
+  定稿（草稿-猛健樂週纖達用法圖稿.html 轉入，2026-11-26）：比照 tools 解剖圖稿（灰色線稿、無文字、A5 = A4 直式上半頁，四邊留 10 mm）。單位 mm。
+  上半部：一支水平擺放的注射筆。外型取猛健樂 KwikPen 與週纖達 FlexTouch 共通的部位
+    （筆蓋與筆夾、藥匣觀察窗、劑量窗、劑量旋鈕、注射按鈕），只畫輪廓，不照任何一家的原廠外觀。
+  下半部：三行，一個圓是一週打一次（2026-11-26 YT 要求第 2、3 行互換，半圓中間不畫線）：
+    第 1 行：標準劑量 4 格（實心圓）＝ 4 週
+    第 2 行：減半 4 格＋標準 2 格 ＝ 6 週
+    第 3 行：減半 8 格（半圓）＝ 8 週
+  三行加起來都是 4 個實心圓的量（一支筆），文字之後在工作台排版時再加。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2480" height="1754" viewBox="0 0 210 148.5">
+<style>
+  .ln{fill:none;stroke:#c8c8c8;stroke-width:.5;stroke-linecap:round;stroke-linejoin:round}
+  .dash{stroke-dasharray:1.6 1.4}
+  .fill{fill:#e4e4e4}
+  .nostroke{stroke:none}
+</style>
+<rect width="210" height="148.5" fill="#fff"/>
+  <defs>
+    <!-- 一週一格：圓心 (0,0)，半徑 5.5；半圓只填左半，不畫中線 -->
+    <g id="full"><circle class="fill" r="5.5"/></g>
+    <g id="half"><path class="fill nostroke" d="M0 -5.5 A5.5 5.5 0 0 0 0 5.5 Z"/><circle r="5.5"/></g>
+  </defs>
+
+  <!-- ===== 上半部：水平注射筆（y 10 至 69，中線 y 40） ===== -->
+  <!-- 依 YT 給的 KwikPen 照片取輪廓：圓頂長筆蓋＋長筆夾、筆身、劑量窗、收窄的頸部、有稜紋的劑量旋鈕；不放任何商標文字 -->
+  <g class="ln" transform="translate(2.5 0)">
+    <!-- 筆蓋（左端圓頂）與長筆夾 -->
+    <path d="M105 32 H35 C28 32 25 36 25 40 C25 44 28 48 35 48 H105 Z"/>
+    <rect x="40" y="29.8" width="62" height="4.6" rx="2.3" style="fill:#fff"/>
+    <!-- 筆身與劑量窗 -->
+    <rect x="105" y="32.5" width="55" height="15"/>
+    <rect x="145" y="37" width="10" height="7" rx="1"/>
+    <!-- 頸部與劑量旋鈕（稜紋） -->
+    <rect x="160" y="34.5" width="5" height="11"/>
+    <rect x="165" y="33" width="15" height="14" rx="2.5"/>
+    <line x1="168.5" y1="34.5" x2="168.5" y2="45.5"/>
+    <line x1="172.5" y1="34.5" x2="172.5" y2="45.5"/>
+    <line x1="176.5" y1="34.5" x2="176.5" y2="45.5"/>
+  </g>
+
+  <line class="ln dash" x1="10" y1="74.25" x2="200" y2="74.25"/>
+
+  <!-- ===== 下半部：三行週數（y 79.5 至 138.5），水平置中 ===== -->
+  <g class="ln" transform="translate(49 91.5)">
+    <use href="#full" x="0"/><use href="#full" x="16"/><use href="#full" x="32"/><use href="#full" x="48"/>
+    <g transform="translate(0 17.5)">
+      <use href="#half" x="0"/><use href="#half" x="16"/><use href="#half" x="32"/><use href="#half" x="48"/>
+      <use href="#full" x="64"/><use href="#full" x="80"/>
+    </g>
+    <g transform="translate(0 35)">
+      <use href="#half" x="0"/><use href="#half" x="16"/><use href="#half" x="32"/><use href="#half" x="48"/>
+      <use href="#half" x="64"/><use href="#half" x="80"/><use href="#half" x="96"/><use href="#half" x="112"/>
+    </g>
+  </g>
+</svg>

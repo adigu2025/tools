@@ -26,7 +26,8 @@ const EDU_GROUPS = [
   {key:'med',      label:'用藥與疫苗'},
   {key:'wound',   label:'傷口照護'},
   // 2026/11/20 新增：門診衛教時手繪說明用的解剖線稿（A5，不放頁首、頁尾、QR code、LOGO，YT 明講的例外）
-  {key:'anatomy', label:'解剖圖稿'},
+  // 2026/11/26 改名「衛教示意圖」並加入肌肉脂肪、腸泌素筆針兩張（key 維持 anatomy）
+  {key:'anatomy', label:'衛教示意圖'},
 ];
 const svgIcon = d=> `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.14em;display:inline-block" aria-hidden="true">${d}</svg>`;
 const ICON_DOC = svgIcon('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>');
@@ -132,9 +133,11 @@ const EDU_LIST = [
   ['med',    '疫苗',     'A 型肝炎疫苗',     ICON.syringe,  ['img/edu-a5-vaccine-hav.webp'], 'A5'],
   ['wound',  '',         '傷口處理衛教',     ICON.bandage,  ['img/edu-wound-care-1.webp', 'img/edu-wound-care-2.webp']],
   ['wound',  '',         '頭部傷口衛教',     ICON.head,     ['img/edu-head-injury-1.webp', 'img/edu-head-injury-2.webp']],
-  // 解剖圖稿：原圖與產生頁在 edu-src/anatomy.html（node kit/render-images.js anatomy）
+  // 衛教示意圖：原圖與產生頁在 edu-src/anatomy.html（node kit/render-images.js anatomy）
   ['anatomy', '',        '胃與大腸',         ICON.stomach,  ['img/edu-a5-anatomy-upper-gi.webp'], 'A5'],
   ['anatomy', '',        '肝膽與胰臟',       ICON.liver,    ['img/edu-a5-anatomy-hepatobiliary.webp'], 'A5'],
+  ['anatomy', '',        '肌肉脂肪與代謝',   ICON.scale,    ['img/edu-a5-anatomy-muscle-fat.webp'], 'A5'],
+  ['anatomy', '',        '猛健樂週纖達用法', ICON.syringe,  ['img/edu-a5-anatomy-glp1-pen.webp'], 'A5'],
 ];
 const EDU = EDU_LIST.map(([group, sec, label, icon, pages, size])=>{
   const a5 = size === 'A5';

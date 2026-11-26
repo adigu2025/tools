@@ -2,9 +2,9 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<title>解剖圖稿產生</title>
+<title>衛教示意圖產生</title>
 <!--
-  解剖圖稿（門診衛教手繪用的線稿）：產生工作台「解剖圖稿」分類的 A5 圖。
+  衛教示意圖（門診衛教手繪用的線稿，2026-11-26 由「解剖圖稿」改名）：產生工作台「衛教示意圖」分類的 A5 圖。
   用法（在 tools 資料夾）：node kit/render-images.js anatomy
   原圖在 edu-src/anatomy/（2480 × 1748，A5 橫式，左右各一個器官）。
   做法：每張原圖從中間最寬的空白欄切成左右兩個器官，各自裁到線條邊界，
@@ -14,6 +14,8 @@
   灰階（YT 2026-11-24）：黑線改成原本大腸圖中小腸線的灰（亮度約 200），原本的小腸淡線再淡一些（約 225）。
   做法見 toGray()：以「深度 = 255 − 亮度」計算，新深度 = GRAY_DARK ×（（舊深度 − GRAY_FLOOR）÷（255 − GRAY_FLOOR））^ GRAY_GAMMA。
   輸出的圖是整張 A4 直式（下半頁空白），跟其他 A5 衛教單同一套列印方式。
+  SVG 原圖（JOBS 有 svg 的項目，2026-11-26 新增）：本來就是 A5 版面（viewBox 210 × 148.5 mm，邊距與灰線已畫好），
+  不切左右、不調灰，直接畫滿 A4 上半頁。
 -->
 </head>
 <body>
@@ -21,6 +23,8 @@
 const JOBS = [
   {src: 'anatomy/upper-gi.png',      out: 'edu-a5-anatomy-upper-gi', scale: [0.75, 1]},   // 左邊上消化道縮成 75%（YT 2026-11-22）
   {src: 'anatomy/hepatobiliary.png', out: 'edu-a5-anatomy-hepatobiliary'},
+  {svg: 'anatomy/muscle-fat.svg',     out: 'edu-a5-anatomy-muscle-fat'},   // 肌肉脂肪與代謝（2026-11-26）
+  {svg: 'anatomy/glp1-pen.svg',       out: 'edu-a5-anatomy-glp1-pen'},     // 猛健樂週纖達用法（2026-11-26）
 ];
 const PAGE_W = 2480, PAGE_H = 3508, A5_H = 1754;
 const MM = 300 / 25.4, PAD = Math.round(10 * MM), GAP = Math.round(10 * MM);
@@ -72,6 +76,7 @@ function toGray(c){
   g.putImageData(img, 0, 0);
 }
 async function build(job){
+  if(job.svg) return buildSvg(job);
   const im = await load(job.src);
   const m = inkMap(im), mid = splitX(m);
   const parts = [bbox(m, 0, mid), bbox(m, mid, m.w)];
@@ -90,6 +95,15 @@ async function build(job){
   });
   toGray(c);
   return {canvas: c, info: info.join('，')};
+}
+// SVG 原圖已是 A5 版面：畫滿 A4 上半頁，下半頁白底
+async function buildSvg(job){
+  const im = await load(job.svg);
+  const c = document.createElement('canvas'); c.width = PAGE_W; c.height = PAGE_H;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, PAGE_W, PAGE_H);
+  g.drawImage(im, 0, 0, PAGE_W, A5_H);
+  return {canvas: c, info: 'SVG 畫滿 A5'};
 }
 async function renderAll(only){
   const log = [];
