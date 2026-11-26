@@ -2,7 +2,7 @@
      node kit/render-images.js                     列出可以產生的項目
      node kit/render-images.js a5                  重新產生全部 A5 衛教單
      node kit/render-images.js a5 edu-a5-gerd edu-a5-fatty-liver   只產生這幾張
-     node kit/render-images.js all                 全部重新產生（a5、cards、patch、consent、guide）
+     node kit/render-images.js all                 全部重新產生（a5、cards、patch、consent、guide、analgesia）
    加上 --no-copy 只輸出到各原始檔資料夾的 out/，不複製到 img/。
 
    做的事（原本 edu-src、consent-src、guide-src README 的手動步驟）：
@@ -26,6 +26,7 @@ const JOBS = {
   patch:   {page: 'edu-src/patch.html',  save: 'edu-src/out',  out: 'edu-src/out',          run: 'saveAll',   min: null, wait: 3000},
   consent: {page: 'consent-src/pages.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
   guide:   {page: 'guide-src/sedation-guide.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
+  analgesia: {page: 'guide-src/analgesia-guide.html', save: 'consent-src', out: 'consent-src/out/tools', run: 'renderAll', min: 1, wait: 0},
   // 解剖圖稿：原圖在 edu-src/anatomy/，裁邊放大後輸出 A5（A4 上半頁），沒有文字所以不跑 fitReport
   anatomy: {page: 'edu-src/anatomy.html', save: 'edu-src/out',  out: 'edu-src/out',          run: 'renderAll', min: null, wait: 0}
 };

@@ -163,6 +163,7 @@ let FORMS = [
   {group:'ctrl', label:'冷凝刀手術紀錄', note:'共 1 頁', pages:[], kind:'html', rows:HET_ROWS_DEF, html(){ return formHetHtml(this.rows); }},
   // 院內作業指引，版面原始檔在 guide-src/
   {group:'ctrl', label:'鎮靜指引', note:'共 2 頁', pages:[W('img/guide-sedation-1.webp'), W('img/guide-sedation-2.webp')], kind:'img'},
+  {group:'ctrl', label:'止痛指引', note:'共 2 頁', pages:[W('img/guide-analgesia-1.webp'), W('img/guide-analgesia-2.webp')], kind:'img'},
 ].concat([
   {label:'胃鏡同意書',       file:'gastroscopy', pages:2},
   {label:'大腸鏡同意書',     file:'colonoscopy', pages:2},

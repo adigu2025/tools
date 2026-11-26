@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>止痛用藥指引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#222; --sub:#5f6368; --faint:#8a8f94; --line:#d6d9dc; --head:#f3f4f5; --row:#fafafa;
+  --warn:#b3261e; --warn-bg:#fdf3f2; --care-bg:#fff9e8; --care-line:#e3c26a;
+}
+@page{size:A4 portrait; margin:0;}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{background:#e4e6e8;}
+body{font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:var(--ink);
+  font-size:9.2pt; line-height:1.5; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+.page{width:210mm; height:297mm; margin:8mm auto; background:#fff; padding:10mm 13mm 8mm;
+  overflow:hidden; display:flex; flex-direction:column; gap:1.4mm;}
+@media print{ html,body{background:#fff;} .page{margin:0; break-after:page;} .page:last-child{break-after:auto;} }
+
+/* 頁首 */
+.head{display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1.5px solid var(--ink); padding-bottom:1.8mm;}
+.head h1{font-size:16pt; font-weight:700; letter-spacing:.03em; line-height:1.25;}
+.head .sub{font-size:8.6pt; color:var(--sub); margin-top:.6mm;}
+.head .meta{text-align:right; font-size:8pt; color:var(--sub); line-height:1.5;}
+.head.mini h1{font-size:12pt;}
+
+/* 章節標題 */
+h2{font-size:11pt; font-weight:700; display:flex; align-items:baseline; gap:2mm; margin-top:1.3mm;
+  padding-bottom:.8mm; border-bottom:1px solid var(--line);}
+h2 i{font-style:normal; font-size:9pt; color:#fff; background:#555; border-radius:50%; width:5mm; height:5mm;
+  display:inline-flex; align-items:center; justify-content:center; flex:none; transform:translateY(-.3mm);}
+h2 small{font-weight:400; font-size:8.4pt; color:var(--sub); margin-left:auto;}
+h3{font-size:9.6pt; font-weight:700; margin-bottom:.6mm;}
+h3.sep{margin-top:1.6mm; padding-top:1.4mm; border-top:1px dashed var(--line);}
+
+/* 表格 */
+table{width:100%; border-collapse:collapse; font-size:8.8pt; line-height:1.42;}
+th,td{border:1px solid var(--line); padding:.9mm 1.8mm; vertical-align:middle; text-align:left;}
+thead th{background:var(--head); font-weight:700; text-align:center; font-size:8.6pt;}
+tbody th{font-weight:700; white-space:nowrap; background:var(--row);}
+td.c{text-align:center;}
+.dose{font-weight:700; font-size:9.6pt;}
+.ml{color:var(--sub); font-size:8.4pt; margin-left:1.2mm;}
+tr.key td, tr.key th{background:var(--care-bg);}
+.tag{display:inline-block; font-size:7.4pt; font-weight:400; color:var(--sub); border:1px solid var(--faint);
+  border-radius:1mm; padding:0 1mm; margin-left:1.2mm; vertical-align:1px;}
+
+/* 區塊 */
+.note{font-size:8pt; color:var(--sub); line-height:1.45;}
+.box{border:1px solid var(--line); border-radius:1.4mm; padding:1.6mm 2.8mm;}
+.box.care{background:var(--care-bg); border-color:var(--care-line);}
+.box.warn{background:var(--warn-bg); border:1px solid #efc5c1; border-left:3px solid var(--warn);}
+.warn-t{color:var(--warn); font-weight:700;}
+ul.dots{padding-left:4.4mm;} ul.dots li{margin:.3mm 0;}
+.box ul.dots{padding-left:4mm;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:2.6mm;}
+.k{font-weight:700;}
+
+/* 給藥順序 */
+.flow{display:grid; grid-template-columns:repeat(4,1fr); gap:2.4mm; counter-reset:st;}
+.flow .st{border:1px solid var(--line); border-radius:1.4mm; padding:1.4mm 2.2mm; position:relative;}
+.flow .st b{display:block; font-size:9.6pt;}
+.flow .st .n{font-size:7.6pt; color:var(--faint);}
+.flow .st:not(:last-child)::after{content:"›"; position:absolute; right:-1.2mm; top:50%; transform:translate(50%,-55%);
+  color:var(--faint); font-size:13pt; line-height:1;}
+
+.foot{margin-top:auto; border-top:1px solid var(--line); padding-top:1.4mm; display:flex; justify-content:space-between;
+  font-size:7.8pt; color:var(--faint);}
+.shot .page{margin:0 auto;}
+.nw{white-space:nowrap;}
+.tag.todo{color:var(--warn); border-color:var(--warn);}
+</style>
+</head>
+<body>
+
+<!-- ═════════ 第 1 頁 ═════════ -->
+<section class="page" data-file="guide-analgesia-1">
+  <header class="head">
+    <div>
+      <h1>止痛用藥指引</h1>
+      <div class="sub">適用痔瘡治療、皮膚小手術、鎮靜內視鏡｜Lidocaine 緩衝液、Ketoprofen、Fentanyl</div>
+    </div>
+    <div class="meta">院內作業標準<br>版本 2026-11-26</div>
+  </header>
+
+  <h2><i>1</i>本院藥品劑型與配製<small>灰字為抽取量</small></h2>
+  <table>
+    <thead><tr>
+      <th style="width:15%">藥品</th><th style="width:21%">本院劑型</th><th style="width:28%">配製</th>
+      <th style="width:14%">換算</th><th style="width:22%">給法</th>
+    </tr></thead>
+    <tbody>
+      <tr><th>Lidocaine<br>緩衝液</th><td>2% Lidocaine（20 mg/mL）<br>7% NaHCO₃</td>
+        <td><span class="nw">2% Lidocaine 9 mL</span>＋<span class="nw">7% NaHCO₃ 1 mL</span>，<span class="nw">共 10 mL</span>，<span class="k">現配現用</span></td>
+        <td class="c nw">1 mL = 18 mg</td>
+        <td>局部浸潤注射</td></tr>
+      <tr><th>Ketoprofen</th><td>可多普洛菲<br><span class="nw">25 mg/mL，每支 2 mL</span></td>
+        <td>肌肉注射不稀釋；<span class="nw">點滴依第 4 節</span></td>
+        <td class="c nw">1 mL = 25 mg</td>
+        <td>肌肉注射<span class="tag">仿單</span><br>靜脈點滴<span class="tag">仿單外</span></td></tr>
+      <tr><th>Fentanyl</th><td><span class="nw">0.05 mg/mL，每支 2 mL</span><br><span class="note">第二級管制藥品</span></td>
+        <td>不稀釋，用 3 mL 空針，<span class="nw">貼藥名與濃度</span></td>
+        <td class="c nw">1 mL = 50 mcg</td>
+        <td>靜脈注射，緩慢推</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Lidocaine 緩衝液與 Fentanyl 都是透明液體，用不同大小的空針並標示。配好的緩衝液出現混濁或沉澱就不要用。</p>
+
+  <h2><i>2</i>各情境的用藥組合</h2>
+  <table>
+    <thead><tr><th style="width:16%">情境</th><th style="width:28%">局部麻醉</th><th style="width:30%">靜脈止痛</th><th style="width:26%">監測</th></tr></thead>
+    <tbody>
+      <tr><th>痔瘡治療</th><td>Lidocaine 緩衝液局部浸潤<span class="nw">（第 3 節）</span></td>
+        <td>疼痛明顯時 Fentanyl 分次給<span class="nw">（第 5 節）</span></td><td rowspan="2">只用局部麻醉：生命徵象與意識<br>加用 Fentanyl：依鎮靜指引<span class="nw">第 5 節</span></td></tr>
+      <tr><th>皮膚小手術</th><td>Lidocaine 緩衝液局部浸潤<span class="nw">（第 3 節）</span></td>
+        <td>視需要 Fentanyl 分次給<span class="nw">（第 5 節）</span></td></tr>
+      <tr><th>鎮靜內視鏡</th><td>不使用</td>
+        <td>Fentanyl 依鎮靜指引<span class="nw">第 4 節</span></td><td>依鎮靜指引<span class="nw">第 5 節</span></td></tr>
+      <tr><th>處置後疼痛</th><td colspan="3">Ketoprofen 肌肉注射或加入點滴<span class="nw">（第 4 節）</span>，先確認沒有禁忌。</td></tr>
+    </tbody>
+  </table>
+
+  <h2><i>3</i>Lidocaine 緩衝液<small>最大量依 Xylocaine 仿單（不含 epinephrine）</small></h2>
+  <div class="grid2">
+    <div>
+      <table>
+        <thead><tr><th style="width:30%">體重</th><th>最大量</th></tr></thead>
+        <tbody>
+          <tr><th>每公斤</th><td><span class="dose">4.5 mg/kg</span><span class="ml">0.25 mL/kg</span></td></tr>
+          <tr><th>40 kg</th><td><span class="dose">180 mg</span><span class="ml">10 mL，配好的一份</span></td></tr>
+          <tr><th>50 kg</th><td><span class="dose">225 mg</span><span class="ml">12.5 mL</span></td></tr>
+          <tr><th>60 kg</th><td><span class="dose">270 mg</span><span class="ml">15 mL</span></td></tr>
+          <tr class="key"><th>67 kg 以上</th><td><span class="dose">總量不超過 300 mg</span><span class="ml">16.5 mL</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="box">
+      <h3>注射時</h3>
+      <ul class="dots">
+        <li>每次推藥前先回抽，沒有回血才推；分次、緩慢注射。</li>
+        <li>用量隨手累計，寫進處置紀錄。</li>
+        <li>老年、虛弱、肝功能不良、心臟衰竭的病人<span class="k">減量</span>。</li>
+        <li>注射中與注射後留意第 7 節的中毒徵象。</li>
+      </ul>
+      <h3 class="sep">不使用</h3>
+      <p>對 amide 類局部麻醉劑（Lidocaine 等）過敏。</p>
+    </div>
+  </div>
+  <p class="note">表列為上限，不是目標量；小範圍處置通常遠低於此。配好後可存放多久沒有本院可依循的仿單資料，一律現配現用，用剩的丟棄。</p>
+
+  <h2><i>4</i>Ketoprofen（可多普洛菲）</h2>
+  <table>
+    <thead><tr><th style="width:18%">給法</th><th style="width:52%">劑量</th><th style="width:30%">依據</th></tr></thead>
+    <tbody>
+      <tr><th>肌肉注射</th>
+        <td>每次 <span class="dose">50 至 100 mg</span><span class="ml">2 至 4 mL</span>，一日 1 至 2 次</td>
+        <td>仿單</td></tr>
+      <tr class="key"><th>靜脈點滴</th>
+        <td>單次與每日總量不超過肌肉注射的仿單用量（<span class="nw">每日 200 mg</span>）。<span class="nw">稀釋量與滴注時間：</span><span class="tag todo">待確認</span></td>
+        <td>仿單外使用，<span class="nw">院內做法</span>；病歷寫明給法與劑量</td></tr>
+    </tbody>
+  </table>
+  <div class="grid2">
+    <div class="box warn">
+      <span class="warn-t">不使用（仿單禁忌）：</span>血液異常、肝障害、腎障害、心機能不全；曾因 Aspirin 誘發氣喘；冠狀動脈繞道手術後 14 天內；懷孕 30 週以上。
+    </div>
+    <div class="box care">
+      <span class="k">小心使用：</span>懷孕 20 週以上只用最低劑量（仿單）；消化性潰瘍或消化道出血病史、併用抗凝血劑或抗血小板藥物、高齡、脫水。
+    </div>
+  </div>
+
+  <footer class="foot"><span>止痛用藥指引</span><span>第 1 頁／共 2 頁</span></footer>
+</section>
+
+<!-- ═════════ 第 2 頁 ═════════ -->
+<section class="page" data-file="guide-analgesia-2">
+  <header class="head mini">
+    <div>
+      <h1>止痛用藥指引</h1>
+      <div class="sub">Fentanyl 劑量與管藥紀錄、局部麻醉劑中毒處置</div>
+    </div>
+    <div class="meta">院內作業標準<br>版本 2026-11-26</div>
+  </header>
+
+  <h2><i>5</i>Fentanyl<small>劑量與鎮靜指引一致</small></h2>
+  <table>
+    <thead><tr>
+      <th style="width:16%"></th><th style="width:21%">標準組</th><th style="width:21%">減量組</th><th style="width:42%">說明</th>
+    </tr></thead>
+    <tbody>
+      <tr><th>起始量</th>
+        <td><span class="dose">50 mcg</span><span class="ml">1 mL</span></td>
+        <td><span class="dose">25 mcg</span><span class="ml">0.5 mL</span></td>
+        <td rowspan="3">分組條件見鎮靜指引第 2 節。約 1 分鐘緩慢推完，等作用高峰（3 至 5 分鐘）再決定追加。</td></tr>
+      <tr><th>每次追加</th>
+        <td><span class="dose">25 mcg</span><span class="ml">0.5 mL</span></td>
+        <td><span class="dose">25 mcg</span><span class="ml">0.5 mL</span></td></tr>
+      <tr><th>追加間隔</th><td>至少 5 分鐘</td><td>至少 5 分鐘</td></tr>
+      <tr class="key"><th>重新評估點<span class="tag">院內</span></th>
+        <td><span class="dose">累積 100 mcg</span><span class="ml">1 支</span></td>
+        <td><span class="dose">累積 50 mcg</span></td>
+        <td>不是藥品上限。仿單小手術低劑量為 2 μg/kg；再加藥前先確認局部麻醉是否足夠。</td></tr>
+    </tbody>
+  </table>
+  <div class="grid2">
+    <div class="box warn">
+      <span class="warn-t">與 Midazolam 併用：</span>仿單警示可能重度鎮靜、呼吸抑制甚至死亡。先給 Fentanyl，Midazolam 依鎮靜指引<span class="nw">第 4 節</span>減量給。老年人與虛弱病人劑量宜降低。
+    </div>
+    <div class="box">
+      <span class="k">拮抗：</span>Naloxone 0.4 mg/mL 1 支＋生理食鹽水 9 mL，成為 <span class="nw">0.04 mg/mL</span>；每次 <span class="dose">0.04 至 0.1 mg</span>，每 2 分鐘可重複。作用時間可能比 Fentanyl 短，<span class="nw">要再觀察</span>。
+    </div>
+  </div>
+  <p class="note">不使用：對 Fentanyl 或 morphine 類藥物過敏（仿單）。監測、停藥條件與恢復離院，依鎮靜指引第 5、7、8 節。</p>
+
+  <h2><i>6</i>管藥紀錄與殘餘量銷燬<small>對照「管制藥品專用處方箋及使用紀錄單」</small></h2>
+  <table>
+    <thead><tr><th style="width:22%">時間點</th><th>紀錄單上要寫的欄位</th></tr></thead>
+    <tbody>
+      <tr><th>開立時</th><td>處方日期、病患基本資料（姓名、身分證號、出生日期、病歷號、疾病名稱、性別）、用量用法、<span class="nw">單次調劑總量</span>、處方醫師簽章與使用執照號。表頭寫藥品名稱及規格、許可證字號、藥品單位。</td></tr>
+      <tr><th>給藥後</th><td>給藥時間、給藥者簽章。實際用量與麻醉或處置紀錄一致。</td></tr>
+      <tr class="key"><th>殘餘量當場銷燬</th><td>一支只給一位病人，用剩的不留到下一位。銷燬時間、銷燬數量（寫 mL），<span class="k">兩位互證人簽章</span>，再更新藥品存量。</td></tr>
+      <tr><th>保存</th><td>紀錄單交由藥局保存五年備查。空安瓿與存量依本院管藥盤點流程處理。</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Lidocaine 與 Ketoprofen 不是管制藥品，不必寫在這張單上，用量寫進處置紀錄。</p>
+
+  <h2><i>7</i>局部麻醉劑全身毒性（LAST）<small>依 ASRA 2020 checklist</small></h2>
+  <div class="box warn">
+    <span class="warn-t">徵象：</span>嘴唇或舌頭麻、金屬味、耳鳴、頭暈、躁動、說話不清楚，接著可能抽搐、意識喪失、心律不整、心跳停止。也可能直接出現心血管症狀。
+  </div>
+  <table>
+    <thead><tr><th style="width:20%">步驟</th><th>處置</th></tr></thead>
+    <tbody>
+      <tr><th>立刻</th><td>停止注射，呼叫幫忙；維持呼吸道，給 100% 氧氣；準備 20% 脂肪乳劑。</td></tr>
+      <tr><th>抽搐</th><td>首選 benzodiazepine（例如 Midazolam）；血壓不穩時不用 Propofol。</td></tr>
+      <tr class="key"><th>20% 脂肪乳劑</th><td><span class="k">體重 &gt; 70 kg：</span>2 至 3 分鐘推 100 mL，再於 15 至 20 分鐘滴完 200 至 250 mL。<br><span class="k">體重 ≤ 70 kg：</span>2 至 3 分鐘推 1.5 mL/kg（理想體重），再以每分鐘 0.25 mL/kg 滴注。<br>仍不穩定：再推 1 至 2 次、滴速加倍；總量上限約 12 mL/kg。</td></tr>
+      <tr><th>心跳停止</th><td>依 ACLS 急救；epinephrine 每次 ≤ 1 mcg/kg。不用 vasopressin、鈣離子阻斷劑、β 阻斷劑或<span class="nw">其他局部麻醉劑</span>。</td></tr>
+      <tr><th>之後</th><td>只有神經症狀至少觀察 2 小時；出現心血管症狀至少觀察 4 小時，必要時轉院。</td></tr>
+    </tbody>
+  </table>
+  <p class="note">本院急救車是否備有 20% 脂肪乳劑與存放位置：<span class="tag todo">待確認</span></p>
+
+  <div class="box" style="margin-top:1.4mm">
+    <p class="note"><span class="k" style="color:var(--ink)">依據</span>
+      ① Xylocaine（lidocaine HCl）注射液仿單（美國 DailyMed），最大建議劑量。
+      ② Neal JM, et al. ASRA Local Anesthetic Systemic Toxicity checklist: 2020 version. Reg Anesth Pain Med 2021;46:81–82.
+      ③ 可多普洛菲肌肉注射液仿單（衛署藥製字第 037252 號，2025-07-21 版）。
+      ④ 吩坦尼注射液仿單（衛署藥製字第 044332 號，2023-02-24 版）。
+      ⑤ 本院輕中度鎮靜用藥指引（2026-11-26 版）。</p>
+    <p class="note" style="margin-top:.8mm"><span class="k" style="color:var(--ink)">說明</span>
+      Lidocaine 的最大量採美國仿單，台灣廠牌仿單尚未核對。Ketoprofen 靜脈點滴為仿單外使用。標「院內」的重新評估點是本院設定，不是上限；表列劑量為建議，實際依病人反應調整。</p>
+  </div>
+
+  <footer class="foot"><span>止痛用藥指引</span><span>第 2 頁／共 2 頁</span></footer>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="../kit/keep-words.js"></script>
+<script>
+// 詞語不跨行（kit/keep-words.js）：字型載入後先把詞語包起來，fitReport 與 renderAll 量到的就是最後的版面
+const kwReady = document.fonts.ready.then(()=> keepWords());
+// 輸出：用 consent-src/serve.ps1 開本頁，主控台執行 await renderAll()，WebP 存進 consent-src/out/tools/
+function fitReport(){
+  return [...document.querySelectorAll(".page")].map(p=>{
+    const f = p.querySelector(".foot");
+    // .page 有 gap，要扣掉，否則內容超出時仍量到 gap 的寬度而放行
+    const gap = parseFloat(getComputedStyle(p).rowGap) || 0;
+    return [p.dataset.file, Math.round(f.getBoundingClientRect().top - f.previousElementSibling.getBoundingClientRect().bottom - gap)];
+  });
+}
+async function renderAll(){
+  await kwReady;
+  await document.fonts.ready;
+  document.body.classList.add("shot");
+  const res = [];
+  for(const el of document.querySelectorAll(".page")){
+    const canvas = await html2canvas(el, {scale: 1414 / 794, backgroundColor:"#ffffff", useCORS:true, logging:false});
+    const webp = await new Promise(r=> canvas.toBlob(r, "image/webp", 0.9));
+    await fetch("/__save?name=out/tools/" + el.dataset.file + ".webp", {method:"POST", body:webp});
+    res.push([el.dataset.file, canvas.width, canvas.height]);
+  }
+  document.body.classList.remove("shot");
+  return res;
+}
+</script>
+</body>
+</html>

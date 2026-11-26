@@ -8,9 +8,9 @@
 
 ## 輸出步驟
 
-一個指令：`node kit/render-images.js guide`（在 tools 資料夾）。以下是手動步驟：
+一個指令（在 tools 資料夾）：鎮靜指引 `node kit/render-images.js guide`，止痛指引 `node kit/render-images.js analgesia`。以下是手動步驟：
 
-1. 執行 `consent-src/serve.ps1`（PowerShell），用瀏覽器打開 `http://localhost:8769/guide-src/sedation-guide.html`。
+1. 執行 `consent-src/serve.ps1`（PowerShell），用瀏覽器打開 `http://localhost:8769/guide-src/` 底下要輸出的那一份。
 2. 主控台執行 `fitReport()`，每頁數字都要大於 0（等於 0 代表內容壓到頁尾）。
 3. 執行 `await renderAll()`，WebP 存進 `consent-src/out/tools/`。
 4. 複製到工作台的 `img/`，`sw.js` 的快取版號加一，頁數有變時改 `edu/edu.js` 的 `FORMS`，並更新 `revision.js`。
