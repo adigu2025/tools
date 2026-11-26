@@ -200,4 +200,6 @@ async function main(){
   }
   console.log('完成');
 }
-main().catch(e=> fail(e.message));
+// 給 tests/fit.test.js 共用：被 require 時不執行輸出
+module.exports = {JOBS, findBrowser, startServer, openBrowser, parseFit};
+if(require.main === module) main().catch(e=> fail(e.message));
